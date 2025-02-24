@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Shuffled Letters</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 20px;
+      transition: background-color 0.3s, color 0.3s;
+    }
+
+    .container {
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    #input-container, #marquee-container, #control-container, #other-settings-container {
+      margin-bottom: 20px;
+      text-align: center;
+    }
+
+    label {
+      font-weight: bold;
+      display: block;
+      margin-bottom: 5px;
+    }
+
+    #marquee-input {
+      width: 100%;
+      min-height: 300px;
+      padding: 10px;
+      font-size: 16px;
+      resize: vertical;
+      box-sizing: border-box;
+      white-space: pre-wrap;
+      word-wrap: break-word;
+    }
+
+    #delay-input {
+      width: 100px;
+      padding: 5px;
+      font-size: 16px;
+      text-align: center;
+    }
+
+    #marquee-container {
+      width: 100%;
+      height: 60px;
+      overflow: hidden;
+      position: relative;
+      border: 2px solid;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+      direction: ltr;
+    }
+
+    #marquee-text {
+      position: absolute;
+      white-space: nowrap;
+      font-size: 20px;
+      line-height: 60px;
+      text-align: right;
+    }
+
+    button {
+      padding: 10px 20px;
+      font-size: 16px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+
+    #start-pause-button, #stop-button {
+      background-color: rgb(25, 135, 84);
+      color: white;
+    }
+
+    #start-pause-button.pause {
+      background-color: rgb(218, 104, 11);
+    }
+
+    #start-pause-button:hover:not(.pause) {
+      background-color: rgb(21, 115, 71);
+    }
+
+    #start-pause-button.pause:hover {
+      background-color: rgb(194, 93, 10);
+    }
+
+    #stop-button {
+      background-color: rgb(187, 45, 59);
+    }
+
+    #stop-button:hover {
+      background-color: rgb(187, 45, 59);
+    }
+
+    #theme-button {
+      background-color: rgb(11, 166, 197);
+      color: white;
+    }
+
+    #theme-button:hover {
+      background-color: rgb(9, 130, 153);
+    }
+
+    #clear-button, #fetch-1-button, #fetch-2-button, #fetch-3-button {
+      background-color: rgb(108, 117, 125);
+      color: white;
+      display: inline-block;
+    }
+
+    #clear-button:hover, #fetch-1-button:hover, #fetch-2-button:hover, #fetch-3-button:hover {
+      background-color: rgb(92, 99, 106);
+    }
+
+    #save-button {
+      background-color: rgb(13, 110, 253);
+      color: white;
+      display: inline-block;
+    }
+
+    #save-button:hover {
+      background-color: rgb(11, 94, 215);
+    }
+
+    #reset-button {
+      background-color: rgb(33, 37, 41);
+      color: white;
+      display: inline-block;
+    }
+
+    #reset-button:hover {
+      background-color: rgb(66, 70, 73);
+    }
+
+    body.light {
+      background-color: #f9f9f9;
+      color: #333;
+    }
+
+    body.light #marquee-container {
+      background-color: #f0f0f0;
+      border-color: #333;
+    }
+
+    body.light #marquee-input {
+      background-color: #f0f0f0;
+      border-color: #333;
+      color: black;
+    }
+
+    body.dark {
+      background-color: #1a1a1a;
+      color: #e0e0e0;
+    }
+
+    body.dark #marquee-container {
+      background-color: #2a2a2a;
+      border-color: #e0e0e0;
+    }
+
+    body.dark #marquee-input {
+      background-color: #2a2a2a;
+      border-color: #e0e0e0;
+      color: white;
+    }
+
+    @media (max-width: 600px) {
+      button {
+        width: 100%;
+        margin-bottom: 10px;
+      }
+    }
+  </style>
+</head>
+<body class="light">
+  <div class="container">
+
+    <div id="marquee-container">
+      <span id="marquee-text"></span>
+    </div>
+
+    <div id="control-container">
+      <button id="start-pause-button">Start</button>
+      <button id="stop-button">Stop</button>
+    </div>
+
+    <div id="input-container">
+      <br>
+      <label for="marquee-input">Text</label>
+      <textarea id="marquee-input" placeholder="Enter text here"></textarea>
+      <button id="fetch-1-button">Load [meaningful:sentences.js]</button>
+      <button id="fetch-2-button">Fetch [meaningful:wiki]</button>
+      <button id="fetch-3-button">Fetch [random:metaphorpsum]</button>
+      <button id="clear-button">Clear</button>
+      <label><input type="checkbox" id="append-checkbox" checked> Append text after fetching (uncheck to clear and append)</label>
+      <br>
+      <label for="delay-input">Speed</label>
+      <input type="number" id="speed-input" min="0" max="100" value="10" style="display: none;">
+      <input type="range" id="delay-slider" min="0" max="100" value="100">
+      <input type="number" id="delay-info" min="0" max="100" value="100" readonly>
+      <br><br>
+      <button id="save-button">Save text and delay</button>
+    </div>
+
+    <div id="other-settings-container">
+      <button id="theme-button">Toggle Theme</button>
+      <button id="reset-button">Reset settings</button>
+    </div>
+
+  </div>
+
+  <script>
+    function loadScript(url, head_or_body = 'head') {
+        var script = document.createElement("script");
+        script.src = url;
+        if (head_or_body == 'head') {
+            document.head.appendChild(script);
+        }
+        else {
+            document.body.appendChild(script);
+        }
+    }
+
+    /*function getSentences() {
+        return [];
+    }*/
+
+    document.addEventListener('DOMContentLoaded', function() {
+      loadScript('sentences.js');
+      let sentences = [];
+      const input = document.getElementById('marquee-input');
+      const speedInput = document.getElementById('speed-input');
+      const delaySlider = document.getElementById('delay-slider');
+      const delayInfo = document.getElementById('delay-info');
+      const appendCheckbox = document.getElementById('append-checkbox');
+      const textElement = document.getElementById('marquee-text');
+      const inputContainer = document.getElementById('input-container');
+      const otherSettingsContainer = document.getElementById('other-settings-container');
+      const container = document.getElementById('marquee-container');
+      const startPauseButton = document.getElementById('start-pause-button');
+      const stopButton = document.getElementById('stop-button');
+      const themeButton = document.getElementById('theme-button');
+      const saveButton = document.getElementById('save-button');
+      const resetButton = document.getElementById('reset-button');
+      const clearButton = document.getElementById('clear-button');
+      const fetch1Button = document.getElementById('fetch-1-button');
+      const fetch2Button = document.getElementById('fetch-2-button');
+      const fetch3Button = document.getElementById('fetch-3-button');
+      let animationId = null;
+      let lastPosition = null;
+
+      const savedText = localStorage.getItem('sle_text');
+      if (savedText) input.value = savedText;
+      const savedDelay = localStorage.getItem('sle_speed');
+      if (savedDelay) speedInput.value = savedDelay;
+      delaySlider.value = 100 - speedInput.value;
+      delayInfo.value = delaySlider.value;
+      const savedTheme = localStorage.getItem('sle_theme');
+      document.body.className = savedTheme || 'dark';
+
+      speedInput.addEventListener('input', function() {
+        delaySlider.value = 100 - this.value;
+        delayInfo.value = delaySlider.value;
+      });
+      delaySlider.addEventListener('input', function() {
+        speedInput.value = 100 - this.value;
+        delayInfo.value = this.value;
+      });
+
+      themeButton.addEventListener('click', function() {
+        document.body.classList.toggle('light');
+        document.body.classList.toggle('dark');
+        const currentTheme = document.body.classList.contains('dark') ? 'dark' : 'light';
+        localStorage.setItem('sle_theme', currentTheme);
+      });
+
+      clearButton.addEventListener('click', function() {
+        input.value = '';
+      });
+
+      fetch1Button.addEventListener('click', function() {
+        loadSentence();
+      });
+
+      fetch2Button.addEventListener('click', function() {
+        fetchWiki();
+      });
+
+      fetch3Button.addEventListener('click', function() {
+        fetchMetaphorpsum();
+      });
+
+      function loadSentence() {
+        if (sentences.length == 0) {
+            sentences = getSentences();
+        }
+        let text = sentences[Math.floor(Math.random() * sentences.length)];
+        if (text) {
+            if (!text.endsWith('.')) {
+                text += '.';
+            }
+            if (appendCheckbox.checked) {
+                input.value += (input.value ? '\n\n' : '') + text;
+            } else {
+                input.value = text;
+            }
+        }
+      }
+
+      function fetchWiki() {
+        fetch('https://en.wikipedia.org/api/rest_v1/page/random/summary', {
+            method: 'GET',
+            accept: "application/problem+json"
+        })
+        .then(response => response.text())
+        .then(data => {
+            data = JSON.parse(data);
+            text = data['extract'];
+            text = text.trim();
+            if (text) {
+                if (appendCheckbox.checked) {
+                  input.value += (input.value ? '\n\n' : '') + text;
+                } else {
+                  input.value = text;
+                }
+            }
+        })
+        .catch(() => {
+            alert('Error fetching text from the internet.');
+        });
+      }
+
+      function fetchMetaphorpsum() {
+        fetch('http://metaphorpsum.com/sentences/1', {
+            method: 'GET',
+        })
+        .then(response => response.text())
+        .then(data => {
+            text = data.trim();
+            if (text) {
+                if (appendCheckbox.checked) {
+                  input.value += (input.value ? '\n\n' : '') + text;
+                } else {
+                  input.value = text;
+                }
+            }
+        })
+        .catch(() => {
+            alert('Error fetching text from the internet.');
+        });
+      }
+
+      saveButton.addEventListener('click', saveSettings);
+      function saveSettings() {
+        localStorage.setItem('sle_text', input.value);
+        localStorage.setItem('sle_speed', speedInput.value);
+      }
+
+      resetButton.addEventListener('click', resetSettings);
+      function resetSettings() {
+        if (confirm('Are you sure you want to reset the settings?')) {
+            localStorage.removeItem('sle_text');
+            localStorage.removeItem('sle_speed');
+            localStorage.removeItem('sle_theme');
+            location.reload();
+        }
+      }
+
+      function shuffleArray(array) {
+          for (let i = array.length - 1; i > 0; i--) {
+              const j = Math.floor(Math.random() * (i + 1));
+              [array[i], array[j]] = [array[j], array[i]];
+          }
+      }
+
+      function shuffleLetters(text) {
+        const sentences = text.split('\n');
+        const r = [];
+        for (const sentence of sentences) {
+            const words = sentence.split(/\s+/);
+            const currentSentence = [];
+            let skipWord = false;
+            for (const word of words) {
+                if (word[0] == word[0].toUpperCase() || /\d|\"|\'/.test(word)) {
+                    skipWord = true;
+                }
+                if (word.length > 3 && skipWord == false) {
+                    const m = Math.floor(word.length / 3);
+                    const chars = [];
+                    for (const c of word) {
+                        if (/^[A-Za-z]$/.test(c)) {
+                            chars.push(c);
+                        }
+                    }
+                    const firstLetters = chars.slice(0, m);
+                    const midLetters = chars.slice(m, chars.length - m);
+                    const lastLetters = chars.slice(chars.length - m);
+                    const origMidLetters = [...midLetters];
+                    const uniqueMid = new Set(origMidLetters).size;
+                    while (uniqueMid > 1 && midLetters.toString() == origMidLetters.toString()) {
+                        shuffleArray(midLetters);
+                    }
+                    const allLetters = [...firstLetters, ...midLetters, ...lastLetters];
+                    let newWord = [];
+                    let i = 0;
+                    for (const c of word) {
+                        if (/^[A-Za-z]$/.test(c)) {
+                            newWord.push(allLetters[i]);
+                            i++;
+                        } else {
+                            newWord.push(c);
+                        }
+                    }
+                    currentSentence.push(newWord.join(''));
+                } else {
+                    currentSentence.push(word);
+                    skipWord = false;
+                }
+                if (word.indexOf('.') >= 0) {
+                    skipWord = true;
+                }
+            }
+            r.push(currentSentence);
+        }
+        return r.map(sentence => sentence.join(' ')).join('\n');
+      }
+
+      function startAnimation() {
+        const text = input.value.trim();
+        if (!text) {
+          alert('Please add text');
+          return false;
+        }
+
+        const singleLineText = shuffleLetters(text.replace(/\n/g, ' ').trim());
+        textElement.textContent = (!lastPosition) ? singleLineText : textElement.textContent;
+
+        const containerWidth = Math.ceil(container.getBoundingClientRect().width);
+        const textWidth = Math.ceil(textElement.getBoundingClientRect().width);
+        const startPosition = containerWidth;
+        const endPosition = -textWidth;
+        const stepTime = Math.max(0, parseInt(speedInput.value, 10));
+
+        if (!lastPosition) {
+          textElement.style.left = startPosition + 'px';
+          lastPosition = startPosition;
+        } else {
+          textElement.style.left = lastPosition + 'px';
+        }
+
+        function animate() {
+          const currentLeft = parseInt(textElement.style.left, 10) - 1;
+
+          if (currentLeft <= endPosition) {
+            textElement.style.left = endPosition + 'px';
+            clearTimeout(animationId);
+            animationId = null;
+            startPauseButton.textContent = 'Start';
+            startPauseButton.classList.remove('pause');
+            lastPosition = null;
+          } else {
+            textElement.style.left = currentLeft + 'px';
+            lastPosition = currentLeft;
+            if (animationId) {
+              animationId = setTimeout(animate, stepTime);
+            }
+          }
+        }
+
+        animationId = setTimeout(animate, stepTime);
+        return true;
+      }
+
+      startPauseButton.addEventListener('click', function() {
+        if (animationId) {
+          clearTimeout(animationId);
+          animationId = null;
+          startPauseButton.textContent = 'Start';
+          startPauseButton.classList.remove('pause');
+          inputContainer.style.display = '';
+          otherSettingsContainer.style.display = '';
+        } else {
+          if (startAnimation()) {
+            startPauseButton.textContent = 'Pause';
+            startPauseButton.classList.add('pause');
+            inputContainer.style.display = 'none';
+            otherSettingsContainer.style.display = 'none';
+          }
+        }
+      });
+
+      stopButton.addEventListener('click', function() {
+        const containerWidth = Math.ceil(container.getBoundingClientRect().width);
+        if (animationId) {
+          clearTimeout(animationId);
+          animationId = null;
+        }
+        startPauseButton.textContent = 'Start';
+        startPauseButton.classList.remove('pause');
+        textElement.style.left = containerWidth + 'px';
+        lastPosition = null;
+        inputContainer.style.display = '';
+        otherSettingsContainer.style.display = '';
+      });
+
+    });
+
+
+
+  </script>
+</body>
+</html>
