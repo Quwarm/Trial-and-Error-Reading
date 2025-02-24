@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Shuffled Letters</title>
+  <title>Trial and Error Reading</title>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -59,7 +59,7 @@
     #marquee-text {
       position: absolute;
       white-space: nowrap;
-      font-size: 20px;
+      font-size: 42px;
       line-height: 60px;
       text-align: right;
     }
@@ -187,6 +187,8 @@
     <div id="control-container">
       <button id="start-pause-button">Start</button>
       <button id="stop-button">Stop</button>
+      <br>
+      <span id="duration-info" style="display: none;">0</span>
     </div>
 
     <div id="input-container">
@@ -195,16 +197,16 @@
       <textarea id="marquee-input" placeholder="Enter text here"></textarea>
       <button id="fetch-1-button">Load [meaningful:sentences.js]</button>
       <button id="fetch-2-button">Fetch [meaningful:wiki]</button>
-      <button id="fetch-3-button">Fetch [random:metaphorpsum]</button>
+      <button id="fetch-3-button" style="display: none;">Fetch [random:metaphorpsum]</button>
       <button id="clear-button">Clear</button>
-      <label><input type="checkbox" id="append-checkbox" checked> Append text after fetching (uncheck to clear and append)</label>
+      <label><input type="checkbox" id="append-checkbox" checked> Append text after loading/fetching (uncheck to clear and append)</label>
       <br>
       <label for="delay-input">Speed</label>
       <input type="number" id="speed-input" min="0" max="100" value="10" style="display: none;">
       <input type="range" id="delay-slider" min="0" max="100" value="100">
       <input type="number" id="delay-info" min="0" max="100" value="100" readonly>
       <br><br>
-      <button id="save-button">Save text and delay</button>
+      <button id="save-button">Save text and speed</button>
     </div>
 
     <div id="other-settings-container">
@@ -226,10 +228,6 @@
         }
     }
 
-    /*function getSentences() {
-        return [];
-    }*/
-
     document.addEventListener('DOMContentLoaded', function() {
       loadScript('sentences.js');
       let sentences = [];
@@ -237,6 +235,7 @@
       const speedInput = document.getElementById('speed-input');
       const delaySlider = document.getElementById('delay-slider');
       const delayInfo = document.getElementById('delay-info');
+      const durationInfo = document.getElementById('duration-info');
       const appendCheckbox = document.getElementById('append-checkbox');
       const textElement = document.getElementById('marquee-text');
       const inputContainer = document.getElementById('input-container');
@@ -253,6 +252,8 @@
       const fetch3Button = document.getElementById('fetch-3-button');
       let animationId = null;
       let lastPosition = null;
+      let startTime = null, lastTime = null;
+      let prevLength = 0;
 
       const savedText = localStorage.getItem('sle_text');
       if (savedText) input.value = savedText;
@@ -297,11 +298,21 @@
 
       function loadSentence() {
         if (sentences.length == 0) {
-            sentences = getSentences();
+            try {
+              sentences = getSentences();
+            }
+            catch(err) {
+              sentences = [];
+              console.log(err);
+            }
+        }
+        if (sentences.length == 0) {
+            alert('[Sentences.js] Sentences not found!');
+            return;
         }
         let text = sentences[Math.floor(Math.random() * sentences.length)];
         if (text) {
-            if (!text.endsWith('.')) {
+            if (!text.endsWith('.') && !text.endsWith('?') && !text.endsWith('!') && !text.endsWith(',')) {
                 text += '.';
             }
             if (appendCheckbox.checked) {
@@ -331,7 +342,7 @@
             }
         })
         .catch(() => {
-            alert('Error fetching text from the internet.');
+            alert('[Wiki] Data Fetching Error.');
         });
       }
 
@@ -351,7 +362,7 @@
             }
         })
         .catch(() => {
-            alert('Error fetching text from the internet.');
+            alert('[Metaphorpsum] Data Fetching Error.');
         });
       }
 
@@ -430,6 +441,17 @@
         return r.map(sentence => sentence.join(' ')).join('\n');
       }
 
+      function formatSeconds(seconds) {
+        if (typeof seconds !== 'number' || seconds < 0) {
+            return '00:00:00';
+        }
+        const hours = Math.floor(seconds / 3600);
+        const minutes = Math.floor((seconds % 3600) / 60);
+        const remainingSeconds = Math.floor(seconds % 60);
+        const formatNumber = (num) => num < 10 ? `0${num}` : num;
+        return `${formatNumber(hours)}:${formatNumber(minutes)}:${formatNumber(remainingSeconds)}`;
+    }
+
       function startAnimation() {
         const text = input.value.trim();
         if (!text) {
@@ -438,13 +460,16 @@
         }
 
         const singleLineText = shuffleLetters(text.replace(/\n/g, ' ').trim());
-        textElement.textContent = (!lastPosition) ? singleLineText : textElement.textContent;
+        textElement.textContent = (!lastPosition || text.length != prevLength) ? singleLineText : textElement.textContent;
 
         const containerWidth = Math.ceil(container.getBoundingClientRect().width);
         const textWidth = Math.ceil(textElement.getBoundingClientRect().width);
         const startPosition = containerWidth;
         const endPosition = -textWidth;
-        const stepTime = Math.max(0, parseInt(speedInput.value, 10));
+        const stepTime = Math.max(1, parseInt(speedInput.value, 10));
+        startTime = Date.now();
+        lastTime = startTime;
+        durationInfo.innerHTML = 'Target time: ' + formatSeconds(Math.floor(stepTime * (startPosition - endPosition) / 1000));
 
         if (!lastPosition) {
           textElement.style.left = startPosition + 'px';
@@ -453,16 +478,28 @@
           textElement.style.left = lastPosition + 'px';
         }
 
+        prevLength = text.length;
+
         function animate() {
           const currentLeft = parseInt(textElement.style.left, 10) - 1;
 
+          lastTime = Date.now();
+          let curStepTime = (lastTime - startTime) / (startPosition - currentLeft);
+          if (lastTime - startTime >= 5000) {
+            let viewStepTime = (Math.floor(curStepTime * 10) / 10 + stepTime * 2) / 3;
+            durationInfo.innerHTML = formatSeconds(Math.floor(viewStepTime * (currentLeft - endPosition) / 1000));
+          }
+          
           if (currentLeft <= endPosition) {
             textElement.style.left = endPosition + 'px';
             clearTimeout(animationId);
             animationId = null;
             startPauseButton.textContent = 'Start';
             startPauseButton.classList.remove('pause');
+            durationInfo.style.display = 'none';
             lastPosition = null;
+            inputContainer.style.display = '';
+            otherSettingsContainer.style.display = '';
           } else {
             textElement.style.left = currentLeft + 'px';
             lastPosition = currentLeft;
@@ -484,12 +521,14 @@
           startPauseButton.classList.remove('pause');
           inputContainer.style.display = '';
           otherSettingsContainer.style.display = '';
+          durationInfo.style.display = 'none';
         } else {
           if (startAnimation()) {
             startPauseButton.textContent = 'Pause';
             startPauseButton.classList.add('pause');
             inputContainer.style.display = 'none';
             otherSettingsContainer.style.display = 'none';
+            durationInfo.style.display = '';
           }
         }
       });
@@ -506,6 +545,7 @@
         lastPosition = null;
         inputContainer.style.display = '';
         otherSettingsContainer.style.display = '';
+        durationInfo.style.display = 'none';
       });
 
     });
