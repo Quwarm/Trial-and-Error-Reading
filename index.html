@@ -2,8 +2,10 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Trial and Error Reading</title>
+  <link rel="icon" type="image/png" href="favicon.png" author="meaicon" />
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -111,7 +113,7 @@
     }
 
     #stop-button:hover {
-      background-color: rgb(187, 45, 59);
+      background-color: rgb(180, 25, 46);
     }
 
     #theme-button {
@@ -123,6 +125,38 @@
       background-color: rgb(9, 130, 153);
     }
 
+    body.light #back-button, body.light #forward-button {
+      background-color: rgb(239, 239, 239);
+      color: rgb(0, 0, 0);
+      display: inline-block;
+    }
+
+    body.light #back-button:hover, body.light #forward-button:hover {
+      background-color: rgb(230, 230, 230);
+      color: rgb(0, 0, 0);
+    }
+
+    body.light #back-button:disabled, body.light #forward-button:disabled {
+      background-color: rgb(246, 246, 246);
+      color: rgb(173, 173, 173);
+    }
+
+    body.dark #back-button, body.dark #forward-button {
+      background-color: rgb(90, 90, 90);
+      color: rgb(255, 255, 255);
+      display: inline-block;
+    }
+
+    body.dark #back-button:hover, body.dark #forward-button:hover {
+      background-color: rgb(90, 90, 90);
+      color: rgb(255, 255, 255);
+    }
+
+    body.dark #back-button:disabled, body.dark #forward-button:disabled {
+      background-color: rgb(90, 90, 90);
+      color: rgb(70, 70, 70);
+    }
+
     #dump-colors-button, #clear-button, #fetch-1-button, #fetch-2-button, #fetch-3-button, #load-from-file-button {
       background-color: rgb(108, 117, 125);
       color: white;
@@ -131,6 +165,14 @@
 
     #dump-colors-button:hover, #clear-button:hover, #fetch-1-button:hover, #fetch-2-button:hover, #fetch-3-button:hover, #load-from-file-button:hover {
       background-color: rgb(92, 99, 106);
+    }
+
+    body.light .span-in-marquee {
+      border: 1px dashed white;
+    }
+
+    body.dark .span-in-marquee {
+      border: 1px dashed black;
     }
 
     #save-button {
@@ -230,12 +272,12 @@
     </div>
 
     <div id="input-container">
-      <label for="delay-input">Speed</label>
+      <label for="speed-input">Speed</label>
       <input type="number" id="speed-input" min="0" max="100" value="10" style="display: none;">
       <input type="range" id="delay-slider" min="0" max="100" value="100">
       <input type="number" id="delay-info" min="0" max="100" value="100">
       <br><br>
-      <label>Difficulty:
+      <label>Difficulty of shuffling:
         <select id="difficulty-select">
           <option value="no">-</option>
           <option value="easy">Easy</option>
@@ -250,15 +292,19 @@
       <br>
       <button id="dump-colors-button">Dump colors above</button>
       <textarea id="color-input" placeholder="&lt;letter&gt; &lt;color&gt;&#13;&#10;a rgb(0, 0, 0)&#13;&#10;b red&#13;&#10;..."></textarea>
-      <br>
+      <br><br>
       <label for="marquee-input">Text</label>
       <textarea id="marquee-input" placeholder="Enter text here"></textarea>
+      <br>
       <button id="fetch-1-button">Load [meaningful:sentences.js]</button>
       <button id="fetch-2-button">Fetch [meaningful:wiki]</button>
       <button id="load-from-file-button">Load [from file]</button>
       <button id="fetch-3-button" style="display: none;">Fetch [random:metaphorpsum]</button>
       <button id="clear-button">Clear</button>
       <label><input type="checkbox" id="append-checkbox" checked> Append text after loading/fetching (uncheck to clear and append)</label>
+      <br>
+      <label><input type="checkbox" id="show-text-checkbox" checked> Show text</label>
+      <label><input type="checkbox" id="show-table-checkbox" checked> Show letters-colors info</label>
       <br><br>
       <button id="save-button">Save text and settings</button>
     </div>
@@ -328,6 +374,8 @@
       const forwardButton = document.getElementById('forward-button');
       const colorInput = document.getElementById('color-input');
       const dumpColorsButton = document.getElementById('dump-colors-button');
+      const showTextCheckbox = document.getElementById('show-text-checkbox');
+      const showTableCheckbox = document.getElementById('show-table-checkbox');
 
       const savedText = localStorage.getItem('sle_text');
       if (savedText) input.value = savedText;
@@ -348,10 +396,24 @@
       colorInput.value = colorInputValue;
       const colorTaskLetters = localStorage.getItem('sle_color_task_letters') || '1';
       colorTaskLettersInput.value = colorTaskLetters;
-      const savedDifficulty = localStorage.getItem('sle_difficulty') || 'easy';
+      const showTextBool = localStorage.getItem('sle_show_text') || 'true';
+      showTextCheckbox.checked = showTextBool === 'true';
+      input.style.display = showTextCheckbox.checked ? '' : 'none';
+      const showTableBool = localStorage.getItem('sle_show_table') || 'true';
+      showTableCheckbox.checked = showTableBool === 'true';
+      colorsInfo.style.display = showTableCheckbox.checked ? '' : 'none';
+      const savedDifficulty = localStorage.getItem('sle_difficulty') || 'no';
       difficultySelect.value = savedDifficulty;
       let prevDifficulty = difficultySelect.value;
       let prevColorInputValue = colorInputValue;
+
+      showTextCheckbox.addEventListener('click', function() {
+        input.style.display = showTextCheckbox.checked ? '' : 'none';
+      });
+      
+      showTableCheckbox.addEventListener('click', function() {
+        colorsInfo.style.display = showTableCheckbox.checked ? '' : 'none';
+      });
 
       colorTaskCheckbox.addEventListener('click', function() {
         colorInput.style.display = colorTaskCheckbox.checked ? '' : 'none';
@@ -418,19 +480,41 @@
       });
 
       backButton.addEventListener('click', function() {
-        const containerWidth = Math.ceil(container.getBoundingClientRect().width);
-        const startPosition = containerWidth;
-        const stepTime = Math.max(1, parseInt(speedInput.value, 10));
-        lastPosition = Math.min(startPosition, parseInt(textElement.style.left, 10) + 500 / Math.min(5, stepTime));
-        textElement.style.left = lastPosition + 'px';
+        if (lastPosition != null) {
+          let to_play = animationId != null;
+          if (to_play) {
+            pauseView();
+          }
+          const containerWidth = Math.ceil(container.getBoundingClientRect().width);
+          const startPosition = containerWidth;
+          const textWidth = Math.ceil(textElement.getBoundingClientRect().width);
+          const endPosition = -textWidth;
+          lastPosition = Math.max(endPosition, Math.min(startPosition, parseInt(textElement.style.left, 10) + Math.floor(containerWidth / 2)));
+          prevLastPosition = lastPosition;
+          textElement.style.left = lastPosition + 'px';
+          if (to_play) {
+            startView(true);
+          }
+        }
       });
 
       forwardButton.addEventListener('click', function() {
-        const textWidth = Math.ceil(textElement.getBoundingClientRect().width);
-        const endPosition = -textWidth;
-        const stepTime = Math.max(1, parseInt(speedInput.value, 10));
-        lastPosition = Math.max(endPosition, parseInt(textElement.style.left, 10) - 500 / Math.min(5, stepTime));
-        textElement.style.left = lastPosition + 'px';
+        if (lastPosition != null) {
+          let to_play = animationId != null;
+          if (to_play) {
+            pauseView();
+          }
+          const containerWidth = Math.ceil(container.getBoundingClientRect().width);
+          const startPosition = containerWidth;
+          const textWidth = Math.ceil(textElement.getBoundingClientRect().width);
+          const endPosition = -textWidth;
+          lastPosition = Math.max(endPosition, Math.min(startPosition, parseInt(textElement.style.left, 10) - Math.floor(containerWidth / 2)));
+          prevLastPosition = lastPosition;
+          textElement.style.left = lastPosition + 'px';
+          if (to_play) {
+            startView(true);
+          }
+        }
       });
 
       function hexToRgb(hex) {
@@ -545,6 +629,8 @@
         localStorage.setItem('sle_color_task', colorTaskCheckbox.checked);
         localStorage.setItem('sle_color_task_letters', colorTaskLettersInput.value);
         localStorage.setItem('sle_color_task_colors', colorInput.value);
+        localStorage.setItem('sle_show_text', showTextCheckbox.checked);
+        localStorage.setItem('sle_show_table', showTableCheckbox.checked);
         localStorage.setItem('sle_speed', speedInput.value);
         localStorage.setItem('sle_append_text', '' + appendCheckbox.checked);
         localStorage.setItem('sle_difficulty', difficultySelect.value);
@@ -557,6 +643,8 @@
             localStorage.removeItem('sle_color_task');
             localStorage.removeItem('sle_color_task_letters');
             localStorage.removeItem('sle_color_task_colors');
+            localStorage.removeItem('sle_show_text');
+            localStorage.removeItem('sle_show_table');
             localStorage.removeItem('sle_speed');
             localStorage.removeItem('sle_append_text');
             localStorage.removeItem('sle_difficulty');
@@ -587,33 +675,38 @@
                   skipWord = true;
                 }
                 if ((difficultySelect.value == "easy" && word.length > 3 || difficultySelect.value != "easy") && (skipWord == false || difficultySelect.value == 'very-hard')) {
-                    const m = (difficultySelect.value == "hard" || difficultySelect.value == "very-hard") ? 0 : (difficultySelect.value == "medium" ? 1 : Math.floor(word.length / 3));
-                    const chars = [];
-                    for (const c of word) {
-                        if (/^[a-zA-Z]$/.test(c)) {
-                            chars.push(c);
-                        }
-                    }
-                    const firstLetters = chars.slice(0, m);
-                    const midLetters = chars.slice(m, chars.length - m);
-                    const lastLetters = chars.slice(chars.length - m);
-                    const origMidLetters = [...midLetters];
-                    const uniqueMid = new Set(origMidLetters).size;
-                    while (uniqueMid > 1 && midLetters.toString() == origMidLetters.toString()) {
-                        shuffleArray(midLetters);
-                    }
-                    const allLetters = [...firstLetters, ...midLetters, ...lastLetters];
+                    const wordParts = word.split(/\-/);
                     let newWord = [];
-                    let i = 0;
-                    for (const c of word) {
-                        if (/^[a-zA-Z]$/.test(c)) {
-                            newWord.push(allLetters[i]);
+                    for (const wordPart of wordParts) {
+                      const m = (difficultySelect.value == "hard" || difficultySelect.value == "very-hard") ? 0 : (difficultySelect.value == "medium" ? 1 : Math.floor(wordPart.length / 3));
+                      const chars = [];
+                      for (const c of wordPart) {
+                          if (/^[a-zA-Z]$/.test(c)) {
+                              chars.push(c);
+                          }
+                      }
+                      const firstLetters = chars.slice(0, m);
+                      const midLetters = chars.slice(m, chars.length - m);
+                      const lastLetters = chars.slice(chars.length - m);
+                      const origMidLetters = [...midLetters];
+                      const uniqueMid = new Set(origMidLetters).size;
+                      while (uniqueMid > 1 && midLetters.toString() == origMidLetters.toString()) {
+                          shuffleArray(midLetters);
+                      }
+                      const allLetters = [...firstLetters, ...midLetters, ...lastLetters];
+                      let newWordPart = [];
+                      let i = 0;
+                      for (const c of wordPart) {
+                          if (/^[a-zA-Z]$/.test(c)) {
+                            newWordPart.push(allLetters[i]);
                             i++;
-                        } else {
-                            newWord.push(c);
-                        }
+                          } else {
+                            newWordPart.push(c);
+                          }
+                      }
+                      newWord.push(newWordPart.join(""));
                     }
-                    currentSentence.push(newWord.join(''));
+                    currentSentence.push(newWord.join('-'));
                 } else {
                     currentSentence.push(word);
                     skipWord = false;
@@ -658,7 +751,7 @@
         return colors;
       }
 
-      function startAnimation() {
+      function startAnimation(continue_view = false) {
         const text = input.value.trim();
         if (!text) {
           alert('Please add text');
@@ -667,27 +760,49 @@
 
         let newDifficulty = difficultySelect.value;
         let singleLineText = textElement.textContent;
-        if (!lastPosition || text.length != prevLength || newDifficulty != prevDifficulty) {
+        if (continue_view) {
+          singleLineText = textElement.innerHTML;
+        }
+        else if (!lastPosition || text.length != prevLength || newDifficulty != prevDifficulty) {
           singleLineText = shuffleLetters(text.replace(/\n/g, ' ').trim());
         }
 
-        if (colorTaskCheckbox.checked) {
+        if (continue_view == false && colorTaskCheckbox.checked) {
           let newPalleteSize = parseInt(colorTaskLettersInput.value, 10);
+
+          let preserveValues = colorInput.value.split('\n');
+          let preserveMap = new Map();
+          let preserveLetters = [];
+          for (let x of preserveValues) {
+            let x_splitted = x.split(/\s+/);
+            if (x_splitted.length >= 2) {
+              for (let letter of x_splitted[0].toLowerCase()) {
+                preserveLetters.push(letter);
+                preserveMap.set(letter, [...x_splitted.slice(1)].join(' '));
+              }
+            }
+          }
+
           if (currentPallete.size < newPalleteSize || colorInput.value != prevColorInputValue) {
             let paletteColors = generateColorPalette(newPalleteSize);
             let letters = currentPalleteList.slice();
 
-            let preserveValues = colorInput.value.split('\n');
-            let preserveMap = new Map();
-            for (let x of preserveValues) {
-              let x_splitted = x.split(/\s+/);
-              if (x_splitted.length >= 2) {
-                for (let letter of x_splitted[0].toLowerCase()) {
-                  preserveMap.set(letter, [...x_splitted.slice(1)].join(' '));
+            for (let x of preserveLetters) {
+              if (letters.length < newPalleteSize && singleLineText.indexOf(x) >= 0) {
+                let currentLetter = x.toLowerCase();
+                const currentLetterColor = preserveMap.get(currentLetter);
+                if (letters.includes(currentLetter) == false && currentLetterColor) {
+                  letters.push(currentLetter);
                 }
               }
             }
-
+            for (let i = 0, j = 0; i < singleLineText.length && letters.length < newPalleteSize; ++i) {
+              let currentLetter = singleLineText[i].toLowerCase();
+              const currentLetterColor = preserveMap.get(currentLetter);
+              if (letters.includes(currentLetter) == false && currentLetterColor) {
+                letters.push(currentLetter);
+              }
+            }
             for (let i = 0, j = 0; i < singleLineText.length && j < paletteColors.length && letters.length < newPalleteSize; ++i) {
               let currentLetter = singleLineText[i].toLowerCase();
               if (/^[a-zA-Z]$/.test(currentLetter) && letters.includes(currentLetter) == false) {
@@ -695,61 +810,85 @@
                 ++j;
               }
             }
-            letters = letters.sort();
+            letters.sort();
             let j = 0;
             for (let currentLetter of letters) {
-              if (preserveMap.get(currentLetter) != null) {
-                currentPallete.set(currentLetter, preserveMap.get(currentLetter));
-              }
-              else if (currentPallete.get(currentLetter) == null) {
-                currentPallete.set(currentLetter, paletteColors[j]);
-                ++j;
+              if (currentPallete.get(currentLetter) == null) {
+                if (preserveMap.get(currentLetter) != null) {
+                  currentPallete.set(currentLetter, preserveMap.get(currentLetter));
+                  currentPalleteList.push(currentLetter);
+                }
+                else {
+                  currentPallete.set(currentLetter, paletteColors[j]);
+                  currentPalleteList.push(currentLetter);
+                  ++j;
+                }
               }
             }
-            currentPalleteList = [...currentPallete.keys()];
           }
-          else if (currentPallete.size > newPalleteSize) {
-            for (let x of currentPalleteList.slice(newPalleteSize)) {
+          currentPalleteList.reverse();
+          for (let x of currentPalleteList.slice()) {
+            if (currentPallete.size > newPalleteSize) {
+              if (preserveMap.get(x) == null) {
+                currentPallete.delete(x);
+                currentPalleteList.splice(currentPalleteList.indexOf(x), 1);
+              }
+            }
+            else {
+              break;
+            }
+          }
+          currentPalleteList.sort((a, b) => (preserveLetters.indexOf(a) - preserveLetters.indexOf(b)));
+          currentPalleteList.reverse();
+          for (let x of currentPalleteList.slice()) {
+            if (currentPallete.size > newPalleteSize) {
               currentPallete.delete(x);
+              currentPalleteList.splice(currentPalleteList.indexOf(x), 1);
             }
-            currentPalleteList = currentPalleteList.slice(0, newPalleteSize);
+            else {
+              break;
+            }
           }
-          currentPalleteList = currentPalleteList.sort();
+          currentPalleteList.sort();
+
           let newText = '';
           for (let i = 0; i < singleLineText.length; ++i) {
             let currentLetter = singleLineText[i].toLowerCase();
             let currentColor = currentPallete.get(currentLetter);
             if (currentColor != null) {
-              newText = newText.concat(`<span style="background-color:${currentColor};color:${currentColor};border: 1px dashed #FFFFFF;">${singleLineText[i]}</span>`);
+              newText = newText.concat(`<span style="background-color:${currentColor};color:${currentColor};" class="span-in-marquee">${singleLineText[i]}</span>`);
             }
             else {
               newText = newText.concat(singleLineText[i]);
             }
           }
           singleLineText = newText;
-          colorsInfo.style.display = '';
+          colorsInfo.style.display = showTableCheckbox.checked ? '' : 'none';
         }
-        else {
+        else if (continue_view == false && !colorTaskCheckbox.checked) {
           colorsInfo.style.display = 'none';
         }
 
         let currentPalleteString = '';
-        let g = 0;
-        for (let k of currentPalleteList) {
-          let v = currentPallete.get(k);
-          k = k.toUpperCase();
-          currentPalleteString = currentPalleteString.concat(`${k}<span style="background-color:${v};color:${v};border: 1px dashed #FFFFFF;cursor:pointer;" onclick="javascript:changeColor(this)">${k}</span>`);
-          ++g;
-          if (g !== 0 && g % 5 == 0) {
-            currentPalleteString = currentPalleteString.concat('<br><br>');
-          }
-          else {
-            currentPalleteString = currentPalleteString.concat('  ');
+        if (continue_view == false) {
+          let g = 0;
+          for (let k of currentPalleteList) {
+            let v = currentPallete.get(k);
+            k = k.toUpperCase();
+            currentPalleteString = currentPalleteString.concat(`${k}<span style="background-color:${v};color:${v};cursor:pointer;" class="span-in-marquee" onclick="javascript:changeColor(this)">${k}</span>`);
+            ++g;
+            if (g !== 0 && g % 5 == 0) {
+              currentPalleteString = currentPalleteString.concat('<br><br>');
+            }
+            else {
+              currentPalleteString = currentPalleteString.concat('  ');
+            }
           }
         }
 
         textElement.innerHTML = singleLineText;
 
+        const oneStepSize = 2;
         const containerWidth = Math.ceil(container.getBoundingClientRect().width);
         const textWidth = Math.ceil(textElement.getBoundingClientRect().width);
         const startPosition = containerWidth;
@@ -757,8 +896,10 @@
         const stepTime = Math.max(1, parseInt(speedInput.value, 10));
         startTime = Date.now();
         lastTime = startTime;
-        durationInfo.innerHTML = 'Target time: ' + formatSeconds(Math.floor(stepTime * (startPosition - endPosition) / 1000));
-        colorsInfo.innerHTML = currentPalleteString;
+        if (continue_view == false) {
+          durationInfo.innerHTML = 'Target time: ' + formatSeconds(Math.floor(stepTime * (startPosition - endPosition) / 1000 / oneStepSize));
+          colorsInfo.innerHTML = currentPalleteString;
+        }
 
         if (!lastPosition) {
           textElement.style.left = startPosition + 'px';
@@ -773,17 +914,26 @@
         prevDifficulty = newDifficulty;
         prevColorInputValue = colorInput.value;
 
+        let flag = continue_view;
+        let curStartTime = continue_view ? startTime : Date.now();
+        if (flag) {
+          colorsInfo.style.display = 'none';
+        }
+
         function animate() {
-          const currentLeft = parseInt(textElement.style.left, 10) - 1;
+          const currentLeft = parseInt(textElement.style.left, 10) - oneStepSize;
 
           lastTime = Date.now();
           let curStepTime = (lastTime - startTime) / (prevLastPosition - currentLeft);
-          if (lastTime - startTime >= 3000) {
+          if (flag) {
             let viewStepTime = Math.floor(curStepTime * 10) / 10;
             durationInfo.innerHTML = formatSeconds(Math.floor(viewStepTime * (currentLeft - endPosition) / 1000));
+          }
+          else if (lastTime - curStartTime >= 3000) {
+            flag = true;
             colorsInfo.style.display = 'none';
           }
-          
+
           if (currentLeft <= endPosition) {
             textElement.style.left = endPosition + 'px';
             clearTimeout(animationId);
@@ -807,7 +957,19 @@
         return true;
       }
 
-      startPauseButton.addEventListener('click', function() {
+      function startView(continue_view = false) {
+        if (startAnimation(continue_view)) {
+            backButton.disabled = false;
+            forwardButton.disabled = false;
+            startPauseButton.textContent = 'Pause';
+            startPauseButton.classList.add('pause');
+            inputContainer.style.display = 'none';
+            otherSettingsContainer.style.display = 'none';
+            durationInfo.style.display = '';
+          }
+      }
+
+      function pauseView() {
         if (animationId) {
           clearTimeout(animationId);
           animationId = null;
@@ -817,22 +979,12 @@
           otherSettingsContainer.style.display = '';
           durationInfo.style.display = 'none';
           if (colorTaskCheckbox.checked) {
-            colorsInfo.style.display = '';
-          }
-        } else {
-          if (startAnimation()) {
-            backButton.disabled = false;
-            forwardButton.disabled = false;
-            startPauseButton.textContent = 'Pause';
-            startPauseButton.classList.add('pause');
-            inputContainer.style.display = 'none';
-            otherSettingsContainer.style.display = 'none';
-            durationInfo.style.display = '';
+            colorsInfo.style.display = showTableCheckbox.checked ? '' : 'none';
           }
         }
-      });
+      }
 
-      stopButton.addEventListener('click', function() {
+      function stopView() {
         const containerWidth = Math.ceil(container.getBoundingClientRect().width);
         if (animationId) {
           clearTimeout(animationId);
@@ -853,6 +1005,18 @@
         startTime = null;
         lastTime = null;
         prevLength = 0;
+      }
+
+      startPauseButton.addEventListener('click', function() {
+        if (animationId) {
+          pauseView();
+        } else {
+          startView();
+        }
+      });
+
+      stopButton.addEventListener('click', function() {
+        stopView();
       });
 
     });
