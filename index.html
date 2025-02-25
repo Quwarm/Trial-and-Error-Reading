@@ -125,36 +125,40 @@
       background-color: rgb(9, 130, 153);
     }
 
-    body.light #back-button, body.light #forward-button {
+    body.light #back-button, body.light #forward-button, body.light #update-colors-button {
       background-color: rgb(239, 239, 239);
       color: rgb(0, 0, 0);
       display: inline-block;
     }
 
-    body.light #back-button:hover, body.light #forward-button:hover {
-      background-color: rgb(230, 230, 230);
+    body.light #back-button:hover, body.light #forward-button:hover, body.light #update-colors-button:hover {
+      background-color: rgb(229, 229, 229);
       color: rgb(0, 0, 0);
     }
 
-    body.light #back-button:disabled, body.light #forward-button:disabled {
+    body.light #back-button:disabled, body.light #forward-button:disabled, body.light #update-colors-button:disabled {
       background-color: rgb(246, 246, 246);
       color: rgb(173, 173, 173);
     }
 
-    body.dark #back-button, body.dark #forward-button {
+    body.dark #back-button, body.dark #forward-button, body.dark #update-colors-button {
       background-color: rgb(90, 90, 90);
       color: rgb(255, 255, 255);
       display: inline-block;
     }
 
-    body.dark #back-button:hover, body.dark #forward-button:hover {
-      background-color: rgb(90, 90, 90);
+    body.dark #back-button:hover, body.dark #forward-button:hover, body.dark #update-colors-button:hover {
+      background-color: rgb(80, 80, 80);
       color: rgb(255, 255, 255);
     }
 
-    body.dark #back-button:disabled, body.dark #forward-button:disabled {
+    body.dark #back-button:disabled, body.dark #forward-button:disabled, body.dark #update-colors-button:disabled {
       background-color: rgb(90, 90, 90);
       color: rgb(70, 70, 70);
+    }
+
+    #update-colors-button {
+      max-width: 60px;
     }
 
     #dump-colors-button, #clear-button, #fetch-1-button, #fetch-2-button, #fetch-3-button, #load-from-file-button {
@@ -288,7 +292,10 @@
       </label>
       <br>
       <label><input type="checkbox" id="color-task-checkbox" checked> Color encoder task</label>
-      <label for="color-task-letters" id="color-task-letters-label">Number of letters: <input type="number" id="color-task-letters" min="0" max="32" value="1"></label>
+      <label for="color-task-letters" id="color-task-letters-label">Number of letters:
+        <input type="number" id="color-task-letters" min="0" max="32" value="1">
+        <button id="update-colors-button" disabled>&#128260;</button>
+      </label>
       <br>
       <button id="dump-colors-button">Dump colors above</button>
       <textarea id="color-input" placeholder="&lt;letter&gt; &lt;color&gt;&#13;&#10;a rgb(0, 0, 0)&#13;&#10;b red&#13;&#10;..."></textarea>
@@ -376,6 +383,7 @@
       const dumpColorsButton = document.getElementById('dump-colors-button');
       const showTextCheckbox = document.getElementById('show-text-checkbox');
       const showTableCheckbox = document.getElementById('show-table-checkbox');
+      const updateColorsButton = document.getElementById('update-colors-button');
 
       const savedText = localStorage.getItem('sle_text');
       if (savedText) input.value = savedText;
@@ -390,7 +398,6 @@
       const colorTask = localStorage.getItem('sle_color_task') || 'false';
       colorTaskCheckbox.checked = colorTask == 'true';
       colorTaskLettersLabel.style.display = colorTaskCheckbox.checked ? '' : 'none';
-      colorInput.style.display = colorTaskCheckbox.checked ? '' : 'none';
       dumpColorsButton.style.display = colorTaskCheckbox.checked ? '' : 'none';
       const colorInputValue = localStorage.getItem('sle_color_task_colors') || '';
       colorInput.value = colorInputValue;
@@ -402,10 +409,29 @@
       const showTableBool = localStorage.getItem('sle_show_table') || 'true';
       showTableCheckbox.checked = showTableBool === 'true';
       colorsInfo.style.display = showTableCheckbox.checked ? '' : 'none';
+      colorInput.style.display = showTableCheckbox.checked && colorTaskCheckbox.checked ? '' : 'none';
+      dumpColorsButton.style.display = showTableCheckbox.checked && colorTaskCheckbox.checked ? '' : 'none';
       const savedDifficulty = localStorage.getItem('sle_difficulty') || 'no';
       difficultySelect.value = savedDifficulty;
       let prevDifficulty = difficultySelect.value;
       let prevColorInputValue = colorInputValue;
+
+      updateColorsButton.addEventListener('click', function() {
+        if (lastPosition != null) {
+          let to_play = animationId != null;
+          if (to_play) {
+            pauseView();
+          }
+          currentPallete.clear();
+          currentPalleteList = [];
+          let currentValue = colorInput.value;
+          startView(false);
+          pauseView();
+          if (to_play) {
+            startView(true);
+          }
+        }
+      });
 
       showTextCheckbox.addEventListener('click', function() {
         input.style.display = showTextCheckbox.checked ? '' : 'none';
@@ -413,11 +439,13 @@
       
       showTableCheckbox.addEventListener('click', function() {
         colorsInfo.style.display = showTableCheckbox.checked ? '' : 'none';
-      });
+        colorInput.style.display = showTableCheckbox.checked && colorTaskCheckbox.checked ? '' : 'none';
+        dumpColorsButton.style.display = showTableCheckbox.checked && colorTaskCheckbox.checked ? '' : 'none';
+    });
 
       colorTaskCheckbox.addEventListener('click', function() {
-        colorInput.style.display = colorTaskCheckbox.checked ? '' : 'none';
-        dumpColorsButton.style.display = colorTaskCheckbox.checked ? '' : 'none';
+        colorInput.style.display = showTableCheckbox.checked && colorTaskCheckbox.checked ? '' : 'none';
+        dumpColorsButton.style.display = showTableCheckbox.checked && colorTaskCheckbox.checked ? '' : 'none';
         colorTaskLettersLabel.style.display = colorTaskCheckbox.checked ? '' : 'none';
       });
 
@@ -961,6 +989,7 @@
         if (startAnimation(continue_view)) {
             backButton.disabled = false;
             forwardButton.disabled = false;
+            updateColorsButton.disabled = false;
             startPauseButton.textContent = 'Pause';
             startPauseButton.classList.add('pause');
             inputContainer.style.display = 'none';
@@ -1002,6 +1031,7 @@
         currentPalleteList = [];
         backButton.disabled = true;
         forwardButton.disabled = true;
+        updateColorsButton.disabled = true;
         startTime = null;
         lastTime = null;
         prevLength = 0;
