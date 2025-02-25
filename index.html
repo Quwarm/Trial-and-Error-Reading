@@ -323,11 +323,13 @@
 
   </div>
 
+  <div id="view-helper" style="display: none;"></div>
+
   <script>
-    function loadScript(url, head_or_body = 'head') {
+    function loadScript(url, headOrBody = 'head') {
         var script = document.createElement("script");
         script.src = url;
-        if (head_or_body == 'head') {
+        if (headOrBody == 'head') {
             document.head.appendChild(script);
         }
         else {
@@ -338,7 +340,8 @@
     let animationId = null;
     let lastPosition = null;
     let startTime = null, lastTime = null;
-    let prevLength = 0, currentPallete = new Map(), currentPalleteList = [];
+    let currentPallete = new Map(), currentPalleteList = [];
+    let prevLength = 0, prevDifficulty = '', prevColorInputValue = '';
 
     function changeColor(elem) {
       let text = prompt("Enter color:", elem.style.color);
@@ -347,6 +350,10 @@
         elem.style.color = text;
         elem.style.backgroundColor = text;
       }
+    }
+
+    function showWordInfo(shuffledWord, word) {
+      alert(`${shuffledWord} -> ${word}`);
     }
 
     document.addEventListener('DOMContentLoaded', function() {
@@ -384,6 +391,7 @@
       const showTextCheckbox = document.getElementById('show-text-checkbox');
       const showTableCheckbox = document.getElementById('show-table-checkbox');
       const updateColorsButton = document.getElementById('update-colors-button');
+      const viewHelper = document.getElementById('view-helper');
 
       const savedText = localStorage.getItem('sle_text');
       if (savedText) input.value = savedText;
@@ -413,13 +421,11 @@
       dumpColorsButton.style.display = showTableCheckbox.checked && colorTaskCheckbox.checked ? '' : 'none';
       const savedDifficulty = localStorage.getItem('sle_difficulty') || 'no';
       difficultySelect.value = savedDifficulty;
-      let prevDifficulty = difficultySelect.value;
-      let prevColorInputValue = colorInputValue;
 
       updateColorsButton.addEventListener('click', function() {
         if (lastPosition != null) {
-          let to_play = animationId != null;
-          if (to_play) {
+          let continueViewParam = animationId != null;
+          if (continueViewParam) {
             pauseView();
           }
           currentPallete.clear();
@@ -427,7 +433,7 @@
           let currentValue = colorInput.value;
           startView(false);
           pauseView();
-          if (to_play) {
+          if (continueViewParam) {
             startView(true);
           }
         }
@@ -509,8 +515,8 @@
 
       backButton.addEventListener('click', function() {
         if (lastPosition != null) {
-          let to_play = animationId != null;
-          if (to_play) {
+          let continueViewParam = animationId != null;
+          if (continueViewParam) {
             pauseView();
           }
           const containerWidth = Math.ceil(container.getBoundingClientRect().width);
@@ -520,7 +526,7 @@
           lastPosition = Math.max(endPosition, Math.min(startPosition, parseInt(textElement.style.left, 10) + Math.floor(containerWidth / 2)));
           prevLastPosition = lastPosition;
           textElement.style.left = lastPosition + 'px';
-          if (to_play) {
+          if (continueViewParam) {
             startView(true);
           }
         }
@@ -528,8 +534,8 @@
 
       forwardButton.addEventListener('click', function() {
         if (lastPosition != null) {
-          let to_play = animationId != null;
-          if (to_play) {
+          let continueViewParam = animationId != null;
+          if (continueViewParam) {
             pauseView();
           }
           const containerWidth = Math.ceil(container.getBoundingClientRect().width);
@@ -539,7 +545,7 @@
           lastPosition = Math.max(endPosition, Math.min(startPosition, parseInt(textElement.style.left, 10) - Math.floor(containerWidth / 2)));
           prevLastPosition = lastPosition;
           textElement.style.left = lastPosition + 'px';
-          if (to_play) {
+          if (continueViewParam) {
             startView(true);
           }
         }
@@ -688,23 +694,36 @@
           }
       }
 
-      function shuffleLetters(text) {
-        const sentences = text.split('\n');
+      function shuffleLetters(editedText, helperText, bShuffle, translateFunction = null) {
+        const escapeWord = function (word) {
+          return word.replace(/\\/g, "").replace(/\"/g, "").replace(/\'/g, "\\\'");
+        };
+        const sentences = editedText.split('\n');
+        const helperSentences = helperText.split('\n');
         const r = [];
-        for (const sentence of sentences) {
+        for (let slS = 0; slS < sentences.length; ++slS) {
+            const sentence = sentences[slS];
+            const helperSentence = helperSentences[slS];
             const words = sentence.split(/\s+/);
+            const helperWords = helperSentence.split(/\s+/);
             const currentSentence = [];
             let skipWord = false;
-            for (const word of words) {
+            for (let slW = 0; slW < words.length; ++slW) {
+                const word = words[slW];
+                const helperWord = helperWords[slW];
+                if (word.length == 0) {
+                  continue;
+                }
+                let resultWord = '';
                 if (word[0] == word[0].toUpperCase() || /\d|\'/.test(word)) {
-                    skipWord = true;
+                  skipWord = true;
                 }
                 if (difficultySelect.value == "no") {
                   skipWord = true;
                 }
-                if ((difficultySelect.value == "easy" && word.length > 3 || difficultySelect.value != "easy") && (skipWord == false || difficultySelect.value == 'very-hard')) {
+                if (bShuffle && (difficultySelect.value == "easy" && word.length > 3 || difficultySelect.value != "easy") && (skipWord == false || difficultySelect.value == 'very-hard')) {
                     const wordParts = word.split(/\-/);
-                    let newWord = [];
+                    let lettersList = [];
                     for (const wordPart of wordParts) {
                       const m = (difficultySelect.value == "hard" || difficultySelect.value == "very-hard") ? 0 : (difficultySelect.value == "medium" ? 1 : Math.floor(wordPart.length / 3));
                       const chars = [];
@@ -722,23 +741,36 @@
                           shuffleArray(midLetters);
                       }
                       const allLetters = [...firstLetters, ...midLetters, ...lastLetters];
-                      let newWordPart = [];
+                      let lettersListPart = [];
                       let i = 0;
                       for (const c of wordPart) {
                           if (/^[a-zA-Z]$/.test(c)) {
-                            newWordPart.push(allLetters[i]);
+                            lettersListPart.push(allLetters[i]);
                             i++;
                           } else {
-                            newWordPart.push(c);
+                            lettersListPart.push(c);
                           }
                       }
-                      newWord.push(newWordPart.join(""));
+                      lettersList.push(lettersListPart.join(""));
                     }
-                    currentSentence.push(newWord.join('-'));
+                    resultWord = lettersList.join('-');
                 } else {
-                    currentSentence.push(word);
-                    skipWord = false;
+                    resultWord = word;
                 }
+                let result = resultWord;
+                if (translateFunction) {
+                  result = '';
+                  for (let i = 0; i < resultWord.length; ++i) {
+                    result = result.concat(translateFunction(resultWord[i]));
+                  }
+                  if (difficultySelect.value !== "no") {
+                    const helperWordEscaped = escapeWord(helperWord);
+                    const shuffledWordEscaped = escapeWord(resultWord);
+                    result = `<span onclick="javascript:showWordInfo('${shuffledWordEscaped}', '${helperWordEscaped}')" style="cursor:pointer;">${result}</span>`;
+                  }
+                }
+                currentSentence.push(result);
+                skipWord = false;
                 if (word.indexOf('.') >= 0) {
                     skipWord = true;
                 }
@@ -779,34 +811,34 @@
         return colors;
       }
 
-      function startAnimation(continue_view = false) {
-        const text = input.value.trim();
-        if (!text) {
+      function startAnimation(continueViewParam = false) {
+        let htmlValue = input.value.replace(/\n/g, ' ').trim();
+        if (!htmlValue) {
           alert('Please add text');
           return false;
         }
 
-        let newDifficulty = difficultySelect.value;
-        let singleLineText = textElement.textContent;
-        if (continue_view) {
-          singleLineText = textElement.innerHTML;
-        }
-        else if (!lastPosition || text.length != prevLength || newDifficulty != prevDifficulty) {
-          singleLineText = shuffleLetters(text.replace(/\n/g, ' ').trim());
-        }
+        viewHelper.innerHTML = htmlValue;
+        let textFromHtmlValue = viewHelper.textContent || viewHelper.innerText || "";
+        let singleLineHtml = textElement.innerHTML;
+        let singleLineText = textElement.textContent || textElement.innerText || "";
 
-        if (continue_view == false && colorTaskCheckbox.checked) {
+        let palleteChanged = false;
+
+        if (continueViewParam == false && colorTaskCheckbox.checked) {
+          palleteChanged = true;
+
           let newPalleteSize = parseInt(colorTaskLettersInput.value, 10);
 
           let preserveValues = colorInput.value.split('\n');
           let preserveMap = new Map();
           let preserveLetters = [];
           for (let x of preserveValues) {
-            let x_splitted = x.split(/\s+/);
-            if (x_splitted.length >= 2) {
-              for (let letter of x_splitted[0].toLowerCase()) {
+            let xSplitted = x.split(/\s+/);
+            if (xSplitted.length >= 2) {
+              for (let letter of xSplitted[0].toLowerCase()) {
                 preserveLetters.push(letter);
-                preserveMap.set(letter, [...x_splitted.slice(1)].join(' '));
+                preserveMap.set(letter, [...xSplitted.slice(1)].join(' '));
               }
             }
           }
@@ -816,7 +848,7 @@
             let letters = currentPalleteList.slice();
 
             for (let x of preserveLetters) {
-              if (letters.length < newPalleteSize && singleLineText.indexOf(x) >= 0) {
+              if (letters.length < newPalleteSize && textFromHtmlValue.indexOf(x) >= 0) {
                 let currentLetter = x.toLowerCase();
                 const currentLetterColor = preserveMap.get(currentLetter);
                 if (letters.includes(currentLetter) == false && currentLetterColor) {
@@ -824,15 +856,15 @@
                 }
               }
             }
-            for (let i = 0, j = 0; i < singleLineText.length && letters.length < newPalleteSize; ++i) {
-              let currentLetter = singleLineText[i].toLowerCase();
+            for (let i = 0, j = 0; i < textFromHtmlValue.length && letters.length < newPalleteSize; ++i) {
+              let currentLetter = textFromHtmlValue[i].toLowerCase();
               const currentLetterColor = preserveMap.get(currentLetter);
               if (letters.includes(currentLetter) == false && currentLetterColor) {
                 letters.push(currentLetter);
               }
             }
-            for (let i = 0, j = 0; i < singleLineText.length && j < paletteColors.length && letters.length < newPalleteSize; ++i) {
-              let currentLetter = singleLineText[i].toLowerCase();
+            for (let i = 0, j = 0; i < textFromHtmlValue.length && j < paletteColors.length && letters.length < newPalleteSize; ++i) {
+              let currentLetter = textFromHtmlValue[i].toLowerCase();
               if (/^[a-zA-Z]$/.test(currentLetter) && letters.includes(currentLetter) == false) {
                 letters.push(currentLetter);
                 ++j;
@@ -878,27 +910,14 @@
             }
           }
           currentPalleteList.sort();
-
-          let newText = '';
-          for (let i = 0; i < singleLineText.length; ++i) {
-            let currentLetter = singleLineText[i].toLowerCase();
-            let currentColor = currentPallete.get(currentLetter);
-            if (currentColor != null) {
-              newText = newText.concat(`<span style="background-color:${currentColor};color:${currentColor};" class="span-in-marquee">${singleLineText[i]}</span>`);
-            }
-            else {
-              newText = newText.concat(singleLineText[i]);
-            }
-          }
-          singleLineText = newText;
           colorsInfo.style.display = showTableCheckbox.checked ? '' : 'none';
         }
-        else if (continue_view == false && !colorTaskCheckbox.checked) {
+        else if (continueViewParam == false && !colorTaskCheckbox.checked) {
           colorsInfo.style.display = 'none';
         }
 
         let currentPalleteString = '';
-        if (continue_view == false) {
+        if (continueViewParam == false) {
           let g = 0;
           for (let k of currentPalleteList) {
             let v = currentPallete.get(k);
@@ -914,7 +933,34 @@
           }
         }
 
-        textElement.innerHTML = singleLineText;
+        if (palleteChanged || lastPosition == null || prevColorTaskCheckboxChecked != colorTaskCheckbox.checked || colorTaskCheckbox.checked && prevColorInputValue != colorInput.value || prevLength != textFromHtmlValue.length || prevDifficulty != difficultySelect.value) {
+          let translateFunction = null;
+          if (colorTaskCheckbox.checked) {
+            translateFunction = function (symbol) {
+              let currentSymbol = symbol.toLowerCase();
+              let currentColor = currentPallete.get(currentSymbol);
+              if (currentColor != null) {
+                return `<span style="background-color:${currentColor};color:${currentColor};" class="span-in-marquee">${symbol}</span>`;
+              }
+              else {
+                return symbol;
+              }
+            };
+          }
+          else {
+            translateFunction = function (symbol) {
+              return symbol;
+            };
+          }
+          const bShuffle = (lastPosition == null || prevLength != textFromHtmlValue.length || prevDifficulty != difficultySelect.value);
+          singleLineHtml = shuffleLetters(
+            bShuffle ? textFromHtmlValue : singleLineText,
+            textFromHtmlValue,
+            bShuffle,
+            translateFunction);
+        }
+
+        textElement.innerHTML = singleLineHtml;
 
         const oneStepSize = delayInfo.value > 100 ? (Math.floor(delayInfo.value % 100) / 10 + 2) : 2;
         const containerWidth = Math.ceil(container.getBoundingClientRect().width);
@@ -925,26 +971,24 @@
 
         startTime = Date.now();
         lastTime = startTime;
-        if (continue_view == false) {
+        if (continueViewParam == false) {
           durationInfo.innerHTML = 'Target time: ' + formatSeconds(Math.floor(stepTime * (startPosition - endPosition) / 1000 / oneStepSize));
           colorsInfo.innerHTML = currentPalleteString;
         }
 
-        if (!lastPosition) {
-          textElement.style.left = startPosition + 'px';
+        if (lastPosition == null) {
           lastPosition = startPosition;
-        } else {
-          textElement.style.left = lastPosition + 'px';
         }
-
+        textElement.style.left = lastPosition + 'px';
         let prevLastPosition = lastPosition;
 
-        prevLength = text.length;
-        prevDifficulty = newDifficulty;
+        prevLength = textFromHtmlValue.length;
+        prevDifficulty = difficultySelect.value;
         prevColorInputValue = colorInput.value;
+        prevColorTaskCheckboxChecked = colorTaskCheckbox.checked;
 
-        let flag = continue_view;
-        let curStartTime = continue_view ? startTime : Date.now();
+        let flag = continueViewParam;
+        let curStartTime = continueViewParam ? startTime : Date.now();
         if (flag) {
           colorsInfo.style.display = 'none';
         }
@@ -986,8 +1030,8 @@
         return true;
       }
 
-      function startView(continue_view = false) {
-        if (startAnimation(continue_view)) {
+      function startView(continueViewParam = false) {
+        if (startAnimation(continueViewParam)) {
             backButton.disabled = false;
             forwardButton.disabled = false;
             updateColorsButton.disabled = false;
