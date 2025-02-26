@@ -384,6 +384,7 @@
           <option value="no">-</option>
           <option value="easy">Easy</option>
           <option value="medium">Medium</option>
+          <option value="medium_plus">Medium+</option>
           <option value="hard">Hard</option>
           <option value="very-hard">Very Hard</option>
         </select>
@@ -876,11 +877,11 @@
                 if (difficultySelect.value == "no") {
                   skipWord = true;
                 }
-                if (bShuffle && (difficultySelect.value == "easy" && word.length > 3 || difficultySelect.value != "easy") && (skipWord == false || difficultySelect.value == 'very-hard')) {
+                if (bShuffle && (difficultySelect.value == "easy" && word.length > 3 || difficultySelect.value != "easy") && (skipWord == false || difficultySelect.value == "very-hard")) {
                     const wordParts = word.split(/\-/);
                     let lettersList = [];
                     for (const wordPart of wordParts) {
-                      const m = (difficultySelect.value == "hard" || difficultySelect.value == "very-hard") ? 0 : (difficultySelect.value == "medium" ? 1 : Math.floor(wordPart.length / 3));
+                      const m = (difficultySelect.value == "hard" || difficultySelect.value == "very-hard") ? 0 : (difficultySelect.value == "medium" || difficultySelect.value == "medium_plus" ? 1 : Math.floor(wordPart.length / 3));
                       const chars = [];
                       for (const c of wordPart) {
                           if (/^[a-zA-Z]$/.test(c)) {
@@ -888,8 +889,8 @@
                           }
                       }
                       const firstLetters = chars.slice(0, m);
-                      const midLetters = chars.slice(m, chars.length - m);
-                      const lastLetters = chars.slice(chars.length - m);
+                      const midLetters = chars.slice(m, chars.length - (difficultySelect.value == "medium_plus" ? 0 : m));
+                      const lastLetters = chars.slice(chars.length - (difficultySelect.value == "medium_plus" ? 0 : m));
                       const origMidLetters = [...midLetters];
                       const uniqueMid = new Set(origMidLetters).size;
                       while (uniqueMid > 1 && midLetters.toString() == origMidLetters.toString()) {
