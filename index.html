@@ -404,10 +404,10 @@
       <label for="marquee-input">Text</label>
       <textarea id="marquee-input" placeholder="Enter text here"></textarea>
       <br>
-      <button id="fetch-1-button">Load [meaningful:sentences.js]</button>
-      <button id="fetch-2-button">Fetch [meaningful:wiki]</button>
+      <button id="fetch-1-button">Load [one of the 22831 sentences]</button>
+      <button id="fetch-2-button">Load [random wiki summary]</button>
       <button id="load-from-file-button">Load [from file]</button>
-      <button id="fetch-3-button" style="display: none;">Fetch [random:metaphorpsum]</button>
+      <button id="fetch-3-button" style="display: none;">Load [random sentence from metaphorpsum]</button>
       <button id="clear-button">Clear</button>
       <br><br>
       <label><input type="checkbox" id="append-checkbox" checked> Append text after loading/fetching (uncheck to clear and append)</label>
@@ -445,7 +445,7 @@
     let lastPosition = null;
     let startTime = null, lastTime = null;
     let currentPallete = new Map(), currentPalleteList = [];
-    let prevLength = 0, prevDifficulty = '', prevColorInputValue = '';
+    let prevHtmlValue = '', prevDifficulty = '', prevColorInputValue = '';
 
     function changeColor(elem) {
       let text = prompt("Enter color:", elem.style.color);
@@ -1092,7 +1092,7 @@
           }
         }
 
-        if (palleteChanged || lastPosition == null || prevColorTaskCheckboxChecked != colorTaskCheckbox.checked || colorTaskCheckbox.checked && prevColorInputValue != colorInput.value || prevLength != textFromHtmlValue.length || prevDifficulty != difficultySelect.value) {
+        if (palleteChanged || lastPosition == null || prevColorTaskCheckboxChecked != colorTaskCheckbox.checked || colorTaskCheckbox.checked && prevColorInputValue != colorInput.value || prevHtmlValue != textFromHtmlValue || prevDifficulty != difficultySelect.value) {
           let translateFunction = null;
           if (colorTaskCheckbox.checked) {
             translateFunction = function (symbol) {
@@ -1111,7 +1111,7 @@
               return symbol;
             };
           }
-          const bShuffle = (lastPosition == null || prevLength != textFromHtmlValue.length || prevDifficulty != difficultySelect.value);
+          const bShuffle = (lastPosition == null || prevHtmlValue != textFromHtmlValue || prevDifficulty != difficultySelect.value);
           singleLineHtml = shuffleLetters(
             bShuffle ? textFromHtmlValue : singleLineText,
             textFromHtmlValue,
@@ -1143,7 +1143,7 @@
         textElement.style.left = lastPosition + 'px';
         let prevLastPosition = lastPosition;
 
-        prevLength = textFromHtmlValue.length;
+        prevHtmlValue = textFromHtmlValue;
         prevDifficulty = difficultySelect.value;
         prevColorInputValue = colorInput.value;
         prevColorTaskCheckboxChecked = colorTaskCheckbox.checked;
@@ -1238,7 +1238,7 @@
         updateColorsButton.disabled = true;
         startTime = null;
         lastTime = null;
-        prevLength = 0;
+        prevHtmlValue = '';
       }
 
       startPauseButton.addEventListener('click', function() {
