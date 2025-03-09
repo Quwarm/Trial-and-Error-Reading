@@ -14,6 +14,8 @@
       transition: background-color 0.3s, color 0.3s;
     }
 
+    span { unicode-bidi: embed; }
+
     .container {
       max-width: 768px;
       margin: 0 auto;
@@ -850,6 +852,36 @@
           }
       }
 
+      function isLetter(ch) {
+        try {
+          if (/^[a-zA-Z]+$/.test(ch)) {
+            return true;
+          }
+          if (ch.toLowerCase() !== ch.toUpperCase()) {
+            return true;
+          }
+          if (/^\p{L}+$/u.test(ch)) {
+            return true;
+          }
+        }
+        catch (err) {
+          console.log(`${err}`);
+        }
+        return false;
+      }
+
+      function isEnglishLetter(ch) {
+        try {
+          if (/^[a-zA-Z]+$/.test(ch)) {
+            return true;
+          }
+        }
+        catch (err) {
+          console.log(`${err}`);
+        }
+        return false;
+      }
+
       function shuffleLetters(editedText, helperText, bShuffle, translateFunction = null) {
         const escapeWord = function (word) {
           return word.replace(/\\/g, "").replace(/\"/g, "").replace(/\'/g, "\\\'");
@@ -871,7 +903,7 @@
                   continue;
                 }
                 let resultWord = '';
-                if (word[0] == word[0].toUpperCase() || /\d|\'/.test(word)) {
+                if (isEnglishLetter(word[0]) && word[0] == word[0].toUpperCase() || /\d|\'/.test(word)) {
                   skipWord = true;
                 }
                 if (difficultySelect.value == "no") {
@@ -884,7 +916,7 @@
                       const m = (difficultySelect.value == "hard" || difficultySelect.value == "very-hard") ? 0 : (difficultySelect.value == "medium" || difficultySelect.value == "medium_plus" ? 1 : Math.floor(wordPart.length / 3));
                       const chars = [];
                       for (const c of wordPart) {
-                          if (/^[a-zA-Z]$/.test(c)) {
+                          if (isLetter(c)) {
                               chars.push(c);
                           }
                       }
@@ -900,7 +932,7 @@
                       let lettersListPart = [];
                       let i = 0;
                       for (const c of wordPart) {
-                          if (/^[a-zA-Z]$/.test(c)) {
+                          if (isLetter(c)) {
                             lettersListPart.push(allLetters[i]);
                             i++;
                           } else {
@@ -1024,7 +1056,7 @@
             }
             for (let i = 0, j = 0; i < textFromHtmlValue.length && j < paletteColors.length && letters.length < newPalleteSize; ++i) {
               let currentLetter = textFromHtmlValue[i].toLowerCase();
-              if (/^[a-zA-Z]$/.test(currentLetter) && letters.includes(currentLetter) == false) {
+              if (isLetter(currentLetter) && letters.includes(currentLetter) == false) {
                 letters.push(currentLetter);
                 ++j;
               }
