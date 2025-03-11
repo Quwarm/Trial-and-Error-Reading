@@ -140,7 +140,7 @@
     }
 
     body.light #back-button:disabled, body.light #forward-button:disabled, body.light #update-colors-button:disabled {
-      background-color: rgb(238, 238, 238);
+      background-color: rgb(230, 230, 230);
       color: rgb(173, 173, 173);
     }
 
@@ -349,6 +349,34 @@
       color: white;
     }
 
+    #loop-button {
+      margin-top: 3px;
+    }
+
+    body.light #loop-button {
+      background-color: rgb(230, 230, 230);
+      color: rgb(173, 173, 173);
+      display: inline-block;
+      min-width: 70px;
+    }
+
+    body.light #loop-button.active {
+      background-color: rgb(200, 200, 200);
+      color: rgb(0, 0, 0);
+    }
+
+    body.dark #loop-button {
+      background-color: rgb(90, 90, 90);
+      color: rgb(70, 70, 70);
+      display: inline-block;
+      min-width: 70px;
+    }
+
+    body.dark #loop-button.active {
+      background-color: rgb(90, 90, 90);
+      color: rgb(255, 255, 255);
+    }
+
     @media (max-width: 600px) {
       button {
         width: 100%;
@@ -370,6 +398,7 @@
       <button id="stop-button">Stop</button>
       <button id="forward-button" disabled>&gt;&gt;</button>
       <br>
+      <button id="loop-button">Loop</button>
       <span id="duration-info" style="display: none;">0</span>
       <br><br>
       <span id="colors-info" style="display: none;"></span>
@@ -447,7 +476,7 @@
     let lastPosition = null;
     let startTime = null, lastTime = null;
     let currentPallete = new Map(), currentPalleteList = [];
-    let prevHtmlValue = '', prevDifficulty = '', prevColorInputValue = '';
+    let prevHtmlValue = '', prevDifficulty = '', prevColorInputValue = '', isLooping = false;
 
     function changeColor(elem) {
       let text = prompt("Enter color:", elem.style.color);
@@ -499,6 +528,7 @@
       const updateColorsButton = document.getElementById('update-colors-button');
       const viewHelper = document.getElementById('view-helper');
       const colorBoxesThemeButton = document.getElementById('color-boxes-theme-button');
+      const loopButton = document.getElementById('loop-button');
 
       const savedText = localStorage.getItem('sle_text');
       if (savedText) input.value = savedText;
@@ -531,6 +561,15 @@
       dumpColorsButton.style.display = showTableCheckbox.checked && colorTaskCheckbox.checked ? '' : 'none';
       const savedDifficulty = localStorage.getItem('sle_difficulty') || 'no';
       difficultySelect.value = savedDifficulty;
+      isLooping = (localStorage.getItem('sle_loop') || 'false') == 'true';
+      if (isLooping) {
+        loopButton.classList.toggle('active');
+      }
+
+      loopButton.addEventListener('click', function() {
+          isLooping = !isLooping;
+          loopButton.classList.toggle('active');
+      });
 
       updateColorsButton.addEventListener('click', function() {
         if (lastPosition != null) {
@@ -681,7 +720,6 @@
           const textWidth = Math.ceil(textElement.getBoundingClientRect().width);
           const endPosition = -textWidth;
           lastPosition = Math.max(endPosition, Math.min(startPosition, parseInt(textElement.style.left, 10) + Math.floor(containerWidth / 2)));
-          prevLastPosition = lastPosition;
           textElement.style.left = lastPosition + 'px';
           if (continueViewParam) {
             startView(true);
@@ -700,7 +738,6 @@
           const textWidth = Math.ceil(textElement.getBoundingClientRect().width);
           const endPosition = -textWidth;
           lastPosition = Math.max(endPosition, Math.min(startPosition, parseInt(textElement.style.left, 10) - Math.floor(containerWidth / 2)));
-          prevLastPosition = lastPosition;
           textElement.style.left = lastPosition + 'px';
           if (continueViewParam) {
             startView(true);
@@ -825,6 +862,7 @@
         localStorage.setItem('sle_speed', speedInput.value);
         localStorage.setItem('sle_append_text', '' + appendCheckbox.checked);
         localStorage.setItem('sle_difficulty', difficultySelect.value);
+        localStorage.setItem('sle_loop', isLooping);
       }
 
       resetButton.addEventListener('click', resetSettings);
@@ -841,6 +879,7 @@
             localStorage.removeItem('sle_difficulty');
             localStorage.removeItem('sle_theme');
             localStorage.removeItem('sle_color_boxes_theme');
+            localStorage.removeItem('sle_loop');
             location.reload();
         }
       }
@@ -1190,7 +1229,7 @@
           const currentLeft = parseInt(textElement.style.left, 10) - oneStepSize;
 
           lastTime = Date.now();
-          let curStepTime = (lastTime - startTime) / (prevLastPosition - currentLeft);
+          let curStepTime = (lastTime - startTime) / Math.max(1e-9, prevLastPosition - currentLeft);
           if (!flag && lastTime - curStartTime >= 1000) {
             flag = true;
             colorsInfo.style.display = 'none';
@@ -1199,15 +1238,29 @@
           durationInfo.innerHTML = formatSeconds(Math.floor(viewStepTime * (currentLeft - endPosition) / 1000));
 
           if (currentLeft <= endPosition) {
-            textElement.style.left = endPosition + 'px';
-            clearTimeout(animationId);
-            animationId = null;
-            startPauseButton.textContent = 'Start';
-            startPauseButton.classList.remove('pause');
-            durationInfo.style.display = 'none';
-            lastPosition = null;
-            inputContainer.style.display = '';
-            otherSettingsContainer.style.display = '';
+            if (isLooping) {
+              startTime = Date.now();
+              textElement.style.left = startPosition + 'px';
+              lastPosition = startPosition;
+              prevLastPosition = lastPosition;
+              if (animationId) {
+                animationId = setTimeout(animate, stepTime);
+              }
+            }
+            else {
+              textElement.style.left = endPosition + 'px';
+              clearTimeout(animationId);
+              animationId = null;
+              startPauseButton.textContent = 'Start';
+              startPauseButton.classList.remove('pause');
+              inputContainer.style.display = '';
+              otherSettingsContainer.style.display = '';
+              durationInfo.style.display = 'none';
+              if (colorTaskCheckbox.checked) {
+                colorsInfo.style.display = showTableCheckbox.checked ? '' : 'none';
+              }
+              loopButton.style.display = '';
+            }
           } else {
             textElement.style.left = currentLeft + 'px';
             lastPosition = currentLeft;
@@ -1223,6 +1276,7 @@
 
       function startView(continueViewParam = false) {
         if (startAnimation(continueViewParam)) {
+            loopButton.style.display = 'none';
             backButton.disabled = false;
             forwardButton.disabled = false;
             updateColorsButton.disabled = false;
@@ -1243,6 +1297,7 @@
           inputContainer.style.display = '';
           otherSettingsContainer.style.display = '';
           durationInfo.style.display = 'none';
+          loopButton.style.display = '';
           if (colorTaskCheckbox.checked) {
             colorsInfo.style.display = showTableCheckbox.checked ? '' : 'none';
           }
@@ -1263,6 +1318,7 @@
         otherSettingsContainer.style.display = '';
         durationInfo.style.display = 'none';
         colorsInfo.style.display = 'none';
+        loopButton.style.display = '';
         currentPallete.clear();
         currentPalleteList = [];
         backButton.disabled = true;
