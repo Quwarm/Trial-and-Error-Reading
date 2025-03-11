@@ -127,6 +127,10 @@
       background-color: rgb(9, 130, 153);
     }
 
+    #update-colors-button {
+      font-size: 20px;
+    }
+
     body.light #back-button, body.light #forward-button, body.light #update-colors-button {
       background-color: rgb(200, 200, 200);
       color: rgb(0, 0, 0);
@@ -421,7 +425,7 @@
         </select>
       </label>
       <br>
-      <button id="update-colors-button" disabled>&#128260;</button>
+      <button id="update-colors-button" disabled>&#8635;</button>
       <br>
       <label><input type="checkbox" id="color-task-checkbox" checked> Color encoder task</label>
       <br>
@@ -909,18 +913,6 @@
         return false;
       }
 
-      function isEnglishLetter(ch) {
-        try {
-          if (/^[a-zA-Z]+$/.test(ch)) {
-            return true;
-          }
-        }
-        catch (err) {
-          console.log(`${err}`);
-        }
-        return false;
-      }
-
       function shuffleLetters(editedText, helperText, bShuffle, translateFunction = null) {
         const escapeWord = function (word) {
           return word.replace(/\\/g, "").replace(/\"/g, "").replace(/\'/g, "\\\'");
@@ -942,8 +934,19 @@
                   continue;
                 }
                 let resultWord = '';
-                if (isEnglishLetter(word[0]) && word[0] == word[0].toUpperCase() || /\d|\'/.test(word)) {
+                if (/^[^a-zA-Z]*[A-Z]/.test(word) || /[0-9]|\'/.test(word)) {
                   skipWord = true;
+                }
+                try {
+                  if (/\u2032|\u2033|\u2034|\u2057|\u2019|\u0060|\u00B4|\uFF40|\u02F4/u.test(word)) {
+                    skipWord = true;
+                  }
+                  if (/^[^\p{L}]*\p{Lu}/u.test(word) || /\p{N}/u.test(word)) {
+                    skipWord = true;
+                  }
+                }
+                catch (err) {
+                  console.log(err);
                 }
                 if (difficultySelect.value == "no") {
                   skipWord = true;
@@ -1042,7 +1045,14 @@
       }
 
       function startAnimation(continueViewParam = false) {
-        let htmlValue = input.value.replace(/\n/g, ' ').trim();
+        let htmlValue = input.value.replace(/\s+/g, ' ').trim();
+        try {
+          htmlValue = htmlValue.replace(/\p{Z}+/ug, ' ');
+          htmlValue = htmlValue.replace(/\p{C}+/ug, '');
+        }
+        catch (err) {
+          console.log(err);
+        }
         if (!htmlValue) {
           alert('Please add text');
           return false;
@@ -1313,20 +1323,17 @@
         startPauseButton.textContent = 'Start';
         startPauseButton.classList.remove('pause');
         textElement.style.left = containerWidth + 'px';
-        lastPosition = null;
+        lastPosition = containerWidth;
         inputContainer.style.display = '';
         otherSettingsContainer.style.display = '';
         durationInfo.style.display = 'none';
         colorsInfo.style.display = 'none';
         loopButton.style.display = '';
-        currentPallete.clear();
-        currentPalleteList = [];
         backButton.disabled = true;
         forwardButton.disabled = true;
         updateColorsButton.disabled = true;
         startTime = null;
         lastTime = null;
-        prevHtmlValue = '';
       }
 
       startPauseButton.addEventListener('click', function() {
