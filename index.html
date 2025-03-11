@@ -406,9 +406,9 @@
 
     <div id="input-container">
       <label for="speed-input">Speed</label>
-      <input type="number" id="speed-input" min="-30" max="100" value="10" style="display: none;">
-      <input type="range" id="delay-slider" min="1" max="130" value="100">
-      <input type="number" id="delay-info" min="-1000" max="130" value="100">
+      <input type="number" id="speed-input" min="-1000" max="1000" value="10" style="display: none;">
+      <input type="range" id="delay-slider" min="1" max="250" value="100">
+      <input type="number" id="delay-info" min="-1000" max="1000" value="100">
       <br><br>
       <label>Difficulty of shuffling:
         <select id="difficulty-select">
@@ -1196,7 +1196,7 @@
         const textWidth = Math.ceil(textElement.getBoundingClientRect().width);
         const startPosition = containerWidth;
         const endPosition = -textWidth;
-        const oneStepSize = delayInfo.value > 100 ? (Math.floor(delayInfo.value % 100) / 10 + 1) : 1;
+        const oneStepSize = delayInfo.value > 100 ? ((delayInfo.value - 100) / 10 + 1) : 1;
         let stepTime = Math.max(0, Math.max(1, parseInt(speedInput.value, 10)));
         if (delayInfo.value < 20) {
           stepTime += (20 - Math.floor(delayInfo.value % 100)) * 20;
