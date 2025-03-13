@@ -127,40 +127,36 @@
       background-color: rgb(9, 130, 153);
     }
 
-    #update-colors-button {
-      font-size: 20px;
-    }
-
-    body.light #back-button, body.light #forward-button, body.light #update-colors-button {
+    body.light #back-button, body.light #forward-button, body.light #update-text-button, body.light #update-colors-button {
       background-color: rgb(200, 200, 200);
       color: rgb(0, 0, 0);
       display: inline-block;
       min-width: 70px;
     }
 
-    body.light #back-button:hover, body.light #forward-button:hover, body.light #update-colors-button:hover {
+    body.light #back-button:hover, body.light #forward-button:hover, body.light #update-text-button:hover, body.light #update-colors-button:hover {
       background-color: rgb(210, 210, 210);
       color: rgb(0, 0, 0);
     }
 
-    body.light #back-button:disabled, body.light #forward-button:disabled, body.light #update-colors-button:disabled {
+    body.light #back-button:disabled, body.light #forward-button:disabled, body.light #update-text-button:disabled, body.light #update-colors-button:disabled {
       background-color: rgb(230, 230, 230);
       color: rgb(173, 173, 173);
     }
 
-    body.dark #back-button, body.dark #forward-button, body.dark #update-colors-button {
+    body.dark #back-button, body.dark #forward-button, body.dark #update-text-button, body.dark #update-colors-button {
       background-color: rgb(90, 90, 90);
       color: rgb(255, 255, 255);
       display: inline-block;
       min-width: 70px;
     }
 
-    body.dark #back-button:hover, body.dark #forward-button:hover, body.dark #update-colors-button:hover {
+    body.dark #back-button:hover, body.dark #forward-button:hover, body.dark #update-text-button:hover, body.dark #update-colors-button:hover {
       background-color: rgb(80, 80, 80);
       color: rgb(255, 255, 255);
     }
 
-    body.dark #back-button:disabled, body.dark #forward-button:disabled, body.dark #update-colors-button:disabled {
+    body.dark #back-button:disabled, body.dark #forward-button:disabled, body.dark #update-text-button:disabled, body.dark #update-colors-button:disabled {
       background-color: rgb(90, 90, 90);
       color: rgb(70, 70, 70);
     }
@@ -425,7 +421,8 @@
         </select>
       </label>
       <br>
-      <button id="update-colors-button" disabled>&#8635;</button>
+      <button id="update-text-button" disabled>&#8635; Text &#8635;</button>
+      <button id="update-colors-button" disabled>&#8635; Colors &#8635;</button>
       <br>
       <label><input type="checkbox" id="color-task-checkbox" checked> Color encoder task</label>
       <br>
@@ -480,7 +477,7 @@
     let lastPosition = null;
     let startTime = null, lastTime = null;
     let currentPallete = new Map(), currentPalleteList = [];
-    let prevHtmlValue = '', prevDifficulty = '', prevColorInputValue = '', isLooping = false;
+    let prevHtmlValue = '', prevDifficulty = '', prevColorInputValue = '', prevColorTaskCheckboxChecked = null, isLooping = false;
 
     function changeColor(elem) {
       let text = prompt("Enter color:", elem.style.color);
@@ -529,6 +526,7 @@
       const dumpColorsButton = document.getElementById('dump-colors-button');
       const showTextCheckbox = document.getElementById('show-text-checkbox');
       const showTableCheckbox = document.getElementById('show-table-checkbox');
+      const updateTextButton = document.getElementById('update-text-button');
       const updateColorsButton = document.getElementById('update-colors-button');
       const viewHelper = document.getElementById('view-helper');
       const colorBoxesThemeButton = document.getElementById('color-boxes-theme-button');
@@ -573,6 +571,22 @@
       loopButton.addEventListener('click', function() {
           isLooping = !isLooping;
           loopButton.classList.toggle('active');
+      });
+
+      updateTextButton.addEventListener('click', function() {
+        if (lastPosition != null) {
+          let continueViewParam = animationId != null;
+          if (continueViewParam) {
+            pauseView();
+          }
+          prevDifficulty = '';
+          let currentValue = colorInput.value;
+          startView(false);
+          pauseView();
+          if (continueViewParam) {
+            startView(true);
+          }
+        }
       });
 
       updateColorsButton.addEventListener('click', function() {
@@ -1218,7 +1232,7 @@
           colorsInfo.innerHTML = currentPalleteString;
         }
 
-        if (lastPosition == null) {
+        if (lastPosition == null || lastPosition <= endPosition) {
           lastPosition = startPosition;
         }
         textElement.style.left = lastPosition + 'px';
@@ -1250,15 +1264,17 @@
           if (currentLeft <= endPosition) {
             if (isLooping) {
               startTime = Date.now();
-              textElement.style.left = startPosition + 'px';
               lastPosition = startPosition;
               prevLastPosition = lastPosition;
+              textElement.style.left = lastPosition + 'px';
               if (animationId) {
                 animationId = setTimeout(animate, stepTime);
               }
             }
             else {
-              textElement.style.left = endPosition + 'px';
+              lastPosition = endPosition;
+              prevLastPosition = lastPosition;
+              textElement.style.left = lastPosition + 'px';
               clearTimeout(animationId);
               animationId = null;
               startPauseButton.textContent = 'Start';
@@ -1289,6 +1305,7 @@
             loopButton.style.display = 'none';
             backButton.disabled = false;
             forwardButton.disabled = false;
+            updateTextButton.disabled = false;
             updateColorsButton.disabled = false;
             startPauseButton.textContent = 'Pause';
             startPauseButton.classList.add('pause');
@@ -1329,11 +1346,6 @@
         durationInfo.style.display = 'none';
         colorsInfo.style.display = 'none';
         loopButton.style.display = '';
-        backButton.disabled = true;
-        forwardButton.disabled = true;
-        updateColorsButton.disabled = true;
-        startTime = null;
-        lastTime = null;
       }
 
       startPauseButton.addEventListener('click', function() {
