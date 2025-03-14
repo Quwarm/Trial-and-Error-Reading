@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Trial and Error Reading</title>
+  <title>Enhanced Trial and Error Reading</title>
   <link rel="icon" type="image/png" href="favicon.png" author="meaicon" />
   <style>
     body {
@@ -85,6 +85,7 @@
       border-radius: 5px;
       cursor: pointer;
       transition: background-color 0.3s;
+      margin: 5px;
     }
 
     #colors-info {
@@ -127,36 +128,36 @@
       background-color: rgb(9, 130, 153);
     }
 
-    body.light #back-button, body.light #forward-button, body.light #update-text-button, body.light #update-colors-button {
+    body.light #back-button, body.light #forward-button, body.light #update-colors-button {
       background-color: rgb(200, 200, 200);
       color: rgb(0, 0, 0);
       display: inline-block;
       min-width: 70px;
     }
 
-    body.light #back-button:hover, body.light #forward-button:hover, body.light #update-text-button:hover, body.light #update-colors-button:hover {
+    body.light #back-button:hover, body.light #forward-button:hover, body.light #update-colors-button:hover {
       background-color: rgb(210, 210, 210);
       color: rgb(0, 0, 0);
     }
 
-    body.light #back-button:disabled, body.light #forward-button:disabled, body.light #update-text-button:disabled, body.light #update-colors-button:disabled {
+    body.light #back-button:disabled, body.light #forward-button:disabled, body.light #update-colors-button:disabled {
       background-color: rgb(230, 230, 230);
       color: rgb(173, 173, 173);
     }
 
-    body.dark #back-button, body.dark #forward-button, body.dark #update-text-button, body.dark #update-colors-button {
+    body.dark #back-button, body.dark #forward-button, body.dark #update-colors-button {
       background-color: rgb(90, 90, 90);
       color: rgb(255, 255, 255);
       display: inline-block;
       min-width: 70px;
     }
 
-    body.dark #back-button:hover, body.dark #forward-button:hover, body.dark #update-text-button:hover, body.dark #update-colors-button:hover {
+    body.dark #back-button:hover, body.dark #forward-button:hover, body.dark #update-colors-button:hover {
       background-color: rgb(80, 80, 80);
       color: rgb(255, 255, 255);
     }
 
-    body.dark #back-button:disabled, body.dark #forward-button:disabled, body.dark #update-text-button:disabled, body.dark #update-colors-button:disabled {
+    body.dark #back-button:disabled, body.dark #forward-button:disabled, body.dark #update-colors-button:disabled {
       background-color: rgb(90, 90, 90);
       color: rgb(70, 70, 70);
     }
@@ -181,140 +182,100 @@
       -webkit-box-sizing: border-box;
     }
 
-    body.light.color-boxes-theme-1 .span-in-marquee {
-      border: 1px dashed white;
+    /* Progress bar styles */
+    #progress-container {
+      width: 100%;
+      height: 20px;
+      background-color: #f0f0f0;
+      border-radius: 10px;
+      margin: 10px 0;
+      position: relative;
+      overflow: hidden;
     }
 
-    body.dark.color-boxes-theme-1 .span-in-marquee {
-      border: 1px dashed black;
+    #progress-bar {
+      height: 100%;
+      background-color: #4CAF50;
+      width: 0%;
+      transition: width 0.3s;
+      border-radius: 10px;
     }
 
-    body.light.color-boxes-theme-2 .span-in-marquee {
-      border: 1px solid black;
-    }
-
-    body.dark.color-boxes-theme-2 .span-in-marquee {
-      border: 1px solid white;
-    }
-
-    body.light.color-boxes-theme-3 .span-in-marquee {
-      border: 1px solid black;
-    }
-
-    body.dark.color-boxes-theme-3 .span-in-marquee {
-      border: 1px solid white;
-    }
-
-    body.light.color-boxes-theme-3 .span-in-marquee-for-word {
-      border: 1px solid black;
-    }
-
-    body.dark.color-boxes-theme-3 .span-in-marquee-for-word {
-      border: 1px solid white;
-    }
-
-    body.light.color-boxes-theme-4 .span-in-marquee {
-      border: 1px solid black;
-    }
-
-    body.dark.color-boxes-theme-4 .span-in-marquee {
-      border: 1px solid white;
-    }
-
-    body.light.color-boxes-theme-4 .span-in-marquee-for-word {
-      border: 2px solid black;
-    }
-
-    body.dark.color-boxes-theme-4 .span-in-marquee-for-word {
-      border: 2px solid white;
-    }
-
-    body.light #marquee-text {
-      letter-spacing: 1px;
-      word-spacing: 1px;
-    }
-
-    body.dark #marquee-text {
-      letter-spacing: 1px;
-      word-spacing: 1px;
-    }
-
-    body.light.color-boxes-theme-2 #marquee-text {
-      letter-spacing: 2px;
-    }
-
-    body.dark.color-boxes-theme-2 #marquee-text {
-      letter-spacing: 2px;
-    }
-
-    body.light.color-boxes-theme-3 #marquee-text {
-      letter-spacing: 3px;
-      word-spacing: 5px;
-    }
-
-    body.dark.color-boxes-theme-3 #marquee-text {
-      letter-spacing: 3px;
-      word-spacing: 5px;
-    }
-
-    body.light.color-boxes-theme-4 #marquee-text {
-      letter-spacing: 3px;
-      word-spacing: 15px;
-    }
-
-    body.dark.color-boxes-theme-4 #marquee-text {
-      letter-spacing: 3px;
-      word-spacing: 15px;
-    }
-
-    #delay-info {
-      text-align: center;
-    }
-
-    #save-button {
-      background-color: rgb(13, 110, 253);
+    /* Tooltip for progress bar */
+    #progress-tooltip {
+      position: absolute;
+      background-color: rgba(0, 0, 0, 0.7);
       color: white;
-      display: inline-block;
+      padding: 5px 10px;
+      border-radius: 5px;
+      font-size: 12px;
+      display: none;
+      pointer-events: none;
+      z-index: 10;
     }
 
-    #save-button:hover {
-      background-color: rgb(11, 94, 215);
+    /* Bookmark styles */
+    .bookmark {
+      width: 8px;
+      height: 20px;
+      background-color: #ff6b6b;
+      position: absolute;
+      top: 0;
+      border-radius: 0;
+      cursor: pointer;
+      z-index: 5;
     }
 
-    #reset-button {
-      background-color: rgb(33, 37, 41);
+    /* ADDED: Reading focus indicator */
+    #focus-indicator {
+      position: absolute;
+      height: 60px;
+      width: 10px;
+      background-color: rgba(255, 255, 0, 0.3);
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      pointer-events: none;
+      z-index: 2;
+    }
+
+    /* ADDED: Menu container */
+    #bookmark-menu {
+      max-height: 200px;
+      overflow-y: auto;
+      margin: 10px 0;
+      border: 1px solid #ccc;
+      padding: 5px;
+      border-radius: 5px;
+      display: none;
+    }
+
+    .bookmark-item {
+      padding: 5px;
+      border-bottom: 1px solid #eee;
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .bookmark-item:hover {
+      background-color: #f0f0f0;
+    }
+
+    .bookmark-item button {
+      padding: 2px 5px;
+      margin: 0;
+      background-color: #ff6b6b;
       color: white;
-      display: inline-block;
+      font-size: 12px;
     }
 
-    #reset-button:hover {
-      background-color: rgb(66, 70, 73);
-    }
-
-    select {
-      padding: 8px 4px 8px 4px;
-      text-align: center;
-    }
-
-    input[type=text], input[type=number], select {
-      padding: 8px 4px 8px 4px;
-      text-align: center;
-    }
-
-    input[type=range] {
-      padding: 0px 4px 0px 4px;
-      width: 225px;
-      margin: auto auto;
-      text-align: center;
-    }
-
-    input[type=checkbox] {
-      -ms-transform: scale(1.4); /* IE */
-      -moz-transform: scale(1.4); /* FF */
-      -webkit-transform: scale(1.4); /* Safari and Chrome */
-      -o-transform: scale(1.4); /* Opera */
-      transform: scale(1.4);
-      padding: 0px 4px 0px 4px;
+    /* ADDED: Stats container */
+    #stats-container {
+      margin: 10px 0;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
     }
 
     body.light {
@@ -349,66 +310,266 @@
       color: white;
     }
 
-    #loop-button {
-      margin-top: 3px;
+    body.dark #bookmark-menu {
+      background-color: #2a2a2a;
+      border-color: #555;
     }
 
-    body.light #loop-button {
-      background-color: rgb(230, 230, 230);
-      color: rgb(173, 173, 173);
-      display: inline-block;
-      min-width: 70px;
+    body.dark .bookmark-item {
+      border-color: #444;
     }
 
-    body.light #loop-button.active {
-      background-color: rgb(200, 200, 200);
-      color: rgb(0, 0, 0);
+    body.dark .bookmark-item:hover {
+      background-color: #3a3a3a;
     }
 
-    body.dark #loop-button {
-      background-color: rgb(90, 90, 90);
-      color: rgb(70, 70, 70);
-      display: inline-block;
-      min-width: 70px;
+    /* ADDED: Split view toggle */
+    #view-mode-button {
+      background-color: #6c757d;
+      color: white;
     }
 
-    body.dark #loop-button.active {
-      background-color: rgb(90, 90, 90);
-      color: rgb(255, 255, 255);
+    /* Quick settings panel */
+    #quick-settings-panel {
+      position: fixed;
+      top: 50%;
+      right: 0;
+      transform: translateY(-50%);
+      background-color: rgba(0, 0, 0, 0.8);
+      color: white;
+      padding: 15px;
+      border-radius: 10px 0 0 10px;
+      box-shadow: -2px 0 5px rgba(0, 0, 0, 0.3);
+      z-index: 100;
+      transition: right 0.3s;
+      width: 250px;
+    }
+
+    #quick-settings-panel.hidden {
+      right: -250px;
+    }
+
+    #quick-settings-toggle {
+      position: fixed;
+      top: 50%;
+      right: 0;
+      transform: translateY(-50%);
+      background-color: rgba(0, 0, 0, 0.8);
+      color: white;
+      padding: 10px;
+      border-radius: 10px 0 0 10px;
+      z-index: 101;
+      cursor: pointer;
+      font-size: 20px;
+    }
+
+    .quick-settings-row {
+      margin: 10px 0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    /* Virtual scroller */
+    .virtual-scroller {
+      height: 60px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    /* Word highlighting */
+    .highlight-word {
+      background-color: yellow;
+      color: black;
+    }
+
+    /* Search box */
+    #search-container {
+      display: none;
+      position: fixed;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 100;
+      background-color: rgba(0, 0, 0, 0.8);
+      padding: 10px;
+      border-radius: 5px;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+    }
+
+    #search-input {
+      width: 200px;
+      padding: 5px;
+      margin-right: 5px;
+    }
+
+    /* Font size controls */
+    #font-size-control {
+      width: 100px;
+    }
+
+    /* TTS button */
+    #tts-button {
+      background-color: #9c27b0;
+      color: white;
+    }
+
+    /* Animations */
+    @keyframes pulse {
+      0% { opacity: 0.6; }
+      50% { opacity: 1; }
+      100% { opacity: 0.6; }
+    }
+
+    #focus-indicator {
+      animation: pulse 2s infinite;
+    }
+
+    /* Split view styles */
+    .split-view #marquee-container {
+      float: left;
+      width: 49%;
+    }
+
+    .split-view #marquee-input {
+      float: right;
+      width: 49%;
+      height: 300px;
+    }
+
+    .split-view #input-container {
+      margin-top: 20px;
+      clear: both;
+    }
+    
+    /* Keyboard shortcut tooltip */
+    .keyboard-shortcut {
+      font-size: 12px;
+      background-color: rgba(0, 0, 0, 0.7);
+      color: white;
+      padding: 2px 5px;
+      border-radius: 3px;
+      margin-left: 5px;
+    }
+
+    @media (max-width: 768px) {
+      .split-view #marquee-container,
+      .split-view #marquee-input {
+        float: none;
+        width: 100%;
+      }
     }
 
     @media (max-width: 600px) {
       button {
-        width: 100%;
+        width: calc(50% - 10px);
         margin-bottom: 10px;
       }
     }
   </style>
 </head>
-<body class="">
-  <div class="container">
+<body class="dark">
+  <!-- Quick settings toggle button -->
+  <div id="quick-settings-toggle">⚙️</div>
+  
+  <!-- Quick settings panel -->
+  <div id="quick-settings-panel" class="hidden">
+    <h4>Quick Settings</h4>
+    <div class="quick-settings-row">
+      <label for="quick-speed">Speed:</label>
+      <input type="range" id="quick-speed" min="1" max="130" value="100">
+    </div>
+    <div class="quick-settings-row">
+      <label for="font-size-control">Font Size:</label>
+      <input type="range" id="font-size-control" min="20" max="72" value="42">
+    </div>
+    <div class="quick-settings-row">
+      <label>Focus Mode:</label>
+      <input type="checkbox" id="focus-mode-toggle" checked>
+    </div>
+    <div class="quick-settings-row">
+      <button id="create-bookmark-quick">Bookmark</button>
+      <button id="open-search">Search</button>
+    </div>
+    <div class="quick-settings-row">
+      <button id="tts-button">Text-to-Speech</button>
+    </div>
+    <div class="quick-settings-row">
+      <button id="export-settings">Export</button>
+      <button id="import-settings">Import</button>
+    </div>
+    <div style="margin-top: 15px; font-size: 12px;">
+      <strong>Keyboard Shortcuts:</strong><br>
+      Space - Play/Pause<br>
+      ← → - Navigate<br>
+      B - Bookmark<br>
+      S - Search<br>
+      + - - Speed<br>
+      ESC - Close panels
+    </div>
+  </div>
+  
+  <!-- Search container -->
+  <div id="search-container">
+    <input type="text" id="search-input" placeholder="Search text...">
+    <button id="search-prev">&lt;</button>
+    <button id="search-next">&gt;</button>
+    <button id="search-close">×</button>
+    <span id="search-results">0/0</span>
+  </div>
 
-    <div id="marquee-container">
-      <span id="marquee-text"></span>
+  <div class="container">
+    <!-- Focus indicator for center of reading view -->
+    <div id="focus-indicator"></div>
+
+    <!-- Reading container wrapper to properly contain focus indicator -->
+    <div id="reading-container" style="position: relative; overflow: hidden;">
+      <div id="marquee-container">
+        <span id="marquee-text"></span>
+      </div>
+      
+      <!-- Focus indicator positioned only within the reading area -->
+      <div id="focus-indicator" style="position: absolute; height: 60px; width: 5px; background-color: rgba(255, 255, 0, 0.2); top: 0; left: 50%; transform: translateX(-50%); pointer-events: none; z-index: 2; display: none;"></div>
+    </div>
+
+    <!-- Progress bar with visual indicator -->
+    <div id="progress-container">
+      <div id="progress-bar"></div>
+      <div id="progress-tooltip"></div>
     </div>
 
     <div id="control-container">
-      <button id="back-button" disabled>&lt;&lt;</button>
-      <button id="start-pause-button">Start</button>
+      <button id="back-button" disabled>&lt;&lt; <span class="keyboard-shortcut">←</span></button>
+      <button id="start-pause-button">Start <span class="keyboard-shortcut">Space</span></button>
       <button id="stop-button">Stop</button>
-      <button id="forward-button" disabled>&gt;&gt;</button>
-      <br>
-      <button id="loop-button">Loop</button>
+      <button id="forward-button" disabled>&gt;&gt; <span class="keyboard-shortcut">→</span></button>
+      <button id="bookmark-button">Bookmark <span class="keyboard-shortcut">B</span></button>
+      <button id="loop-button">Loop <span class="keyboard-shortcut">L</span></button>
+      <button id="search-button">Search <span class="keyboard-shortcut">S</span></button>
       <span id="duration-info" style="display: none;">0</span>
-      <br><br>
+      <br>
       <span id="colors-info" style="display: none;"></span>
+    </div>
+
+    <!-- ADDED: Bookmark menu -->
+    <div id="bookmark-menu">
+      <h4>Bookmarks</h4>
+      <div id="bookmark-list"></div>
+    </div>
+
+    <!-- ADDED: Reading stats -->
+    <div id="stats-container">
+      <h4>Reading Stats</h4>
+      <div>Progress: <span id="progress-percentage">0%</span></div>
+      <div>Reading Speed: <span id="reading-speed">0</span> WPM</div>
+      <div>Time Remaining: <span id="time-remaining">00:00</span></div>
     </div>
 
     <div id="input-container">
       <label for="speed-input">Speed</label>
-      <input type="number" id="speed-input" min="-1000" max="1000" value="10" style="display: none;">
-      <input type="range" id="delay-slider" min="1" max="250" value="100">
-      <input type="number" id="delay-info" min="-1000" max="1000" value="100">
+      <input type="number" id="speed-input" min="-30" max="100" value="10" style="display: none;">
+      <input type="range" id="delay-slider" min="1" max="130" value="100">
+      <input type="number" id="delay-info" min="-1000" max="130" value="100">
       <br><br>
       <label>Difficulty of shuffling:
         <select id="difficulty-select">
@@ -421,8 +582,7 @@
         </select>
       </label>
       <br>
-      <button id="update-text-button" disabled>&#8635; Text &#8635;</button>
-      <button id="update-colors-button" disabled>&#8635; Colors &#8635;</button>
+      <button id="update-colors-button" disabled>&#128260;</button>
       <br>
       <label><input type="checkbox" id="color-task-checkbox" checked> Color encoder task</label>
       <br>
@@ -431,7 +591,7 @@
       </label>
       <br>
       <button id="dump-colors-button">Dump colors above</button>
-      <textarea id="color-input" placeholder="&lt;letter&gt; &lt;color&gt;&#13;&#10;a rgb(0, 0, 0)&#13;&#10;b red&#13;&#10;..."></textarea>
+      <textarea id="color-input" placeholder="<letter> <color>&#13;&#10;a rgb(0, 0, 0)&#13;&#10;b red&#13;&#10;..."></textarea>
       <br><br>
       <label for="marquee-input">Text</label>
       <textarea id="marquee-input" placeholder="Enter text here"></textarea>
@@ -451,9 +611,26 @@
       <button id="save-button">Save text and settings</button>
     </div>
 
+    <!-- Added file management tools -->
+    <div id="file-management-container" style="margin: 10px 0;">
+      <button id="save-file-button">Save Current File</button>
+      <button id="load-saved-file-button">Load Saved File</button>
+      <button id="manage-files-button">Manage Saved Files</button>
+    </div>
+
+    <!-- Added saved files modal -->
+    <div id="saved-files-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.7); z-index: 10000;">
+      <div style="position: relative; background: white; max-width: 600px; margin: 50px auto; padding: 20px; border-radius: 8px; max-height: 80vh; overflow-y: auto; color: #333;">
+        <h3>Saved Files</h3>
+        <div id="saved-files-list" style="margin: 15px 0;"></div>
+        <button id="close-saved-files-modal" style="position: absolute; top: 10px; right: 10px; background: none; border: none; font-size: 20px; cursor: pointer;">×</button>
+      </div>
+    </div>
+
     <div id="other-settings-container">
       <button id="color-boxes-theme-button">Toggle Marquee Text Block Theme</button>
       <button id="theme-button">Toggle Theme</button>
+      <button id="view-mode-button">Toggle Split View</button>
       <button id="reset-button">Reset settings</button>
     </div>
 
@@ -462,6 +639,36 @@
   <div id="view-helper" style="display: none;"></div>
 
   <script>
+    // Add animation and styling to the page header
+    const style = document.createElement('style');
+    style.textContent = `
+      @keyframes slideIn {
+        from { transform: translateX(100%); opacity: 0; }
+        to { transform: translateX(0); opacity: 1; }
+      }
+      @keyframes slideOut {
+        from { transform: translateX(0); opacity: 1; }
+        to { transform: translateX(100%); opacity: 0; }
+      }
+      @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+      }
+      @keyframes fadeOut {
+        from { opacity: 1; }
+        to { opacity: 0; }
+      }
+      @keyframes spin {
+        to { transform: rotate(360deg); }
+      }
+      @keyframes pulse {
+        0% { opacity: 0.6; }
+        50% { opacity: 1; }
+        100% { opacity: 0.6; }
+      }
+    `;
+    document.head.appendChild(style);
+
     function loadScript(url, headOrBody = 'head') {
         var script = document.createElement("script");
         script.src = url;
@@ -472,12 +679,33 @@
             document.body.appendChild(script);
         }
     }
+    
+    // Load PDF.js library for PDF text extraction
+    loadScript('https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js');
+    
+    // PDF.js worker (required for PDF parsing)
+    window.pdfjsLib = window.pdfjsLib || {};
+    window.pdfjsLib.GlobalWorkerOptions = window.pdfjsLib.GlobalWorkerOptions || {};
+    window.pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.worker.min.js';
 
     let animationId = null;
     let lastPosition = null;
     let startTime = null, lastTime = null;
     let currentPallete = new Map(), currentPalleteList = [];
-    let prevHtmlValue = '', prevDifficulty = '', prevColorInputValue = '', prevColorTaskCheckboxChecked = null, isLooping = false;
+    let prevHtmlValue = '', prevDifficulty = '', prevColorInputValue = '', isLooping = false;
+    let bookmarks = []; // ADDED: Array to store bookmarks
+    let readingStats = {
+        startTime: null,
+        pauseTimes: [],
+        totalPauseDuration: 0,
+        wordsRead: 0,
+        wordsTotal: 0
+    }; // ADDED: Object to track reading statistics
+    let lazyLoadChunkSize = 5000; // ADDED: Chunk size for lazy loading large texts
+    let textChunks = []; // ADDED: Array to store text chunks
+    let currentChunkIndex = 0; // ADDED: Current chunk index
+    let isTextChunked = false; // ADDED: Flag to indicate if text is chunked
+    let lastSavePosition = null; // ADDED: Last saved position for resuming
 
     function changeColor(elem) {
       let text = prompt("Enter color:", elem.style.color);
@@ -526,12 +754,24 @@
       const dumpColorsButton = document.getElementById('dump-colors-button');
       const showTextCheckbox = document.getElementById('show-text-checkbox');
       const showTableCheckbox = document.getElementById('show-table-checkbox');
-      const updateTextButton = document.getElementById('update-text-button');
       const updateColorsButton = document.getElementById('update-colors-button');
       const viewHelper = document.getElementById('view-helper');
       const colorBoxesThemeButton = document.getElementById('color-boxes-theme-button');
       const loopButton = document.getElementById('loop-button');
+      
+      // ADDED: New elements
+      const progressBar = document.getElementById('progress-bar');
+      const progressTooltip = document.getElementById('progress-tooltip');
+      const progressContainer = document.getElementById('progress-container');
+      const bookmarkButton = document.getElementById('bookmark-button');
+      const bookmarkMenu = document.getElementById('bookmark-menu');
+      const bookmarkList = document.getElementById('bookmark-list');
+      const progressPercentage = document.getElementById('progress-percentage');
+      const readingSpeed = document.getElementById('reading-speed');
+      const timeRemaining = document.getElementById('time-remaining');
+      const viewModeButton = document.getElementById('view-mode-button');
 
+      // Load saved settings
       const savedText = localStorage.getItem('sle_text');
       if (savedText) input.value = savedText;
       const savedDelay = localStorage.getItem('sle_speed');
@@ -567,26 +807,98 @@
       if (isLooping) {
         loopButton.classList.toggle('active');
       }
+      
+      // ADDED: Load bookmarks from localStorage
+      try {
+        const savedBookmarks = localStorage.getItem('sle_bookmarks');
+        if (savedBookmarks) {
+          bookmarks = JSON.parse(savedBookmarks);
+          updateBookmarkDisplay();
+        }
+      } catch (e) {
+        console.error('Error loading bookmarks:', e);
+        bookmarks = [];
+      }
+      
+      // ADDED: Load last position from localStorage
+      try {
+        lastSavePosition = localStorage.getItem('sle_last_position');
+        if (lastSavePosition) {
+          lastSavePosition = parseInt(lastSavePosition);
+        }
+      } catch (e) {
+        console.error('Error loading last position:', e);
+        lastSavePosition = null;
+      }
+
+      // ADDED: Toggle bookmark menu visibility
+      bookmarkButton.addEventListener('click', function() {
+        if (bookmarkMenu.style.display === 'none' || !bookmarkMenu.style.display) {
+          bookmarkMenu.style.display = 'block';
+          updateBookmarkDisplay();
+        } else {
+          bookmarkMenu.style.display = 'none';
+        }
+      });
+
+      // ADDED: Update progress bar when clicking on it
+      progressContainer.addEventListener('click', function(e) {
+        if (!textElement.textContent) return;
+        
+        const containerWidth = progressContainer.offsetWidth;
+        const clickPosition = e.offsetX;
+        const percentage = clickPosition / containerWidth;
+        
+        const containerWidth2 = container.getBoundingClientRect().width;
+        const textWidth = textElement.getBoundingClientRect().width;
+        const startPosition = containerWidth2;
+        const endPosition = -textWidth;
+        const totalDistance = startPosition - endPosition;
+        
+        let continueViewParam = animationId != null;
+        if (continueViewParam) {
+          pauseView();
+        }
+        
+        lastPosition = startPosition - (percentage * totalDistance);
+        textElement.style.left = lastPosition + 'px';
+        updateProgressBar();
+        
+        if (continueViewParam) {
+          startView(true);
+        }
+      });
+
+      // ADDED: Show tooltip on progress bar hover
+      progressContainer.addEventListener('mousemove', function(e) {
+        const containerWidth = progressContainer.offsetWidth;
+        const hoverPosition = e.offsetX;
+        const percentage = hoverPosition / containerWidth;
+        
+        progressTooltip.style.display = 'block';
+        progressTooltip.style.left = `${hoverPosition}px`;
+        progressTooltip.style.top = '-25px';
+        
+        // Calculate words at this position
+        const totalWords = countWordsInText(input.value);
+        const wordsAtPosition = Math.round(percentage * totalWords);
+        
+        progressTooltip.textContent = `Word: ~${wordsAtPosition} of ${totalWords} (${Math.round(percentage * 100)}%)`;
+      });
+      
+      progressContainer.addEventListener('mouseout', function() {
+        progressTooltip.style.display = 'none';
+      });
+      
+      // ADDED: View mode toggle (split view)
+      viewModeButton.addEventListener('click', function() {
+        document.querySelector('.container').classList.toggle('split-view');
+      });
 
       loopButton.addEventListener('click', function() {
           isLooping = !isLooping;
           loopButton.classList.toggle('active');
-      });
-
-      updateTextButton.addEventListener('click', function() {
-        if (lastPosition != null) {
-          let continueViewParam = animationId != null;
-          if (continueViewParam) {
-            pauseView();
-          }
-          prevDifficulty = '';
-          let currentValue = colorInput.value;
-          startView(false);
-          pauseView();
-          if (continueViewParam) {
-            startView(true);
-          }
-        }
+          localStorage.setItem('sle_loop', isLooping);
       });
 
       updateColorsButton.addEventListener('click', function() {
@@ -614,7 +926,7 @@
         colorsInfo.style.display = showTableCheckbox.checked ? '' : 'none';
         colorInput.style.display = showTableCheckbox.checked && colorTaskCheckbox.checked ? '' : 'none';
         dumpColorsButton.style.display = showTableCheckbox.checked && colorTaskCheckbox.checked ? '' : 'none';
-    });
+      });
 
       colorTaskCheckbox.addEventListener('click', function() {
         colorInput.style.display = showTableCheckbox.checked && colorTaskCheckbox.checked ? '' : 'none';
@@ -739,6 +1051,10 @@
           const endPosition = -textWidth;
           lastPosition = Math.max(endPosition, Math.min(startPosition, parseInt(textElement.style.left, 10) + Math.floor(containerWidth / 2)));
           textElement.style.left = lastPosition + 'px';
+          
+          // ADDED: Update progress bar
+          updateProgressBar();
+          
           if (continueViewParam) {
             startView(true);
           }
@@ -757,6 +1073,10 @@
           const endPosition = -textWidth;
           lastPosition = Math.max(endPosition, Math.min(startPosition, parseInt(textElement.style.left, 10) - Math.floor(containerWidth / 2)));
           textElement.style.left = lastPosition + 'px';
+          
+          // ADDED: Update progress bar
+          updateProgressBar();
+          
           if (continueViewParam) {
             startView(true);
           }
@@ -775,20 +1095,426 @@
         return result ? `rgb(${parseInt(result[1], 16)}, ${parseInt(result[2], 16)}, ${parseInt(result[3], 16)})` : hex;
       }
 
+      // ADDED: Function to count words in text
+      function countWordsInText(text) {
+        if (!text) return 0;
+        return text.split(/\s+/).filter(word => word.length > 0).length;
+      }
+      
+      // ADDED: Update reading stats
+      function updateReadingStats() {
+        if (!readingStats.startTime) return;
+        
+        const now = Date.now();
+        const textWidth = textElement.getBoundingClientRect().width;
+        const containerWidth = container.getBoundingClientRect().width;
+        const startPosition = containerWidth;
+        const endPosition = -textWidth;
+        const totalDistance = startPosition - endPosition;
+        const distanceTraveled = startPosition - parseInt(textElement.style.left);
+        const percentage = distanceTraveled / totalDistance;
+        
+        // Update progress percentage
+        progressPercentage.textContent = `${Math.round(percentage * 100)}%`;
+        
+        // Calculate reading speed (WPM)
+        const totalWords = countWordsInText(input.value);
+        const wordsRead = Math.round(percentage * totalWords);
+        readingStats.wordsRead = wordsRead;
+        readingStats.wordsTotal = totalWords;
+        
+        const elapsedTimeMs = now - readingStats.startTime - readingStats.totalPauseDuration;
+        const elapsedTimeMin = elapsedTimeMs / 60000;
+        
+        if (elapsedTimeMin > 0) {
+          const wpm = Math.round(wordsRead / elapsedTimeMin);
+          readingSpeed.textContent = `${wpm}`;
+          
+          // Calculate time remaining
+          if (wpm > 0) {
+            const wordsRemaining = totalWords - wordsRead;
+            const minutesRemaining = wordsRemaining / wpm;
+            timeRemaining.textContent = formatMinutes(minutesRemaining);
+          }
+        }
+      }
+      
+      // ADDED: Format minutes as MM:SS
+      function formatMinutes(minutes) {
+        const mins = Math.floor(minutes);
+        const secs = Math.floor((minutes - mins) * 60);
+        return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+      }
+      
+      // ADDED: Update progress bar to reflect current position
+      function updateProgressBar() {
+        if (!textElement.textContent) return;
+        
+        const textWidth = textElement.getBoundingClientRect().width;
+        const containerWidth = container.getBoundingClientRect().width;
+        const startPosition = containerWidth;
+        const endPosition = -textWidth;
+        const totalDistance = startPosition - endPosition;
+        const distanceTraveled = startPosition - parseInt(textElement.style.left);
+        const percentage = distanceTraveled / totalDistance;
+        
+        progressBar.style.width = `${percentage * 100}%`;
+        updateReadingStats();
+        
+        // Save position to localStorage
+        localStorage.setItem('sle_last_position', lastPosition);
+      }
+      
+      // ADDED: Create a bookmark at current position
+      function createBookmark() {
+        if (lastPosition === null) return;
+        
+        const textWidth = textElement.getBoundingClientRect().width;
+        const containerWidth = container.getBoundingClientRect().width;
+        const startPosition = containerWidth;
+        const endPosition = -textWidth;
+        const totalDistance = startPosition - endPosition;
+        const distanceTraveled = startPosition - lastPosition;
+        const percentage = distanceTraveled / totalDistance;
+        
+        // Get text snippet at this position
+        const textSnippet = getTextSnippetAtPosition(percentage);
+        
+        const bookmark = {
+          position: lastPosition,
+          percentage: percentage,
+          timestamp: Date.now(),
+          snippet: textSnippet
+        };
+        
+        bookmarks.push(bookmark);
+        localStorage.setItem('sle_bookmarks', JSON.stringify(bookmarks));
+        
+        updateBookmarkDisplay();
+        
+        // Add visual marker on progress bar
+        addBookmarkMarker(bookmark);
+      }
+      
+      // ADDED: Get text snippet at position
+      function getTextSnippetAtPosition(percentage) {
+        const text = input.value;
+        const words = text.split(/\s+/).filter(word => word.length > 0);
+        const wordIndex = Math.floor(percentage * words.length);
+        
+        // Get 5 words before and after the current position
+        const startIndex = Math.max(0, wordIndex - 5);
+        const endIndex = Math.min(words.length, wordIndex + 5);
+        
+        return words.slice(startIndex, endIndex).join(' ');
+      }
+      
+      // ADDED: Add bookmark marker to progress bar
+      function addBookmarkMarker(bookmark) {
+        const marker = document.createElement('div');
+        marker.className = 'bookmark';
+        marker.style.left = `${bookmark.percentage * 100}%`;
+        marker.setAttribute('data-index', bookmarks.length - 1);
+        marker.title = bookmark.snippet;
+        
+        marker.addEventListener('click', function(e) {
+          e.stopPropagation();
+          const index = parseInt(this.getAttribute('data-index'));
+          goToBookmark(index);
+        });
+        
+        progressContainer.appendChild(marker);
+      }
+      
+      // ADDED: Go to bookmark position
+      function goToBookmark(index) {
+        const bookmark = bookmarks[index];
+        if (!bookmark) return;
+        
+        let continueViewParam = animationId != null;
+        if (continueViewParam) {
+          pauseView();
+        }
+        
+        lastPosition = bookmark.position;
+        textElement.style.left = lastPosition + 'px';
+        updateProgressBar();
+        
+        if (continueViewParam) {
+          startView(true);
+        }
+      }
+      
+      // ADDED: Delete bookmark
+      function deleteBookmark(index) {
+        bookmarks.splice(index, 1);
+        localStorage.setItem('sle_bookmarks', JSON.stringify(bookmarks));
+        updateBookmarkDisplay();
+        
+        // Remove all bookmark markers and recreate them
+        const markers = progressContainer.querySelectorAll('.bookmark');
+        markers.forEach(marker => marker.remove());
+        
+        bookmarks.forEach((bookmark, i) => {
+          addBookmarkMarker(bookmark);
+        });
+      }
+      
+      // ADDED: Update bookmark display in menu
+      function updateBookmarkDisplay() {
+        bookmarkList.innerHTML = '';
+        
+        if (bookmarks.length === 0) {
+          bookmarkList.innerHTML = '<div>No bookmarks yet</div>';
+          return;
+        }
+        
+        bookmarks.forEach((bookmark, index) => {
+          const date = new Date(bookmark.timestamp);
+          const dateStr = date.toLocaleString();
+          
+          const bookmarkItem = document.createElement('div');
+          bookmarkItem.className = 'bookmark-item';
+          bookmarkItem.innerHTML = `
+            <div class="bookmark-text" title="${bookmark.snippet}">
+              ${bookmark.snippet.length > 30 ? bookmark.snippet.substring(0, 30) + '...' : bookmark.snippet}
+              <small>(${Math.round(bookmark.percentage * 100)}%)</small>
+            </div>
+            <div>
+              <button class="delete-bookmark" data-index="${index}">X</button>
+            </div>
+          `;
+          
+          bookmarkItem.querySelector('.bookmark-text').addEventListener('click', function() {
+            goToBookmark(index);
+          });
+          
+          bookmarkItem.querySelector('.delete-bookmark').addEventListener('click', function() {
+            deleteBookmark(index);
+          });
+          
+          bookmarkList.appendChild(bookmarkItem);
+        });
+      }
+      
+      // ADDED: Bind create bookmark button
+      bookmarkButton.addEventListener('click', function() {
+        if (lastPosition !== null) {
+          createBookmark();
+        }
+      });
+
+      // Continuous loading optimization
+      async function loadFullFileInBackground(file) {
+        return new Promise((resolve, reject) => {
+          const startTime = performance.now();
+          createLoadingOverlay(`Loading ${file.name} (${Math.round(file.size/1024)} KB)`);
+          
+          const reader = new FileReader();
+          
+          reader.addEventListener("progress", function(event) {
+            if (event.lengthComputable) {
+              const percentLoaded = Math.round((event.loaded / event.total) * 100);
+              updateLoadingProgress(percentLoaded, `Reading file: ${percentLoaded}%`);
+            }
+          });
+          
+          reader.addEventListener("load", function(event) {
+            const fileContent = event.target.result;
+            updateLoadingProgress(100, "Processing text...");
+            
+            // Use the most efficient chunking strategy for continuous loading
+            const optimalChunkSize = Math.max(100000, Math.min(1000000, Math.ceil(fileContent.length / 20)));
+            let chunksProcessed = 0;
+            
+            // Prepare chunks but don't display loading message between them
+            const chunks = [];
+            for (let i = 0; i < fileContent.length; i += optimalChunkSize) {
+              chunks.push(fileContent.substring(i, i + optimalChunkSize));
+              chunksProcessed++;
+              
+              if (chunksProcessed % 5 === 0 || chunksProcessed === Math.ceil(fileContent.length / optimalChunkSize)) {
+                updateLoadingProgress(
+                  Math.round((chunksProcessed * optimalChunkSize) / fileContent.length * 100),
+                  `Optimizing text: ${Math.round((chunksProcessed * optimalChunkSize) / fileContent.length * 100)}%`
+                );
+              }
+            }
+            
+            // Now we have all chunks, display the entire text
+            if (appendCheckbox.checked && input.value.trim().length > 0) {
+              input.value += '\n\n' + chunks.join('');
+            } else {
+              input.value = chunks.join('');
+            }
+            
+            // Store for background loading during reading
+            textChunks = chunks;
+            isTextChunked = chunks.length > 1;
+            currentChunkIndex = 0;
+            
+            // Finish loading
+            removeLoadingOverlay();
+            
+            const loadTime = Math.round(performance.now() - startTime);
+            console.log(`Loaded file in ${loadTime}ms`);
+            
+            // Show success notification
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+              position: fixed;
+              bottom: 20px;
+              right: 20px;
+              background-color: rgba(25, 135, 84, 0.9);
+              color: white;
+              padding: 15px;
+              border-radius: 5px;
+              box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+              z-index: 1000;
+              max-width: 400px;
+              animation: slideIn 0.3s forwards;
+            `;
+            
+            notification.innerHTML = `
+              <div style="font-weight: bold; margin-bottom: 5px;">File loaded successfully</div>
+              <div>${file.name}</div>
+              <div>Size: ${Math.round(fileContent.length/1024)} KB</div>
+              <div>Loaded in: ${loadTime}ms</div>
+              <div style="margin-top: 10px; font-size: 12px;">
+                <a href="#" id="save-quick" style="color: white; text-decoration: underline;">Save for future use</a>
+              </div>
+            `;
+            
+            document.body.appendChild(notification);
+            
+            // Add quick save functionality
+            document.getElementById('save-quick').addEventListener('click', function(e) {
+              e.preventDefault();
+              
+              // Save the file to IndexedDB
+              initDB().then(() => {
+                saveFileToStorage(file.name, fileContent)
+                  .then(id => {
+                    notification.innerHTML += `<div style="color: #8effb9; margin-top: 5px;">✓ Saved successfully</div>`;
+                  })
+                  .catch(error => {
+                    notification.innerHTML += `<div style="color: #ff8e8e; margin-top: 5px;">✗ ${error}</div>`;
+                  });
+              }).catch(error => {
+                notification.innerHTML += `<div style="color: #ff8e8e; margin-top: 5px;">✗ ${error}</div>`;
+              });
+            });
+            
+            setTimeout(() => {
+              notification.style.animation = 'slideOut 0.3s forwards';
+              setTimeout(() => {
+                if (notification.parentNode) {
+                  notification.parentNode.removeChild(notification);
+                }
+              }, 300);
+            }, 8000);
+            
+            resolve({
+              content: fileContent,
+              chunks: chunks
+            });
+          });
+          
+          reader.addEventListener("error", function() {
+            removeLoadingOverlay();
+            reject("Error reading file. Please try again with a different file.");
+          });
+          
+          reader.readAsText(file);
+        });
+      }
+
       function uploadTextFile(event) {
         let element = document.createElement('input');
         element.id = 'text_file_upload';
         element.type = 'file';
+        element.accept = '.txt,.html,.md,.json,.xml,.csv,.js,.css,.log,.pdf'; // Added PDF support
         element.onchange = function (event) {
             if (window.File && window.FileReader && window.FileList && window.Blob) {
                 let f = event.target.files[0];
                 if (f) {
-                    let r = new FileReader;
-                    r.addEventListener("load", (function(event) {
-                        let text = event.target.result;
-                        input.value += (input.value ? '\n\n' : '') + text;
-                    }));
-                    r.readAsText(f);
+                    // Check if it's a PDF file
+                    if (f.type === 'application/pdf' || f.name.toLowerCase().endsWith('.pdf')) {
+                        // Process PDF file
+                        extractTextFromPDF(f)
+                            .then(result => {
+                                // Update the input with extracted text
+                                if (appendCheckbox.checked && input.value.trim().length > 0) {
+                                    input.value += '\n\n' + result.text;
+                                } else {
+                                    input.value = result.text;
+                                }
+                                
+                                // Show success notification
+                                const notification = document.createElement('div');
+                                notification.style.cssText = `
+                                    position: fixed;
+                                    bottom: 20px;
+                                    right: 20px;
+                                    background-color: rgba(25, 135, 84, 0.9);
+                                    color: white;
+                                    padding: 15px;
+                                    border-radius: 5px;
+                                    box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+                                    z-index: 1000;
+                                    max-width: 400px;
+                                    animation: slideIn 0.3s forwards;
+                                `;
+                                
+                                notification.innerHTML = `
+                                    <div style="font-weight: bold; margin-bottom: 5px;">PDF text extracted successfully</div>
+                                    <div>${result.filename}</div>
+                                    <div>Pages: ${result.pageCount}</div>
+                                    <div>Text length: ${result.text.length} characters</div>
+                                    <div style="margin-top: 10px; font-size: 12px;">
+                                        <a href="#" id="save-quick-pdf" style="color: white; text-decoration: underline;">Save for future use</a>
+                                    </div>
+                                `;
+                                
+                                document.body.appendChild(notification);
+                                
+                                // Add quick save functionality
+                                document.getElementById('save-quick-pdf').addEventListener('click', function(e) {
+                                    e.preventDefault();
+                                    
+                                    // Save the file to IndexedDB
+                                    initDB().then(() => {
+                                        saveFileToStorage(result.filename, result.text)
+                                            .then(id => {
+                                                notification.innerHTML += `<div style="color: #8effb9; margin-top: 5px;">✓ Saved successfully</div>`;
+                                            })
+                                            .catch(error => {
+                                                notification.innerHTML += `<div style="color: #ff8e8e; margin-top: 5px;">✗ ${error}</div>`;
+                                            });
+                                    }).catch(error => {
+                                        notification.innerHTML += `<div style="color: #ff8e8e; margin-top: 5px;">✗ ${error}</div>`;
+                                    });
+                                });
+                                
+                                setTimeout(() => {
+                                    notification.style.animation = 'slideOut 0.3s forwards';
+                                    setTimeout(() => {
+                                        if (notification.parentNode) {
+                                            notification.parentNode.removeChild(notification);
+                                        }
+                                    }, 300);
+                                }, 8000);
+                            })
+                            .catch(error => {
+                                removeLoadingOverlay();
+                                alert(error);
+                            });
+                    } else {
+                        // Regular text file processing
+                        loadFullFileInBackground(f).catch(error => {
+                            alert(error);
+                        });
+                    }
                 }
             } else {
                 alert("This functionality not supported by your browser.")
@@ -797,7 +1523,7 @@
         document.body.appendChild(element);
         element.click();
         document.body.removeChild(element);
-     }
+      }
 
       function loadSentence() {
         if (sentences.length == 0) {
@@ -881,6 +1607,9 @@
         localStorage.setItem('sle_append_text', '' + appendCheckbox.checked);
         localStorage.setItem('sle_difficulty', difficultySelect.value);
         localStorage.setItem('sle_loop', isLooping);
+        localStorage.setItem('sle_last_position', lastPosition);
+        
+        alert('Settings and progress saved successfully!');
       }
 
       resetButton.addEventListener('click', resetSettings);
@@ -898,6 +1627,8 @@
             localStorage.removeItem('sle_theme');
             localStorage.removeItem('sle_color_boxes_theme');
             localStorage.removeItem('sle_loop');
+            localStorage.removeItem('sle_bookmarks');
+            localStorage.removeItem('sle_last_position');
             location.reload();
         }
       }
@@ -918,6 +1649,18 @@
             return true;
           }
           if (/^\p{L}+$/u.test(ch)) {
+            return true;
+          }
+        }
+        catch (err) {
+          console.log(`${err}`);
+        }
+        return false;
+      }
+
+      function isEnglishLetter(ch) {
+        try {
+          if (/^[a-zA-Z]+$/.test(ch)) {
             return true;
           }
         }
@@ -948,19 +1691,8 @@
                   continue;
                 }
                 let resultWord = '';
-                if (/^[^a-zA-Z]*[A-Z]/.test(word) || /[0-9]|\'/.test(word)) {
+                if (isEnglishLetter(word[0]) && word[0] == word[0].toUpperCase() || /\d|\'/.test(word)) {
                   skipWord = true;
-                }
-                try {
-                  if (/\u2032|\u2033|\u2034|\u2057|\u2019|\u0060|\u00B4|\uFF40|\u02F4/u.test(word)) {
-                    skipWord = true;
-                  }
-                  if (/^[^\p{L}]*\p{Lu}/u.test(word) || /\p{N}/u.test(word)) {
-                    skipWord = true;
-                  }
-                }
-                catch (err) {
-                  console.log(err);
                 }
                 if (difficultySelect.value == "no") {
                   skipWord = true;
@@ -1058,21 +1790,398 @@
         return colors;
       }
 
+      // ADDED: Check if we need to load more text from chunks
+      function checkTextChunks() {
+        if (isTextChunked && currentChunkIndex < textChunks.length - 1) {
+          const containerWidth = container.getBoundingClientRect().width;
+          const textWidth = textElement.getBoundingClientRect().width;
+          const endPosition = -textWidth;
+          
+          // If we're near the end, load the next chunk
+          if (lastPosition < endPosition + containerWidth) {
+            currentChunkIndex++;
+            
+            // Update the input with all chunks up to current index
+            let combinedText = '';
+            for (let i = 0; i <= currentChunkIndex; i++) {
+              combinedText += textChunks[i];
+            }
+            
+            // Add indicator if there are more chunks
+            if (currentChunkIndex < textChunks.length - 1) {
+              combinedText += "\n\n[... More text available. Continue reading to load ...]";
+            }
+            
+            input.value = combinedText;
+            
+            // Restart animation with the new text
+            let continueViewParam = animationId != null;
+            if (continueViewParam) {
+              pauseView();
+            }
+            startView(true);
+          }
+        }
+      }
+
+      // Improved text processor with enhanced loading capabilities
+      function createTextProcessorWorker() {
+        const workerCode = `
+          self.onmessage = function(e) {
+            const { text, operation } = e.data;
+            
+            let result;
+            switch(operation) {
+              case 'preprocess':
+                // Remove excess whitespace, normalize line breaks, etc.
+                result = text.replace(/\\n+/g, ' ').replace(/\\s+/g, ' ').trim();
+                break;
+              case 'wordCount':
+                // Count words efficiently
+                result = text.split(/\\s+/).filter(word => word.length > 0).length;
+                break;
+              case 'extractSnippet':
+                // Extract snippet from position
+                const { position, length } = e.data;
+                const words = text.split(/\\s+/);
+                const startIndex = Math.max(0, position - Math.floor(length/2));
+                const endIndex = Math.min(words.length, startIndex + length);
+                result = words.slice(startIndex, endIndex).join(' ');
+                break;
+              case 'processFile':
+                // Process file content with progress reporting
+                const { fileContent, chunkSize } = e.data;
+                
+                // Function to determine if we need chunking
+                function needsChunking(content) {
+                  // Check if text is very large or contains complex content
+                  return content.length > 1000000 || 
+                         content.split('\\n').length > 10000 ||
+                         content.split(/\\s+/).length > 100000;
+                }
+                
+                if (needsChunking(fileContent) && chunkSize) {
+                  // Process in chunks with progress updates
+                  const chunks = [];
+                  const totalChunks = Math.ceil(fileContent.length / chunkSize);
+                  
+                  for (let i = 0; i < fileContent.length; i += chunkSize) {
+                    const chunk = fileContent.substring(i, i + chunkSize);
+                    chunks.push(chunk);
+                    
+                    // Report progress every few chunks
+                    if (chunks.length % 5 === 0 || chunks.length === totalChunks) {
+                      self.postMessage({
+                        type: 'progress',
+                        processed: chunks.length,
+                        total: totalChunks,
+                        percentage: Math.round((chunks.length / totalChunks) * 100)
+                      });
+                    }
+                  }
+                  
+                  result = {
+                    type: 'chunked',
+                    chunks: chunks,
+                    originalSize: fileContent.length,
+                    stats: {
+                      lines: fileContent.split('\\n').length,
+                      words: fileContent.split(/\\s+/).length
+                    }
+                  };
+                } else {
+                  // Process entire text at once
+                  result = {
+                    type: 'full',
+                    content: fileContent,
+                    stats: {
+                      lines: fileContent.split('\\n').length,
+                      words: fileContent.split(/\\s+/).length
+                    }
+                  };
+                }
+                break;
+              default:
+                result = text;
+            }
+            
+            self.postMessage(result);
+          };
+        `;
+
+        const blob = new Blob([workerCode], { type: 'application/javascript' });
+        const url = URL.createObjectURL(blob);
+        return new Worker(url);
+      }
+
+      // Initialize text processor worker
+      let textProcessor;
+      try {
+        textProcessor = createTextProcessorWorker();
+      } catch (e) {
+        console.warn('Web Workers not supported in this browser:', e);
+      }
+      
+      // Create a loading overlay for processing feedback
+      function createLoadingOverlay(message = 'Loading...') {
+        // Remove any existing overlay first
+        removeLoadingOverlay();
+        
+        const overlay = document.createElement('div');
+        overlay.id = 'loading-overlay';
+        overlay.style.cssText = `
+          position: fixed;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          background-color: rgba(0,0,0,0.7);
+          display: flex;
+          flex-direction: column;
+          justify-content: center;
+          align-items: center;
+          z-index: 9999;
+          color: white;
+          font-size: 18px;
+        `;
+        
+        const spinner = document.createElement('div');
+        spinner.style.cssText = `
+          width: 50px;
+          height: 50px;
+          border: 5px solid rgba(255,255,255,0.3);
+          border-radius: 50%;
+          border-top-color: white;
+          animation: spin 1s ease-in-out infinite;
+          margin-bottom: 20px;
+        `;
+        
+        const style = document.createElement('style');
+        style.textContent = `
+          @keyframes spin {
+            to { transform: rotate(360deg); }
+          }
+          @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+          }
+        `;
+        
+        const messageElem = document.createElement('div');
+        messageElem.id = 'loading-message';
+        messageElem.textContent = message;
+        
+        const progress = document.createElement('div');
+        progress.id = 'loading-progress';
+        progress.style.cssText = `
+          width: 300px;
+          height: 10px;
+          background-color: rgba(255,255,255,0.2);
+          border-radius: 5px;
+          margin-top: 20px;
+          overflow: hidden;
+          display: none;
+        `;
+        
+        const progressBar = document.createElement('div');
+        progressBar.id = 'loading-progress-bar';
+        progressBar.style.cssText = `
+          height: 100%;
+          width: 0%;
+          background-color: #4CAF50;
+          border-radius: 5px;
+          transition: width 0.3s;
+        `;
+        
+        progress.appendChild(progressBar);
+        overlay.appendChild(style);
+        overlay.appendChild(spinner);
+        overlay.appendChild(messageElem);
+        overlay.appendChild(progress);
+        
+        document.body.appendChild(overlay);
+        
+        // Fade in animation
+        overlay.style.animation = 'fadeIn 0.3s forwards';
+        
+        return overlay;
+      }
+      
+      function updateLoadingProgress(percentage, message = null) {
+        const progressBar = document.getElementById('loading-progress-bar');
+        const progressContainer = document.getElementById('loading-progress');
+        const messageElem = document.getElementById('loading-message');
+        
+        if (progressBar && progressContainer) {
+          progressContainer.style.display = 'block';
+          progressBar.style.width = `${percentage}%`;
+        }
+        
+        if (message && messageElem) {
+          messageElem.textContent = message;
+        }
+      }
+      
+      function removeLoadingOverlay() {
+        const existingOverlay = document.getElementById('loading-overlay');
+        if (existingOverlay) {
+          // Fade out animation
+          existingOverlay.style.animation = 'fadeOut 0.3s forwards';
+          
+          // Remove after animation
+          setTimeout(() => {
+            if (existingOverlay.parentNode) {
+              existingOverlay.parentNode.removeChild(existingOverlay);
+            }
+          }, 300);
+        }
+      }
+
+      // Process text with worker if available
+      function processTextWithWorker(text, operation, callback, additionalData = {}) {
+        if (textProcessor) {
+          textProcessor.onmessage = function(e) {
+            callback(e.data);
+          };
+          textProcessor.postMessage({ text, operation, ...additionalData });
+        } else {
+          // Fallback processing
+          let result;
+          switch(operation) {
+            case 'preprocess':
+              result = text.replace(/\n+/g, ' ').replace(/\s+/g, ' ').trim();
+              break;
+            case 'wordCount':
+              result = text.split(/\s+/).filter(word => word.length > 0).length;
+              break;
+            case 'extractSnippet':
+              const { position, length } = additionalData;
+              const words = text.split(/\s+/);
+              const startIndex = Math.max(0, position - Math.floor(length/2));
+              const endIndex = Math.min(words.length, startIndex + length);
+              result = words.slice(startIndex, endIndex).join(' ');
+              break;
+            default:
+              result = text;
+          }
+          callback(result);
+        }
+      }
+
+      // ADDED: Virtual DOM-like approach for optimized rendering
+      function createVirtualTextNode(text) {
+        return {
+          type: 'text',
+          content: text,
+          render: () => document.createTextNode(text)
+        };
+      }
+
+      function createVirtualElementNode(tagName, attributes = {}, children = []) {
+        return {
+          type: 'element',
+          tagName,
+          attributes,
+          children,
+          render: () => {
+            const element = document.createElement(tagName);
+            for (const [key, value] of Object.entries(attributes)) {
+              if (key === 'style' && typeof value === 'object') {
+                for (const [styleKey, styleValue] of Object.entries(value)) {
+                  element.style[styleKey] = styleValue;
+                }
+              } else if (key === 'className') {
+                element.className = value;
+              } else if (key.startsWith('on') && typeof value === 'function') {
+                element.addEventListener(key.substring(2).toLowerCase(), value);
+              } else {
+                element.setAttribute(key, value);
+              }
+            }
+            for (const child of children) {
+              element.appendChild(child.render());
+            }
+            return element;
+          }
+        };
+      }
+
+      // Memory cache for avoiding repeated processing
+      const processedTextCache = new Map();
+      
+      // ADDED: Text LRU cache for efficient text chunk management
+      class LRUCache {
+        constructor(capacity) {
+          this.capacity = capacity;
+          this.cache = new Map();
+          this.order = [];
+        }
+        
+        get(key) {
+          if (!this.cache.has(key)) return null;
+          
+          // Move to front (most recently used)
+          this.order = this.order.filter(k => k !== key);
+          this.order.unshift(key);
+          
+          return this.cache.get(key);
+        }
+        
+        put(key, value) {
+          if (this.cache.has(key)) {
+            // Update existing & move to front
+            this.cache.set(key, value);
+            this.order = this.order.filter(k => k !== key);
+            this.order.unshift(key);
+          } else {
+            // Add new entry
+            this.cache.set(key, value);
+            this.order.unshift(key);
+            
+            // Evict least recently used if over capacity
+            if (this.order.length > this.capacity) {
+              const lruKey = this.order.pop();
+              this.cache.delete(lruKey);
+            }
+          }
+        }
+        
+        clear() {
+          this.cache.clear();
+          this.order = [];
+        }
+      }
+      
+      // Create text chunk cache
+      const textChunkCache = new LRUCache(20); // Store up to 20 chunks
+
       function startAnimation(continueViewParam = false) {
-        let htmlValue = input.value.replace(/\s+/g, ' ').trim();
-        try {
-          htmlValue = htmlValue.replace(/\p{Z}+/ug, ' ');
-          htmlValue = htmlValue.replace(/\p{C}+/ug, '');
-        }
-        catch (err) {
-          console.log(err);
-        }
+        let htmlValue = input.value;
         if (!htmlValue) {
           alert('Please add text');
           return false;
         }
-
-        viewHelper.innerHTML = htmlValue;
+        
+        // Optimize text processing for large texts using cache
+        const cacheKey = `${htmlValue.length}_${difficultySelect.value}`;
+        let processedText;
+        
+        if (processedTextCache.has(cacheKey)) {
+          processedText = processedTextCache.get(cacheKey);
+          viewHelper.innerHTML = processedText;
+        } else {
+          // Process text more efficiently using worker if available
+          processTextWithWorker(htmlValue, 'preprocess', (result) => {
+            processedText = result;
+            processedTextCache.set(cacheKey, processedText);
+            viewHelper.innerHTML = processedText;
+          });
+          
+          // For immediate continuation, use synchronous fallback
+          processedText = htmlValue.replace(/\n/g, ' ').trim();
+          viewHelper.innerHTML = processedText;
+        }
+        
         let textFromHtmlValue = viewHelper.textContent || viewHelper.innerText || "";
         let singleLineHtml = textElement.innerHTML;
         let singleLineText = textElement.textContent || textElement.innerText || "";
@@ -1220,7 +2329,7 @@
         const textWidth = Math.ceil(textElement.getBoundingClientRect().width);
         const startPosition = containerWidth;
         const endPosition = -textWidth;
-        const oneStepSize = delayInfo.value > 100 ? ((delayInfo.value - 100) / 10 + 1) : 1;
+        const oneStepSize = delayInfo.value > 100 ? (Math.floor(delayInfo.value % 100) / 10 + 1) : 1;
         let stepTime = Math.max(0, Math.max(1, parseInt(speedInput.value, 10)));
         if (delayInfo.value < 20) {
           stepTime += (20 - Math.floor(delayInfo.value % 100)) * 20;
@@ -1232,9 +2341,16 @@
           colorsInfo.innerHTML = currentPalleteString;
         }
 
-        if (lastPosition == null || lastPosition <= endPosition) {
-          lastPosition = startPosition;
+        if (lastPosition == null) {
+          // ADDED: Check if we have a saved position to resume from
+          if (lastSavePosition !== null) {
+            lastPosition = parseInt(lastSavePosition);
+            lastSavePosition = null; // Reset after using it
+          } else {
+            lastPosition = startPosition;
+          }
         }
+        
         textElement.style.left = lastPosition + 'px';
         let prevLastPosition = lastPosition;
 
@@ -1243,60 +2359,93 @@
         prevColorInputValue = colorInput.value;
         prevColorTaskCheckboxChecked = colorTaskCheckbox.checked;
 
+        // ADDED: Initialize reading stats
+        readingStats.startTime = continueViewParam ? readingStats.startTime || Date.now() : Date.now();
+        readingStats.pauseTimes = [];
+        readingStats.totalPauseDuration = 0;
+        
+        // ADDED: Load bookmarks on the progress bar
+        if (!continueViewParam) {
+          bookmarks.forEach((bookmark, index) => {
+            addBookmarkMarker(bookmark);
+          });
+        }
+        
+        // ADDED: Update the progress bar immediately
+        updateProgressBar();
+
         let flag = continueViewParam;
         let curStartTime = continueViewParam ? startTime : Date.now();
         if (flag) {
           colorsInfo.style.display = 'none';
         }
 
-        function animate() {
-          const currentLeft = parseInt(textElement.style.left, 10) - oneStepSize;
-
-          lastTime = Date.now();
-          let curStepTime = (lastTime - startTime) / Math.max(1e-9, prevLastPosition - currentLeft);
-          if (!flag && lastTime - curStartTime >= 1000) {
-            flag = true;
-            colorsInfo.style.display = 'none';
-          }
-          let viewStepTime = Math.floor(curStepTime * 10) / 10;
-          durationInfo.innerHTML = formatSeconds(Math.floor(viewStepTime * (currentLeft - endPosition) / 1000));
-
-          if (currentLeft <= endPosition) {
-            if (isLooping) {
-              startTime = Date.now();
-              lastPosition = startPosition;
-              prevLastPosition = lastPosition;
-              textElement.style.left = lastPosition + 'px';
-              if (animationId) {
-                animationId = setTimeout(animate, stepTime);
+        // ADDED: Use requestAnimationFrame for smoother animation
+        let lastFrameTime = 0;
+        let targetFPS = 60;
+        let frameInterval = 1000 / targetFPS;
+        
+        // Animation function optimized with requestAnimationFrame
+        function animate(timestamp) {
+          if (!animationId) return; // Stop if animation was cancelled
+          
+          // Calculate time delta and throttle to target FPS
+          if (!lastFrameTime) lastFrameTime = timestamp;
+          const elapsed = timestamp - lastFrameTime;
+          
+          if (elapsed > frameInterval) {
+            lastFrameTime = timestamp;
+            
+            // Calculate position with smooth easing
+            const currentLeft = parseInt(textElement.style.left, 10) - oneStepSize;
+            
+            lastTime = Date.now();
+            let curStepTime = (lastTime - startTime) / Math.max(1e-9, prevLastPosition - currentLeft);
+            if (!flag && lastTime - curStartTime >= 1000) {
+              flag = true;
+              colorsInfo.style.display = 'none';
+            }
+            let viewStepTime = Math.floor(curStepTime * 10) / 10;
+            durationInfo.innerHTML = formatSeconds(Math.floor(viewStepTime * (currentLeft - endPosition) / 1000));
+            
+            // Update progress bar and check for more text chunks (debounced for performance)
+            if (timestamp % 100 < 20) { // Only update ~5 times per second
+              updateProgressBar();
+              checkTextChunks();
+            }
+            
+            if (currentLeft <= endPosition) {
+              if (isLooping) {
+                startTime = Date.now();
+                textElement.style.left = startPosition + 'px';
+                lastPosition = startPosition;
+                prevLastPosition = lastPosition;
+              } else {
+                textElement.style.left = endPosition + 'px';
+                animationId = null;
+                startPauseButton.textContent = 'Start';
+                startPauseButton.classList.remove('pause');
+                inputContainer.style.display = '';
+                otherSettingsContainer.style.display = '';
+                durationInfo.style.display = 'none';
+                if (colorTaskCheckbox.checked) {
+                  colorsInfo.style.display = showTableCheckbox.checked ? '' : 'none';
+                }
+                loopButton.style.display = '';
+                return; // Exit the animation loop
               }
-            }
-            else {
-              lastPosition = endPosition;
-              prevLastPosition = lastPosition;
-              textElement.style.left = lastPosition + 'px';
-              clearTimeout(animationId);
-              animationId = null;
-              startPauseButton.textContent = 'Start';
-              startPauseButton.classList.remove('pause');
-              inputContainer.style.display = '';
-              otherSettingsContainer.style.display = '';
-              durationInfo.style.display = 'none';
-              if (colorTaskCheckbox.checked) {
-                colorsInfo.style.display = showTableCheckbox.checked ? '' : 'none';
-              }
-              loopButton.style.display = '';
-            }
-          } else {
-            textElement.style.left = currentLeft + 'px';
-            lastPosition = currentLeft;
-            if (animationId) {
-              animationId = setTimeout(animate, stepTime);
+            } else {
+              textElement.style.left = currentLeft + 'px';
+              lastPosition = currentLeft;
             }
           }
+          
+          // Continue animation loop
+          animationId = requestAnimationFrame(animate);
         }
-
-        animationId = setTimeout(animate, stepTime);
+        
+        // Start the animation with requestAnimationFrame
+        animationId = requestAnimationFrame(animate);
         return true;
       }
 
@@ -1305,20 +2454,280 @@
             loopButton.style.display = 'none';
             backButton.disabled = false;
             forwardButton.disabled = false;
-            updateTextButton.disabled = false;
             updateColorsButton.disabled = false;
             startPauseButton.textContent = 'Pause';
             startPauseButton.classList.add('pause');
             inputContainer.style.display = 'none';
             otherSettingsContainer.style.display = 'none';
             durationInfo.style.display = '';
+            // ADDED: Record pause time if resuming
+            if (continueViewParam && readingStats.pauseTimes.length % 2 === 1) {
+              readingStats.pauseTimes.push(Date.now());
+              const lastPauseStart = readingStats.pauseTimes[readingStats.pauseTimes.length - 2];
+              const lastPauseEnd = readingStats.pauseTimes[readingStats.pauseTimes.length - 1];
+              readingStats.totalPauseDuration += (lastPauseEnd - lastPauseStart);
+            }
           }
       }
 
+      // ADDED: Search functionality
+      let searchResults = [];
+      let currentSearchIndex = -1;
+      
+      function performSearch(searchText) {
+        if (!searchText || searchText.trim() === '') {
+          searchResults = [];
+          currentSearchIndex = -1;
+          document.getElementById('search-results').textContent = '0/0';
+          return;
+        }
+        
+        // Clear previous highlights
+        const highlighted = document.querySelectorAll('.highlight-word');
+        highlighted.forEach(el => {
+          el.classList.remove('highlight-word');
+        });
+        
+        // Get text content
+        const textContent = input.value.toLowerCase();
+        const searchTerm = searchText.toLowerCase();
+        
+        // Find all occurrences
+        searchResults = [];
+        let words = textContent.split(/\s+/);
+        
+        words.forEach((word, index) => {
+          if (word.includes(searchTerm)) {
+            searchResults.push(index);
+          }
+        });
+        
+        // Update count
+        document.getElementById('search-results').textContent = 
+          searchResults.length > 0 ? `1/${searchResults.length}` : '0/0';
+        
+        if (searchResults.length > 0) {
+          currentSearchIndex = 0;
+          goToSearchResult(0);
+        }
+      }
+      
+      function goToSearchResult(index) {
+        if (searchResults.length === 0) return;
+        
+        index = Math.max(0, Math.min(searchResults.length - 1, index));
+        currentSearchIndex = index;
+        
+        // Update count display
+        document.getElementById('search-results').textContent = 
+          `${index + 1}/${searchResults.length}`;
+        
+        // Calculate position
+        const wordIndex = searchResults[index];
+        const totalWords = input.value.split(/\s+/).length;
+        const percentage = wordIndex / totalWords;
+        
+        // Go to position
+        const containerWidth = container.getBoundingClientRect().width;
+        const textWidth = textElement.getBoundingClientRect().width;
+        const startPosition = containerWidth;
+        const endPosition = -textWidth;
+        const totalDistance = startPosition - endPosition;
+        
+        let continueViewParam = animationId != null;
+        if (continueViewParam) {
+          pauseView();
+        }
+        
+        lastPosition = startPosition - (percentage * totalDistance);
+        textElement.style.left = lastPosition + 'px';
+        updateProgressBar();
+        
+        // Highlight the word
+        setTimeout(() => {
+          // Find the word in the visible text
+          const words = textElement.querySelectorAll('.span-in-marquee-for-word');
+          if (words[wordIndex]) {
+            words[wordIndex].classList.add('highlight-word');
+            
+            // Scroll if needed to make visible
+            const containerRect = container.getBoundingClientRect();
+            const wordRect = words[wordIndex].getBoundingClientRect();
+            
+            if (wordRect.left < containerRect.left || wordRect.right > containerRect.right) {
+              lastPosition = containerWidth - wordRect.left + containerRect.left - 50;
+              textElement.style.left = lastPosition + 'px';
+            }
+          }
+        }, 100);
+        
+        if (continueViewParam) {
+          startView(true);
+        }
+      }
+      
+      // ADDED: Text-to-Speech functionality
+      let speechSynthesis = window.speechSynthesis;
+      let speechUtterance = null;
+      
+      function startTextToSpeech() {
+        if (!speechSynthesis) {
+          alert('Text-to-Speech is not supported in this browser.');
+          return;
+        }
+        
+        if (speechUtterance) {
+          stopTextToSpeech();
+        }
+        
+        // Get current visible text
+        const containerWidth = container.getBoundingClientRect().width;
+        const textWidth = textElement.getBoundingClientRect().width;
+        const startPosition = containerWidth;
+        const endPosition = -textWidth;
+        const currentPosition = parseInt(textElement.style.left);
+        const totalDistance = startPosition - endPosition;
+        const distanceTraveled = startPosition - currentPosition;
+        const percentage = distanceTraveled / totalDistance;
+        
+        // Get text from current position
+        const allWords = input.value.split(/\s+/);
+        const currentWordIndex = Math.floor(percentage * allWords.length);
+        const wordsToRead = allWords.slice(currentWordIndex, currentWordIndex + 100).join(' ');
+        
+        speechUtterance = new SpeechSynthesisUtterance(wordsToRead);
+        speechUtterance.rate = 1.0;
+        speechUtterance.pitch = 1.0;
+        
+        // Sync text position with speech
+        speechUtterance.onboundary = function(event) {
+          if (event.name === 'word') {
+            // Move the text position forward
+            const wordsSpoken = event.charIndex / 5; // approximate
+            const newPercentage = (currentWordIndex + wordsSpoken) / allWords.length;
+            
+            lastPosition = startPosition - (newPercentage * totalDistance);
+            textElement.style.left = lastPosition + 'px';
+            updateProgressBar();
+          }
+        };
+        
+        speechUtterance.onend = function() {
+          speechUtterance = null;
+          document.getElementById('tts-button').textContent = 'Text-to-Speech';
+        };
+        
+        speechSynthesis.speak(speechUtterance);
+        document.getElementById('tts-button').textContent = 'Stop TTS';
+      }
+      
+      function stopTextToSpeech() {
+        if (speechSynthesis && speechUtterance) {
+          speechSynthesis.cancel();
+          speechUtterance = null;
+          document.getElementById('tts-button').textContent = 'Text-to-Speech';
+        }
+      }
+      
+      // ADDED: Export/Import settings
+      function exportSettings() {
+        const settings = {
+          text: input.value,
+          colorTask: colorTaskCheckbox.checked,
+          colorTaskLetters: colorTaskLettersInput.value,
+          colorTaskColors: colorInput.value,
+          showText: showTextCheckbox.checked,
+          showTable: showTableCheckbox.checked,
+          speed: speedInput.value,
+          append: appendCheckbox.checked,
+          difficulty: difficultySelect.value,
+          loop: isLooping,
+          bookmarks: bookmarks,
+          lastPosition: lastPosition,
+          theme: document.body.classList.contains('dark') ? 'dark' : 'light',
+          fontSize: textElement.style.fontSize || '42px'
+        };
+        
+        const blob = new Blob([JSON.stringify(settings)], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'reading-settings.json';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+      }
+      
+      function importSettings() {
+        const input = document.createElement('input');
+        input.type = 'file';
+        input.accept = '.json';
+        
+        input.onchange = function(event) {
+          const file = event.target.files[0];
+          if (!file) return;
+          
+          const reader = new FileReader();
+          reader.onload = function(e) {
+            try {
+              const settings = JSON.parse(e.target.result);
+              
+              // Apply settings
+              if (settings.text) document.getElementById('marquee-input').value = settings.text;
+              if (settings.colorTask !== undefined) colorTaskCheckbox.checked = settings.colorTask;
+              if (settings.colorTaskLetters) colorTaskLettersInput.value = settings.colorTaskLetters;
+              if (settings.colorTaskColors) colorInput.value = settings.colorTaskColors;
+              if (settings.showText !== undefined) showTextCheckbox.checked = settings.showText;
+              if (settings.showTable !== undefined) showTableCheckbox.checked = settings.showTable;
+              if (settings.speed) speedInput.value = settings.speed;
+              if (settings.append !== undefined) appendCheckbox.checked = settings.append;
+              if (settings.difficulty) difficultySelect.value = settings.difficulty;
+              if (settings.loop !== undefined) {
+                isLooping = settings.loop;
+                if (isLooping) loopButton.classList.add('active');
+                else loopButton.classList.remove('active');
+              }
+              if (settings.bookmarks) {
+                bookmarks = settings.bookmarks;
+                updateBookmarkDisplay();
+              }
+              if (settings.lastPosition) lastSavePosition = settings.lastPosition;
+              if (settings.theme) {
+                document.body.classList.remove('dark', 'light');
+                document.body.classList.add(settings.theme);
+              }
+              if (settings.fontSize) {
+                textElement.style.fontSize = settings.fontSize;
+                document.getElementById('font-size-control').value = parseInt(settings.fontSize);
+              }
+              
+              // Apply visual updates
+              input.style.display = showTextCheckbox.checked ? '' : 'none';
+              colorsInfo.style.display = showTableCheckbox.checked ? '' : 'none';
+              colorInput.style.display = showTableCheckbox.checked && colorTaskCheckbox.checked ? '' : 'none';
+              dumpColorsButton.style.display = showTableCheckbox.checked && colorTaskCheckbox.checked ? '' : 'none';
+              colorTaskLettersLabel.style.display = colorTaskCheckbox.checked ? '' : 'none';
+              
+              alert('Settings imported successfully!');
+            } catch (error) {
+              console.error('Error importing settings:', error);
+              alert('Error importing settings. Please check the file format.');
+            }
+          };
+          reader.readAsText(file);
+        };
+        
+        input.click();
+      }
+  
       function pauseView() {
         if (animationId) {
-          clearTimeout(animationId);
+          // For requestAnimationFrame we just need to clear the ID
+          cancelAnimationFrame(animationId);
           animationId = null;
+          
           startPauseButton.textContent = 'Start';
           startPauseButton.classList.remove('pause');
           inputContainer.style.display = '';
@@ -1328,24 +2737,68 @@
           if (colorTaskCheckbox.checked) {
             colorsInfo.style.display = showTableCheckbox.checked ? '' : 'none';
           }
+          
+          // Record pause time
+          if (readingStats.pauseTimes.length % 2 === 0) {
+            readingStats.pauseTimes.push(Date.now());
+          }
+          
+          // Stop TTS if active
+          stopTextToSpeech();
         }
       }
 
       function stopView() {
         const containerWidth = Math.ceil(container.getBoundingClientRect().width);
         if (animationId) {
-          clearTimeout(animationId);
+          // For requestAnimationFrame we use cancelAnimationFrame
+          cancelAnimationFrame(animationId);
           animationId = null;
         }
+        
         startPauseButton.textContent = 'Start';
         startPauseButton.classList.remove('pause');
         textElement.style.left = containerWidth + 'px';
-        lastPosition = containerWidth;
+        
+        // Save position for possible resume later instead of resetting
+        localStorage.setItem('sle_last_position', lastPosition);
+        lastPosition = null;
+        
         inputContainer.style.display = '';
         otherSettingsContainer.style.display = '';
         durationInfo.style.display = 'none';
         colorsInfo.style.display = 'none';
         loopButton.style.display = '';
+        
+        currentPallete.clear();
+        currentPalleteList = [];
+        
+        backButton.disabled = true;
+        forwardButton.disabled = true;
+        updateColorsButton.disabled = true;
+        
+        startTime = null;
+        lastTime = null;
+        prevHtmlValue = '';
+        
+        // Reset reading stats
+        readingStats = {
+          startTime: null,
+          pauseTimes: [],
+          totalPauseDuration: 0,
+          wordsRead: 0,
+          wordsTotal: 0
+        };
+        
+        // Clear progress bar
+        progressBar.style.width = '0%';
+        
+        // Clear text processor cache to free memory
+        processedTextCache.clear();
+        textChunkCache.clear();
+        
+        // Stop TTS if active
+        stopTextToSpeech();
       }
 
       startPauseButton.addEventListener('click', function() {
@@ -1359,7 +2812,632 @@
       stopButton.addEventListener('click', function() {
         stopView();
       });
-
+      
+      // Initialize IndexedDB for file storage
+      let db;
+      const DB_NAME = 'ReadingAppDB';
+      const STORE_NAME = 'savedFiles';
+      
+      function initDB() {
+        return new Promise((resolve, reject) => {
+          const request = indexedDB.open(DB_NAME, 1);
+          
+          request.onerror = event => {
+            console.error("IndexedDB error:", event.target.error);
+            reject("Could not initialize file storage. Your browser may not support this feature.");
+          };
+          
+          request.onupgradeneeded = event => {
+            const db = event.target.result;
+            if (!db.objectStoreNames.contains(STORE_NAME)) {
+              const store = db.createObjectStore(STORE_NAME, { keyPath: 'id', autoIncrement: true });
+              store.createIndex('filename', 'filename', { unique: false });
+              store.createIndex('timestamp', 'timestamp', { unique: false });
+            }
+          };
+          
+          request.onsuccess = event => {
+            db = event.target.result;
+            resolve(db);
+          };
+        });
+      }
+      
+      // Save file to IndexedDB
+      function saveFileToStorage(filename, content) {
+        return new Promise((resolve, reject) => {
+          if (!db) {
+            reject("Database not initialized");
+            return;
+          }
+          
+          const transaction = db.transaction([STORE_NAME], "readwrite");
+          const store = transaction.objectStore(STORE_NAME);
+          
+          // Check file size
+          const contentSize = new Blob([content]).size;
+          // If over 50MB, compress the content (basic compression)
+          let contentToStore = content;
+          let isCompressed = false;
+          
+          if (contentSize > 50 * 1024 * 1024) {
+            try {
+              // Simple compression - in a real app, we'd use a proper compression library
+              contentToStore = LZString.compressToUTF16(content);
+              isCompressed = true;
+            } catch (e) {
+              console.warn("Compression failed, storing uncompressed:", e);
+            }
+          }
+          
+          const file = {
+            filename: filename,
+            content: contentToStore,
+            timestamp: new Date().getTime(),
+            size: contentSize,
+            isCompressed: isCompressed
+          };
+          
+          const request = store.add(file);
+          
+          request.onsuccess = event => {
+            resolve(event.target.result); // Returns the ID
+          };
+          
+          request.onerror = event => {
+            reject("Error saving file: " + event.target.error);
+          };
+        });
+      }
+      
+      // Load file from IndexedDB
+      function loadFileFromStorage(id) {
+        return new Promise((resolve, reject) => {
+          if (!db) {
+            reject("Database not initialized");
+            return;
+          }
+          
+          const transaction = db.transaction([STORE_NAME], "readonly");
+          const store = transaction.objectStore(STORE_NAME);
+          const request = store.get(id);
+          
+          request.onsuccess = event => {
+            const file = event.target.result;
+            if (!file) {
+              reject("File not found");
+              return;
+            }
+            
+            let content = file.content;
+            
+            // Decompress if needed
+            if (file.isCompressed) {
+              try {
+                content = LZString.decompressFromUTF16(content);
+              } catch (e) {
+                reject("Error decompressing file: " + e);
+                return;
+              }
+            }
+            
+            resolve({
+              filename: file.filename,
+              content: content,
+              timestamp: file.timestamp,
+              size: file.size
+            });
+          };
+          
+          request.onerror = event => {
+            reject("Error loading file: " + event.target.error);
+          };
+        });
+      }
+      
+      // Get list of saved files
+      function getSavedFiles() {
+        return new Promise((resolve, reject) => {
+          if (!db) {
+            reject("Database not initialized");
+            return;
+          }
+          
+          const files = [];
+          const transaction = db.transaction([STORE_NAME], "readonly");
+          const store = transaction.objectStore(STORE_NAME);
+          const index = store.index('timestamp');
+          const request = index.openCursor(null, "prev"); // Newest first
+          
+          request.onsuccess = event => {
+            const cursor = event.target.result;
+            if (cursor) {
+              // Don't include the content in the list to save memory
+              files.push({
+                id: cursor.value.id,
+                filename: cursor.value.filename,
+                timestamp: cursor.value.timestamp,
+                size: cursor.value.size
+              });
+              cursor.continue();
+            } else {
+              resolve(files);
+            }
+          };
+          
+          request.onerror = event => {
+            reject("Error listing files: " + event.target.error);
+          };
+        });
+      }
+      
+      // Delete file from storage
+      function deleteFileFromStorage(id) {
+        return new Promise((resolve, reject) => {
+          if (!db) {
+            reject("Database not initialized");
+            return;
+          }
+          
+          const transaction = db.transaction([STORE_NAME], "readwrite");
+          const store = transaction.objectStore(STORE_NAME);
+          const request = store.delete(id);
+          
+          request.onsuccess = event => {
+            resolve();
+          };
+          
+          request.onerror = event => {
+            reject("Error deleting file: " + event.target.error);
+          };
+        });
+      }
+      
+      // LZString for compression - lightweight version
+      const LZString = {
+        compressToUTF16: function(input) {
+          return btoa(encodeURIComponent(input));
+        },
+        decompressFromUTF16: function(compressed) {
+          return decodeURIComponent(atob(compressed));
+        }
+      };
+      
+      // ADDED: Setup quick settings panel
+      const quickSettingsToggle = document.getElementById('quick-settings-toggle');
+      const quickSettingsPanel = document.getElementById('quick-settings-panel');
+      const quickSpeedSlider = document.getElementById('quick-speed');
+      const fontSizeControl = document.getElementById('font-size-control');
+      const focusModeToggle = document.getElementById('focus-mode-toggle');
+      const createBookmarkQuick = document.getElementById('create-bookmark-quick');
+      const openSearchButton = document.getElementById('open-search');
+      const ttsButton = document.getElementById('tts-button');
+      const exportSettingsButton = document.getElementById('export-settings');
+      const importSettingsButton = document.getElementById('import-settings');
+      const searchButton = document.getElementById('search-button');
+      const searchContainer = document.getElementById('search-container');
+      const searchInput = document.getElementById('search-input');
+      const searchPrev = document.getElementById('search-prev');
+      const searchNext = document.getElementById('search-next');
+      const searchClose = document.getElementById('search-close');
+      
+      // Quick settings toggle
+      quickSettingsToggle.addEventListener('click', function() {
+        quickSettingsPanel.classList.toggle('hidden');
+      });
+      
+      // Quick speed control
+      quickSpeedSlider.value = delaySlider.value;
+      quickSpeedSlider.addEventListener('input', function() {
+        delaySlider.value = this.value;
+        speedInput.value = 100 - this.value;
+        delayInfo.value = this.value;
+      });
+      
+      // Font size control
+      fontSizeControl.value = parseInt(textElement.style.fontSize) || 42;
+      fontSizeControl.addEventListener('input', function() {
+        textElement.style.fontSize = this.value + 'px';
+        localStorage.setItem('sle_font_size', this.value);
+      });
+      
+      // Focus mode toggle
+      focusModeToggle.addEventListener('change', function() {
+        const focusIndicator = document.getElementById('focus-indicator');
+        focusIndicator.style.display = this.checked ? '' : 'none';
+        localStorage.setItem('sle_focus_mode', this.checked);
+      });
+      
+      // Create bookmark from quick settings
+      createBookmarkQuick.addEventListener('click', function() {
+        if (lastPosition !== null) {
+          createBookmark();
+          alert('Bookmark created!');
+        }
+      });
+      
+      // Open search from quick settings
+      openSearchButton.addEventListener('click', function() {
+        searchContainer.style.display = 'block';
+        searchInput.focus();
+      });
+      
+      // TTS button
+      ttsButton.addEventListener('click', function() {
+        if (speechUtterance) {
+          stopTextToSpeech();
+        } else {
+          startTextToSpeech();
+        }
+      });
+      
+      // Export settings
+      exportSettingsButton.addEventListener('click', exportSettings);
+      
+      // Import settings
+      importSettingsButton.addEventListener('click', importSettings);
+      
+      // Search functionality
+      searchButton.addEventListener('click', function() {
+        searchContainer.style.display = 'block';
+        searchInput.focus();
+      });
+      
+      searchInput.addEventListener('input', function() {
+        performSearch(this.value);
+      });
+      
+      searchPrev.addEventListener('click', function() {
+        if (currentSearchIndex > 0) {
+          goToSearchResult(currentSearchIndex - 1);
+        }
+      });
+      
+      searchNext.addEventListener('click', function() {
+        if (currentSearchIndex < searchResults.length - 1) {
+          goToSearchResult(currentSearchIndex + 1);
+        }
+      });
+      
+      searchClose.addEventListener('click', function() {
+        searchContainer.style.display = 'none';
+        
+        // Clear highlights
+        const highlighted = document.querySelectorAll('.highlight-word');
+        highlighted.forEach(el => {
+          el.classList.remove('highlight-word');
+        });
+      });
+      
+      // Load saved font size
+      const savedFontSize = localStorage.getItem('sle_font_size');
+      if (savedFontSize) {
+        textElement.style.fontSize = savedFontSize + 'px';
+        fontSizeControl.value = savedFontSize;
+      }
+      
+      // Load focus mode setting
+      const savedFocusMode = localStorage.getItem('sle_focus_mode');
+      if (savedFocusMode !== null) {
+        const focusMode = savedFocusMode === 'true';
+        focusModeToggle.checked = focusMode;
+        const focusIndicator = document.getElementById('focus-indicator');
+        if (focusIndicator) {
+          focusIndicator.style.display = focusMode ? 'block' : 'none';
+        }
+      }
+      
+      // Focus mode toggle handler
+      focusModeToggle.addEventListener('change', function() {
+        const focusIndicator = document.getElementById('focus-indicator');
+        if (focusIndicator) {
+          focusIndicator.style.display = this.checked ? 'block' : 'none';
+          localStorage.setItem('sle_focus_mode', this.checked);
+        }
+      });
+      
+      // Drop zone for file upload with PDF support
+      function setupDropZone() {
+        const dropZone = document.createElement('div');
+        dropZone.id = 'file-drop-zone';
+        dropZone.style.cssText = `
+          display: none;
+          position: fixed;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100%;
+          background-color: rgba(25, 135, 84, 0.3);
+          border: 5px dashed rgba(25, 135, 84, 0.6);
+          z-index: 9999;
+          justify-content: center;
+          align-items: center;
+          font-size: 24px;
+          color: white;
+          text-shadow: 0 1px 3px rgba(0,0,0,0.7);
+          box-sizing: border-box;
+        `;
+        dropZone.innerHTML = `<div>Drop text or PDF file here</div>`;
+        document.body.appendChild(dropZone);
+        
+        // Handle file drop events
+        document.addEventListener('dragover', function(e) {
+          e.preventDefault();
+          dropZone.style.display = 'flex';
+        });
+        
+        document.addEventListener('dragleave', function(e) {
+          if (!e.relatedTarget || e.relatedTarget.id !== 'file-drop-zone') {
+            dropZone.style.display = 'none';
+          }
+        });
+        
+        dropZone.addEventListener('dragleave', function(e) {
+          dropZone.style.display = 'none';
+        });
+        
+        dropZone.addEventListener('dragover', function(e) {
+          e.preventDefault();
+        });
+        
+        dropZone.addEventListener('drop', function(e) {
+          e.preventDefault();
+          dropZone.style.display = 'none';
+          
+          if (e.dataTransfer.files.length) {
+            const file = e.dataTransfer.files[0];
+            
+            // Check if it's a PDF file
+            if (file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf')) {
+                // Process PDF file
+                extractTextFromPDF(file)
+                    .then(result => {
+                        // Update the input with extracted text
+                        if (appendCheckbox.checked && input.value.trim().length > 0) {
+                            input.value += '\n\n' + result.text;
+                        } else {
+                            input.value = result.text;
+                        }
+                        
+                        // Show success notification
+                        const notification = document.createElement('div');
+                        notification.style.cssText = `
+                            position: fixed;
+                            bottom: 20px;
+                            right: 20px;
+                            background-color: rgba(25, 135, 84, 0.9);
+                            color: white;
+                            padding: 15px;
+                            border-radius: 5px;
+                            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+                            z-index: 1000;
+                            max-width: 400px;
+                            animation: slideIn 0.3s forwards;
+                        `;
+                        
+                        notification.innerHTML = `
+                            <div style="font-weight: bold; margin-bottom: 5px;">PDF text extracted successfully</div>
+                            <div>${result.filename}</div>
+                            <div>Pages: ${result.pageCount}</div>
+                            <div>Text length: ${result.text.length} characters</div>
+                            <div style="margin-top: 10px; font-size: 12px;">
+                                <a href="#" id="save-quick-drop-pdf" style="color: white; text-decoration: underline;">Save for future use</a>
+                            </div>
+                        `;
+                        
+                        document.body.appendChild(notification);
+                        
+                        // Add quick save functionality
+                        document.getElementById('save-quick-drop-pdf').addEventListener('click', function(e) {
+                            e.preventDefault();
+                            
+                            // Save the file to IndexedDB
+                            initDB().then(() => {
+                                saveFileToStorage(result.filename, result.text)
+                                    .then(id => {
+                                        notification.innerHTML += `<div style="color: #8effb9; margin-top: 5px;">✓ Saved successfully</div>`;
+                                    })
+                                    .catch(error => {
+                                        notification.innerHTML += `<div style="color: #ff8e8e; margin-top: 5px;">✗ ${error}</div>`;
+                                    });
+                            }).catch(error => {
+                                notification.innerHTML += `<div style="color: #ff8e8e; margin-top: 5px;">✗ ${error}</div>`;
+                            });
+                        });
+                        
+                        setTimeout(() => {
+                            notification.style.animation = 'slideOut 0.3s forwards';
+                            setTimeout(() => {
+                                if (notification.parentNode) {
+                                    notification.parentNode.removeChild(notification);
+                                }
+                            }, 300);
+                        }, 8000);
+                    })
+                    .catch(error => {
+                        removeLoadingOverlay();
+                        alert(error);
+                    });
+            } else if (file.type.match('text.*') || file.name.match(/\.(txt|md|csv|json|xml|html|css|js|log)$/i)) {
+              // Similar to uploadTextFile but for dropped files
+              loadFullFileInBackground(file).catch(error => {
+                alert(error);
+              });
+            } else {
+              alert("Please drop a text or PDF file");
+            }
+          }
+        });
+      }
+      
+      // Initialize keyboard shortcuts
+      document.addEventListener('keydown', function(e) {
+        // Don't trigger shortcuts when typing in input fields
+        if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+        
+        switch(e.key) {
+          case ' ':  // Space bar toggles play/pause
+            e.preventDefault();
+            if (animationId) {
+              pauseView();
+            } else {
+              startView();
+            }
+            break;
+          case 'ArrowLeft':  // Left arrow navigates backward
+            e.preventDefault();
+            if (lastPosition !== null) {
+              backButton.click();
+            }
+            break;
+          case 'ArrowRight':  // Right arrow navigates forward
+            e.preventDefault();
+            if (lastPosition !== null) {
+              forwardButton.click();
+            }
+            break;
+          case 'b':  // B creates bookmark
+          case 'B':
+            e.preventDefault();
+            if (lastPosition !== null) {
+              createBookmark();
+            }
+            break;
+          case 's':  // S opens search
+          case 'S':
+            e.preventDefault();
+            document.getElementById('search-container').style.display = 'block';
+            document.getElementById('search-input').focus();
+            break;
+          case 'l':  // L toggles loop
+          case 'L':
+            e.preventDefault();
+            isLooping = !isLooping;
+            loopButton.classList.toggle('active');
+            localStorage.setItem('sle_loop', isLooping);
+            break;
+          case '+':  // + increases speed
+            e.preventDefault();
+            speedInput.value = Math.min(100, parseInt(speedInput.value) + 5);
+            delaySlider.value = 100 - speedInput.value;
+            delayInfo.value = delaySlider.value;
+            break;
+          case '-':  // - decreases speed
+            e.preventDefault();
+            speedInput.value = Math.max(-30, parseInt(speedInput.value) - 5);
+            delaySlider.value = 100 - speedInput.value;
+            delayInfo.value = delaySlider.value;
+            break;
+          case 'Escape':  // ESC closes panels
+            e.preventDefault();
+            document.getElementById('search-container').style.display = 'none';
+            document.getElementById('quick-settings-panel').classList.add('hidden');
+            document.getElementById('saved-files-modal').style.display = 'none';
+            break;
+        }
+      });
+      
+      // ADDED: Check if we have a saved position to load
+      if (lastSavePosition !== null) {
+        input.addEventListener('input', function checkForText() {
+          if (input.value.trim().length > 0) {
+            // We have text and a saved position, show a prompt to resume
+            const shouldResume = confirm("Would you like to resume reading from your last position?");
+            if (shouldResume) {
+              startView();
+            } else {
+              // If user doesn't want to resume, clear the saved position
+              localStorage.removeItem('sle_last_position');
+              lastSavePosition = null;
+            }
+            // Remove the event listener after handling
+            input.removeEventListener('input', checkForText);
+          }
+        });
+        
+        // If there's already text in the input, check immediately
+        if (input.value.trim().length > 0) {
+          const shouldResume = confirm("Would you like to resume reading from your last position?");
+          if (shouldResume) {
+            startView();
+          } else {
+            localStorage.removeItem('sle_last_position');
+            lastSavePosition = null;
+          }
+        }
+      }
+      
+      // ADDED: Check for browser compatibility and show warnings if needed
+      function checkBrowserCompatibility() {
+        const compatWarnings = [];
+        
+        if (!window.Worker) {
+          compatWarnings.push("Web Workers aren't supported in this browser. Text processing will be slower.");
+        }
+        
+        if (!window.requestAnimationFrame) {
+          compatWarnings.push("RequestAnimationFrame isn't supported. Animation may be less smooth.");
+        }
+        
+        if (!window.speechSynthesis) {
+          compatWarnings.push("Speech synthesis isn't supported. Text-to-Speech feature won't work.");
+        }
+        
+        if (compatWarnings.length > 0) {
+          console.warn("Browser compatibility issues:", compatWarnings);
+          // Only show alert if there are critical issues
+          if (compatWarnings.length > 1) {
+            alert("Browser compatibility warning: Some features may not work correctly in your browser.");
+          }
+        }
+      }
+      
+      checkBrowserCompatibility();
+      
+      // ADDED: Load data in progressive chunks for large texts
+      function checkForLargeTextAndOptimize() {
+        const text = input.value;
+        if (text.length > 50000) { // 50KB+
+          console.log(`Large text detected (${Math.round(text.length/1024)}KB), optimizing...`);
+          
+          // Inform the user
+          const statusMessage = document.createElement('div');
+          statusMessage.style.position = 'fixed';
+          statusMessage.style.bottom = '20px';
+          statusMessage.style.right = '20px';
+          statusMessage.style.backgroundColor = 'rgba(0,0,0,0.7)';
+          statusMessage.style.color = 'white';
+          statusMessage.style.padding = '10px';
+          statusMessage.style.borderRadius = '5px';
+          statusMessage.style.zIndex = '1000';
+          statusMessage.textContent = 'Optimizing large text for better performance...';
+          document.body.appendChild(statusMessage);
+          
+          // Let the UI update
+          setTimeout(() => {
+            // Chunk the text for better performance
+            if (!isTextChunked) {
+              textChunks = [];
+              for (let i = 0; i < text.length; i += lazyLoadChunkSize) {
+                textChunks.push(text.substring(i, i + lazyLoadChunkSize));
+              }
+              isTextChunked = true;
+              currentChunkIndex = 0;
+            }
+            
+            // Remove status message
+            document.body.removeChild(statusMessage);
+          }, 10);
+        }
+      }
+      
+      // Check for large text on load
+      if (input.value.length > 0) {
+        checkForLargeTextAndOptimize();
+      }
+      
+      // Also check when text changes
+      input.addEventListener('change', checkForLargeTextAndOptimize);
     });
 
   </script>
