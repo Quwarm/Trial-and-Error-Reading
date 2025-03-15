@@ -90,6 +90,7 @@
       border-radius: 5px;
       cursor: pointer;
       transition: background-color 0.3s;
+      margin: 1px;
     }
 
     #colors-info {
@@ -394,7 +395,7 @@
     @media (max-width: 600px) {
       button {
         width: 100%;
-        margin-bottom: 10px;
+        margin: 10px 0px 10px 0px;
       }
     }
   </style>
@@ -407,11 +408,11 @@
     </div>
 
     <div id="control-container">
-      <button id="back-button" disabled>&lt;&lt;</button>
+      <button id="back-button">&lt;&lt;</button>
       <button id="start-pause-button">Start</button>
       <button id="stop-button">Stop</button>
-      <button id="forward-button" disabled>&gt;&gt;</button>
-      <br>
+      <button id="forward-button">&gt;&gt;</button>
+      <br><br>
       <button id="loop-button">Loop</button>
       <span id="duration-info" style="display: none;">0</span>
       <br><br>
@@ -419,6 +420,11 @@
     </div>
 
     <div id="input-container">
+      <button id="update-text-button">&#8635; Text &#8635;</button>
+      <button id="update-colors-button">&#8635; Colors &#8635;</button>
+      <br>
+      <button id="copy-text-button">&#9167; Copy text &#9167;</button>
+      <br><br><br>
       <label for="speed-input">Speed</label>
       <input type="number" id="speed-input" min="-1000" max="1000" value="10" style="display: none;">
       <input type="range" id="delay-slider" min="1" max="250" value="100">
@@ -460,11 +466,6 @@
         </select>
       </label>
       <br>
-      <button id="update-text-button" disabled>&#8635; Text &#8635;</button>
-      <button id="update-colors-button" disabled>&#8635; Colors &#8635;</button>
-      <br>
-      <button id="copy-text-button" disabled>&#9167; Copy text &#9167;</button>
-      <br><br>
       <label><input type="checkbox" id="color-task-checkbox" checked> Color encoder task</label>
       <br>
       <label for="color-task-letters" id="color-task-letters-label">Number of letters:
@@ -651,6 +652,11 @@
           elem.classList.add(cls);
         }
       }
+      backButton.disabled = true;
+      forwardButton.disabled = true;
+      updateTextButton.disabled = true;
+      updateColorsButton.disabled = true;
+      copyTextButton.disabled = true;
 
       loopButton.addEventListener('click', function() {
           isLooping = !isLooping;
@@ -1035,41 +1041,71 @@
           }
       }
 
-      function eliminateChars(regex, word, numberOfLetters) {
+      function eliminateChars(regex, word, percentOfLetters) {
+        let pWord = word;
+        try {
+          pWord = word.replace(/[^\p{L}]/ug, '');
+        }
+        catch (err) {
+          console.log(err);
+        }
         regex.lastIndex = 0;
-        const end = (numberOfLetters == -1) ? 100 : numberOfLetters;
         let match, indexes = [], is_first = true, dt = 0;
         while ((match = regex.exec(word)) != null) {
           if (is_first) {
             is_first = false;
-            if (regex === eliminateRandomLettersRegex) {
-              dt += 1;
+            if (pWord[0] === word[match.index]) {
               continue;
             }
           }
           indexes.push(match.index);
         }
-        if (indexes.length > 0 && word.length >= 2) {
-          indexes.pop();
-        }
         regex.lastIndex = 0;
-        let toSelectN = Math.min(end + dt, indexes.length);
+        if (indexes.length > 0 && word.length >= 2 && regex === eliminateRandomLettersRegex) {
+          let lastIndex = indexes[indexes.length - 1];
+          eliminateVowelsRegex.lastIndex = 0;
+          if (!eliminateVowelsRegex.test(word[lastIndex]) || lastIndex > 0 &&
+              (eliminateVowelsRegex.lastIndex = 0) == 0 &&
+               eliminateVowelsRegex.test(word[lastIndex - 1])) {
+            indexes.pop();
+          }
+          eliminateVowelsRegex.lastIndex = 0;
+        }
+        let pWordLength = pWord.length;
+        try {
+          if (regex === eliminateVowelsRegex) {
+            let c = 0;
+            for (let i = 0; i < word.length; ++i) {
+              eliminateVowelsRegex.lastIndex = 0;
+              if (eliminateVowelsRegex.test(word[i])) {
+                ++c;
+              }
+            }
+            pWordLength = c;
+            eliminateVowelsRegex.lastIndex = 0;
+          }
+        }
+        catch (err) {
+          console.log(err);
+        }
+        let toSelectN = Math.min(Math.floor(pWordLength * percentOfLetters), indexes.length);
         let toSelectArray = indexes;
         shuffleArray(toSelectArray);
         let part1 = [], part2 = [], part3 = [];
         for (let x of toSelectArray) {
           eliminateVowelsRegex.lastIndex = 0;
           if (eliminateVowelsRegex.test(word[x])) {
-            part1.push(x);
+            part2.push(x);
           }
           else if (x > 0 && word[x - 1] == word[x]) {
-            part2.push(x);
+            part1.push(x);
           }
           else {
             part3.push(x);
           }
         }
-        toSelectArray = [...part1, ...part2, ...part3].slice(0, toSelectN).sort();
+        eliminateVowelsRegex.lastIndex = 0;
+        toSelectArray = [...part1, ...part2, ...part3].slice(0, toSelectN).sort((a, b) => a - b);
         let newWordParts = [];
         let start = 0;
         for (let removeIndex of toSelectArray) {
@@ -1203,22 +1239,12 @@
                   try {
                     let match = /(\d+)%_vowels?/.exec(eliminatingSelect.value);
                     if (match != null && match.length >= 2) {
-                      let woAllVowels = eliminateChars(eliminateVowelsRegex, tmpWord, -1);
-                      let vowelsToRemoveCnt = Math.floor((tmpWord.length - woAllVowels.length) * parseInt(match[1]) / 100);
-                      if (vowelsToRemoveCnt >= tmpWord.length) {
-                        vowelsToRemoveCnt = Math.max(0, tmpWord.length - 1);
-                      }
-                      tmpWord = eliminateChars(eliminateVowelsRegex, tmpWord, vowelsToRemoveCnt);
+                      tmpWord = eliminateChars(eliminateVowelsRegex, tmpWord, parseInt(match[1]) / 100);
                     }
                     else {
                       match = /(\d+)%_random/.exec(eliminatingSelect.value);
                       if (match != null && match.length >= 2) {
-                        let woAllLetters = eliminateChars(eliminateRandomLettersRegex, tmpWord, -1);
-                        let lettersToRemoveCnt = Math.floor((tmpWord.length - woAllLetters.length) * parseInt(match[1]) / 100);
-                        if (lettersToRemoveCnt >= tmpWord.length) {
-                          lettersToRemoveCnt = Math.max(0, tmpWord.length - 1);
-                        }
-                        tmpWord = eliminateChars(eliminateRandomLettersRegex, tmpWord, lettersToRemoveCnt);
+                        tmpWord = eliminateChars(eliminateRandomLettersRegex, tmpWord, parseInt(match[1]) / 100);
                       }
                     }
                     resultWord = tmpWord;
