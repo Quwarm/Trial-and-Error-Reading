@@ -306,6 +306,15 @@
       text-align: center;
     }
 
+    #difficulty-select, #eliminating-select, #shuffling-words-select {
+      min-width: 150px;
+    }
+
+    div.before-select {
+      min-width: 150px;
+      display: inline-block;
+    }
+
     input[type=range] {
       padding: 0px 4px 0px 4px;
       width: 225px;
@@ -415,7 +424,7 @@
       <input type="range" id="delay-slider" min="1" max="250" value="100">
       <input type="number" id="delay-info" min="-1000" max="1000" value="100">
       <br><br>
-      <label>Shuffling letters:
+      <label><div class="before-select">Shuffling letters:</div>
         <select id="difficulty-select">
           <option value="no">-</option>
           <option value="easy">Easy</option>
@@ -426,22 +435,22 @@
         </select>
       </label>
       <br>
-      <label>Eliminating letters:
+      <label><div class="before-select">Eliminating letters:</div>
         <select id="eliminating-select">
           <option value="no">-</option>
           <option value="20%_vowels">20% vowels</option>
           <option value="40%_vowels">40% vowels</option>
           <option value="60%_vowels">60% vowels</option>
           <option value="80%_vowels">80% vowels</option>
-          <option value="100%_vowels">All vowels</option>
-          <option value="10%_random">10% random</option>
-          <option value="20%_random">20% random</option>
-          <option value="30%_random">30% random</option>
-          <option value="40%_random">40% random</option>
+          <option value="100%_vowels">Almost all vowels</option>
+          <option value="10%_random">10% smart-random</option>
+          <option value="20%_random">20% smart-random</option>
+          <option value="30%_random">30% smart-random</option>
+          <option value="40%_random">40% smart-random</option>
         </select>
       </label>
       <br>
-      <label>Shuffling words:
+      <label><div class="before-select">Shuffling words:</div>
         <select id="shuffling-words-select">
           <option value="no">-</option>
           <option value="2_words">Two words</option>
@@ -531,7 +540,7 @@
       eliminateRandomLettersRegex = null;
     }
     try {
-      punctuationRegex = new RegExp(/\p{Pi}|\p{Pf}|\p{Po}/, 'uig');
+      punctuationRegex = new RegExp(/\p{Pi}|\p{Pf}|\p{Po}/, 'ui');
     }
     catch (err) {
       console.log(err);
@@ -1027,6 +1036,7 @@
       }
 
       function eliminateChars(regex, word, numberOfLetters) {
+        regex.lastIndex = 0;
         const end = (numberOfLetters == -1) ? 100 : numberOfLetters;
         let match, indexes = [], is_first = true, dt = 0;
         while ((match = regex.exec(word)) != null) {
@@ -1039,19 +1049,30 @@
           }
           indexes.push(match.index);
         }
-        if (regex === eliminateRandomLettersRegex && indexes.length > 0) {
+        if (indexes.length > 0 && word.length >= 2) {
           indexes.pop();
         }
-        let toSelect = Math.min(end + dt, indexes.length);
-        let indexesSet = new Set();
-        while (indexesSet.size < toSelect) {
-          let randomIndex = Math.floor(Math.random() * indexes.length);
-          indexesSet.add(indexes[randomIndex]);
+        regex.lastIndex = 0;
+        let toSelectN = Math.min(end + dt, indexes.length);
+        let toSelectArray = indexes;
+        shuffleArray(toSelectArray);
+        let part1 = [], part2 = [], part3 = [];
+        for (let x of toSelectArray) {
+          eliminateVowelsRegex.lastIndex = 0;
+          if (eliminateVowelsRegex.test(word[x])) {
+            part1.push(x);
+          }
+          else if (x > 0 && word[x - 1] == word[x]) {
+            part2.push(x);
+          }
+          else {
+            part3.push(x);
+          }
         }
-        let removeIndices = Array.from(indexesSet).sort((a, b) => a - b);
+        toSelectArray = [...part1, ...part2, ...part3].slice(0, toSelectN).sort();
         let newWordParts = [];
         let start = 0;
-        for (let removeIndex of removeIndices) {
+        for (let removeIndex of toSelectArray) {
           if (start < removeIndex) {
             newWordParts.push(word.slice(start, removeIndex));
           }
