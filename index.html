@@ -16,8 +16,13 @@
 
     span { unicode-bidi: embed; }
 
-    .container {
+    .container.normal-size {
       max-width: 768px;
+      margin: 0 auto;
+    }
+
+    .container.max-size {
+      max-width: 100%;
       margin: 0 auto;
     }
 
@@ -118,12 +123,12 @@
       background-color: rgb(180, 25, 46);
     }
 
-    #theme-button, #color-boxes-theme-button {
+    #theme-button, #color-boxes-theme-button, #max-size-button {
       background-color: rgb(11, 166, 197);
       color: white;
     }
 
-    #theme-button:hover, #color-boxes-theme-button:hover {
+    #theme-button:hover, #color-boxes-theme-button:hover, #max-size-button:hover {
       background-color: rgb(9, 130, 153);
     }
 
@@ -386,7 +391,7 @@
   </style>
 </head>
 <body class="">
-  <div class="container">
+  <div class="container normal-size">
 
     <div id="marquee-container">
       <span id="marquee-text"></span>
@@ -410,7 +415,7 @@
       <input type="range" id="delay-slider" min="1" max="250" value="100">
       <input type="number" id="delay-info" min="-1000" max="1000" value="100">
       <br><br>
-      <label>Difficulty of shuffling:
+      <label>Shuffling letters:
         <select id="difficulty-select">
           <option value="no">-</option>
           <option value="easy">Easy</option>
@@ -418,6 +423,31 @@
           <option value="medium_plus">Medium+</option>
           <option value="hard">Hard</option>
           <option value="very-hard">Very Hard</option>
+        </select>
+      </label>
+      <br>
+      <label>Eliminating letters:
+        <select id="eliminating-select">
+          <option value="no">-</option>
+          <option value="20%_vowels">20% vowels</option>
+          <option value="40%_vowels">40% vowels</option>
+          <option value="60%_vowels">60% vowels</option>
+          <option value="80%_vowels">80% vowels</option>
+          <option value="100%_vowels">All vowels</option>
+          <option value="10%_random">10% random</option>
+          <option value="20%_random">20% random</option>
+          <option value="30%_random">30% random</option>
+          <option value="40%_random">40% random</option>
+        </select>
+      </label>
+      <br>
+      <label>Shuffling words:
+        <select id="shuffling-words-select">
+          <option value="no">-</option>
+          <option value="2_words">Two words</option>
+          <option value="3_words">Three words</option>
+          <option value="4_words">Four words</option>
+          <option value="5_words">Five words</option>
         </select>
       </label>
       <br>
@@ -454,6 +484,7 @@
     <div id="other-settings-container">
       <button id="color-boxes-theme-button">Toggle Marquee Text Block Theme</button>
       <button id="theme-button">Toggle Theme</button>
+      <button id="max-size-button">Toggle Full Size</button>
       <button id="reset-button">Reset settings</button>
     </div>
 
@@ -477,7 +508,32 @@
     let lastPosition = null;
     let startTime = null, lastTime = null;
     let currentPallete = new Map(), currentPalleteList = [];
-    let prevHtmlValue = '', prevDifficulty = '', prevColorInputValue = '', prevColorTaskCheckboxChecked = null, isLooping = false;
+    let prevHtmlValue = '', prevDifficulty = '', prevShufflingWords = '', eliminatingSelect = '';
+    let prevColorInputValue = '', prevColorTaskCheckboxChecked = null, isLooping = false;
+
+    let eliminateVowelsRegex = null, eliminateRandomLettersRegex = null, punctuationRegex = null;
+    try {
+      // https://checkserp.com/encode/unicode/
+      eliminateVowelsRegex = new RegExp('[\u0041\u0045\u0049\u004f\u0055\u0410\u0415\u0401\u0418\u041e\u0423\u042b\u042d\u042e\u042f\u0391\u0395\u0397\u0399\u039f\u03a5\u03a9\u0101\u012b\u016b\u0113\u014d]', 'uig');
+    }
+    catch (err) {
+      console.log(err);
+      eliminateVowelsRegex = null;
+    }
+    try {
+      eliminateRandomLettersRegex = new RegExp(/\p{L}/, 'uig');
+    }
+    catch (err) {
+      console.log(err);
+      eliminateRandomLettersRegex = null;
+    }
+    try {
+      punctuationRegex = new RegExp(/\p{Pi}|\p{Pf}|\p{Po}/, 'uig');
+    }
+    catch (err) {
+      console.log(err);
+      punctuationRegex = null;
+    }
 
     function changeColor(elem) {
       let text = prompt("Enter color:", elem.style.color);
@@ -503,6 +559,8 @@
       const colorsInfo = document.getElementById('colors-info');
       const appendCheckbox = document.getElementById('append-checkbox');
       const difficultySelect = document.getElementById('difficulty-select');
+      const shufflingWordsSelect = document.getElementById('shuffling-words-select');
+      const eliminatingSelect = document.getElementById('eliminating-select');
       const textElement = document.getElementById('marquee-text');
       const inputContainer = document.getElementById('input-container');
       const otherSettingsContainer = document.getElementById('other-settings-container');
@@ -510,6 +568,7 @@
       const startPauseButton = document.getElementById('start-pause-button');
       const stopButton = document.getElementById('stop-button');
       const themeButton = document.getElementById('theme-button');
+      const maxSizeButton = document.getElementById('max-size-button');
       const saveButton = document.getElementById('save-button');
       const resetButton = document.getElementById('reset-button');
       const clearButton = document.getElementById('clear-button');
@@ -563,9 +622,21 @@
       dumpColorsButton.style.display = showTableCheckbox.checked && colorTaskCheckbox.checked ? '' : 'none';
       const savedDifficulty = localStorage.getItem('sle_difficulty') || 'no';
       difficultySelect.value = savedDifficulty;
+      const savedEliminating = localStorage.getItem('sle_eliminating') || 'no';
+      eliminatingSelect.value = savedEliminating;
+      const savedShufflingWords = localStorage.getItem('sle_shuffling_words') || 'no';
+      shufflingWordsSelect.value = savedShufflingWords;
       isLooping = (localStorage.getItem('sle_loop') || 'false') == 'true';
       if (isLooping) {
         loopButton.classList.toggle('active');
+      }
+      {
+        let elems = document.getElementsByClassName('container');
+        let elem = elems.length > 0 ? elems[0] : null;
+        let cls = localStorage.getItem('sle_max_size') || 'normal-size';
+        if (elem && cls) {
+          elem.classList.add(cls);
+        }
       }
 
       loopButton.addEventListener('click', function() {
@@ -676,6 +747,36 @@
         let nextTheme = themes[(currentThemeIndex + 1) % themes.length];
         document.body.classList.add(nextTheme);
         localStorage.setItem('sle_theme', nextTheme);
+      });
+
+      maxSizeButton.addEventListener('click', function() {
+        let sizes = [
+          "max-size",
+          "normal-size",
+        ];
+        let currentSizeIndex = -1, i;
+        let elems = document.getElementsByClassName('container');
+        let elem = elems.length > 0 ? elems[0] : null;
+        if (!elem) {
+          return;
+        }
+        for (i = 0; i < sizes.length; ++i) {
+          if (elem.classList.contains(sizes[i])) {
+            currentSizeIndex = i;
+            break;
+          }
+        }
+        if (i < 0) {
+          elem.classList.add(sizes[0]);
+          localStorage.setItem('sle_max_size', sizes[0]);
+          return;
+        }
+        for (i = 0; i < sizes.length; ++i) {
+          elem.classList.remove(sizes[i]);
+        }
+        let nextSize = sizes[(currentSizeIndex + 1) % sizes.length];
+        elem.classList.add(nextSize);
+        localStorage.setItem('sle_max_size', nextSize);
       });
 
       colorBoxesThemeButton.addEventListener('click', function() {
@@ -880,6 +981,8 @@
         localStorage.setItem('sle_speed', speedInput.value);
         localStorage.setItem('sle_append_text', '' + appendCheckbox.checked);
         localStorage.setItem('sle_difficulty', difficultySelect.value);
+        localStorage.setItem('sle_shuffling_words', shufflingWordsSelect.value);
+        localStorage.setItem('sle_eliminating', eliminatingSelect.value);
         localStorage.setItem('sle_loop', isLooping);
       }
 
@@ -895,9 +998,12 @@
             localStorage.removeItem('sle_speed');
             localStorage.removeItem('sle_append_text');
             localStorage.removeItem('sle_difficulty');
+            localStorage.removeItem('sle_shuffling_words');
+            localStorage.removeItem('sle_eliminating');
+            localStorage.removeItem('sle_loop');
             localStorage.removeItem('sle_theme');
             localStorage.removeItem('sle_color_boxes_theme');
-            localStorage.removeItem('sle_loop');
+            localStorage.removeItem('sle_max_size');
             location.reload();
         }
       }
@@ -907,6 +1013,70 @@
               const j = Math.floor(Math.random() * (i + 1));
               [array[i], array[j]] = [array[j], array[i]];
           }
+      }
+
+      function eliminateChars(regex, word, numberOfLetters) {
+        const end = (numberOfLetters == -1) ? 100 : numberOfLetters;
+        let match, indexes = [];
+        while ((match = regex.exec(word)) != null) {
+          if (match.index === 0) {
+            continue;
+          }
+          indexes.push(match.index);
+        }
+        let toSelect = Math.min(end, indexes.length);
+        let indexesSet = new Set();
+        while (indexesSet.size < toSelect) {
+          let randomIndex = Math.floor(Math.random() * indexes.length);
+          indexesSet.add(indexes[randomIndex]);
+        }
+        let removeIndices = Array.from(indexesSet).sort((a, b) => a - b);
+        let newWordParts = [];
+        let start = 0;
+        for (let removeIndex of removeIndices) {
+          if (start < removeIndex) {
+            newWordParts.push(word.slice(start, removeIndex));
+          }
+          start = removeIndex + 1;
+        }
+        if (start < word.length) {
+          newWordParts.push(word.slice(start));
+        }
+        return newWordParts.join('');
+      }
+
+      function shuffleGroups(words, k) {
+        let newWords = [];
+        for (let i = 0; i < words.length;) {
+          let currentWords = words.slice(i, i + k), hWords = [];
+          for (let j = 0; j < currentWords.length; ++j) {
+            hWords.push(currentWords[j]);
+            if (punctuationRegex.test(currentWords[j])) {
+              break;
+            }
+          }
+          currentWords = hWords;
+          i += currentWords.length;
+          let toShuffleIndexes = [], toRemainIndexes = new Set();
+          for (let j = 0; j < currentWords.length; ++j) {
+            if (punctuationRegex.test(currentWords[j])) {
+              toRemainIndexes.add(j);
+            }
+            else {
+              toShuffleIndexes.push(j);
+            }
+          }
+          shuffleArray(toShuffleIndexes);
+          for (let j = 0, j1 = 0; j < currentWords.length; ++j) {
+            if (toRemainIndexes.has(j)) {
+              newWords.push(currentWords[j]);
+              continue;
+            }
+            newWords.push(currentWords[toShuffleIndexes[j1]]);
+            ++j1;
+          }
+        }
+        return newWords;
       }
 
       function isLetter(ch) {
@@ -922,7 +1092,7 @@
           }
         }
         catch (err) {
-          console.log(`${err}`);
+          console.log(err);
         }
         return false;
       }
@@ -937,9 +1107,25 @@
         for (let slS = 0; slS < sentences.length; ++slS) {
             const sentence = sentences[slS];
             const helperSentence = helperSentences[slS];
-            const words = sentence.split(/\s+/);
+            let words = sentence.split(/\s+/);
             const helperWords = helperSentence.split(/\s+/);
-            const currentSentence = [];
+            let newWords = [];
+            if (shufflingWordsSelect.value != 'no') {
+              try {
+                let match = /(\d+)_words?/.exec(shufflingWordsSelect.value);
+                if (match != null && match.length >= 2) {
+                  const nWords = parseInt(match[1]);
+                  newWords = shuffleGroups(words, nWords);
+                }
+              }
+              catch (err) {
+                console.log(err);
+              }
+            }
+            if (newWords && newWords.length > 0) {
+              words = newWords;
+            }
+            let currentSentence = [];
             let skipWord = false;
             for (let slW = 0; slW < words.length; ++slW) {
                 const word = words[slW];
@@ -947,15 +1133,15 @@
                 if (word.length == 0) {
                   continue;
                 }
-                let resultWord = '';
-                if (/^[^a-zA-Z]*[A-Z]/.test(word) || /[0-9]|\'/.test(word)) {
+                let resultWord = word;
+                if (/^[^a-zA-Z]*[A-Z]/.test(resultWord) || /[0-9]|\'/.test(resultWord)) {
                   skipWord = true;
                 }
                 try {
-                  if (/\u2032|\u2033|\u2034|\u2057|\u2019|\u0060|\u00B4|\uFF40|\u02F4/u.test(word)) {
+                  if (/\u2032|\u2033|\u2034|\u2057|\u2019|\u0060|\u00B4|\uFF40|\u02F4/u.test(resultWord)) {
                     skipWord = true;
                   }
-                  if (/^[^\p{L}]*\p{Lu}/u.test(word) || /\p{N}/u.test(word)) {
+                  if (/^[^\p{L}]*\p{Lu}/u.test(resultWord) || /\p{N}/u.test(resultWord)) {
                     skipWord = true;
                   }
                 }
@@ -965,8 +1151,37 @@
                 if (difficultySelect.value == "no") {
                   skipWord = true;
                 }
-                if (bShuffle && (difficultySelect.value == "easy" && word.length > 3 || difficultySelect.value != "easy") && (skipWord == false || difficultySelect.value == "very-hard")) {
-                    const wordParts = word.split(/\-/);
+                if (bShuffle && resultWord.length > 1 && eliminatingSelect.value != "no") {
+                  let tmpWord = resultWord;
+                  try {
+                    let match = /(\d+)%_vowels?/.exec(eliminatingSelect.value);
+                    if (match != null && match.length >= 2) {
+                      let woAllVowels = eliminateChars(eliminateVowelsRegex, tmpWord, -1);
+                      let vowelsToRemoveCnt = Math.floor((tmpWord.length - woAllVowels.length) * parseInt(match[1]) / 100);
+                      if (vowelsToRemoveCnt >= tmpWord.length) {
+                        vowelsToRemoveCnt = Math.max(0, tmpWord.length - 1);
+                      }
+                      tmpWord = eliminateChars(eliminateVowelsRegex, tmpWord, vowelsToRemoveCnt);
+                    }
+                    else {
+                      match = /(\d+)%_random/.exec(eliminatingSelect.value);
+                      if (match != null && match.length >= 2) {
+                        let woAllLetters = eliminateChars(eliminateRandomLettersRegex, tmpWord, -1);
+                        let lettersToRemoveCnt = Math.floor((tmpWord.length - woAllLetters.length) * parseInt(match[1]) / 100);
+                        if (lettersToRemoveCnt >= tmpWord.length) {
+                          lettersToRemoveCnt = Math.max(0, tmpWord.length - 1);
+                        }
+                        tmpWord = eliminateChars(eliminateRandomLettersRegex, tmpWord, lettersToRemoveCnt);
+                      }
+                    }
+                    resultWord = tmpWord;
+                  }
+                  catch (err) {
+                    console.log(err);
+                  }
+                }
+                if (bShuffle && (difficultySelect.value == "easy" && resultWord.length > 3 || difficultySelect.value != "easy") && (skipWord == false || difficultySelect.value == "very-hard")) {
+                    const wordParts = resultWord.split(/\-/);
                     let lettersList = [];
                     for (const wordPart of wordParts) {
                       const m = (difficultySelect.value == "hard" || difficultySelect.value == "very-hard") ? 0 : (difficultySelect.value == "medium" || difficultySelect.value == "medium_plus" ? 1 : Math.floor(wordPart.length / 3));
@@ -998,8 +1213,6 @@
                       lettersList.push(lettersListPart.join(""));
                     }
                     resultWord = lettersList.join('-');
-                } else {
-                    resultWord = word;
                 }
                 let result = resultWord;
                 if (translateFunction) {
@@ -1007,7 +1220,7 @@
                   for (let i = 0; i < resultWord.length; ++i) {
                     result = result.concat(translateFunction(resultWord[i]));
                   }
-                  if (difficultySelect.value !== "no") {
+                  if (difficultySelect.value !== "no" || eliminatingSelect.value !== 'no') {
                     const helperWordEscaped = escapeWord(helperWord);
                     const shuffledWordEscaped = escapeWord(resultWord);
                     result = `<span class="span-in-marquee-for-word" onclick="javascript:showWordInfo('${shuffledWordEscaped}', '${helperWordEscaped}')" style="cursor:pointer;">${result}</span>`;
@@ -1187,7 +1400,7 @@
           }
         }
 
-        if (palleteChanged || lastPosition == null || prevColorTaskCheckboxChecked != colorTaskCheckbox.checked || colorTaskCheckbox.checked && prevColorInputValue != colorInput.value || prevHtmlValue != textFromHtmlValue || prevDifficulty != difficultySelect.value) {
+        if (palleteChanged || lastPosition == null || prevColorTaskCheckboxChecked != colorTaskCheckbox.checked || colorTaskCheckbox.checked && prevColorInputValue != colorInput.value || prevHtmlValue != textFromHtmlValue || prevDifficulty != difficultySelect.value || prevEliminating != eliminatingSelect.value || prevShufflingWords != shufflingWordsSelect.value) {
           let translateFunction = null;
           if (colorTaskCheckbox.checked) {
             translateFunction = function (symbol) {
@@ -1206,7 +1419,7 @@
               return symbol;
             };
           }
-          const bShuffle = (lastPosition == null || prevHtmlValue != textFromHtmlValue || prevDifficulty != difficultySelect.value);
+          const bShuffle = (lastPosition == null || prevHtmlValue != textFromHtmlValue || prevDifficulty != difficultySelect.value || prevEliminating != eliminatingSelect.value || prevShufflingWords != shufflingWordsSelect.value);
           singleLineHtml = shuffleLetters(
             bShuffle ? textFromHtmlValue : singleLineText,
             textFromHtmlValue,
@@ -1240,6 +1453,8 @@
 
         prevHtmlValue = textFromHtmlValue;
         prevDifficulty = difficultySelect.value;
+        prevShufflingWords = shufflingWordsSelect.value;
+        prevEliminating = eliminatingSelect.value;
         prevColorInputValue = colorInput.value;
         prevColorTaskCheckboxChecked = colorTaskCheckbox.checked;
 
