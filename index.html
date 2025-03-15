@@ -5,7 +5,7 @@
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Trial and Error Reading</title>
-  <link rel="icon" type="image/png" href="favicon.png" author="meaicon" />
+  <link rel="icon" type="image/png" href="favicon.png" />
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -487,6 +487,7 @@
       <button id="color-boxes-theme-button">Toggle Marquee Text Block Theme</button>
       <button id="theme-button">Toggle Theme</button>
       <button id="max-size-button">Toggle Full Size</button>
+      <br>
       <button id="reset-button">Reset settings</button>
     </div>
 
@@ -1056,7 +1057,7 @@
       }
 
       function shuffleGroups(words, k) {
-        let newWords = [];
+        let newWordsIndexes = [];
         for (let i = 0; i < words.length;) {
           let currentWords = words.slice(i, i + k), hWords = [];
           for (let j = 0; j < currentWords.length; ++j) {
@@ -1066,7 +1067,7 @@
             }
           }
           currentWords = hWords;
-          i += currentWords.length;
+          let di = currentWords.length;
           let toShuffleIndexes = [], toRemainIndexes = new Set();
           for (let j = 0; j < currentWords.length; ++j) {
             if (punctuationRegex.test(currentWords[j])) {
@@ -1079,14 +1080,15 @@
           shuffleArray(toShuffleIndexes);
           for (let j = 0, j1 = 0; j < currentWords.length; ++j) {
             if (toRemainIndexes.has(j)) {
-              newWords.push(currentWords[j]);
+              newWordsIndexes.push(i + j);
               continue;
             }
-            newWords.push(currentWords[toShuffleIndexes[j1]]);
+            newWordsIndexes.push(i + toShuffleIndexes[j1]);
             ++j1;
           }
+          i += di;
         }
-        return newWords;
+        return newWordsIndexes;
       }
 
       function isLetter(ch) {
@@ -1118,14 +1120,18 @@
             const sentence = sentences[slS];
             const helperSentence = helperSentences[slS];
             let words = sentence.split(/\s+/);
-            const helperWords = helperSentence.split(/\s+/);
-            let newWords = [];
+            let helperWords = helperSentence.split(/\s+/);
+            let newWords = [], newHelperWords = [];
             if (shufflingWordsSelect.value != 'no') {
               try {
                 let match = /(\d+)_words?/.exec(shufflingWordsSelect.value);
                 if (match != null && match.length >= 2) {
                   const nWords = parseInt(match[1]);
-                  newWords = shuffleGroups(words, nWords);
+                  let newWordsIndexes = shuffleGroups(words, nWords);
+                  for (let c of newWordsIndexes) {
+                    newWords.push(words[c]);
+                    newHelperWords.push(helperWords[c]);
+                  }
                 }
               }
               catch (err) {
@@ -1134,6 +1140,9 @@
             }
             if (newWords && newWords.length > 0) {
               words = newWords;
+            }
+            if (newHelperWords && newHelperWords.length > 0) {
+              helperWords = newHelperWords;
             }
             let currentSentence = [];
             let skipWord = false;
