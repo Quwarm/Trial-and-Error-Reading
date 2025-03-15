@@ -132,42 +132,42 @@
       background-color: rgb(9, 130, 153);
     }
 
-    body.light #back-button, body.light #forward-button, body.light #update-text-button, body.light #update-colors-button {
+    body.light #back-button, body.light #forward-button, body.light #update-text-button, body.light #update-colors-button, body.light #copy-text-button {
       background-color: rgb(200, 200, 200);
       color: rgb(0, 0, 0);
       display: inline-block;
       min-width: 70px;
     }
 
-    body.light #back-button:hover, body.light #forward-button:hover, body.light #update-text-button:hover, body.light #update-colors-button:hover {
+    body.light #back-button:hover, body.light #forward-button:hover, body.light #update-text-button:hover, body.light #update-colors-button:hover, body.light #copy-text-button:hover {
       background-color: rgb(210, 210, 210);
       color: rgb(0, 0, 0);
     }
 
-    body.light #back-button:disabled, body.light #forward-button:disabled, body.light #update-text-button:disabled, body.light #update-colors-button:disabled {
+    body.light #back-button:disabled, body.light #forward-button:disabled, body.light #update-text-button:disabled, body.light #update-colors-button:disabled, body.light #copy-text-button:disabled {
       background-color: rgb(230, 230, 230);
       color: rgb(173, 173, 173);
     }
 
-    body.dark #back-button, body.dark #forward-button, body.dark #update-text-button, body.dark #update-colors-button {
+    body.dark #back-button, body.dark #forward-button, body.dark #update-text-button, body.dark #update-colors-button, body.dark #copy-text-button {
       background-color: rgb(90, 90, 90);
       color: rgb(255, 255, 255);
       display: inline-block;
       min-width: 70px;
     }
 
-    body.dark #back-button:hover, body.dark #forward-button:hover, body.dark #update-text-button:hover, body.dark #update-colors-button:hover {
+    body.dark #back-button:hover, body.dark #forward-button:hover, body.dark #update-text-button:hover, body.dark #update-colors-button:hover, body.dark #copy-text-button:hover {
       background-color: rgb(80, 80, 80);
       color: rgb(255, 255, 255);
     }
 
-    body.dark #back-button:disabled, body.dark #forward-button:disabled, body.dark #update-text-button:disabled, body.dark #update-colors-button:disabled {
+    body.dark #back-button:disabled, body.dark #forward-button:disabled, body.dark #update-text-button:disabled, body.dark #update-colors-button:disabled, body.dark #copy-text-button:disabled {
       background-color: rgb(90, 90, 90);
       color: rgb(70, 70, 70);
     }
 
-    #update-colors-button {
-      margin: 5px 0px 20px 0px;
+    #update-text-button, #update-colors-button, #copy-text-button {
+      margin: 5px 0px 5px 0px;
     }
 
     #dump-colors-button, #clear-button, #fetch-1-button, #fetch-2-button, #fetch-3-button, #load-from-file-button {
@@ -454,6 +454,8 @@
       <button id="update-text-button" disabled>&#8635; Text &#8635;</button>
       <button id="update-colors-button" disabled>&#8635; Colors &#8635;</button>
       <br>
+      <button id="copy-text-button" disabled>&#9167; Copy text &#9167;</button>
+      <br><br>
       <label><input type="checkbox" id="color-task-checkbox" checked> Color encoder task</label>
       <br>
       <label for="color-task-letters" id="color-task-letters-label">Number of letters:
@@ -587,6 +589,7 @@
       const showTableCheckbox = document.getElementById('show-table-checkbox');
       const updateTextButton = document.getElementById('update-text-button');
       const updateColorsButton = document.getElementById('update-colors-button');
+      const copyTextButton = document.getElementById('copy-text-button');
       const viewHelper = document.getElementById('view-helper');
       const colorBoxesThemeButton = document.getElementById('color-boxes-theme-button');
       const loopButton = document.getElementById('loop-button');
@@ -674,6 +677,13 @@
           if (continueViewParam) {
             startView(true);
           }
+        }
+      });
+
+      copyTextButton.addEventListener('click', function() {
+        if (lastPosition != null) {
+          let content = textElement.textContent || textElement.innerText || "";
+          navigator.clipboard.writeText(content);
         }
       });
 
@@ -1522,6 +1532,7 @@
             forwardButton.disabled = false;
             updateTextButton.disabled = false;
             updateColorsButton.disabled = false;
+            copyTextButton.disabled = false;
             startPauseButton.textContent = 'Pause';
             startPauseButton.classList.add('pause');
             inputContainer.style.display = 'none';
