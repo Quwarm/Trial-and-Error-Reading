@@ -307,6 +307,10 @@
       text-align: center;
     }
 
+    .cursor-pointer {
+      cursor: pointer;
+    }
+
     #difficulty-select, #eliminating-select, #shuffling-words-select {
       min-width: 150px;
     }
@@ -330,6 +334,30 @@
       -o-transform: scale(1.4); /* Opera */
       transform: scale(1.4);
       padding: 0px 4px 0px 4px;
+    }
+
+    kbd {
+      border: 1px solid;
+      border-radius: 3px;
+      padding: 1px 4px;
+      font-size: 12px;
+      font-family: monospace;
+      font-weight: normal;
+      display: inline-block; 
+    }
+    
+    body.light kbd {
+      background-color: rgb(200, 200, 200); 
+      border-color: rgb(90, 90, 90); 
+      color: #333; 
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+    }
+
+    body.dark kbd {
+      background-color: rgb(60, 60, 60); 
+      border-color: rgb(200, 200, 200); 
+      color: #e0e0e0; 
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
     }
 
     body.light {
@@ -397,6 +425,9 @@
         width: 100%;
         margin: 10px 0px 10px 0px;
       }
+      kbd {
+        display: none;
+      }
     }
   </style>
 </head>
@@ -408,12 +439,12 @@
     </div>
 
     <div id="control-container">
-      <button id="back-button">&lt;&lt;</button>
-      <button id="start-pause-button">Start</button>
-      <button id="stop-button">Stop</button>
-      <button id="forward-button">&gt;&gt;</button>
+      <button id="back-button">&lt;&lt; <kbd>←</kbd></button>
+      <button id="start-pause-button">Start <kbd>Space</kbd></button>
+      <button id="stop-button">Stop <kbd>S</kbd></button>
+      <button id="forward-button">&gt;&gt; <kbd>→</kbd></button>
       <br><br>
-      <button id="loop-button">Loop</button>
+      <button id="loop-button">Loop <kbd>L</kbd></button>
       <span id="duration-info" style="display: none;">0</span>
       <br><br>
       <span id="colors-info" style="display: none;"></span>
@@ -425,7 +456,7 @@
       <br>
       <button id="copy-text-button">&#9167; Copy text &#9167;</button>
       <br><br><br>
-      <label for="speed-input">Speed</label>
+      <label for="speed-input">Speed <kbd>+</kbd><kbd>-</kbd></label>
       <input type="number" id="speed-input" min="-1000" max="1000" value="10" style="display: none;">
       <input type="range" id="delay-slider" min="1" max="250" value="100">
       <input type="number" id="delay-info" min="-1000" max="1000" value="100">
@@ -466,7 +497,7 @@
         </select>
       </label>
       <br>
-      <label><input type="checkbox" id="color-task-checkbox" checked> Color encoder task</label>
+      <label><input type="checkbox" id="color-task-checkbox" checked> Color encoder task <kbd>C</kbd></label>
       <br>
       <label for="color-task-letters" id="color-task-letters-label">Number of letters:
         <input type="number" id="color-task-letters" min="0" max="32" value="1">
@@ -486,9 +517,9 @@
       <br><br>
       <label><input type="checkbox" id="append-checkbox" checked> Append text after loading/fetching (uncheck to clear and append)</label>
       <br>
-      <label><input type="checkbox" id="show-text-checkbox" checked> Show text</label>
+      <label><input type="checkbox" id="show-text-checkbox" checked> Show text <kbd>ESC</kbd></label>
       <br>
-      <label><input type="checkbox" id="show-table-checkbox" checked> Show letters-colors info</label>
+      <label><input type="checkbox" id="show-table-checkbox" checked> Show letters-colors info <kbd>ESC</kbd></label>
       <br><br>
       <button id="save-button">Save text and settings</button>
     </div>
@@ -661,6 +692,7 @@
       loopButton.addEventListener('click', function() {
           isLooping = !isLooping;
           loopButton.classList.toggle('active');
+          localStorage.setItem('sle_loop', isLooping);
       });
 
       updateTextButton.addEventListener('click', function() {
@@ -711,7 +743,7 @@
         colorsInfo.style.display = showTableCheckbox.checked ? '' : 'none';
         colorInput.style.display = showTableCheckbox.checked && colorTaskCheckbox.checked ? '' : 'none';
         dumpColorsButton.style.display = showTableCheckbox.checked && colorTaskCheckbox.checked ? '' : 'none';
-    });
+      });
 
       colorTaskCheckbox.addEventListener('click', function() {
         colorInput.style.display = showTableCheckbox.checked && colorTaskCheckbox.checked ? '' : 'none';
@@ -1217,7 +1249,7 @@
                   continue;
                 }
                 let resultWord = word;
-                if (/^[^a-zA-Z]*[A-Z]/.test(resultWord) || /[0-9]|\'/.test(resultWord)) {
+                if (/^[^a-zA-Z]*[A-Z]/.test(resultWord) || /\d|\'/.test(resultWord)) {
                   skipWord = true;
                 }
                 try {
@@ -1296,7 +1328,7 @@
                   if (difficultySelect.value !== "no" || eliminatingSelect.value !== 'no') {
                     const helperWordEscaped = escapeWord(helperWord);
                     const shuffledWordEscaped = escapeWord(resultWord);
-                    result = `<span class="span-in-marquee-for-word" onclick="javascript:showWordInfo('${shuffledWordEscaped}', '${helperWordEscaped}')" style="cursor:pointer;">${result}</span>`;
+                    result = `<span class="span-in-marquee-for-word cursor-pointer" onclick="javascript:showWordInfo('${shuffledWordEscaped}', '${helperWordEscaped}')">${result}</span>`;
                   }
                   else {
                     result = `<span class="span-in-marquee-for-word">${result}</span>`;
@@ -1462,7 +1494,7 @@
           for (let k of currentPalleteList) {
             let v = currentPallete.get(k);
             k = k.toUpperCase();
-            currentPalleteString = currentPalleteString.concat(`${k}<span style="background-color:${v};color:${v};cursor:pointer;" class="span-in-marquee" onclick="javascript:changeColor(this)">${k}</span>`);
+            currentPalleteString = currentPalleteString.concat(`${k}<span style="background-color:${v};color:${v};" class="span-in-marquee cursor-pointer" onclick="javascript:changeColor(this)">${k}</span>`);
             ++g;
             if (g !== 0 && g % 5 == 0) {
               currentPalleteString = currentPalleteString.concat('<br><br>');
@@ -1647,6 +1679,70 @@
 
       stopButton.addEventListener('click', function() {
         stopView();
+      });
+
+      document.addEventListener('keydown', function(e) {
+        if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+        switch(e.key) {
+          case ' ':  // Space bar toggles play/pause
+            e.preventDefault();
+            startPauseButton.dispatchEvent(new Event('click'));
+            break;
+          case 'ArrowLeft':  // Left arrow navigates backward
+            e.preventDefault();
+            if (lastPosition !== null) {
+              backButton.dispatchEvent(new Event('click'));
+            }
+            break;
+          case 'ArrowRight':  // Right arrow navigates forward
+            e.preventDefault();
+            if (lastPosition !== null) {
+              forwardButton.dispatchEvent(new Event('click'));
+            }
+            break;
+          case 'l':  // L toggles loop
+          case 'L':
+            e.preventDefault();
+            loopButton.dispatchEvent(new Event('click'));
+            break;
+          case 'c':  // C toggles color encoder task
+          case 'C':
+            e.preventDefault();
+            if (!animationId) {
+              colorTaskCheckbox.checked = !colorTaskCheckbox.checked;
+              colorTaskCheckbox.dispatchEvent(new Event('click'));
+            }
+            break;
+          case 's':  // S toggles stop
+          case 'S':
+            e.preventDefault();
+            stopButton.dispatchEvent(new Event('click'));
+            break;
+          case '+':  // + increases speed
+            e.preventDefault();
+            if (!animationId) {
+              delayInfo.value = (parseInt(delayInfo.value) + 1);
+              delayInfo.dispatchEvent(new Event('input'));
+            }
+            break;
+          case '-':  // - decreases speed
+            e.preventDefault();
+            if (!animationId) {
+              delayInfo.value = (parseInt(delayInfo.value) - 1);
+              delayInfo.dispatchEvent(new Event('input'));
+            }
+            break;
+          case 'Escape':  // ESC closes panels
+            e.preventDefault();
+            if (!animationId) {
+              let checked = showTableCheckbox.checked || showTextCheckbox.checked;
+              showTableCheckbox.checked = !checked;
+              showTableCheckbox.dispatchEvent(new Event('click'));
+              showTextCheckbox.checked = !checked;
+              showTextCheckbox.dispatchEvent(new Event('click'));
+            }
+            break;
+        }
       });
 
     });
