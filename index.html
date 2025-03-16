@@ -593,7 +593,7 @@
       eliminateRandomLettersRegex = null;
     }
     try {
-      punctuationRegex = new RegExp(/\p{Pi}|\p{Pf}|\p{Po}/, 'ui');
+      punctuationRegex = new RegExp(/\p{S}|\p{Ps}|\p{Pe}|\p{Pi}|\p{Pf}|[!"#%&*,./:;?@^]|^-$/, 'ui');
     }
     catch (err) {
       console.log(err);
@@ -1195,11 +1195,13 @@
         let newWordsIndexes = [];
         for (let i = 0; i < words.length;) {
           let currentWords = words.slice(i, i + k), hWords = [];
-          for (let j = 0; j < currentWords.length; ++j) {
-            hWords.push(currentWords[j]);
-            if (punctuationRegex.test(currentWords[j])) {
+          hWords.push(currentWords[0]);
+          let b = punctuationRegex.test(currentWords[0]);
+          for (let j = 1; j < currentWords.length; ++j) {
+            if (b || punctuationRegex.test(currentWords[j])) {
               break;
             }
+            hWords.push(currentWords[j]);
           }
           currentWords = hWords;
           let di = currentWords.length;
