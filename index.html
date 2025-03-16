@@ -27,7 +27,6 @@
     }
 
     #input-container, #marquee-container, #control-container, #other-settings-container {
-      margin-bottom: 20px;
       text-align: center;
     }
 
@@ -78,7 +77,6 @@
     #marquee-text {
       position: absolute;
       white-space: nowrap;
-      font-size: 42px;
       line-height: 60px;
       text-align: right;
     }
@@ -90,7 +88,7 @@
       border-radius: 5px;
       cursor: pointer;
       transition: background-color 0.3s;
-      margin: 1px;
+      margin: 2px;
     }
 
     #colors-info {
@@ -136,7 +134,6 @@
     body.light #back-button, body.light #forward-button, body.light #update-text-button, body.light #update-colors-button, body.light #copy-text-button {
       background-color: rgb(200, 200, 200);
       color: rgb(0, 0, 0);
-      display: inline-block;
       min-width: 70px;
     }
 
@@ -153,7 +150,6 @@
     body.dark #back-button, body.dark #forward-button, body.dark #update-text-button, body.dark #update-colors-button, body.dark #copy-text-button {
       background-color: rgb(90, 90, 90);
       color: rgb(255, 255, 255);
-      display: inline-block;
       min-width: 70px;
     }
 
@@ -167,14 +163,9 @@
       color: rgb(70, 70, 70);
     }
 
-    #update-text-button, #update-colors-button, #copy-text-button {
-      margin: 5px 0px 5px 0px;
-    }
-
     #dump-colors-button, #clear-button, #fetch-1-button, #fetch-2-button, #fetch-3-button, #load-from-file-button {
       background-color: rgb(108, 117, 125);
       color: white;
-      display: inline-block;
     }
 
     #dump-colors-button:hover, #clear-button:hover, #fetch-1-button:hover, #fetch-2-button:hover, #fetch-3-button:hover, #load-from-file-button:hover {
@@ -273,14 +264,13 @@
       word-spacing: 15px;
     }
 
-    #delay-info {
+    #delay-info, #text-size-info {
       text-align: center;
     }
 
     #save-button {
       background-color: rgb(13, 110, 253);
       color: white;
-      display: inline-block;
     }
 
     #save-button:hover {
@@ -290,16 +280,10 @@
     #reset-button {
       background-color: rgb(33, 37, 41);
       color: white;
-      display: inline-block;
     }
 
     #reset-button:hover {
       background-color: rgb(66, 70, 73);
-    }
-
-    select {
-      padding: 8px 4px 8px 4px;
-      text-align: center;
     }
 
     input[type=text], input[type=number], select {
@@ -315,7 +299,7 @@
       min-width: 150px;
     }
 
-    div.before-select {
+    .before-select {
       min-width: 150px;
       display: inline-block;
     }
@@ -327,6 +311,10 @@
       text-align: center;
     }
 
+    input[type=number] {
+      width: 70px;
+    }
+
     input[type=checkbox] {
       -ms-transform: scale(1.4); /* IE */
       -moz-transform: scale(1.4); /* FF */
@@ -334,6 +322,8 @@
       -o-transform: scale(1.4); /* Opera */
       transform: scale(1.4);
       padding: 0px 4px 0px 4px;
+      margin-top: 7px;
+      margin-bottom: 7px;
     }
 
     kbd {
@@ -343,7 +333,14 @@
       font-size: 12px;
       font-family: monospace;
       font-weight: normal;
-      display: inline-block; 
+    }
+
+    .margin-top-10px {
+      margin-top: 10px;
+    }
+
+    .margin-top-20px {
+      margin-top: 20px;
     }
     
     body.light kbd {
@@ -392,14 +389,9 @@
       color: white;
     }
 
-    #loop-button {
-      margin-top: 3px;
-    }
-
     body.light #loop-button {
       background-color: rgb(230, 230, 230);
       color: rgb(173, 173, 173);
-      display: inline-block;
       min-width: 70px;
     }
 
@@ -411,7 +403,6 @@
     body.dark #loop-button {
       background-color: rgb(90, 90, 90);
       color: rgb(70, 70, 70);
-      display: inline-block;
       min-width: 70px;
     }
 
@@ -438,30 +429,40 @@
       <span id="marquee-text"></span>
     </div>
 
-    <div id="control-container">
-      <button id="back-button">&lt;&lt; <kbd>←</kbd></button>
-      <button id="start-pause-button">Start <kbd>Space</kbd></button>
-      <button id="stop-button">Stop <kbd>S</kbd></button>
-      <button id="forward-button">&gt;&gt; <kbd>→</kbd></button>
-      <br><br>
-      <button id="loop-button">Loop <kbd>L</kbd></button>
-      <span id="duration-info" style="display: none;">0</span>
-      <br><br>
-      <span id="colors-info" style="display: none;"></span>
+    <div id="control-container" class="margin-top-20px">
+      <span>
+        <button id="back-button">&lt;&lt; <kbd>←</kbd></button>
+        <button id="start-pause-button">Start <kbd>Space</kbd></button>
+        <button id="stop-button">Stop <kbd>S</kbd></button>
+        <button id="forward-button">&gt;&gt; <kbd>→</kbd></button>
+      </span>
+      <div>
+        <button id="loop-button">Loop <kbd>L</kbd></button>
+        <div id="duration-info" class="margin-top-20px" style="display: none;"></div>
+        <div id="colors-info" class="margin-top-20px" style="display: none;"></div>
+      </div>
     </div>
-
-    <div id="input-container">
-      <button id="update-text-button">&#8635; Text &#8635;</button>
-      <button id="update-colors-button">&#8635; Colors &#8635;</button>
-      <br>
-      <button id="copy-text-button">&#9167; Copy text &#9167;</button>
-      <br><br><br>
-      <label for="speed-input">Speed <kbd>+</kbd><kbd>-</kbd></label>
-      <input type="number" id="speed-input" min="-1000" max="1000" value="10" style="display: none;">
-      <input type="range" id="delay-slider" min="1" max="250" value="100">
-      <input type="number" id="delay-info" min="-1000" max="1000" value="100">
-      <br><br>
-      <label><div class="before-select">Shuffling letters:</div>
+    <div id="input-container" class="margin-top-20px">
+      <div>
+        <button id="update-text-button">&#8635; Text &#8635;</button>
+        <button id="update-colors-button">&#8635; Colors &#8635;</button>
+      </div>
+      <div>
+        <button id="copy-text-button">&#9167; Copy text &#9167;</button>
+      </div>
+      <div class="margin-top-20px">
+        <div>Text size</div>
+        <input type="range" id="text-size-slider" min="8" max="50" value="50">
+        <input type="number" id="text-size-info" min="8" max="50" value="50">
+      </div>
+      <div class="margin-top-20px">
+        <div>Speed <kbd>+</kbd><kbd>-</kbd></div>
+        <input type="number" id="speed-input" min="-1000" max="1000" value="10" style="display: none;">
+        <input type="range" id="delay-slider" min="1" max="250" value="100">
+        <input type="number" id="delay-info" min="-1000" max="1000" value="100">
+      </div>
+      <div class="margin-top-20px">
+        <span class="before-select">Shuffling letters:</span>
         <select id="difficulty-select">
           <option value="no">-</option>
           <option value="easy">Easy</option>
@@ -470,9 +471,9 @@
           <option value="hard">Hard</option>
           <option value="very-hard">Very Hard</option>
         </select>
-      </label>
-      <br>
-      <label><div class="before-select">Eliminating letters:</div>
+      </div>
+      <div class="margin-top-20px">
+        <span class="before-select">Eliminating letters:</span>
         <select id="eliminating-select">
           <option value="no">-</option>
           <option value="20%_vowels">20% vowels</option>
@@ -485,9 +486,9 @@
           <option value="30%_random">30% smart-random</option>
           <option value="40%_random">40% smart-random</option>
         </select>
-      </label>
-      <br>
-      <label><div class="before-select">Shuffling words:</div>
+      </div>
+      <div class="margin-top-20px">
+        <span class="before-select">Shuffling words:</span>
         <select id="shuffling-words-select">
           <option value="no">-</option>
           <option value="2_words">Two words</option>
@@ -495,43 +496,49 @@
           <option value="4_words">Four words</option>
           <option value="5_words">Five words</option>
         </select>
-      </label>
-      <br>
-      <label><input type="checkbox" id="color-task-checkbox" checked> Color encoder task <kbd>C</kbd></label>
-      <br>
-      <label for="color-task-letters" id="color-task-letters-label">Number of letters:
-        <input type="number" id="color-task-letters" min="0" max="32" value="1">
-      </label>
-      <br>
-      <button id="dump-colors-button">Dump colors above</button>
-      <textarea id="color-input" placeholder="&lt;letter&gt; &lt;color&gt;&#13;&#10;a rgb(0, 0, 0)&#13;&#10;b red&#13;&#10;..."></textarea>
-      <br><br>
-      <label for="marquee-input">Text</label>
-      <textarea id="marquee-input" placeholder="Enter text here"></textarea>
-      <br>
-      <button id="fetch-1-button">Load [one of the 22831 sentences]</button>
-      <button id="fetch-2-button">Load [random wiki summary]</button>
-      <button id="load-from-file-button">Load [from file]</button>
-      <button id="fetch-3-button" style="display: none;">Load [random sentence from metaphorpsum]</button>
-      <button id="clear-button">Clear</button>
-      <br><br>
-      <label><input type="checkbox" id="append-checkbox" checked> Append text after loading/fetching (uncheck to clear and append)</label>
-      <br>
-      <label><input type="checkbox" id="show-text-checkbox" checked> Show text <kbd>ESC</kbd></label>
-      <br>
-      <label><input type="checkbox" id="show-table-checkbox" checked> Show letters-colors info <kbd>ESC</kbd></label>
-      <br><br>
-      <button id="save-button">Save text and settings</button>
+      </div>
+      <div class="margin-top-20px">
+        <label><input type="checkbox" id="color-task-checkbox" checked> Color encoder task <kbd>C</kbd></label>
+        <div id="color-task-letters-box">
+          <span>Number of letters:</span>
+          <input type="number" id="color-task-letters" min="0" max="32" value="1">
+        </div>
+        </label>
+        <button id="dump-colors-button">Dump colors above</button>
+        <textarea id="color-input" placeholder="&lt;letter&gt; &lt;color&gt;&#13;&#10;a rgb(0, 0, 0)&#13;&#10;b red&#13;&#10;..."></textarea>
+      </div>
+      <div class="margin-top-20px">
+        <label for="marquee-input">Text</label>
+        <textarea id="marquee-input" placeholder="Enter text here"></textarea>
+      </div>
+      <div class="margin-top-20px">
+        <button id="fetch-1-button">Load [one of the 22831 sentences]</button>
+        <button id="fetch-2-button">Load [random wiki summary]</button>
+        <button id="load-from-file-button">Load [from file]</button>
+        <button id="fetch-3-button" style="display: none;">Load [random sentence from metaphorpsum]</button>
+      </div>
+      <div>
+        <button id="clear-button">Clear</button>
+      </div>
+      <div class="margin-top-20px">
+        <label><input type="checkbox" id="append-checkbox" checked> Append text after loading/fetching (uncheck to clear and append)</label>
+        <label class="margin-top-10px"><input type="checkbox" id="show-text-checkbox" checked> Show text <kbd>ESC</kbd></label>
+        <label class="margin-top-10px"><input type="checkbox" id="show-table-checkbox" checked> Show letters-colors info <kbd>ESC</kbd></label>
+      </div>
+      <div class="margin-top-20px">
+        <button id="save-button">Save text and settings</button>
+      </div>
     </div>
-
-    <div id="other-settings-container">
-      <button id="color-boxes-theme-button">Toggle Marquee Text Block Theme</button>
-      <button id="theme-button">Toggle Theme</button>
-      <button id="max-size-button">Toggle Full Size</button>
-      <br>
+    <div id="other-settings-container" class="margin-top-20px">
+      <div>
+        <button id="color-boxes-theme-button">Toggle Marquee Text Block Theme</button>
+        <button id="theme-button">Toggle Theme</button>
+        <button id="max-size-button">Toggle Full Size</button>
+      </div>
+      <div class="margin-top-20px">
       <button id="reset-button">Reset settings</button>
     </div>
-
+    </div>
   </div>
 
   <div id="view-helper" style="display: none;"></div>
@@ -622,7 +629,7 @@
       const fetch3Button = document.getElementById('fetch-3-button');
       const loadFromFileButton = document.getElementById('load-from-file-button');
       const colorTaskCheckbox = document.getElementById('color-task-checkbox');
-      const colorTaskLettersLabel = document.getElementById('color-task-letters-label');
+      const colorTaskLettersBox = document.getElementById('color-task-letters-box');
       const colorTaskLettersInput = document.getElementById('color-task-letters');
       const backButton = document.getElementById('back-button');
       const forwardButton = document.getElementById('forward-button');
@@ -636,6 +643,8 @@
       const viewHelper = document.getElementById('view-helper');
       const colorBoxesThemeButton = document.getElementById('color-boxes-theme-button');
       const loopButton = document.getElementById('loop-button');
+      const textSizeSlider = document.getElementById('text-size-slider');
+      const textSizeInfo = document.getElementById('text-size-info');
 
       const savedText = localStorage.getItem('sle_text');
       if (savedText) input.value = savedText;
@@ -652,7 +661,7 @@
       appendCheckbox.checked = savedAppend !== 'false';
       const colorTask = localStorage.getItem('sle_color_task') || 'false';
       colorTaskCheckbox.checked = colorTask == 'true';
-      colorTaskLettersLabel.style.display = colorTaskCheckbox.checked ? '' : 'none';
+      colorTaskLettersBox.style.display = colorTaskCheckbox.checked ? '' : 'none';
       dumpColorsButton.style.display = colorTaskCheckbox.checked ? '' : 'none';
       const colorInputValue = localStorage.getItem('sle_color_task_colors') || '';
       colorInput.value = colorInputValue;
@@ -672,6 +681,11 @@
       eliminatingSelect.value = savedEliminating;
       const savedShufflingWords = localStorage.getItem('sle_shuffling_words') || 'no';
       shufflingWordsSelect.value = savedShufflingWords;
+      const savedTextSize = localStorage.getItem('sle_text_size') || "42";
+      textSizeSlider.value = savedTextSize;
+      textSizeInfo.value = savedTextSize;
+      textElement.style.fontSize = savedTextSize + 'px';
+
       isLooping = (localStorage.getItem('sle_loop') || 'false') == 'true';
       if (isLooping) {
         loopButton.classList.toggle('active');
@@ -749,7 +763,7 @@
       colorTaskCheckbox.addEventListener('click', function() {
         colorInput.style.display = showTableCheckbox.checked && colorTaskCheckbox.checked ? '' : 'none';
         dumpColorsButton.style.display = showTableCheckbox.checked && colorTaskCheckbox.checked ? '' : 'none';
-        colorTaskLettersLabel.style.display = colorTaskCheckbox.checked ? '' : 'none';
+        colorTaskLettersBox.style.display = colorTaskCheckbox.checked ? '' : 'none';
       });
 
       dumpColorsButton.addEventListener('click', function() {
@@ -781,6 +795,15 @@
       delaySlider.addEventListener('input', function() {
         speedInput.value = 100 - this.value;
         delayInfo.value = this.value;
+      });
+
+      textSizeSlider.addEventListener('input', function() {
+        textSizeInfo.value = textSizeSlider.value;
+        textElement.style.fontSize = textSizeSlider.value + 'px';
+      });
+      textSizeInfo.addEventListener('input', function() {
+        textSizeSlider.value = textSizeInfo.value;
+        textElement.style.fontSize = textSizeInfo.value + 'px';
       });
 
       themeButton.addEventListener('click', function() {
@@ -1043,6 +1066,7 @@
         localStorage.setItem('sle_shuffling_words', shufflingWordsSelect.value);
         localStorage.setItem('sle_eliminating', eliminatingSelect.value);
         localStorage.setItem('sle_loop', isLooping);
+        localStorage.setItem('sle_text_size', textSizeInfo.value);
       }
 
       resetButton.addEventListener('click', resetSettings);
@@ -1060,6 +1084,7 @@
             localStorage.removeItem('sle_shuffling_words');
             localStorage.removeItem('sle_eliminating');
             localStorage.removeItem('sle_loop');
+            localStorage.removeItem('sle_text_size');
             localStorage.removeItem('sle_theme');
             localStorage.removeItem('sle_color_boxes_theme');
             localStorage.removeItem('sle_max_size');
@@ -1395,6 +1420,7 @@
         let textFromHtmlValue = viewHelper.textContent || viewHelper.innerText || "";
         let singleLineHtml = textElement.innerHTML;
         let singleLineText = textElement.textContent || textElement.innerText || "";
+        viewHelper.innerHTML = '';
 
         if (prevHtmlValue !== textFromHtmlValue) {
           try {
@@ -1625,7 +1651,7 @@
               startPauseButton.classList.remove('pause');
               inputContainer.style.display = '';
               otherSettingsContainer.style.display = '';
-              durationInfo.style.display = 'none';
+              //durationInfo.style.display = 'none';
               if (colorTaskCheckbox.checked) {
                 colorsInfo.style.display = showTableCheckbox.checked ? '' : 'none';
               }
@@ -1668,7 +1694,7 @@
           startPauseButton.classList.remove('pause');
           inputContainer.style.display = '';
           otherSettingsContainer.style.display = '';
-          durationInfo.style.display = 'none';
+          //durationInfo.style.display = 'none';
           loopButton.style.display = '';
           if (colorTaskCheckbox.checked) {
             colorsInfo.style.display = showTableCheckbox.checked ? '' : 'none';
