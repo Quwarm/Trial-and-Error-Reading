@@ -554,6 +554,7 @@
     let currentPallete = new Map(), currentPalleteList = [];
     let prevHtmlValue = '', prevDifficulty = '', prevShufflingWords = '', eliminatingSelect = '';
     let prevColorInputValue = '', prevColorTaskCheckboxChecked = null, isLooping = false;
+    let numberOfWords = 0;
 
     let eliminateVowelsRegex = null, eliminateRandomLettersRegex = null, punctuationRegex = null;
     try {
@@ -1395,6 +1396,18 @@
         let singleLineHtml = textElement.innerHTML;
         let singleLineText = textElement.textContent || textElement.innerText || "";
 
+        if (prevHtmlValue !== textFromHtmlValue) {
+          try {
+            numberOfWords = textFromHtmlValue.split(/\s/).filter(word => word.length > 0).length;
+            if (numberOfWords < 10) {
+              numberOfWords = 0;
+            }
+          }
+          catch (err) {
+            console.log(err);
+          }
+        }
+
         let palleteChanged = false;
 
         if (continueViewParam == false && colorTaskCheckbox.checked) {
@@ -1578,8 +1591,19 @@
             flag = true;
             colorsInfo.style.display = 'none';
           }
-          let viewStepTime = Math.floor(curStepTime * 10) / 10;
-          durationInfo.innerHTML = formatSeconds(Math.floor(viewStepTime * (currentLeft - endPosition) / 1000));
+          let viewStepTime = Math.floor(curStepTime * 10) / 10, wpm = '';
+          let seconds = Math.floor(viewStepTime * (currentLeft - endPosition) / 1000);
+          let formattedSeconds = formatSeconds(seconds);
+          durationInfo.innerHTML = formattedSeconds;
+          if (numberOfWords > 5) {
+            let sSeconds = Math.floor(viewStepTime * (startPosition - endPosition) / 1000);
+            if (sSeconds >= 1) {
+              wpm = '' + Math.max(1, Math.floor(numberOfWords / (sSeconds / 60)));
+              durationInfo.innerHTML += `<br>WPM: ${wpm}`;
+            }
+          }
+          let progress = Math.floor(100 * (1 - (currentLeft - endPosition) / (startPosition - endPosition)));
+          durationInfo.innerHTML += `<br>Progress: ${progress}%`;
 
           if (currentLeft <= endPosition) {
             if (isLooping) {
