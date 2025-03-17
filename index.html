@@ -429,6 +429,15 @@
       kbd {
         display: none;
       }
+      input[type=range] {
+        width: 30%;
+        margin: auto auto;
+        text-align: center;
+      }
+      input[type=number] {
+        width: 30%;
+        margin-left: 30%;
+      }
     }
   </style>
 </head>
@@ -1175,6 +1184,7 @@
             part3.push(x);
           }
         }
+        part2.sort((a, b) => b - a);
         eliminateVowelsRegex.lastIndex = 0;
         toSelectArray = [...part1, ...part2, ...part3].slice(0, toSelectN).sort((a, b) => a - b);
         let newWordParts = [];
