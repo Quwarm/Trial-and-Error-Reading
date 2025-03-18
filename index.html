@@ -583,7 +583,7 @@
     let currentPallete = new Map(), currentPalleteList = [];
     let prevHtmlValue = '', prevDifficulty = '', prevShufflingWords = '', eliminatingSelect = '';
     let prevColorInputValue = '', prevColorTaskCheckboxChecked = null, isLooping = false;
-    let numberOfWords = 0;
+    let numberOfWords = 0, lastSavedPosition = null;
 
     let eliminateVowelsRegex = null, eliminateRandomLettersRegex = null, punctuationRegex = null;
     try {
@@ -944,6 +944,7 @@
           const endPosition = -textWidth;
           lastPosition = Math.max(endPosition, Math.min(startPosition, parseInt(textElement.style.left, 10) + Math.floor(containerWidth / 4)));
           textElement.style.left = lastPosition + 'px';
+          lastSavedPosition = lastPosition;
           if (continueViewParam) {
             startView(true);
           }
@@ -962,6 +963,7 @@
           const endPosition = -textWidth;
           lastPosition = Math.max(endPosition, Math.min(startPosition, parseInt(textElement.style.left, 10) - Math.floor(containerWidth / 4)));
           textElement.style.left = lastPosition + 'px';
+          lastSavedPosition = lastPosition;
           if (continueViewParam) {
             startView(true);
           }
@@ -1094,6 +1096,7 @@
       resetButton.addEventListener('click', resetSettings);
       function resetSettings() {
         if (confirm('Are you sure you want to reset the settings?')) {
+            lastSavedPosition = null;
             localStorage.removeItem('sle_text');
             localStorage.removeItem('sle_color_task');
             localStorage.removeItem('sle_color_task_letters');
@@ -1110,6 +1113,7 @@
             localStorage.removeItem('sle_theme');
             localStorage.removeItem('sle_color_boxes_theme');
             localStorage.removeItem('sle_max_size');
+            localStorage.removeItem('sle_last_position');
             location.reload();
         }
       }
@@ -1184,7 +1188,9 @@
             part3.push(x);
           }
         }
+        part1.sort((a, b) => b - a);
         part2.sort((a, b) => b - a);
+        part3.sort((a, b) => b - a);
         eliminateVowelsRegex.lastIndex = 0;
         toSelectArray = [...part1, ...part2, ...part3].slice(0, toSelectN).sort((a, b) => a - b);
         let newWordParts = [];
@@ -1619,6 +1625,7 @@
         }
         textElement.style.left = lastPosition + 'px';
         let prevLastPosition = lastPosition;
+        lastSavedPosition = lastPosition;
 
         prevHtmlValue = textFromHtmlValue;
         prevDifficulty = difficultySelect.value;
@@ -1635,6 +1642,7 @@
 
         function animate() {
           const currentLeft = parseInt(textElement.style.left, 10) - oneStepSize;
+          lastSavedPosition = currentLeft;
 
           lastTime = Date.now();
           let curStepTime = (lastTime - startTime) / Math.max(1e-9, prevLastPosition - currentLeft);
@@ -1661,6 +1669,7 @@
               startTime = Date.now();
               lastPosition = startPosition;
               prevLastPosition = lastPosition;
+              lastSavedPosition = null;
               textElement.style.left = lastPosition + 'px';
               if (animationId) {
                 animationId = setTimeout(animate, stepTime);
@@ -1669,6 +1678,7 @@
             else {
               lastPosition = endPosition;
               prevLastPosition = lastPosition;
+              lastSavedPosition = null;
               textElement.style.left = lastPosition + 'px';
               clearTimeout(animationId);
               animationId = null;
@@ -1685,6 +1695,7 @@
           } else {
             textElement.style.left = currentLeft + 'px';
             lastPosition = currentLeft;
+            lastSavedPosition = currentLeft;
             if (animationId) {
               animationId = setTimeout(animate, stepTime);
             }
@@ -1742,6 +1753,7 @@
         durationInfo.style.display = 'none';
         colorsInfo.style.display = 'none';
         loopButton.style.display = '';
+        lastSavedPosition = null;
       }
 
       startPauseButton.addEventListener('click', function() {
@@ -1819,6 +1831,39 @@
             break;
         }
       });
+
+      try {
+        lastSavedPosition = localStorage.getItem('sle_last_position');
+        text = localStorage.getItem('sle_text');
+        if (lastSavedPosition && text) {
+          lastSavedPosition = parseInt(lastSavedPosition);
+          if (confirm("Would you like to resume reading from your last position?")) {
+            lastPosition = prevLastPosition = lastSavedPosition;
+            setTimeout(function () {
+              startView(false);
+              pauseView();
+            }, 1);
+          }
+          else {
+            lastSavedPosition = null;
+          }
+        }
+        else {
+          lastSavedPosition = null;
+        }
+      } catch (err) {
+        console.error(err);
+        lastSavedPosition = null;
+      }
+
+      setInterval(function () {
+        if (lastSavedPosition != null) {
+          localStorage.setItem('sle_last_position', lastSavedPosition);
+        }
+        else if (localStorage.getItem('sle_last_position')) {
+          localStorage.removeItem('sle_last_position');
+        }
+      }, 500);
 
     });
 
