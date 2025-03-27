@@ -12,25 +12,23 @@
       --text-color: #333;
       --container-background: #efefef;
       --border-color: rgb(90, 90, 90);
-      --primary-button-background: rgb(25, 135, 84);
-      --primary-button-hover: rgb(21, 115, 71);
-      --pause-button-background: rgb(218, 104, 11);
-      --pause-button-hover: rgb(194, 93, 10);
-      --stop-button-background: rgb(187, 45, 59);
-      --stop-button-hover: rgb(180, 25, 46);
-      --theme-button-background: rgb(11, 166, 197);
-      --theme-button-hover: rgb(9, 130, 153);
-      --action-button-background: rgb(200, 200, 200);
-      --action-button-text: rgb(0, 0, 0);
-      --action-button-hover: rgb(210, 210, 210);
-      --action-button-disabled-background: rgb(230, 230, 230);
-      --action-button-disabled-text: rgb(173, 173, 173);
-      --load-button-background: rgb(108, 117, 125);
-      --load-button-hover: rgb(92, 99, 106);
-      --save-button-background: rgb(13, 110, 253);
-      --save-button-hover: rgb(11, 94, 215);
-      --reset-button-background: rgb(33, 37, 41);
-      --reset-button-hover: rgb(66, 70, 73);
+      --green-button-background: rgb(25, 135, 84);
+      --green-button-hover: rgb(21, 115, 71);
+      --orange-button-background: rgb(218, 104, 11);
+      --orange-button-hover: rgb(194, 93, 10);
+      --red-button-background: rgb(187, 45, 59);
+      --red-button-hover: rgb(180, 25, 46);
+      --cyan-button-background: rgb(11, 166, 197);
+      --cyan-button-hover: rgb(9, 130, 153);
+      --gray-button-background: rgb(200, 200, 200);
+      --gray-button-text: rgb(0, 0, 0);
+      --gray-button-hover: rgb(210, 210, 210);
+      --gray-button-disabled-background: rgb(230, 230, 230);
+      --gray-button-disabled-text: rgb(173, 173, 173);
+      --blue-button-background: rgb(13, 110, 253);
+      --blue-button-hover: rgb(11, 94, 215);
+      --dark-button-background: rgb(33, 37, 41);
+      --dark-button-hover: rgb(66, 70, 73);
     }
 
     body.dark {
@@ -38,11 +36,11 @@
       --text-color: #e0e0e0;
       --container-background: #2a2a2a;
       --border-color: #e0e0e0;
-      --action-button-background: rgb(90, 90, 90);
-      --action-button-text: rgb(255, 255, 255);
-      --action-button-hover: rgb(80, 80, 80);
-      --action-button-disabled-background: rgb(90, 90, 90);
-      --action-button-disabled-text: rgb(70, 70, 70);
+      --gray-button-background: rgb(90, 90, 90);
+      --gray-button-text: rgb(255, 255, 255);
+      --gray-button-hover: rgb(80, 80, 80);
+      --gray-button-disabled-background: rgb(90, 90, 90);
+      --gray-button-disabled-text: rgb(70, 70, 70);
     }
 
     body {
@@ -59,7 +57,7 @@
     }
 
     .container.normal-size {
-      max-width: 768px;
+      max-width: 1000px;
       margin: 0 auto;
     }
 
@@ -135,12 +133,58 @@
       cursor: pointer;
       transition: background-color 0.3s;
       margin: 2px;
-      background-color: var(--primary-button-background);
+      background-color: var(--gray-button-background);
       color: white;
     }
 
-    button:hover {
-      background-color: var(--primary-button-hover);
+    .blue-button {
+      background-color: var(--blue-button-background);
+    }
+
+    .blue-button:hover {
+      background-color: var(--blue-button-hover);
+    }
+
+    .green-button {
+      background-color: var(--green-button-background);
+    }
+
+    .green-button:hover {
+      background-color: var(--green-button-hover);
+    }
+
+    .cyan-button {
+      background-color: var(--cyan-button-background);
+    }
+
+    .cyan-button:hover {
+      background-color: var(--cyan-button-hover);
+    }
+
+    .dark-button {
+      background-color: var(--dark-button-background);
+    }
+
+    .dark-button:hover {
+      background-color: var(--dark-button-hover);
+    }
+
+    .action-button {
+      background-color: var(--gray-button-background);
+      color: var(--gray-button-text);
+    }
+
+    .action-button:hover {
+      background-color: var(--gray-button-hover);
+    }
+
+    .action-button:disabled {
+      background-color: var(--gray-button-disabled-background);
+      color: var(--gray-button-disabled-text);
+    }
+
+    .marquee-span {
+      box-sizing: border-box;
     }
 
     #color-details {
@@ -151,84 +195,28 @@
       min-width: 100px;
     }
 
+    #play-pause-button {
+      background-color: var(--green-button-background);
+    }
+    
+    #play-pause-button:hover {
+      background-color: var(--green-button-hover);
+    }
+
     #play-pause-button.pause {
-      background-color: var(--pause-button-background);
+      background-color: var(--orange-button-background);
     }
 
     #play-pause-button.pause:hover {
-      background-color: var(--pause-button-hover);
+      background-color: var(--orange-button-hover);
     }
 
     #stop-button {
-      background-color: var(--stop-button-background);
+      background-color: var(--red-button-background);
     }
 
     #stop-button:hover {
-      background-color: var(--stop-button-hover);
-    }
-
-    #theme-toggle,
-    #marquee-theme-toggle,
-    #full-size-toggle {
-      background-color: var(--theme-button-background);
-    }
-
-    #theme-toggle:hover,
-    #marquee-theme-toggle:hover,
-    #full-size-toggle:hover {
-      background-color: var(--theme-button-hover);
-    }
-
-    .action-button {
-      background-color: var(--action-button-background);
-      color: var(--action-button-text);
-    }
-
-    .action-button:hover {
-      background-color: var(--action-button-hover);
-    }
-
-    .action-button:disabled {
-      background-color: var(--action-button-disabled-background);
-      color: var(--action-button-disabled-text);
-    }
-
-    #dump-colors,
-    #clear-text,
-    #load-sentence,
-    #load-wiki,
-    #load-metaphorpsum,
-    #load-file {
-      background-color: var(--load-button-background);
-    }
-
-    #dump-colors:hover,
-    #clear-text:hover,
-    #load-sentence:hover,
-    #load-wiki:hover,
-    #load-metaphorpsum:hover,
-    #load-file:hover {
-      background-color: var(--load-button-hover);
-    }
-
-    #save-settings {
-      background-color: var(--save-button-background);
-    }
-
-    #save-settings:hover {
-      background-color: var(--save-button-hover);
-    }
-
-    #reset-settings, #delete-all-texts {
-      background-color: var(--reset-button-background);
-    }
-
-    #reset-settings:hover, #delete-all-texts:hover {
-      background-color: var(--reset-button-hover);
-    }
-
-    .marquee-span {
-      box-sizing: border-box;
+      background-color: var(--red-button-hover);
     }
 
     body.light.marquee-theme-1 .marquee-span {
@@ -419,23 +407,26 @@
 
     .tab-content.active {
       display: block;
+    }
+
+    .items-border {
       border-radius: 10px;
       padding: 2px;
     }
 
-    body.light .tab-content {
+    body.light .items-border {
       border: 2px solid rgb(230, 230, 230);
     }
 
-    body.light .tab-content.active {
+    body.light .items-border.active {
       border: 2px solid rgb(200, 200, 200);
     }
 
-    body.dark .tab-content {
+    body.dark .items-border {
       border: 2px solid rgb(90, 90, 90);
     }
 
-    body.dark .tab-content.active {
+    body.dark .items-border.active {
       border: 2px solid rgb(90, 90, 90);
     }
 
@@ -462,24 +453,24 @@
     }
 
     #progress-bar-container {
-        width: 100%;
-        height: 20px;
-        background-color: var(--container-background);
-        border: 1px solid var(--border-color);
-        position: relative;
-        cursor: pointer;
-        margin-bottom: 5px;
+      width: 100%;
+      height: 20px;
+      background-color: var(--container-background);
+      border: 1px solid var(--border-color);
+      position: relative;
+      cursor: pointer;
+      margin-bottom: 5px;
     }
 
     #progress-bar {
-        height: 100%;
-        background-color: var(--primary-button-background);
-        width: 0%;
-        transition: width 0.1s linear;
+      height: 100%;
+      background-color: var(--green-button-background);
+      width: 0%;
+      transition: width 0.1s linear;
     }
 
     body.dark #progress-bar {
-        background-color: var(--primary-button-hover);
+      background-color: var(--green-button-hover);
     }
 
     #info-tab ul {
@@ -547,12 +538,12 @@
       </span>
       <div>
         <button id="loop-toggle">Loop <kbd>L</kbd></button>
-        <div id="progress-display" class="mt-20" style="display: none;"></div>
-        <div id="color-details" class="mt-20" style="display: none;"></div>
+        <div id="progress-display" class="mt-10" style="display: none;"></div>
+        <div id="color-details" class="mt-10" style="display: none;"></div>
       </div>
     </div>
 
-    <div id="tab-navigation" class="mt-20" role="tablist">
+    <div id="tab-navigation" class="mt-10" role="tablist">
       <button class="tab-button active" data-tab="manipulations-tab" role="tab" aria-selected="true">Manipulations</button>
       <button class="tab-button" data-tab="texts-tab" role="tab" aria-selected="false">Texts</button>
       <button class="tab-button" data-tab="settings-tab" role="tab" aria-selected="false">Settings</button>
@@ -560,24 +551,24 @@
     </div>
 
     <div id="tab-content">
-      <div id="manipulations-tab" class="tab-content active">
-        <div id="marquee-controls-container" class="mt-20">
-          <button id="refresh-text" class="action-button" disabled>↻ Text ↻</button>
-          <button id="refresh-colors" class="action-button" disabled>↻ Colors ↻</button>
+      <div id="manipulations-tab" class="tab-content active items-border">
+        <div id="marquee-controls-container" class="mt-10">
+          <button id="refresh-text" class="action-button" disabled>↻ Text ↻ <kbd>T</kbd></button>
+          <button id="refresh-colors" class="action-button" disabled>↻ Colors ↻ <kbd>C</kbd></button>
           <button id="copy-text" class="action-button" disabled>⏏ Copy text ⏏</button>
         </div>
-        <div class="mt-20">
+        <div class="mt-10">
           <div>Text size</div>
           <input type="range" id="font-size-slider" min="8" max="50" value="50">
           <input type="number" id="font-size-display" min="8" max="50" value="50">
         </div>
-        <div class="mt-20">
+        <div class="mt-10">
           <div>Speed <kbd>+</kbd><kbd>-</kbd></div>
           <input type="number" id="speed-value" min="-1000" max="1000" value="10" style="display: none;">
           <input type="range" id="speed-slider" min="1" max="250" value="100">
           <input type="number" id="speed-display" min="-1000" max="1000" value="100">
         </div>
-        <div class="mt-20">
+        <div class="mt-10">
           <span class="select-label">Shuffling letters:</span>
           <select id="letter-shuffle-select">
             <option value="no">-</option>
@@ -588,7 +579,7 @@
             <option value="very-hard">Very Hard</option>
           </select>
         </div>
-        <div class="mt-20">
+        <div class="mt-10">
           <span class="select-label">Eliminating letters:</span>
           <select id="letter-elimination-select">
             <option value="no">-</option>
@@ -603,7 +594,7 @@
             <option value="40%_random">40% smart-random</option>
           </select>
         </div>
-        <div class="mt-20">
+        <div class="mt-10">
           <span class="select-label">Shuffling words:</span>
           <select id="word-shuffle-select">
             <option value="no">-</option>
@@ -613,51 +604,55 @@
             <option value="5_words">Five words</option>
           </select>
         </div>
-        <div class="mt-20">
-          <label><input type="checkbox" id="color-encoder-toggle" checked> Color encoder task <kbd>C</kbd></label>
-          <div id="color-encoder-options">
+        <div class="mt-10 items-border">
+          <label><input type="checkbox" id="color-encoder-toggle" checked> Color encoder task <kbd>E</kbd></label>
+          <label id="show-color-info-element" class="mt-10"><input type="checkbox" id="show-color-info-toggle" checked> Show letters-colors info <kbd>ESC</kbd></label>
+          <div id="color-encoder-options" class="mt-10">
             <span>Number of letters:</span>
             <input type="number" id="color-letter-count" min="0" max="32" value="1">
           </div>
-          <button id="dump-colors">Dump colors</button>
+          <button id="dump-colors" class="mt-10">Dump colors</button>
           <textarea id="color-input" placeholder="&lt;letter&gt; &lt;color&gt;&#13;&#10;a rgb(0, 0, 0)&#13;&#10;b red&#13;&#10;..."></textarea>
         </div>
+        <div class="mt-10">
+          <button id="save-manipulations-settings" class="blue-button">Save settings</button>
+        </div>
       </div>
-      <div id="texts-tab" class="tab-content">
-        <div class="mt-20">
+      <div id="texts-tab" class="tab-content items-border">
+        <div class="mt-10">
           <select id="text-select">
           </select>
-          <button id="new-text-button">New Text</button>
-          <button id="delete-text-button">Delete Text</button>
+          <button id="new-text-button" class="green-button">New Text</button>
+          <button id="delete-text-button" class="dark-button">Delete Text</button>
         </div>
-        <div class="mt-20">
+        <div class="mt-10">
           <label for="text-input">Text</label>
           <textarea id="text-input" placeholder="Enter text here"></textarea>
+          <button id="save-text-button" class="blue-button">Save Text</button>
         </div>
-        <div class="mt-20">
-          <button id="load-sentence">Load [one of the 22831 sentences]</button>
+        <div class="mt-10">
+          <button id="load-sentence">Load [one of the 22831 sentences] <kbd>N</kbd></button>
           <button id="load-wiki">Load [random wiki summary]</button>
           <button id="load-file">Load [from file]</button>
           <button id="load-metaphorpsum" style="display: none;">Load [random sentence from metaphorpsum]</button>
           <label><input type="checkbox" id="append-text-toggle" checked> Append text after loading/fetching</label>
         </div>
-        <div>
-          <button id="clear-text">Clear</button>
+        <div class="mt-10">
+          <button id="clear-text" class="dark-button">Clear</button>
         </div>
       </div>
-      <div id="settings-tab" class="tab-content">
-        <div>
-          <button id="marquee-theme-toggle">Toggle Marquee Text Block Theme</button>
-          <button id="theme-toggle">Toggle Theme</button>
-          <button id="full-size-toggle">Toggle Full Size</button>
+      <div id="settings-tab" class="tab-content items-border">
+        <div class="mt-10">
+          <button id="marquee-theme-toggle" class="cyan-button">Toggle Marquee Text Block Theme</button>
+          <button id="theme-toggle" class="cyan-button">Toggle Theme</button>
+          <button id="full-size-toggle" class="cyan-button">Toggle Full Size</button>
         </div>
-        <label class="mt-20"><input type="checkbox" id="show-color-info" checked> Show letters-colors info <kbd>ESC</kbd></label>
-        <div class="mt-20">
-          <button id="reset-settings">Reset settings</button>
-          <button id="delete-all-texts">Delete all texts</button>
+        <div class="mt-10">
+          <button id="reset-settings" class="dark-button">Reset settings</button>
+          <button id="delete-all-texts" class="dark-button">Delete all texts</button>
         </div>
       </div>
-      <div id="info-tab" class="tab-content">
+      <div id="info-tab" class="tab-content items-border">
         <div class="mt-20">
             <p>Here are some tips and recommendations to help you effectively use this website:</p>
             <ul>
@@ -675,9 +670,6 @@
     </div>
 
     <div id="additional-settings-container">
-      <div class="mt-20">
-        <button id="save-settings">Save current text and settings</button>
-      </div>
       <div class="mt-20">
         <a href="https://github.com/Quwarm/Trial-and-Error-Reading" target="_blank">GitHub</a>
       </div>
@@ -701,6 +693,7 @@
       previousColorInput: '',
       previousPosition: null,
       wasColorTaskEnabled: null,
+      wasColorTaskChecked: true,
       isLoopEnabled: false,
       wordCount: 0,
       lastSavedPosition: null,
@@ -724,22 +717,22 @@
         currentTextName: 'sle_current_text_name',
         text: 'sle_text',
         texts: 'sle_texts',
-        colorTask: 'sle_color_task',
+        colorTaskToggle: 'sle_color_task_toggle',
         colorTaskLetters: 'sle_color_task_letters',
         colorTaskColors: 'sle_color_task_colors',
-        showTable: 'sle_show_table',
+        showColorInfoToggle: 'sle_show_color_info_toggle',
         speed: 'sle_speed',
-        appendText: 'sle_append_text',
+        appendTextToggle: 'sle_append_text_toggle',
         shufflingLetters: 'sle_shuffling_letters',
         shufflingWords: 'sle_shuffling_words',
         eliminatingLetters: 'sle_eliminating_letters',
         loop: 'sle_loop',
         textSize: 'sle_text_size',
         theme: 'sle_theme',
-        marqueeTheme: 'sle_marquee_theme',
-        lastPosition: 'sle_last_position',
-        appSize: 'sle_app_size',
-        activeTab: 'sle_active_tab'
+        marqueeThemeToggle: 'sle_marquee_theme_toggle',
+        appSizeToggle: 'sle_app_size_toggle',
+        activeTab: 'sle_active_tab',
+        lastPosition: 'sle_last_position'
       },
 
       themes: [
@@ -754,9 +747,12 @@
         'marquee-theme-4'
       ],
 
+      sentenceGenerator: null,
+
       initialize() {
         const currentReader = this;
         console.info(currentReader);
+        currentReader.loadBackground();
         currentReader.cacheElements();
         currentReader.loadDb(function () {
           try {
@@ -771,8 +767,12 @@
         });
       },
 
-      cacheElements() {
+      loadBackground() {
         this.elements.body = document.body;
+        this.elements.body.classList.add(localStorage.getItem(this.settingsNames.theme) || this.themes[0]);
+      },
+
+      cacheElements() {
         this.elements.mainContainer = document.getElementById('main-container');
         this.elements.textInput = document.getElementById('text-input');
         this.elements.speedValue = document.getElementById('speed-value');
@@ -792,7 +792,7 @@
         this.elements.stopButton = document.getElementById('stop-button');
         this.elements.themeToggle = document.getElementById('theme-toggle');
         this.elements.fullSizeToggle = document.getElementById('full-size-toggle');
-        this.elements.saveSettings = document.getElementById('save-settings');
+        this.elements.saveManipulationsSettings = document.getElementById('save-manipulations-settings');
         this.elements.resetSettings = document.getElementById('reset-settings');
         this.elements.deleteAllTexts = document.getElementById('delete-all-texts');
         this.elements.clearText = document.getElementById('clear-text');
@@ -807,7 +807,8 @@
         this.elements.fastForwardButton = document.getElementById('fast-forward-button');
         this.elements.colorInput = document.getElementById('color-input');
         this.elements.dumpColors = document.getElementById('dump-colors');
-        this.elements.showColorInfo = document.getElementById('show-color-info');
+        this.elements.showColorInfoElement = document.getElementById('show-color-info-element');
+        this.elements.showColorInfoToggle = document.getElementById('show-color-info-toggle');
         this.elements.refreshText = document.getElementById('refresh-text');
         this.elements.refreshColors = document.getElementById('refresh-colors');
         this.elements.copyText = document.getElementById('copy-text');
@@ -825,6 +826,7 @@
         this.elements.textSelect = document.getElementById('text-select');
         this.elements.newTextButton = document.getElementById('new-text-button');
         this.elements.deleteTextButton = document.getElementById('delete-text-button');
+        this.elements.saveTextButton = document.getElementById('save-text-button');
         this.cachedContainerWidth = null;
         this.cachedTextWidth = null;
       },
@@ -890,7 +892,7 @@
         this.elements.themeToggle.addEventListener('click', () => this.switchTheme());
         this.elements.marqueeThemeToggle.addEventListener('click', () => this.switchMarqueeTheme());
         this.elements.fullSizeToggle.addEventListener('click', () => this.toggleFullSize());
-        this.elements.saveSettings.addEventListener('click', () => this.savePreferences());
+        this.elements.saveManipulationsSettings.addEventListener('click', () => this.saveManipulationsSettings());
         this.elements.resetSettings.addEventListener('click', () => this.resetPreferences());
         this.elements.deleteAllTexts.addEventListener('click', () => this.deleteAllTexts());
         this.elements.clearText.addEventListener('click', () => this.clearInput());
@@ -900,7 +902,8 @@
         this.elements.loadFile.addEventListener('click', () => this.loadFromFile());
         this.elements.colorEncoderToggle.addEventListener('click', () => this.toggleColorEncoder());
         this.elements.dumpColors.addEventListener('click', () => this.dumpColorMap());
-        this.elements.showColorInfo.addEventListener('click', () => this.toggleColorDetails());
+        this.elements.showColorInfoToggle.addEventListener('click', () => this.toggleColorDetails());
+        this.elements.appendTextToggle.addEventListener('click', () => this.toggleAppendText());
         this.elements.refreshText.addEventListener('click', () => this.refreshMarqueeText());
         this.elements.refreshColors.addEventListener('click', () => this.refreshMarqueeColors());
         this.elements.copyText.addEventListener('click', () => this.copyMarqueeText());
@@ -917,32 +920,46 @@
         this.elements.textSelect.addEventListener('change', () => this.switchText());
         this.elements.newTextButton.addEventListener('click', () => this.createNewText());
         this.elements.deleteTextButton.addEventListener('click', () => this.deleteCurrentText());
+        this.elements.saveTextButton.addEventListener('click', () => this.saveCurrentText());
         this.elements.textInput.addEventListener('input', () => { this.isModified = true; });
+        document.addEventListener('keydown', e => this.handleKeyPress(e));
+        const currentReader = this;
         window.addEventListener('resize', () => {
-          if (this.currentPosition !== null) {
-            this.updateCachedSizes();
-            this.updateProgressBar();
+          if (currentReader.currentPosition !== null) {
+            currentReader.updateCachedSizes();
+            currentReader.updateProgressBar();
           }
         });
-        document.addEventListener('keydown', e => this.handleKeyPress(e));
         this.restoreActiveTab();
+        this.sentenceGenerator = function*() {
+          let sentences = [];
+          try {
+            sentences = getSentences();
+          } catch (e) {
+            alert('[Sentences.js] Sentences not found!');
+            return;
+          }
+          while (true) {
+            currentReader.shuffleArray(sentences);
+            for (const sentence of sentences) {
+              yield sentence;
+            }
+          }
+        }();
       },
 
       loadPreferences() {
         this.elements.textInput.value = '';
         this.elements.speedValue.value = localStorage.getItem(this.settingsNames.speed) || '10';
         this.syncSpeed(this.elements.speedValue.value);
-        this.elements.body.classList.add(localStorage.getItem(this.settingsNames.theme) || this.themes[0]);
-        const marqueeTheme = localStorage.getItem(this.settingsNames.marqueeTheme) || this.marqueeThemes[0];
-        this.elements.body.classList.add(marqueeTheme);
-        this.elements.marqueeThemeToggle.innerHTML += ` [${marqueeTheme.slice(-1)}]`;
-        this.elements.appendTextToggle.checked = localStorage.getItem(this.settingsNames.appendText) !== 'false';
-        this.elements.colorEncoderToggle.checked = localStorage.getItem(this.settingsNames.colorTask) === 'true';
-        this.toggleColorEncoder();
+        const marqueeThemeToggle = localStorage.getItem(this.settingsNames.marqueeThemeToggle) || this.marqueeThemes[0];
+        this.elements.body.classList.add(marqueeThemeToggle);
+        this.elements.marqueeThemeToggle.innerHTML += ` [${marqueeThemeToggle.slice(-1)}]`;
+        this.elements.appendTextToggle.checked = localStorage.getItem(this.settingsNames.appendTextToggle) !== 'false';
+        this.elements.colorEncoderToggle.checked = localStorage.getItem(this.settingsNames.colorTaskToggle) === 'true';
         this.elements.colorInput.value = localStorage.getItem(this.settingsNames.colorTaskColors) || '';
         this.elements.colorLetterCount.value = localStorage.getItem(this.settingsNames.colorTaskLetters) || '1';
-        this.elements.showColorInfo.checked = localStorage.getItem(this.settingsNames.showTable) !== 'false';
-        this.toggleColorDetails();
+        this.elements.showColorInfoToggle.checked = localStorage.getItem(this.settingsNames.showColorInfoToggle) !== 'false';
         this.elements.letterShuffleSelect.value = localStorage.getItem(this.settingsNames.shufflingLetters) || 'no';
         this.elements.letterEliminationSelect.value = localStorage.getItem(this.settingsNames.eliminatingLetters) || 'no';
         this.elements.wordShuffleSelect.value = localStorage.getItem(this.settingsNames.shufflingWords) || 'no';
@@ -971,6 +988,9 @@
 
         const currentReader = this;
         currentReader.switchText(function () {
+          currentReader.toggleAppendText();
+          currentReader.toggleColorEncoder();
+          currentReader.toggleColorDetails();
           currentReader.lastSavedPosition = localStorage.getItem(currentReader.settingsNames.lastPosition);
           if (currentReader.lastSavedPosition && currentReader.elements.textInput.value && confirm('Resume from last position?')) {
             currentReader.currentPosition = parseInt(currentReader.lastSavedPosition);
@@ -1001,7 +1021,6 @@
         this.elements.marqueeControlsContainer.style.display = '';
         this.elements.additionalSettingsContainer.style.display = '';
         this.elements.progressDisplay.style.display = 'none';
-        this.elements.colorDetails.style.display = 'none';
         this.elements.loopToggle.style.display = '';
         this.lastSavedPosition = null;
         this.elements.tabNavigation.style.display = '';
@@ -1110,7 +1129,7 @@
             }
           }
           this.colorList.sort();
-          this.elements.colorDetails.style.display = this.elements.showColorInfo.checked ? '' : 'none';
+          this.elements.colorDetails.style.display = this.elements.showColorInfoToggle.checked ? '' : 'none';
         } else if (!resume && movement) {
           this.elements.colorDetails.style.display = 'none';
         }
@@ -1128,23 +1147,25 @@
             .join('  ');
         }
 
-        const needsUpdate = this.currentPosition == null || this.previousText !== cleanedText ||
+        const textNeedsUpdate = this.currentPosition == null || this.previousText !== cleanedText ||
           this.previousLetterShuffle !== this.elements.letterShuffleSelect.value ||
           this.previousLetterElimination !== this.elements.letterEliminationSelect.value ||
-          this.previousWordShuffle !== this.elements.wordShuffleSelect.value ||
+          this.previousWordShuffle !== this.elements.wordShuffleSelect.value;
+
+        const colorsNeedsUpdate = !this.wasColorTaskChecked || palleteChanged ||
           this.wasColorTaskEnabled !== this.elements.colorEncoderToggle.checked ||
           (this.elements.colorEncoderToggle.checked && this.previousColorInput !== this.elements.colorInput.value);
 
-        if (palleteChanged || needsUpdate) {
+        if (textNeedsUpdate || colorsNeedsUpdate) {
           const colorize = this.elements.colorEncoderToggle.checked
             ? char => this.colorMap.has(char.toLowerCase())
               ? `<span style="background-color:${this.colorMap.get(char.toLowerCase())};color:${this.colorMap.get(char.toLowerCase())};" class="marquee-span">${char}</span>`
               : char
             : char => char;
           this.elements.marqueeDisplay.innerHTML = this.processText(
-            needsUpdate ? cleanedText : this.elements.marqueeDisplay.textContent,
+            textNeedsUpdate ? cleanedText : this.elements.marqueeDisplay.textContent,
             cleanedText,
-            needsUpdate,
+            textNeedsUpdate,
             colorize
           );
         }
@@ -1176,6 +1197,7 @@
         this.previousColorInput = this.elements.colorInput.value;
         this.previousPosition = this.currentPosition;
         this.wasColorTaskEnabled = this.elements.colorEncoderToggle.checked;
+        this.wasColorTaskChecked = true;
 
         const animate = () => {
           const newPosition = parseInt(this.elements.marqueeDisplay.style.left, 10) - stepSize;
@@ -1214,7 +1236,7 @@
               this.elements.playPauseButton.classList.remove('pause');
               this.elements.marqueeControlsContainer.style.display = '';
               this.elements.additionalSettingsContainer.style.display = '';
-              this.elements.colorDetails.style.display = this.elements.colorEncoderToggle.checked && this.elements.showColorInfo.checked ? '' : 'none';
+              this.elements.colorDetails.style.display = this.elements.colorEncoderToggle.checked && this.elements.showColorInfoToggle.checked ? '' : 'none';
               this.elements.loopToggle.style.display = '';
               this.lastSavedPosition = null;
               this.elements.tabNavigation.style.display = '';
@@ -1257,9 +1279,7 @@
           this.elements.marqueeControlsContainer.style.display = '';
           this.elements.additionalSettingsContainer.style.display = '';
           this.elements.loopToggle.style.display = '';
-          if (this.elements.colorEncoderToggle.checked) {
-            this.elements.colorDetails.style.display = this.elements.showColorInfo.checked ? '' : 'none';
-          }
+          this.elements.colorDetails.style.display = this.elements.colorEncoderToggle.checked && this.elements.showColorInfoToggle.checked ? '' : 'none';
           this.elements.tabNavigation.style.display = '';
           this.elements.tabContent.style.display = '';
           this.updateProgressBar();
@@ -1499,7 +1519,7 @@
         const next = this.marqueeThemes[(this.marqueeThemes.indexOf(current) + 1) % this.marqueeThemes.length] || this.marqueeThemes[0];
         this.marqueeThemes.forEach(theme => this.elements.body.classList.remove(theme));
         this.elements.body.classList.add(next);
-        localStorage.setItem(this.settingsNames.marqueeTheme, next);
+        localStorage.setItem(this.settingsNames.marqueeThemeToggle, next);
         this.elements.marqueeThemeToggle.innerHTML = [...this.elements.marqueeThemeToggle.innerHTML.split(' ').slice(0, -1), `[${next.slice(-1)}]`].join(' ');
       },
 
@@ -1593,6 +1613,34 @@
         }
       },
 
+      goToStartPosition() {
+        if (this.currentPosition !== null) {
+          const wasPlaying = this.animationTimer !== null;
+          if (wasPlaying) this.pauseAnimation();
+          const containerWidth = this.cachedContainerWidth;
+          const textWidth = this.cachedTextWidth;
+          this.currentPosition = containerWidth;
+          this.elements.marqueeDisplay.style.left = `${this.currentPosition}px`;
+          this.lastSavedPosition = this.currentPosition;
+          this.updateProgressBar();
+          if (wasPlaying) this.startAnimation(true);
+        }
+      },
+
+      goToEndPosition() {
+        if (this.currentPosition !== null) {
+          const wasPlaying = this.animationTimer !== null;
+          if (wasPlaying) this.pauseAnimation();
+          const containerWidth = this.cachedContainerWidth;
+          const textWidth = this.cachedTextWidth;
+          this.currentPosition = -textWidth;
+          this.elements.marqueeDisplay.style.left = `${this.currentPosition}px`;
+          this.lastSavedPosition = this.currentPosition;
+          this.updateProgressBar();
+          if (wasPlaying) this.startAnimation(true);
+        }
+      },
+
       refreshMarqueeText() {
         if (this.currentPosition !== null) {
           const wasPlaying = this.animationTimer !== null;
@@ -1608,8 +1656,10 @@
         if (this.currentPosition !== null) {
           const wasPlaying = this.animationTimer !== null;
           if (wasPlaying) this.pauseAnimation();
-          this.colorMap.clear();
-          this.colorList = [];
+          if (this.elements.colorEncoderToggle.checked) {
+            this.colorMap.clear();
+            this.colorList = [];
+          }
           this.startAnimation(false, false);
           this.updateProgressBar();
           if (wasPlaying) this.startAnimation(true);
@@ -1623,17 +1673,29 @@
       },
 
       toggleColorEncoder() {
-        const isVisible = this.elements.showColorInfo.checked && this.elements.colorEncoderToggle.checked;
+        const isVisible = this.elements.colorEncoderToggle.checked;
         this.elements.colorInput.style.display = isVisible ? '' : 'none';
         this.elements.dumpColors.style.display = isVisible ? '' : 'none';
-        this.elements.colorEncoderOptions.style.display = this.elements.colorEncoderToggle.checked ? '' : 'none';
+        this.elements.colorEncoderOptions.style.display = isVisible ? '' : 'none';
+        this.elements.showColorInfoElement.style.display = isVisible ? '' : 'none';
+        this.elements.colorDetails.style.display = this.elements.showColorInfoToggle.checked && isVisible ? '' : 'none';
+        const wasPlaying = this.animationTimer !== null;
+        if (wasPlaying) this.pauseAnimation();
+        this.wasColorTaskChecked = false;
+        if (this.elements.textInput.value) {
+          this.startAnimation(false, false);
+        }
+        if (wasPlaying) this.startAnimation(true);
       },
 
       toggleColorDetails() {
-        this.elements.colorDetails.style.display = this.elements.showColorInfo.checked ? '' : 'none';
-        const isVisible = this.elements.showColorInfo.checked && this.elements.colorEncoderToggle.checked;
-        this.elements.colorInput.style.display = isVisible ? '' : 'none';
-        this.elements.dumpColors.style.display = isVisible ? '' : 'none';
+        const isVisible = this.elements.showColorInfoToggle.checked && this.elements.colorEncoderToggle.checked;
+        this.elements.colorDetails.style.display = isVisible ? '' : 'none';
+        localStorage.setItem(this.settingsNames.showColorInfoToggle, isVisible);
+      },
+
+      toggleAppendText() {
+        localStorage.setItem(this.settingsNames.appendTextToggle, this.elements.appendTextToggle.checked);
       },
 
       dumpColorMap() {
@@ -1652,22 +1714,24 @@
       },
 
       fetchSentence() {
-        let sentences = [];
-        try {
-          sentences = getSentences();
-        } catch (e) {
-          alert('[Sentences.js] Sentences not found!');
+        if (this.animationTimer) {
           return;
         }
-        const sentence = sentences[Math.floor(Math.random() * sentences.length)];
-        if (sentence) {
-          const text = /[.!?]$/.test(sentence) ? sentence : `${sentence}.`;
-          this.elements.textInput.value = this.elements.appendTextToggle.checked ? `${this.elements.textInput.value}${this.elements.textInput.value ? '\n\n' : ''}${text}` : text;
-          this.isModified = true;
+        const next = this.sentenceGenerator.next();
+        if (!next.done) {
+          const sentence = next.value;
+          if (sentence) {
+            const text = /[.!?]$/.test(sentence) ? sentence : `${sentence}.`;
+            this.elements.textInput.value = this.elements.appendTextToggle.checked ? `${this.elements.textInput.value}${this.elements.textInput.value ? '\n\n' : ''}${text}` : text;
+            this.isModified = true;
+          }
         }
       },
 
       fetchWikipedia() {
+        if (this.animationTimer) {
+          return;
+        }
         fetch('https://en.wikipedia.org/api/rest_v1/page/random/summary')
           .then(response => response.json())
           .then(data => {
@@ -1679,6 +1743,9 @@
       },
 
       fetchMetaphorpsum() {
+        if (this.animationTimer) {
+          return;
+        }
         fetch('http://metaphorpsum.com/sentences/1')
           .then(response => response.text())
           .then(text => {
@@ -1689,6 +1756,9 @@
       },
 
       loadFromFile() {
+        if (this.animationTimer) {
+          return;
+        }
         const input = document.createElement('input');
         input.type = 'file';
         input.onchange = e => {
@@ -1708,7 +1778,18 @@
         this.elements.body.removeChild(input);
       },
 
-      savePreferences() {
+      saveManipulationsSettings() {
+        localStorage.setItem(this.settingsNames.colorTaskToggle, this.elements.colorEncoderToggle.checked);
+        localStorage.setItem(this.settingsNames.colorTaskLetters, this.elements.colorLetterCount.value);
+        localStorage.setItem(this.settingsNames.colorTaskColors, this.elements.colorInput.value);
+        localStorage.setItem(this.settingsNames.speed, this.elements.speedValue.value);
+        localStorage.setItem(this.settingsNames.shufflingLetters, this.elements.letterShuffleSelect.value);
+        localStorage.setItem(this.settingsNames.shufflingWords, this.elements.wordShuffleSelect.value);
+        localStorage.setItem(this.settingsNames.eliminatingLetters, this.elements.letterEliminationSelect.value);
+        localStorage.setItem(this.settingsNames.textSize, this.elements.fontSizeDisplay.value);
+      },
+
+      saveCurrentText() {
         try {
           if (this.currentTextName === this.defaultTextName) {
             localStorage.setItem(this.settingsNames.text, this.elements.textInput.value);
@@ -1717,24 +1798,13 @@
             const objectStore = transaction.objectStore(this.settingsNames.texts);
             objectStore.put({ title: this.currentTextName, content: this.elements.textInput.value });
           }
+          localStorage.setItem(this.settingsNames.currentTextName, this.currentTextName);
           this.isModified = false;
         }
         catch (err) {
           console.error(err);
           alert(err);
         }
-        localStorage.setItem(this.settingsNames.colorTask, this.elements.colorEncoderToggle.checked);
-        localStorage.setItem(this.settingsNames.colorTaskLetters, this.elements.colorLetterCount.value);
-        localStorage.setItem(this.settingsNames.colorTaskColors, this.elements.colorInput.value);
-        localStorage.setItem(this.settingsNames.showTable, this.elements.showColorInfo.checked);
-        localStorage.setItem(this.settingsNames.speed, this.elements.speedValue.value);
-        localStorage.setItem(this.settingsNames.appendText, this.elements.appendTextToggle.checked);
-        localStorage.setItem(this.settingsNames.shufflingLetters, this.elements.letterShuffleSelect.value);
-        localStorage.setItem(this.settingsNames.shufflingWords, this.elements.wordShuffleSelect.value);
-        localStorage.setItem(this.settingsNames.eliminatingLetters, this.elements.letterEliminationSelect.value);
-        localStorage.setItem(this.settingsNames.loop, this.isLoopEnabled);
-        localStorage.setItem(this.settingsNames.textSize, this.elements.fontSizeDisplay.value);
-        localStorage.setItem(this.settingsNames.currentTextName, this.currentTextName);
       },
 
       resetPreferences() {
@@ -1819,17 +1889,25 @@
         event.preventDefault();
         switch (event.key) {
           case ' ': this.togglePlayback(); break;
-          case 'ArrowLeft': if (this.currentPosition !== null) this.rewind(); break;
-          case 'ArrowRight': if (this.currentPosition !== null) this.fastForward(); break;
+          case 'ArrowUp': this.goToEndPosition(); break;
+          case 'ArrowDown': this.goToStartPosition(); break;
+          case 'ArrowLeft': this.rewind(); break;
+          case 'ArrowRight': this.fastForward(); break;
           case 'l':
           case 'L': this.toggleLoop(); break;
-          case 'c':
-          case 'C': if (!this.animationTimer) this.elements.colorEncoderToggle.click(); break;
+          case 'e':
+          case 'E': this.elements.colorEncoderToggle.click(); break;
           case 's':
           case 'S': this.stopPlayback(); break;
           case '+': if (!this.animationTimer) this.elements.speedDisplay.value = parseInt(this.elements.speedDisplay.value) + 1; this.adjustSpeed(this.elements.speedDisplay.value); break;
           case '-': if (!this.animationTimer) this.elements.speedDisplay.value = parseInt(this.elements.speedDisplay.value) - 1; this.adjustSpeed(this.elements.speedDisplay.value); break;
-          case 'Escape': if (!this.animationTimer) this.elements.showColorInfo.click(); break;
+          case 't':
+          case 'T': this.refreshMarqueeText(); break;
+          case 'c':
+          case 'C': this.refreshMarqueeColors(); break;
+          case 'n':
+          case 'N': this.fetchSentence(); break;
+          case 'Escape': if (this.elements.colorEncoderToggle.checked) this.elements.showColorInfoToggle.click(); break;
         }
       },
 
