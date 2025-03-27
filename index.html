@@ -219,11 +219,11 @@
       background-color: var(--save-button-hover);
     }
 
-    #reset-settings {
+    #reset-settings, #delete-all-texts {
       background-color: var(--reset-button-background);
     }
 
-    #reset-settings:hover {
+    #reset-settings:hover, #delete-all-texts:hover {
       background-color: var(--reset-button-hover);
     }
 
@@ -493,6 +493,13 @@
       margin-bottom: 10px;
     }
 
+    #text-select {
+      min-width: 20%;
+      max-width: 50%;
+      padding: 8px;
+      text-align: center;
+    }
+
     @media (max-width: 600px) {
       button {
         width: 100%;
@@ -500,6 +507,10 @@
       }
       kbd {
         display: none;
+      }
+      #text-select {
+        min-width: 100%;
+        max-width: 100%;
       }
       input[type="range"] {
         width: 30%;
@@ -614,6 +625,12 @@
       </div>
       <div id="texts-tab" class="tab-content">
         <div class="mt-20">
+          <select id="text-select">
+          </select>
+          <button id="new-text-button">New Text</button>
+          <button id="delete-text-button">Delete Text</button>
+        </div>
+        <div class="mt-20">
           <label for="text-input">Text</label>
           <textarea id="text-input" placeholder="Enter text here"></textarea>
         </div>
@@ -637,6 +654,7 @@
         <label class="mt-20"><input type="checkbox" id="show-color-info" checked> Show letters-colors info <kbd>ESC</kbd></label>
         <div class="mt-20">
           <button id="reset-settings">Reset settings</button>
+          <button id="delete-all-texts">Delete all texts</button>
         </div>
       </div>
       <div id="info-tab" class="tab-content">
@@ -658,7 +676,7 @@
 
     <div id="additional-settings-container">
       <div class="mt-20">
-        <button id="save-settings">Save texts and settings</button>
+        <button id="save-settings">Save current text and settings</button>
       </div>
       <div class="mt-20">
         <a href="https://github.com/Quwarm/Trial-and-Error-Reading" target="_blank">GitHub</a>
@@ -676,7 +694,7 @@
       lastUpdateTime: null,
       colorMap: new Map(),
       colorList: [],
-      previousText: '',
+      previousText: null,
       previousLetterShuffle: '',
       previousWordShuffle: '',
       previousLetterElimination: '',
@@ -689,6 +707,12 @@
 
       elements: {},
 
+      databaseName: 'TrialAndErrorReadingDB',
+      database: null,
+      defaultTextName: 'Default',
+      currentTextName: 'Default',
+      isModified: false,
+
       vowelPattern: null,
       letterPattern: null,
       punctuationPattern: null,
@@ -697,7 +721,9 @@
       cachedTextWidth: null,
 
       settingsNames: {
+        currentTextName: 'sle_current_text_name',
         text: 'sle_text',
+        texts: 'sle_texts',
         colorTask: 'sle_color_task',
         colorTaskLetters: 'sle_color_task_letters',
         colorTaskColors: 'sle_color_task_colors',
@@ -729,15 +755,20 @@
       ],
 
       initialize() {
-        this.cacheElements();
-        try {
-          this.setupPatterns();
-          this.bindEvents();
-          this.loadPreferences();
-        }
-        catch (err) {
-          this.elements.mainContainer.innerHTML = `Not supported:<br>${err}`;
-        }
+        const currentReader = this;
+        console.info(currentReader);
+        currentReader.cacheElements();
+        currentReader.loadDb(function () {
+          try {
+            currentReader.setupPatterns();
+            currentReader.bindEvents();
+            currentReader.loadPreferences();
+          }
+          catch (err) {
+            console.error(err);
+            currentReader.elements.mainContainer.innerHTML = `Not supported:<br>${err}`;
+          }
+        });
       },
 
       cacheElements() {
@@ -763,6 +794,7 @@
         this.elements.fullSizeToggle = document.getElementById('full-size-toggle');
         this.elements.saveSettings = document.getElementById('save-settings');
         this.elements.resetSettings = document.getElementById('reset-settings');
+        this.elements.deleteAllTexts = document.getElementById('delete-all-texts');
         this.elements.clearText = document.getElementById('clear-text');
         this.elements.loadSentence = document.getElementById('load-sentence');
         this.elements.loadWiki = document.getElementById('load-wiki');
@@ -790,8 +822,53 @@
         this.elements.tabContents = document.querySelectorAll('.tab-content');
         this.elements.progressBarContainer = document.getElementById('progress-bar-container');
         this.elements.progressBar = document.getElementById('progress-bar');
+        this.elements.textSelect = document.getElementById('text-select');
+        this.elements.newTextButton = document.getElementById('new-text-button');
+        this.elements.deleteTextButton = document.getElementById('delete-text-button');
         this.cachedContainerWidth = null;
         this.cachedTextWidth = null;
+      },
+
+      loadDb(callback) {
+        const currentReader = this;
+        const hideTextSelectElements = function () {
+          currentReader.elements.textSelect.style.display = 'none';
+          currentReader.elements.newTextButton.style.display = 'none';
+          currentReader.elements.deleteTextButton.style.display = 'none';
+        }
+        currentReader.database = null;
+        try {
+          const request = indexedDB.open(this.databaseName, 1);
+          request.onupgradeneeded = function (event) {
+            currentReader.database = event.target.result;
+            currentReader.database.createObjectStore(currentReader.settingsNames.texts, { keyPath: "title" });
+          };
+          request.onsuccess = function (event) {
+            currentReader.database = event.target.result;
+            callback();
+          };
+          request.onerror = function (event) {
+            currentReader.database = null;
+            const message = `IndexedDB error: ${event.target.errorCode}`;
+            console.error(message);
+            hideTextSelectElements();
+            alert(message);
+            callback();
+          };
+          request.onblocked = function(event) {
+            currentReader.database = null;
+            const message = `IndexedDB blocked: ${event.target.errorCode}`;
+            console.error(message);
+            hideTextSelectElements();
+            alert(message);
+            callback();
+          };
+        } catch (err) {
+          currentReader.database = null;
+          console.error(err);
+          hideTextSelectElements();
+          callback();
+        }
       },
 
       updateCachedSizes() {
@@ -815,6 +892,7 @@
         this.elements.fullSizeToggle.addEventListener('click', () => this.toggleFullSize());
         this.elements.saveSettings.addEventListener('click', () => this.savePreferences());
         this.elements.resetSettings.addEventListener('click', () => this.resetPreferences());
+        this.elements.deleteAllTexts.addEventListener('click', () => this.deleteAllTexts());
         this.elements.clearText.addEventListener('click', () => this.clearInput());
         this.elements.loadSentence.addEventListener('click', () => this.fetchSentence());
         this.elements.loadWiki.addEventListener('click', () => this.fetchWikipedia());
@@ -836,6 +914,10 @@
         this.elements.speedValue.addEventListener('input', () => this.syncSpeed(this.elements.speedValue.value));
         this.elements.tabButtons.forEach(button => button.addEventListener('click', () => this.switchTab(button)));
         this.elements.progressBarContainer.addEventListener('click', (e) => this.handleProgressBarClick(e));
+        this.elements.textSelect.addEventListener('change', () => this.switchText());
+        this.elements.newTextButton.addEventListener('click', () => this.createNewText());
+        this.elements.deleteTextButton.addEventListener('click', () => this.deleteCurrentText());
+        this.elements.textInput.addEventListener('input', () => { this.isModified = true; });
         window.addEventListener('resize', () => {
           if (this.currentPosition !== null) {
             this.updateCachedSizes();
@@ -843,12 +925,11 @@
           }
         });
         document.addEventListener('keydown', e => this.handleKeyPress(e));
-        setInterval(() => this.savePosition(), 500);
         this.restoreActiveTab();
       },
 
       loadPreferences() {
-        this.elements.textInput.value = localStorage.getItem(this.settingsNames.text) || '';
+        this.elements.textInput.value = '';
         this.elements.speedValue.value = localStorage.getItem(this.settingsNames.speed) || '10';
         this.syncSpeed(this.elements.speedValue.value);
         this.elements.body.classList.add(localStorage.getItem(this.settingsNames.theme) || this.themes[0]);
@@ -877,23 +958,38 @@
         this.elements.refreshText.disabled = true;
         this.elements.refreshColors.disabled = true;
         this.elements.copyText.disabled = true;
-        this.lastSavedPosition = localStorage.getItem(this.settingsNames.lastPosition);
-        if (this.lastSavedPosition && this.elements.textInput.value && confirm('Resume from last position?')) {
-          this.currentPosition = parseInt(this.lastSavedPosition);
-          setTimeout(() => {
-            this.startAnimation(false, false);
-            this.elements.progressDisplay.style.display = 'none';
-          }, 1);
-        } else {
-          this.lastSavedPosition = null;
+
+        const currentTextName = localStorage.getItem(this.settingsNames.currentTextName) || this.defaultTextName;
+        const texts = JSON.parse(localStorage.getItem(this.settingsNames.texts) || '[]');
+        this.elements.textSelect.innerHTML = `<option value="${this.defaultTextName}">${this.defaultTextName}</option>` + texts.map(text => `<option value="${text}">${text}</option>`).join('');
+        this.currentTextName = this.defaultTextName;
+        if (texts.includes(currentTextName)) {
+          this.currentTextName = currentTextName;
         }
+        this.elements.textSelect.value = this.currentTextName;
+        this.isModified = false;
+
+        const currentReader = this;
+        currentReader.switchText(function () {
+          currentReader.lastSavedPosition = localStorage.getItem(currentReader.settingsNames.lastPosition);
+          if (currentReader.lastSavedPosition && currentReader.elements.textInput.value && confirm('Resume from last position?')) {
+            currentReader.currentPosition = parseInt(currentReader.lastSavedPosition);
+            setTimeout(() => {
+              currentReader.startAnimation(false, false);
+              currentReader.elements.progressDisplay.style.display = 'none';
+            }, 1);
+          } else {
+            currentReader.lastSavedPosition = null;
+          }
+          setInterval(() => currentReader.savePosition(), 500);
+        });
       },
 
       togglePlayback() {
         this.animationTimer ? this.pauseAnimation() : this.startAnimation();
       },
 
-      stopPlayback() {
+      stopPlayback(fully = false) {
         if (this.animationTimer) {
           clearTimeout(this.animationTimer);
           this.animationTimer = null;
@@ -911,6 +1007,17 @@
         this.elements.tabNavigation.style.display = '';
         this.elements.tabContent.style.display = '';
         this.updateProgressBar();
+        if (fully && this.previousText !== null) {
+          this.animationStartTime = null;
+          this.currentPosition = null;
+          this.previousText = '';
+          this.wordCount = 0;
+          this.elements.rewindButton.disabled = true;
+          this.elements.fastForwardButton.disabled = true;
+          this.elements.refreshText.disabled = true;
+          this.elements.refreshColors.disabled = true;
+          this.elements.copyText.disabled = true;
+        }
       },
 
       startAnimation(resume = false, movement = true) {
@@ -920,7 +1027,7 @@
           htmlValue = htmlValue.replace(/\p{C}+/ug, '');
         }
         catch (err) {
-          console.log(err);
+          console.error(err);
         }
         if (!htmlValue) {
           alert('Please add text');
@@ -1122,13 +1229,13 @@
         };
 
         this.updateProgressBar();
+        this.elements.rewindButton.disabled = false;
+        this.elements.fastForwardButton.disabled = false;
+        this.elements.refreshText.disabled = false;
+        this.elements.refreshColors.disabled = false;
+        this.elements.copyText.disabled = false;
         if (movement) {
           this.elements.loopToggle.style.display = 'none';
-          this.elements.rewindButton.disabled = false;
-          this.elements.fastForwardButton.disabled = false;
-          this.elements.refreshText.disabled = false;
-          this.elements.refreshColors.disabled = false;
-          this.elements.copyText.disabled = false;
           this.elements.playPauseButton.textContent = 'Pause';
           this.elements.playPauseButton.classList.add('pause');
           this.elements.marqueeControlsContainer.style.display = 'none';
@@ -1196,10 +1303,15 @@
             if (shouldModify && this.elements.letterShuffleSelect.value !== 'no' && (!skipShuffle || this.elements.letterShuffleSelect.value === 'very-hard')) {
               const parts = modifiedWord.split('-');
               modifiedWord = parts.map(part => {
-                const threshold = this.elements.letterShuffleSelect.value === 'hard' || this.elements.letterShuffleSelect.value === 'very-hard' ? 0 : 
+                const threshold = this.elements.letterShuffleSelect.value === 'hard' || this.elements.letterShuffleSelect.value === 'very-hard' ? 0 :
                   this.elements.letterShuffleSelect.value === 'medium' || this.elements.letterShuffleSelect.value === 'medium_plus' ? 1 : Math.floor(part.length / 3);
                 const suffixLength = this.elements.letterShuffleSelect.value === 'medium_plus' ? 0 : threshold;
-                const letters = part.split('').filter(this.isLetter);
+                let letters = [];
+                for (let x of part) {
+                  if (this.isLetter(x)) {
+                    letters.push(x);
+                  }
+                }
                 const firstLetters = letters.slice(0, threshold);
                 const midLetters = letters.slice(threshold, letters.length - suffixLength);
                 const lastLetters = letters.slice(letters.length - suffixLength);
@@ -1233,7 +1345,7 @@
         try {
           lettersOnly = word.replace(/[^\p{L}]/ug, '');
         } catch (err) {
-          console.log(err);
+          console.error(err);
         }
         let matchIndices = [];
         let isFirstMatch = true;
@@ -1487,7 +1599,6 @@
           if (wasPlaying) this.pauseAnimation();
           this.previousLetterShuffle = '';
           this.startAnimation(false, false);
-          this.pauseAnimation();
           this.updateProgressBar();
           if (wasPlaying) this.startAnimation(true);
         }
@@ -1500,7 +1611,6 @@
           this.colorMap.clear();
           this.colorList = [];
           this.startAnimation(false, false);
-          this.pauseAnimation();
           this.updateProgressBar();
           if (wasPlaying) this.startAnimation(true);
         }
@@ -1538,6 +1648,7 @@
 
       clearInput() {
         this.elements.textInput.value = '';
+        this.isModified = true;
       },
 
       fetchSentence() {
@@ -1552,6 +1663,7 @@
         if (sentence) {
           const text = /[.!?]$/.test(sentence) ? sentence : `${sentence}.`;
           this.elements.textInput.value = this.elements.appendTextToggle.checked ? `${this.elements.textInput.value}${this.elements.textInput.value ? '\n\n' : ''}${text}` : text;
+          this.isModified = true;
         }
       },
 
@@ -1561,6 +1673,7 @@
           .then(data => {
             const text = data.extract.trim();
             this.elements.textInput.value = this.elements.appendTextToggle.checked ? `${this.elements.textInput.value}${this.elements.textInput.value ? '\n\n' : ''}${text}` : text;
+            this.isModified = true;
           })
           .catch(() => alert('[Wiki] Data Fetching Error.'));
       },
@@ -1570,6 +1683,7 @@
           .then(response => response.text())
           .then(text => {
             this.elements.textInput.value = this.elements.appendTextToggle.checked ? `${this.elements.textInput.value}${this.elements.textInput.value ? '\n\n' : ''}${text.trim()}` : text.trim();
+            this.isModified = true;
           })
           .catch(() => alert('[Metaphorpsum] Data Fetching Error.'));
       },
@@ -1584,6 +1698,7 @@
             reader.onload = event => {
               const text = event.target.result.trim();
               this.elements.textInput.value = this.elements.appendTextToggle.checked ? `${this.elements.textInput.value}${this.elements.textInput.value ? '\n\n' : ''}${text}` : text;
+              this.isModified = true;
             };
             reader.readAsText(file);
           }
@@ -1594,7 +1709,20 @@
       },
 
       savePreferences() {
-        localStorage.setItem(this.settingsNames.text, this.elements.textInput.value);
+        try {
+          if (this.currentTextName === this.defaultTextName) {
+            localStorage.setItem(this.settingsNames.text, this.elements.textInput.value);
+          } else if (this.database) {
+            const transaction = this.database.transaction([this.settingsNames.texts], 'readwrite');
+            const objectStore = transaction.objectStore(this.settingsNames.texts);
+            objectStore.put({ title: this.currentTextName, content: this.elements.textInput.value });
+          }
+          this.isModified = false;
+        }
+        catch (err) {
+          console.error(err);
+          alert(err);
+        }
         localStorage.setItem(this.settingsNames.colorTask, this.elements.colorEncoderToggle.checked);
         localStorage.setItem(this.settingsNames.colorTaskLetters, this.elements.colorLetterCount.value);
         localStorage.setItem(this.settingsNames.colorTaskColors, this.elements.colorInput.value);
@@ -1606,15 +1734,55 @@
         localStorage.setItem(this.settingsNames.eliminatingLetters, this.elements.letterEliminationSelect.value);
         localStorage.setItem(this.settingsNames.loop, this.isLoopEnabled);
         localStorage.setItem(this.settingsNames.textSize, this.elements.fontSizeDisplay.value);
+        localStorage.setItem(this.settingsNames.currentTextName, this.currentTextName);
       },
 
       resetPreferences() {
+        const currentReader = this;
         if (confirm('Are you sure you want to reset the settings?')) {
-          this.lastSavedPosition = null;
-          for (let v of Object.values(this.settingsNames)) {
+          currentReader.lastSavedPosition = null;
+          for (let v of Object.values(currentReader.settingsNames)) {
+            if (v === currentReader.settingsNames.texts || v === currentReader.settingsNames.text) {
+              continue;
+            }
             localStorage.removeItem(v);
           }
-          location.reload();
+          currentReader.locationReload();
+        }
+      },
+
+      deleteAllTexts() {
+        const currentReader = this;
+        if (confirm('Are you sure you want to delete all texts?')) {
+          currentReader.lastSavedPosition = null;
+          localStorage.removeItem(currentReader.settingsNames.text);
+          if (currentReader.database) {
+            try {
+              currentReader.database.close();
+              const request = indexedDB.deleteDatabase(currentReader.databaseName);
+              request.onsuccess = function (event) {
+                localStorage.removeItem(currentReader.settingsNames.texts);
+                currentReader.locationReload();
+              };
+              request.onerror = function (event) {
+                const message = `IndexedDB error: ${event.target.errorCode}`;
+                console.error(message);
+                alert(message);
+                currentReader.locationReload();
+              };
+              request.onblocked = function (event) {
+                const message = `IndexedDB blocked: ${event.target.errorCode}\nTry again later.`;
+                console.error(message);
+                alert(message);
+                currentReader.locationReload();
+              };
+            }
+            catch (err) {
+              console.error(err);
+              alert(err);
+              currentReader.locationReload();
+            }
+          }
         }
       },
 
@@ -1666,41 +1834,150 @@
       },
 
       updateProgressBar() {
-          if (this.currentPosition !== null) {
-              const containerWidth = this.cachedContainerWidth;
-              const textWidth = this.cachedTextWidth;
-              const startPos = containerWidth;
-              const endPos = -textWidth;
-              const progress = Math.min(100, Math.max(0, Math.floor(100 * (1 - (this.currentPosition - endPos) / (startPos - endPos)) * 10) / 10));
-              this.elements.progressBar.style.width = `${progress}%`;
-          } else {
-              this.elements.progressBar.style.width = '0%';
-          }
+        if (this.currentPosition !== null) {
+          const containerWidth = this.cachedContainerWidth;
+          const textWidth = this.cachedTextWidth;
+          const startPos = containerWidth;
+          const endPos = -textWidth;
+          const progress = Math.min(100, Math.max(0, Math.floor(100 * (1 - (this.currentPosition - endPos) / (startPos - endPos)) * 10) / 10));
+          this.elements.progressBar.style.width = `${progress}%`;
+        } else {
+          this.elements.progressBar.style.width = '0%';
+        }
       },
 
       handleProgressBarClick(event) {
-          if (this.currentPosition !== null) {
-              const wasPlaying = this.animationTimer !== null;
-              if (wasPlaying) this.pauseAnimation();
+        if (this.currentPosition !== null) {
+          const wasPlaying = this.animationTimer !== null;
+          if (wasPlaying) this.pauseAnimation();
 
-              const rect = this.elements.progressBarContainer.getBoundingClientRect();
-              const scrollbarWidth = wasPlaying ? window.innerWidth - document.documentElement.clientWidth : 0;
-              const clickX = event.clientX - rect.left - Math.min(20, Math.max(0, scrollbarWidth));
+          const rect = this.elements.progressBarContainer.getBoundingClientRect();
+          const scrollbarWidth = wasPlaying ? window.innerWidth - document.documentElement.clientWidth : 0;
+          const clickX = event.clientX - rect.left - Math.min(20, Math.max(0, scrollbarWidth));
 
-              const containerWidth = this.cachedContainerWidth;
-              const textWidth = this.cachedTextWidth;
-              const startPos = containerWidth;
-              const endPos = -textWidth;
-              
-              const progress = clickX / rect.width;
-              this.currentPosition = startPos - (startPos - endPos) * progress;
-              this.currentPosition = Math.max(endPos, Math.min(startPos, this.currentPosition));
-              this.elements.marqueeDisplay.style.left = `${this.currentPosition}px`;
-              this.lastSavedPosition = this.currentPosition;
-              this.updateProgressBar();
-              
-              if (wasPlaying) this.startAnimation(true);
+          const containerWidth = this.cachedContainerWidth;
+          const textWidth = this.cachedTextWidth;
+          const startPos = containerWidth;
+          const endPos = -textWidth;
+
+          const progress = clickX / rect.width;
+          this.currentPosition = startPos - (startPos - endPos) * progress;
+          this.currentPosition = Math.max(endPos, Math.min(startPos, this.currentPosition));
+          this.elements.marqueeDisplay.style.left = `${this.currentPosition}px`;
+          this.lastSavedPosition = this.currentPosition;
+          this.updateProgressBar();
+
+          if (wasPlaying) this.startAnimation(true);
+        }
+      },
+
+      switchText(callback = null) {
+        const currentReader = this;
+        const currentTextName = currentReader.currentTextName;
+        if (!currentReader.database) {
+          currentReader.elements.textSelect.value = currentTextName;
+          return;
+        }
+        if (currentReader.isModified) {
+          if (!confirm('You have unsaved changes. Are you sure you want to switch texts?')) {
+            currentReader.elements.textSelect.value = currentTextName;
+            return;
           }
+        }
+        currentReader.stopPlayback(true);
+        const selectedTextName = currentReader.elements.textSelect.value;
+        if (selectedTextName === currentReader.defaultTextName) {
+          currentReader.elements.textInput.value = localStorage.getItem(currentReader.settingsNames.text) || '';
+          currentReader.isModified = false;
+          currentReader.currentTextName = selectedTextName;
+          localStorage.setItem(currentReader.settingsNames.currentTextName, currentReader.currentTextName);
+          if (callback) {
+            callback();
+          }
+        } else {
+          const transaction = currentReader.database.transaction([this.settingsNames.texts], 'readonly');
+          const objectStore = transaction.objectStore(this.settingsNames.texts);
+          const request = objectStore.get(selectedTextName);
+          request.onsuccess = () => {
+            currentReader.elements.textInput.value = request.result ? request.result.content : '';
+            currentReader.isModified = false;
+            if (callback) {
+              callback();
+            }
+          };
+          currentReader.currentTextName = selectedTextName;
+          localStorage.setItem(currentReader.settingsNames.currentTextName, currentReader.currentTextName);
+          request.onerror = () => {
+            alert('Error loading text from IndexedDB.');
+            currentReader.currentTextName = currentReader.defaultTextName;
+            currentReader.elements.textSelect.value = currentReader.defaultTextName;
+            localStorage.setItem(currentReader.settingsNames.currentTextName, currentReader.currentTextName);
+            currentReader.locationReload();
+          };
+        }
+      },
+
+      createNewText() {
+        const currentReader = this;
+        const currentTextName = currentReader.currentTextName;
+        if (currentReader.isModified) {
+          if (!confirm('You have unsaved changes. Are you sure you want to create a new text?')) {
+            currentReader.elements.textSelect.value = currentTextName;
+            return;
+          }
+        }
+        let name;
+        do {
+          name = prompt('Enter a unique name for the new text:');
+          if (!name) return;
+          const texts = JSON.parse(localStorage.getItem(currentReader.settingsNames.texts) || '[]');
+          if (texts.includes(name)) {
+            alert('This text name already exists. Please choose another one.');
+            name = null;
+          }
+        } while (!name);
+        currentReader.stopPlayback(true);
+        const texts = JSON.parse(localStorage.getItem(currentReader.settingsNames.texts) || '[]');
+        texts.push(name);
+        const transaction = currentReader.database.transaction([this.settingsNames.texts], 'readwrite');
+        const objectStore = transaction.objectStore(this.settingsNames.texts);
+        objectStore.add({ title: name, content: '' });
+        localStorage.setItem(currentReader.settingsNames.texts, JSON.stringify(texts));
+        const option = document.createElement('option');
+        option.value = name;
+        option.textContent = name;
+        currentReader.elements.textSelect.appendChild(option);
+        currentReader.elements.textSelect.value = name;
+        currentReader.isModified = false;
+        currentReader.switchText();
+      },
+
+      deleteCurrentText() {
+        const currentReader = this;
+        if (currentReader.currentTextName === currentReader.defaultTextName) {
+          alert(`Cannot delete the ${currentReader.defaultTextName} text.`);
+          return;
+        }
+        if (confirm(`Are you sure you want to delete the text "${currentReader.currentTextName}"?`)) {
+          currentReader.stopPlayback(true);
+          const transaction = currentReader.database.transaction([this.settingsNames.texts], 'readwrite');
+          const objectStore = transaction.objectStore(this.settingsNames.texts);
+          objectStore.delete(currentReader.currentTextName);
+          let texts = JSON.parse(localStorage.getItem(currentReader.settingsNames.texts) || '[]');
+          texts = texts.filter(text => text !== currentReader.currentTextName);
+          localStorage.setItem(currentReader.settingsNames.texts, JSON.stringify(texts));
+          const option = currentReader.elements.textSelect.querySelector(`option[value="${currentReader.currentTextName}"]`);
+          if (option) option.remove();
+          currentReader.elements.textSelect.value = currentReader.defaultTextName;
+          currentReader.isModified = false;
+          currentReader.switchText();
+        }
+      },
+
+      locationReload() {
+        setTimeout(function(){
+          location.reload();
+        }, 1);
       }
     };
 
