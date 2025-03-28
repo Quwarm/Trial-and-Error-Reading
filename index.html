@@ -651,6 +651,7 @@
         <div class="mt-10">
           <button id="reset-settings" class="dark-button">Reset all settings</button>
           <button id="delete-all-texts" class="dark-button">Delete all texts</button>
+          <button id="delete-database" class="dark-button">Delete database</button>
         </div>
       </div>
       <div id="info-tab" class="tab-content items-border">
@@ -702,10 +703,13 @@
       elements: {},
 
       databaseName: 'TrialAndErrorReadingDB',
+      databaseVersion: 2,
       database: null,
       defaultTextName: 'Default',
       currentTextName: 'Default',
-      isModified: false,
+      textIsModified: false,
+      deleteDatabaseViewCounter: 0,
+      deleteDatabaseViewMax: 3,
 
       vowelPattern: null,
       letterPattern: null,
@@ -796,6 +800,7 @@
         this.elements.saveManipulationsSettings = document.getElementById('save-manipulations-settings');
         this.elements.resetSettings = document.getElementById('reset-settings');
         this.elements.deleteAllTexts = document.getElementById('delete-all-texts');
+        this.elements.deleteDatabase = document.getElementById('delete-database');
         this.elements.clearText = document.getElementById('clear-text');
         this.elements.loadSentence = document.getElementById('load-sentence');
         this.elements.loadWiki = document.getElementById('load-wiki');
@@ -831,6 +836,7 @@
         this.elements.colorEncoderDiv = document.getElementById('color-encoder-div');
         this.cachedContainerWidth = null;
         this.cachedTextWidth = null;
+        this.elements.deleteDatabase.style.display = 'none';
       },
 
       loadDb(callback) {
@@ -842,7 +848,7 @@
         }
         currentReader.database = null;
         try {
-          const request = indexedDB.open(this.databaseName, 1);
+          const request = indexedDB.open(this.databaseName, this.databaseVersion);
           request.onupgradeneeded = function (event) {
             currentReader.database = event.target.result;
             currentReader.database.createObjectStore(currentReader.settingsNames.texts, { keyPath: "title" });
@@ -897,6 +903,7 @@
         this.elements.saveManipulationsSettings.addEventListener('click', () => this.saveManipulationsSettings());
         this.elements.resetSettings.addEventListener('click', () => this.resetPreferences());
         this.elements.deleteAllTexts.addEventListener('click', () => this.deleteAllTexts());
+        this.elements.deleteDatabase.addEventListener('click', () => this.deleteDatabase());
         this.elements.clearText.addEventListener('click', () => this.clearInput());
         this.elements.loadSentence.addEventListener('click', () => this.fetchSentence());
         this.elements.loadWiki.addEventListener('click', () => this.fetchWikipedia());
@@ -923,7 +930,7 @@
         this.elements.newTextButton.addEventListener('click', () => this.createNewText());
         this.elements.deleteTextButton.addEventListener('click', () => this.deleteCurrentText());
         this.elements.saveTextButton.addEventListener('click', () => this.saveCurrentText());
-        this.elements.textInput.addEventListener('input', () => { this.isModified = true; });
+        this.elements.textInput.addEventListener('input', () => { this.textIsModified = true; });
         document.addEventListener('keydown', e => this.handleKeyPress(e));
         const currentReader = this;
         window.addEventListener('resize', () => {
@@ -986,12 +993,12 @@
           this.currentTextName = currentTextName;
         }
         this.elements.textSelect.value = this.currentTextName;
-        this.isModified = false;
+        this.textIsModified = false;
 
         const currentReader = this;
         currentReader.switchText(function () {
           currentReader.toggleAppendText();
-          currentReader.toggleColorEncoder();
+          currentReader.toggleColorEncoder(false);
           currentReader.toggleColorDetails();
           currentReader.lastSavedPosition = localStorage.getItem(currentReader.settingsNames.lastPosition);
           if (currentReader.lastSavedPosition && currentReader.elements.textInput.value && confirm('Resume from last position?')) {
@@ -1674,7 +1681,7 @@
         }
       },
 
-      toggleColorEncoder() {
+      toggleColorEncoder(updateMarqueeTextBlock = true) {
         const isVisible = this.elements.colorEncoderToggle.checked;
         this.elements.colorInput.style.display = isVisible ? '' : 'none';
         this.elements.dumpColors.style.display = isVisible ? '' : 'none';
@@ -1685,13 +1692,15 @@
         if (isVisible) {
           this.elements.colorEncoderDiv.classList.add('items-border');
         }
-        const wasPlaying = this.animationTimer !== null;
-        if (wasPlaying) this.pauseAnimation();
-        this.wasColorTaskChecked = false;
-        if (this.elements.textInput.value) {
-          this.startAnimation(false, false);
+        if (updateMarqueeTextBlock) {
+          const wasPlaying = this.animationTimer !== null;
+          if (wasPlaying) this.pauseAnimation();
+          this.wasColorTaskChecked = false;
+          if (this.elements.textInput.value) {
+            this.startAnimation(false, false);
+          }
+          if (wasPlaying) this.startAnimation(true);
         }
-        if (wasPlaying) this.startAnimation(true);
       },
 
       toggleColorDetails() {
@@ -1716,7 +1725,7 @@
 
       clearInput() {
         this.elements.textInput.value = '';
-        this.isModified = true;
+        this.textIsModified = true;
       },
 
       fetchSentence() {
@@ -1729,7 +1738,7 @@
           if (sentence) {
             const text = /[.!?]$/.test(sentence) ? sentence : `${sentence}.`;
             this.elements.textInput.value = this.elements.appendTextToggle.checked ? `${this.elements.textInput.value}${this.elements.textInput.value ? '\n\n' : ''}${text}` : text;
-            this.isModified = true;
+            this.textIsModified = true;
           }
         }
       },
@@ -1743,7 +1752,7 @@
           .then(data => {
             const text = data.extract.trim();
             this.elements.textInput.value = this.elements.appendTextToggle.checked ? `${this.elements.textInput.value}${this.elements.textInput.value ? '\n\n' : ''}${text}` : text;
-            this.isModified = true;
+            this.textIsModified = true;
           })
           .catch(() => alert('[Wiki] Data Fetching Error.'));
       },
@@ -1756,7 +1765,7 @@
           .then(response => response.text())
           .then(text => {
             this.elements.textInput.value = this.elements.appendTextToggle.checked ? `${this.elements.textInput.value}${this.elements.textInput.value ? '\n\n' : ''}${text.trim()}` : text.trim();
-            this.isModified = true;
+            this.textIsModified = true;
           })
           .catch(() => alert('[Metaphorpsum] Data Fetching Error.'));
       },
@@ -1774,7 +1783,7 @@
             reader.onload = event => {
               const text = event.target.result.trim();
               this.elements.textInput.value = this.elements.appendTextToggle.checked ? `${this.elements.textInput.value}${this.elements.textInput.value ? '\n\n' : ''}${text}` : text;
-              this.isModified = true;
+              this.textIsModified = true;
             };
             reader.readAsText(file);
           }
@@ -1805,7 +1814,7 @@
             objectStore.put({ title: this.currentTextName, content: this.elements.textInput.value });
           }
           localStorage.setItem(this.settingsNames.currentTextName, this.currentTextName);
-          this.isModified = false;
+          this.textIsModified = false;
         }
         catch (err) {
           console.error(err);
@@ -1834,27 +1843,69 @@
           localStorage.removeItem(currentReader.settingsNames.text);
           if (currentReader.database) {
             try {
-              currentReader.database.close();
-              const request = indexedDB.deleteDatabase(currentReader.databaseName);
+              const transaction = currentReader.database.transaction([this.settingsNames.texts], 'readwrite');
+              const objectStore = transaction.objectStore(this.settingsNames.texts);
+              const request = objectStore.clear();
+              request.onupgradeneeded = function (event) {
+                currentReader.locationReload();
+              };
               request.onsuccess = function (event) {
                 localStorage.removeItem(currentReader.settingsNames.texts);
                 currentReader.locationReload();
               };
               request.onerror = function (event) {
                 const message = `IndexedDB error: ${event.target.errorCode}`;
-                console.error(message);
                 alert(message);
                 currentReader.locationReload();
               };
               request.onblocked = function (event) {
                 const message = `IndexedDB blocked: ${event.target.errorCode}\nTry again later.`;
-                console.error(message);
                 alert(message);
                 currentReader.locationReload();
               };
             }
             catch (err) {
-              console.error(err);
+              alert(err);
+              currentReader.locationReload();
+            }
+          }
+        }
+        else {
+          this.deleteDatabaseViewCounter += 1;
+          if (this.deleteDatabaseViewCounter >= this.deleteDatabaseViewMax) {
+            this.elements.deleteDatabase.style.display = '';
+          }
+        }
+      },
+
+      deleteDatabase() {
+        const currentReader = this;
+        if (confirm('Are you sure you want to delete the database?')) {
+          currentReader.lastSavedPosition = null;
+          localStorage.removeItem(currentReader.settingsNames.text);
+          if (currentReader.database) {
+            try {
+              currentReader.database.close();
+              const request = indexedDB.deleteDatabase(currentReader.databaseName);
+              request.onupgradeneeded = function (event) {
+                currentReader.locationReload();
+              };
+              request.onsuccess = function (event) {
+                localStorage.removeItem(currentReader.settingsNames.texts);
+                currentReader.locationReload();
+              };
+              request.onerror = function (event) {
+                const message = `IndexedDB error: ${event.target.errorCode}`;
+                alert(message);
+                currentReader.locationReload();
+              };
+              request.onblocked = function (event) {
+                const message = `IndexedDB blocked: ${event.target.errorCode}\nTry again later.`;
+                alert(message);
+                currentReader.locationReload();
+              };
+            }
+            catch (err) {
               alert(err);
               currentReader.locationReload();
             }
@@ -1962,7 +2013,7 @@
           currentReader.elements.textSelect.value = currentTextName;
           return;
         }
-        if (currentReader.isModified) {
+        if (currentReader.textIsModified) {
           if (!confirm('You have unsaved changes. Are you sure you want to switch texts?')) {
             currentReader.elements.textSelect.value = currentTextName;
             return;
@@ -1972,7 +2023,7 @@
         const selectedTextName = currentReader.elements.textSelect.value;
         if (selectedTextName === currentReader.defaultTextName) {
           currentReader.elements.textInput.value = localStorage.getItem(currentReader.settingsNames.text) || '';
-          currentReader.isModified = false;
+          currentReader.textIsModified = false;
           currentReader.currentTextName = selectedTextName;
           localStorage.setItem(currentReader.settingsNames.currentTextName, currentReader.currentTextName);
           if (callback) {
@@ -1984,7 +2035,7 @@
           const request = objectStore.get(selectedTextName);
           request.onsuccess = () => {
             currentReader.elements.textInput.value = request.result ? request.result.content : '';
-            currentReader.isModified = false;
+            currentReader.textIsModified = false;
             if (callback) {
               callback();
             }
@@ -2004,7 +2055,7 @@
       createNewText() {
         const currentReader = this;
         const currentTextName = currentReader.currentTextName;
-        if (currentReader.isModified) {
+        if (currentReader.textIsModified) {
           if (!confirm('You have unsaved changes. Are you sure you want to create a new text?')) {
             currentReader.elements.textSelect.value = currentTextName;
             return;
@@ -2032,7 +2083,7 @@
         option.textContent = name;
         currentReader.elements.textSelect.appendChild(option);
         currentReader.elements.textSelect.value = name;
-        currentReader.isModified = false;
+        currentReader.textIsModified = false;
         currentReader.switchText();
       },
 
@@ -2053,7 +2104,7 @@
           const option = currentReader.elements.textSelect.querySelector(`option[value="${currentReader.currentTextName}"]`);
           if (option) option.remove();
           currentReader.elements.textSelect.value = currentReader.defaultTextName;
-          currentReader.isModified = false;
+          currentReader.textIsModified = false;
           currentReader.switchText();
         }
       },
