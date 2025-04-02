@@ -481,7 +481,7 @@
       margin-bottom: 10px;
     }
 
-    #text-select {
+    #settings-profile-select, #text-select {
       min-width: 20%;
       max-width: 50%;
       padding: 8px;
@@ -496,7 +496,7 @@
       kbd {
         display: none;
       }
-      #text-select {
+      #settings-profile-select, #text-select {
         min-width: 100%;
         max-width: 100%;
       }
@@ -553,6 +553,12 @@
 
     <div id="tab-content">
       <div id="manipulations-tab" class="tab-content active items-border">
+        <div class="mt-10">
+          <select id="settings-profile-select"></select>
+          <button id="new-settings-profile-button" class="green-button">New Settings</button>
+          <button id="save-settings-profile-button" class="blue-button">Save Settings</button>
+          <button id="delete-settings-profile-button" class="dark-button">Delete Settings</button>
+        </div>
         <div id="marquee-controls-container" class="mt-10">
           <button id="refresh-text" class="action-button" disabled>↻ Text ↻ <kbd>T</kbd></button>
           <button id="refresh-colors" class="action-button" disabled>↻ Colors ↻ <kbd>C</kbd></button>
@@ -565,7 +571,7 @@
         </div>
         <div class="mt-10">
           <div>Speed <kbd>+</kbd><kbd>-</kbd></div>
-          <input type="number" id="speed-value" min="-1000" max="1000" value="10" style="display: none;">
+          <input type="number" id="delay-value" min="-1000" max="1000" value="10" style="display: none;">
           <input type="range" id="speed-slider" min="1" max="250" value="100">
           <input type="number" id="speed-display" min="-1000" max="1000" value="100">
         </div>
@@ -607,7 +613,6 @@
         </div>
         <div id="color-encoder-div" class="mt-10">
           <label><input type="checkbox" id="color-encoder-toggle" checked> Color encoder task <kbd>E</kbd></label>
-          <label id="show-color-info-element" class="mt-10"><input type="checkbox" id="show-color-info-toggle" checked> Show letters-colors info <kbd>ESC</kbd></label>
           <div id="color-encoder-options" class="mt-10">
             <span>Number of letters:</span>
             <input type="number" id="color-letter-count" min="0" max="32" value="1">
@@ -616,7 +621,6 @@
           <textarea id="color-input" placeholder="&lt;letter&gt; &lt;color&gt;&#13;&#10;a rgb(0, 0, 0)&#13;&#10;b red&#13;&#10;..."></textarea>
         </div>
         <div class="mt-10">
-          <button id="save-manipulations-settings" class="blue-button">Save settings</button>
         </div>
       </div>
       <div id="texts-tab" class="tab-content items-border">
@@ -624,12 +628,12 @@
           <select id="text-select">
           </select>
           <button id="new-text-button" class="green-button">New Text</button>
+          <button id="save-text-button" class="blue-button">Save Text</button>
           <button id="delete-text-button" class="dark-button">Delete Text</button>
         </div>
         <div class="mt-10">
           <label for="text-input">Text</label>
           <textarea id="text-input" placeholder="Enter text here"></textarea>
-          <button id="save-text-button" class="blue-button">Save Text</button>
         </div>
         <div class="mt-10">
           <button id="load-sentence">Load [one of the 22831 sentences] <kbd>N</kbd></button>
@@ -644,12 +648,15 @@
       </div>
       <div id="settings-tab" class="tab-content items-border">
         <div class="mt-10">
+          <label id="show-color-info-element"><input type="checkbox" id="show-color-info-toggle" checked> Show letters-colors info <kbd>ESC</kbd></label>
+        </div>
+        <div class="mt-10">
           <button id="marquee-theme-toggle" class="cyan-button">Toggle Marquee Text Block Theme</button>
           <button id="theme-toggle" class="cyan-button">Toggle Theme</button>
           <button id="full-size-toggle" class="cyan-button">Toggle Full Size</button>
         </div>
         <div class="mt-10">
-          <button id="reset-settings" class="dark-button">Reset all settings</button>
+          <button id="delete-all-settings-profiles" class="dark-button">Delete all settings profiles</button>
           <button id="delete-all-texts" class="dark-button">Delete all texts</button>
           <button id="delete-database" class="dark-button">Delete database</button>
         </div>
@@ -668,11 +675,6 @@
             </ul>
         </div>
         <div class="mb-20"></div>
-      </div>
-    </div>
-
-    <div id="additional-settings-container">
-      <div class="mt-20">
         <a href="https://github.com/Quwarm/Trial-and-Error-Reading" target="_blank">GitHub</a>
       </div>
     </div>
@@ -708,6 +710,9 @@
       defaultTextName: 'Default',
       currentTextName: 'Default',
       textIsModified: false,
+      defaultSettingsProfileName: 'Default',
+      currentSettingsProfileName: 'Default',
+      settingsProfileIsModified: false,
       deleteDatabaseViewCounter: 0,
       deleteDatabaseViewMax: 3,
 
@@ -717,28 +722,6 @@
 
       cachedContainerWidth: null,
       cachedTextWidth: null,
-
-      settingsNames: {
-        currentTextName: 'sle_current_text_name',
-        text: 'sle_text',
-        texts: 'sle_texts',
-        colorTaskToggle: 'sle_color_task_toggle',
-        colorTaskLetters: 'sle_color_task_letters',
-        colorTaskColors: 'sle_color_task_colors',
-        showColorInfoToggle: 'sle_show_color_info_toggle',
-        speed: 'sle_speed',
-        appendTextToggle: 'sle_append_text_toggle',
-        shufflingLetters: 'sle_shuffling_letters',
-        shufflingWords: 'sle_shuffling_words',
-        eliminatingLetters: 'sle_eliminating_letters',
-        loop: 'sle_loop',
-        textSize: 'sle_text_size',
-        theme: 'sle_theme',
-        marqueeThemeToggle: 'sle_marquee_theme_toggle',
-        appSizeToggle: 'sle_app_size_toggle',
-        activeTab: 'sle_active_tab',
-        lastPosition: 'sle_last_position'
-      },
 
       themes: [
         'dark',
@@ -753,6 +736,97 @@
       ],
 
       sentenceGenerator: null,
+
+      settingsNames: {
+        // texts
+        currentTextName: 'sle_current_text_name',
+        text: 'sle_text',
+        texts: 'sle_texts',
+
+        // settings profiles
+        currentSettingsProfile: 'sle_current_settings_profile',
+        settingsProfile: 'sle_settings_profile',
+        settingsProfiles: 'sle_settings_profiles',
+
+        // profile settings
+        colorTaskToggle: 'sle_color_task_toggle',
+        colorTaskLetters: 'sle_color_task_letters',
+        colorTaskColors: 'sle_color_task_colors',
+        speed: 'sle_speed',
+        shufflingLetters: 'sle_shuffling_letters',
+        shufflingWords: 'sle_shuffling_words',
+        eliminatingLetters: 'sle_eliminating_letters',
+        textSize: 'sle_text_size',
+
+        // non-profile settings
+        showColorInfoToggle: 'sle_show_color_info_toggle',
+        appendTextToggle: 'sle_append_text_toggle',
+        loop: 'sle_loop',
+        theme: 'sle_theme',
+        marqueeThemeToggle: 'sle_marquee_theme_toggle',
+        appSizeToggle: 'sle_app_size_toggle',
+        activeTab: 'sle_active_tab',
+        lastPosition: 'sle_last_position'
+      },
+      
+      getDefaultSettingsProfile() {
+        let settings = {};
+        settings[this.settingsNames.colorTaskToggle] = false;
+        settings[this.settingsNames.colorTaskLetters] = '1';
+        settings[this.settingsNames.colorTaskColors] = '';
+        settings[this.settingsNames.speed] = '10';
+        settings[this.settingsNames.shufflingLetters] = 'no';
+        settings[this.settingsNames.shufflingWords] = 'no';
+        settings[this.settingsNames.eliminatingLetters] = 'no';
+        settings[this.settingsNames.textSize] = '42';
+        return settings;
+      },
+
+      getCurrentSettingsProfile() {
+        let settings = {};
+        settings[this.settingsNames.colorTaskToggle] = this.elements.colorEncoderToggle.checked;
+        settings[this.settingsNames.colorTaskLetters] = this.elements.colorLetterCount.value;
+        settings[this.settingsNames.colorTaskColors] = this.elements.colorInput.value;
+        settings[this.settingsNames.speed] = this.elements.delayValue.value;
+        settings[this.settingsNames.shufflingLetters] = this.elements.letterShuffleSelect.value;
+        settings[this.settingsNames.shufflingWords] = this.elements.wordShuffleSelect.value;
+        settings[this.settingsNames.eliminatingLetters] = this.elements.letterEliminationSelect.value;
+        settings[this.settingsNames.textSize] = this.elements.fontSizeDisplay.value;
+        return settings;
+      },
+
+      setSettingsProfile(settingsProfileData) {
+        const defaultSettings = this.getDefaultSettingsProfile();
+        const keys = Object.keys(settingsProfileData);
+
+        let currentKey = this.settingsNames.colorTaskToggle;
+        this.elements.colorEncoderToggle.checked = keys.includes(currentKey) ? settingsProfileData[currentKey] : defaultSettings[currentKey];
+
+        currentKey = this.settingsNames.colorTaskLetters;
+        this.elements.colorLetterCount.value = keys.includes(currentKey) ? settingsProfileData[currentKey] : defaultSettings[currentKey];
+
+        currentKey = this.settingsNames.colorTaskColors;
+        this.elements.colorInput.value = keys.includes(currentKey) ? settingsProfileData[currentKey] : defaultSettings[currentKey];
+
+        currentKey = this.settingsNames.speed;
+        this.elements.delayValue.value = keys.includes(currentKey) ? settingsProfileData[currentKey] : defaultSettings[currentKey];
+
+        currentKey = this.settingsNames.shufflingLetters;
+        this.elements.letterShuffleSelect.value = keys.includes(currentKey) ? settingsProfileData[currentKey] : defaultSettings[currentKey];
+
+        currentKey = this.settingsNames.shufflingWords;
+        this.elements.wordShuffleSelect.value = keys.includes(currentKey) ? settingsProfileData[currentKey] : defaultSettings[currentKey];
+
+        currentKey = this.settingsNames.eliminatingLetters;
+        this.elements.letterEliminationSelect.value = keys.includes(currentKey) ? settingsProfileData[currentKey] : defaultSettings[currentKey];
+
+        currentKey = this.settingsNames.textSize;
+        this.elements.fontSizeDisplay.value = keys.includes(currentKey) ? settingsProfileData[currentKey] : defaultSettings[currentKey];
+
+        this.adjustDelay(this.elements.delayValue.value);
+        this.adjustFontSize(this.elements.fontSizeDisplay.value);
+        this.toggleColorEncoder();
+      },
 
       initialize() {
         const currentReader = this;
@@ -780,7 +854,7 @@
       cacheElements() {
         this.elements.mainContainer = document.getElementById('main-container');
         this.elements.textInput = document.getElementById('text-input');
-        this.elements.speedValue = document.getElementById('speed-value');
+        this.elements.delayValue = document.getElementById('delay-value');
         this.elements.speedSlider = document.getElementById('speed-slider');
         this.elements.speedDisplay = document.getElementById('speed-display');
         this.elements.progressDisplay = document.getElementById('progress-display');
@@ -791,14 +865,12 @@
         this.elements.letterEliminationSelect = document.getElementById('letter-elimination-select');
         this.elements.marqueeDisplay = document.getElementById('marquee-display');
         this.elements.marqueeControlsContainer = document.getElementById('marquee-controls-container');
-        this.elements.additionalSettingsContainer = document.getElementById('additional-settings-container');
         this.elements.marqueeContainer = document.getElementById('marquee-container');
         this.elements.playPauseButton = document.getElementById('play-pause-button');
         this.elements.stopButton = document.getElementById('stop-button');
         this.elements.themeToggle = document.getElementById('theme-toggle');
         this.elements.fullSizeToggle = document.getElementById('full-size-toggle');
-        this.elements.saveManipulationsSettings = document.getElementById('save-manipulations-settings');
-        this.elements.resetSettings = document.getElementById('reset-settings');
+        this.elements.deleteAllSettingsProfiles = document.getElementById('delete-all-settings-profiles');
         this.elements.deleteAllTexts = document.getElementById('delete-all-texts');
         this.elements.deleteDatabase = document.getElementById('delete-database');
         this.elements.clearText = document.getElementById('clear-text');
@@ -834,6 +906,10 @@
         this.elements.deleteTextButton = document.getElementById('delete-text-button');
         this.elements.saveTextButton = document.getElementById('save-text-button');
         this.elements.colorEncoderDiv = document.getElementById('color-encoder-div');
+        this.elements.settingsProfileSelect = document.getElementById('settings-profile-select');
+        this.elements.newSettingsProfileButton = document.getElementById('new-settings-profile-button');
+        this.elements.deleteSettingsProfileButton = document.getElementById('delete-settings-profile-button');
+        this.elements.saveSettingsProfileButton = document.getElementById('save-settings-profile-button');
         this.cachedContainerWidth = null;
         this.cachedTextWidth = null;
         this.elements.deleteDatabase.style.display = 'none';
@@ -845,13 +921,17 @@
           currentReader.elements.textSelect.style.display = 'none';
           currentReader.elements.newTextButton.style.display = 'none';
           currentReader.elements.deleteTextButton.style.display = 'none';
+          currentReader.elements.settingsProfileSelect.style.display = 'none';
+          currentReader.elements.newSettingsProfileButton.style.display = 'none';
+          currentReader.elements.deleteSettingsProfileButton.style.display = 'none';
         }
         currentReader.database = null;
         try {
-          const request = indexedDB.open(this.databaseName, this.databaseVersion);
+          const request = indexedDB.open(currentReader.databaseName, currentReader.databaseVersion);
           request.onupgradeneeded = function (event) {
             currentReader.database = event.target.result;
             currentReader.database.createObjectStore(currentReader.settingsNames.texts, { keyPath: "title" });
+            currentReader.database.createObjectStore(currentReader.settingsNames.settingsProfiles, { keyPath: "name" });
           };
           request.onsuccess = function (event) {
             currentReader.database = event.target.result;
@@ -900,8 +980,7 @@
         this.elements.themeToggle.addEventListener('click', () => this.switchTheme());
         this.elements.marqueeThemeToggle.addEventListener('click', () => this.switchMarqueeTheme());
         this.elements.fullSizeToggle.addEventListener('click', () => this.toggleFullSize());
-        this.elements.saveManipulationsSettings.addEventListener('click', () => this.saveManipulationsSettings());
-        this.elements.resetSettings.addEventListener('click', () => this.resetPreferences());
+        this.elements.deleteAllSettingsProfiles.addEventListener('click', () => this.deleteAllSettingsProfiles());
         this.elements.deleteAllTexts.addEventListener('click', () => this.deleteAllTexts());
         this.elements.deleteDatabase.addEventListener('click', () => this.deleteDatabase());
         this.elements.clearText.addEventListener('click', () => this.clearInput());
@@ -923,14 +1002,33 @@
         this.elements.fontSizeDisplay.addEventListener('input', () => this.adjustFontSize(this.elements.fontSizeDisplay.value));
         this.elements.speedSlider.addEventListener('input', () => this.adjustSpeed(this.elements.speedSlider.value));
         this.elements.speedDisplay.addEventListener('input', () => this.adjustSpeed(this.elements.speedDisplay.value));
-        this.elements.speedValue.addEventListener('input', () => this.syncSpeed(this.elements.speedValue.value));
+        this.elements.delayValue.addEventListener('input', () => this.adjustDelay(this.elements.delayValue.value));
         this.elements.tabButtons.forEach(button => button.addEventListener('click', () => this.switchTab(button)));
         this.elements.progressBarContainer.addEventListener('click', (e) => this.handleProgressBarClick(e));
         this.elements.textSelect.addEventListener('change', () => this.switchText());
         this.elements.newTextButton.addEventListener('click', () => this.createNewText());
         this.elements.deleteTextButton.addEventListener('click', () => this.deleteCurrentText());
         this.elements.saveTextButton.addEventListener('click', () => this.saveCurrentText());
+        this.elements.settingsProfileSelect.addEventListener('change', () => this.switchSettingsProfile());
+        this.elements.newSettingsProfileButton.addEventListener('click', () => this.createNewSettingsProfile());
+        this.elements.deleteSettingsProfileButton.addEventListener('click', () => this.deleteCurrentSettingsProfile());
+        this.elements.saveSettingsProfileButton.addEventListener('click', () => this.saveCurrentSettingsProfile());
+
         this.elements.textInput.addEventListener('input', () => { this.textIsModified = true; });
+
+        this.elements.fontSizeSlider.addEventListener('change', () => { this.settingsProfileIsModified = true; });
+        this.elements.fontSizeDisplay.addEventListener('change', () => { this.settingsProfileIsModified = true; });
+        this.elements.delayValue.addEventListener('change', () => { this.settingsProfileIsModified = true; });
+        this.elements.speedSlider.addEventListener('change', () => { this.settingsProfileIsModified = true; });
+        this.elements.speedDisplay.addEventListener('change', () => { this.settingsProfileIsModified = true; });
+        this.elements.letterShuffleSelect.addEventListener('change', () => { this.settingsProfileIsModified = true; });
+        this.elements.letterEliminationSelect.addEventListener('change', () => { this.settingsProfileIsModified = true; });
+        this.elements.wordShuffleSelect.addEventListener('change', () => { this.settingsProfileIsModified = true; });
+        this.elements.colorEncoderToggle.addEventListener('click', () => { this.settingsProfileIsModified = true; });
+        this.elements.colorLetterCount.addEventListener('change', () => { this.settingsProfileIsModified = true; });
+        this.elements.dumpColors.addEventListener('click', () => { this.settingsProfileIsModified = true; });
+        this.elements.colorInput.addEventListener('change', () => { this.settingsProfileIsModified = true; });
+
         document.addEventListener('keydown', e => this.handleKeyPress(e));
         const currentReader = this;
         window.addEventListener('resize', () => {
@@ -939,8 +1037,8 @@
             currentReader.updateProgressBar();
           }
         });
-        this.restoreActiveTab();
-        this.sentenceGenerator = function*() {
+        currentReader.restoreActiveTab();
+        currentReader.sentenceGenerator = function*() {
           let sentences = [];
           try {
             sentences = getSentences();
@@ -958,32 +1056,19 @@
       },
 
       loadPreferences() {
-        this.elements.textInput.value = '';
-        this.elements.speedValue.value = localStorage.getItem(this.settingsNames.speed) || '10';
-        this.syncSpeed(this.elements.speedValue.value);
-        const marqueeThemeToggle = localStorage.getItem(this.settingsNames.marqueeThemeToggle) || this.marqueeThemes[0];
-        this.elements.body.classList.add(marqueeThemeToggle);
-        this.elements.marqueeThemeToggle.innerHTML += ` [${marqueeThemeToggle.slice(-1)}]`;
-        this.elements.appendTextToggle.checked = localStorage.getItem(this.settingsNames.appendTextToggle) !== 'false';
-        this.elements.colorEncoderToggle.checked = localStorage.getItem(this.settingsNames.colorTaskToggle) === 'true';
-        this.elements.colorInput.value = localStorage.getItem(this.settingsNames.colorTaskColors) || '';
-        this.elements.colorLetterCount.value = localStorage.getItem(this.settingsNames.colorTaskLetters) || '1';
-        this.elements.showColorInfoToggle.checked = localStorage.getItem(this.settingsNames.showColorInfoToggle) !== 'false';
-        this.elements.letterShuffleSelect.value = localStorage.getItem(this.settingsNames.shufflingLetters) || 'no';
-        this.elements.letterEliminationSelect.value = localStorage.getItem(this.settingsNames.eliminatingLetters) || 'no';
-        this.elements.wordShuffleSelect.value = localStorage.getItem(this.settingsNames.shufflingWords) || 'no';
-        const fontSize = localStorage.getItem(this.settingsNames.textSize) || '42';
-        this.elements.fontSizeSlider.value = fontSize;
-        this.elements.fontSizeDisplay.value = fontSize;
-        this.elements.marqueeDisplay.style.fontSize = `${fontSize}px`;
-        this.isLoopEnabled = localStorage.getItem(this.settingsNames.loop) === 'true';
-        if (this.isLoopEnabled) this.elements.loopToggle.classList.add('active');
-        this.elements.mainContainer.classList.add(localStorage.getItem(this.settingsNames.appSize) || 'normal-size');
         this.elements.rewindButton.disabled = true;
         this.elements.fastForwardButton.disabled = true;
         this.elements.refreshText.disabled = true;
         this.elements.refreshColors.disabled = true;
         this.elements.copyText.disabled = true;
+        const marqueeThemeToggle = localStorage.getItem(this.settingsNames.marqueeThemeToggle) || this.marqueeThemes[0];
+        this.elements.body.classList.add(marqueeThemeToggle);
+        this.elements.marqueeThemeToggle.innerHTML += ` [${marqueeThemeToggle.slice(-1)}]`;
+        this.elements.appendTextToggle.checked = localStorage.getItem(this.settingsNames.appendTextToggle) !== 'false';
+        this.elements.showColorInfoToggle.checked = localStorage.getItem(this.settingsNames.showColorInfoToggle) !== 'false';
+        this.isLoopEnabled = localStorage.getItem(this.settingsNames.loop) === 'true';
+        if (this.isLoopEnabled) this.elements.loopToggle.classList.add('active');
+        this.elements.mainContainer.classList.add(localStorage.getItem(this.settingsNames.appSize) || 'normal-size');
 
         const currentTextName = localStorage.getItem(this.settingsNames.currentTextName) || this.defaultTextName;
         const texts = JSON.parse(localStorage.getItem(this.settingsNames.texts) || '[]');
@@ -995,22 +1080,34 @@
         this.elements.textSelect.value = this.currentTextName;
         this.textIsModified = false;
 
+        const currentSettingsProfileName = localStorage.getItem(this.settingsNames.currentSettingsProfile) || this.defaultSettingsProfileName;
+        const settingsProfiles = JSON.parse(localStorage.getItem(this.settingsNames.settingsProfiles) || '[]');
+        this.elements.settingsProfileSelect.innerHTML = `<option value="${this.defaultSettingsProfileName}">${this.defaultSettingsProfileName}</option>` + settingsProfiles.map(settingsProfile => `<option value="${settingsProfile}">${settingsProfile}</option>`).join('');
+        this.currentSettingsProfileName = this.defaultSettingsProfileName;
+        if (settingsProfiles.includes(currentSettingsProfileName)) {
+          this.currentSettingsProfileName = currentSettingsProfileName;
+        }
+        this.elements.settingsProfileSelect.value = this.currentSettingsProfileName;
+        this.settingsProfileIsModified = false;
+
         const currentReader = this;
-        currentReader.switchText(function () {
-          currentReader.toggleAppendText();
-          currentReader.toggleColorEncoder(false);
-          currentReader.toggleColorDetails();
-          currentReader.lastSavedPosition = localStorage.getItem(currentReader.settingsNames.lastPosition);
-          if (currentReader.lastSavedPosition && currentReader.elements.textInput.value && confirm('Resume from last position?')) {
-            currentReader.currentPosition = parseInt(currentReader.lastSavedPosition);
-            setTimeout(() => {
-              currentReader.startAnimation(false, false);
-              currentReader.elements.progressDisplay.style.display = 'none';
-            }, 1);
-          } else {
-            currentReader.lastSavedPosition = null;
-          }
-          setInterval(() => currentReader.savePosition(), 500);
+        currentReader.switchSettingsProfile(function () {
+          currentReader.switchText(function () {
+            currentReader.toggleAppendText();
+            currentReader.toggleColorEncoder(false);
+            currentReader.toggleColorDetails();
+            currentReader.lastSavedPosition = localStorage.getItem(currentReader.settingsNames.lastPosition);
+            if (currentReader.lastSavedPosition && currentReader.elements.textInput.value && confirm('Resume from last position?')) {
+              currentReader.currentPosition = parseInt(currentReader.lastSavedPosition);
+              setTimeout(() => {
+                currentReader.startAnimation(false, false);
+                currentReader.elements.progressDisplay.style.display = 'none';
+              }, 1);
+            } else {
+              currentReader.lastSavedPosition = null;
+            }
+            setInterval(() => currentReader.savePosition(), 500);
+          });
         });
       },
 
@@ -1028,7 +1125,6 @@
         this.currentPosition = this.cachedContainerWidth;
         this.elements.marqueeDisplay.style.left = `${this.currentPosition}px`;
         this.elements.marqueeControlsContainer.style.display = '';
-        this.elements.additionalSettingsContainer.style.display = '';
         this.elements.progressDisplay.style.display = 'none';
         this.elements.loopToggle.style.display = '';
         this.lastSavedPosition = null;
@@ -1050,13 +1146,8 @@
 
       startAnimation(resume = false, movement = true) {
         let htmlValue = this.elements.textInput.value.replace(/\s+/g, ' ').trim();
-        try {
-          htmlValue = htmlValue.replace(/\p{Z}+/ug, ' ');
-          htmlValue = htmlValue.replace(/\p{C}+/ug, '');
-        }
-        catch (err) {
-          console.error(err);
-        }
+        htmlValue = htmlValue.replace(/\p{Z}+/ug, ' ');
+        htmlValue = htmlValue.replace(/\p{C}+/ug, '');
         if (!htmlValue) {
           alert('Please add text');
           return false;
@@ -1188,7 +1279,7 @@
         const startPos = containerWidth;
         const endPos = -textWidth;
         const stepSize = this.elements.speedDisplay.value > 100 ? (this.elements.speedDisplay.value - 100) / 10 + 1 : 1;
-        let stepInterval = Math.max(1, parseInt(this.elements.speedValue.value, 10));
+        let stepInterval = Math.max(1, parseInt(this.elements.delayValue.value, 10));
         if (this.elements.speedDisplay.value < 20) {
           stepInterval += (20 - Math.floor(this.elements.speedDisplay.value % 100)) * 20;
         }
@@ -1244,7 +1335,6 @@
               this.elements.playPauseButton.textContent = 'Start';
               this.elements.playPauseButton.classList.remove('pause');
               this.elements.marqueeControlsContainer.style.display = '';
-              this.elements.additionalSettingsContainer.style.display = '';
               this.elements.colorDetails.style.display = this.elements.colorEncoderToggle.checked && this.elements.showColorInfoToggle.checked ? '' : 'none';
               this.elements.loopToggle.style.display = '';
               this.lastSavedPosition = null;
@@ -1270,7 +1360,6 @@
           this.elements.playPauseButton.textContent = 'Pause';
           this.elements.playPauseButton.classList.add('pause');
           this.elements.marqueeControlsContainer.style.display = 'none';
-          this.elements.additionalSettingsContainer.style.display = 'none';
           this.elements.progressDisplay.style.display = '';
           this.elements.tabNavigation.style.display = 'none';
           this.elements.tabContent.style.display = 'none';
@@ -1286,7 +1375,6 @@
           this.elements.playPauseButton.textContent = 'Start';
           this.elements.playPauseButton.classList.remove('pause');
           this.elements.marqueeControlsContainer.style.display = '';
-          this.elements.additionalSettingsContainer.style.display = '';
           this.elements.loopToggle.style.display = '';
           this.elements.colorDetails.style.display = this.elements.colorEncoderToggle.checked && this.elements.showColorInfoToggle.checked ? '' : 'none';
           this.elements.tabNavigation.style.display = '';
@@ -1371,11 +1459,7 @@
 
       eliminateLetters(regex, word, percentOfLetters) {
         let lettersOnly = word;
-        try {
-          lettersOnly = word.replace(/[^\p{L}]/ug, '');
-        } catch (err) {
-          console.error(err);
-        }
+        lettersOnly = word.replace(/[^\p{L}]/ug, '');
         let matchIndices = [];
         let isFirstMatch = true;
         regex.lastIndex = 0;
@@ -1585,11 +1669,11 @@
       adjustSpeed(value) {
         this.elements.speedSlider.value = value;
         this.elements.speedDisplay.value = value;
-        this.elements.speedValue.value = 100 - value;
+        this.elements.delayValue.value = 100 - value;
       },
 
-      syncSpeed(value) {
-        this.elements.speedValue.value = value;
+      adjustDelay(value) {
+        this.elements.delayValue.value = value;
         this.elements.speedSlider.value = 100 - value;
         this.elements.speedDisplay.value = 100 - value;
       },
@@ -1686,7 +1770,6 @@
         this.elements.colorInput.style.display = isVisible ? '' : 'none';
         this.elements.dumpColors.style.display = isVisible ? '' : 'none';
         this.elements.colorEncoderOptions.style.display = isVisible ? '' : 'none';
-        this.elements.showColorInfoElement.style.display = isVisible ? '' : 'none';
         this.elements.colorDetails.style.display = this.elements.showColorInfoToggle.checked && isVisible ? '' : 'none';
         this.elements.colorEncoderDiv.classList.remove('items-border');
         if (isVisible) {
@@ -1793,126 +1876,6 @@
         this.elements.body.removeChild(input);
       },
 
-      saveManipulationsSettings() {
-        localStorage.setItem(this.settingsNames.colorTaskToggle, this.elements.colorEncoderToggle.checked);
-        localStorage.setItem(this.settingsNames.colorTaskLetters, this.elements.colorLetterCount.value);
-        localStorage.setItem(this.settingsNames.colorTaskColors, this.elements.colorInput.value);
-        localStorage.setItem(this.settingsNames.speed, this.elements.speedValue.value);
-        localStorage.setItem(this.settingsNames.shufflingLetters, this.elements.letterShuffleSelect.value);
-        localStorage.setItem(this.settingsNames.shufflingWords, this.elements.wordShuffleSelect.value);
-        localStorage.setItem(this.settingsNames.eliminatingLetters, this.elements.letterEliminationSelect.value);
-        localStorage.setItem(this.settingsNames.textSize, this.elements.fontSizeDisplay.value);
-      },
-
-      saveCurrentText() {
-        try {
-          if (this.currentTextName === this.defaultTextName) {
-            localStorage.setItem(this.settingsNames.text, this.elements.textInput.value);
-          } else if (this.database) {
-            const transaction = this.database.transaction([this.settingsNames.texts], 'readwrite');
-            const objectStore = transaction.objectStore(this.settingsNames.texts);
-            objectStore.put({ title: this.currentTextName, content: this.elements.textInput.value });
-          }
-          localStorage.setItem(this.settingsNames.currentTextName, this.currentTextName);
-          this.textIsModified = false;
-        }
-        catch (err) {
-          console.error(err);
-          alert(err);
-        }
-      },
-
-      resetPreferences() {
-        const currentReader = this;
-        if (confirm('Are you sure you want to reset the settings?')) {
-          currentReader.lastSavedPosition = null;
-          for (let v of Object.values(currentReader.settingsNames)) {
-            if (v === currentReader.settingsNames.texts || v === currentReader.settingsNames.text) {
-              continue;
-            }
-            localStorage.removeItem(v);
-          }
-          currentReader.locationReload();
-        }
-      },
-
-      deleteAllTexts() {
-        const currentReader = this;
-        if (confirm('Are you sure you want to delete all texts?')) {
-          currentReader.lastSavedPosition = null;
-          localStorage.removeItem(currentReader.settingsNames.text);
-          if (currentReader.database) {
-            try {
-              const transaction = currentReader.database.transaction([this.settingsNames.texts], 'readwrite');
-              const objectStore = transaction.objectStore(this.settingsNames.texts);
-              const request = objectStore.clear();
-              request.onupgradeneeded = function (event) {
-                currentReader.locationReload();
-              };
-              request.onsuccess = function (event) {
-                localStorage.removeItem(currentReader.settingsNames.texts);
-                currentReader.locationReload();
-              };
-              request.onerror = function (event) {
-                const message = `IndexedDB error: ${event.target.errorCode}`;
-                alert(message);
-                currentReader.locationReload();
-              };
-              request.onblocked = function (event) {
-                const message = `IndexedDB blocked: ${event.target.errorCode}\nTry again later.`;
-                alert(message);
-                currentReader.locationReload();
-              };
-            }
-            catch (err) {
-              alert(err);
-              currentReader.locationReload();
-            }
-          }
-        }
-        else {
-          this.deleteDatabaseViewCounter += 1;
-          if (this.deleteDatabaseViewCounter >= this.deleteDatabaseViewMax) {
-            this.elements.deleteDatabase.style.display = '';
-          }
-        }
-      },
-
-      deleteDatabase() {
-        const currentReader = this;
-        if (confirm('Are you sure you want to delete the database?')) {
-          currentReader.lastSavedPosition = null;
-          localStorage.removeItem(currentReader.settingsNames.text);
-          if (currentReader.database) {
-            try {
-              currentReader.database.close();
-              const request = indexedDB.deleteDatabase(currentReader.databaseName);
-              request.onupgradeneeded = function (event) {
-                currentReader.locationReload();
-              };
-              request.onsuccess = function (event) {
-                localStorage.removeItem(currentReader.settingsNames.texts);
-                currentReader.locationReload();
-              };
-              request.onerror = function (event) {
-                const message = `IndexedDB error: ${event.target.errorCode}`;
-                alert(message);
-                currentReader.locationReload();
-              };
-              request.onblocked = function (event) {
-                const message = `IndexedDB blocked: ${event.target.errorCode}\nTry again later.`;
-                alert(message);
-                currentReader.locationReload();
-              };
-            }
-            catch (err) {
-              alert(err);
-              currentReader.locationReload();
-            }
-          }
-        }
-      },
-
       savePosition() {
         if (this.lastSavedPosition !== null) {
           localStorage.setItem(this.settingsNames.lastPosition, this.lastSavedPosition);
@@ -2006,6 +1969,52 @@
         }
       },
 
+      switchSettingsProfile(callback = null) {
+        const currentReader = this;
+        const currentSettingsProfileName = currentReader.currentSettingsProfileName;
+        if (!currentReader.database) {
+          currentReader.elements.settingsProfileSelect.value = currentSettingsProfileName;
+          return;
+        }
+        if (currentReader.settingsProfileIsModified) {
+          if (!confirm('You have unsaved changes. Are you sure you want to switch settings profile?')) {
+            currentReader.elements.settingsProfileSelect.value = currentSettingsProfileName;
+            return;
+          }
+        }
+        currentReader.pauseAnimation();
+        const selectedSettingsProfileName = currentReader.elements.settingsProfileSelect.value;
+        if (selectedSettingsProfileName === currentReader.defaultSettingsProfileName) {
+          currentReader.setSettingsProfile(JSON.parse(localStorage.getItem(currentReader.settingsNames.settingsProfile) || '{}'));
+          currentReader.settingsProfileIsModified = false;
+          currentReader.currentSettingsProfileName = selectedSettingsProfileName;
+          localStorage.setItem(currentReader.settingsNames.currentSettingsProfile, currentReader.currentSettingsProfileName);
+          if (callback) {
+            callback();
+          }
+        } else {
+          const transaction = currentReader.database.transaction([currentReader.settingsNames.settingsProfiles], 'readonly');
+          const objectStore = transaction.objectStore(currentReader.settingsNames.settingsProfiles);
+          const request = objectStore.get(selectedSettingsProfileName);
+          request.onsuccess = () => {
+            currentReader.setSettingsProfile(JSON.parse(request.result ? request.result.settings : ''));
+            currentReader.settingsProfileIsModified = false;
+            if (callback) {
+              callback();
+            }
+          };
+          currentReader.currentSettingsProfileName = selectedSettingsProfileName;
+          localStorage.setItem(currentReader.settingsNames.currentSettingsProfile, currentReader.currentSettingsProfileName);
+          request.onerror = () => {
+            alert('Error loading text from IndexedDB.');
+            currentReader.currentSettingsProfileName = currentReader.defaultSettingsProfileName;
+            currentReader.elements.settingsProfileSelect.value = currentReader.defaultSettingsProfileName;
+            localStorage.setItem(currentReader.settingsNames.currentSettingsProfile, currentReader.currentSettingsProfileName);
+            currentReader.locationReload();
+          };
+        }
+      },
+
       switchText(callback = null) {
         const currentReader = this;
         const currentTextName = currentReader.currentTextName;
@@ -2030,8 +2039,8 @@
             callback();
           }
         } else {
-          const transaction = currentReader.database.transaction([this.settingsNames.texts], 'readonly');
-          const objectStore = transaction.objectStore(this.settingsNames.texts);
+          const transaction = currentReader.database.transaction([currentReader.settingsNames.texts], 'readonly');
+          const objectStore = transaction.objectStore(currentReader.settingsNames.texts);
           const request = objectStore.get(selectedTextName);
           request.onsuccess = () => {
             currentReader.elements.textInput.value = request.result ? request.result.content : '';
@@ -2050,6 +2059,42 @@
             currentReader.locationReload();
           };
         }
+      },
+
+      createNewSettingsProfile() {
+        const currentReader = this;
+        const currentSettingsProfileName = currentReader.currentTextName;
+        const newSettingsProfile = JSON.stringify(currentReader.getDefaultSettingsProfile());
+        if (currentReader.settingsProfileIsModified) {
+          if (!confirm('You have unsaved changes. Are you sure you want to create a new settings profile?')) {
+            currentReader.elements.settingsProfileSelect.value = currentSettingsProfileName;
+            return;
+          }
+        }
+        let name;
+        do {
+          name = prompt('Enter a unique name for the new settings profile:');
+          if (!name) return;
+          const settingsProfiles = JSON.parse(localStorage.getItem(currentReader.settingsNames.settingsProfiles) || '[]');
+          if (settingsProfiles.includes(name)) {
+            alert('This settings profile name already exists. Please choose another one.');
+            name = null;
+          }
+        } while (!name);
+        currentReader.pauseAnimation();
+        const settingsProfiles = JSON.parse(localStorage.getItem(currentReader.settingsNames.settingsProfiles) || '[]');
+        settingsProfiles.push(name);
+        const transaction = currentReader.database.transaction([currentReader.settingsNames.settingsProfiles], 'readwrite');
+        const objectStore = transaction.objectStore(currentReader.settingsNames.settingsProfiles);
+        objectStore.add({ name: name, settings: newSettingsProfile });
+        localStorage.setItem(currentReader.settingsNames.settingsProfiles, JSON.stringify(settingsProfiles));
+        const option = document.createElement('option');
+        option.value = name;
+        option.textContent = name;
+        currentReader.elements.settingsProfileSelect.appendChild(option);
+        currentReader.elements.settingsProfileSelect.value = name;
+        currentReader.settingsProfileIsModified = false;
+        currentReader.switchSettingsProfile();
       },
 
       createNewText() {
@@ -2074,8 +2119,8 @@
         currentReader.stopPlayback(true);
         const texts = JSON.parse(localStorage.getItem(currentReader.settingsNames.texts) || '[]');
         texts.push(name);
-        const transaction = currentReader.database.transaction([this.settingsNames.texts], 'readwrite');
-        const objectStore = transaction.objectStore(this.settingsNames.texts);
+        const transaction = currentReader.database.transaction([currentReader.settingsNames.texts], 'readwrite');
+        const objectStore = transaction.objectStore(currentReader.settingsNames.texts);
         objectStore.add({ title: name, content: '' });
         localStorage.setItem(currentReader.settingsNames.texts, JSON.stringify(texts));
         const option = document.createElement('option');
@@ -2087,6 +2132,67 @@
         currentReader.switchText();
       },
 
+      saveCurrentSettingsProfile() {
+        const currentReader = this;
+        try {
+          let currentSettings = JSON.stringify(currentReader.getCurrentSettingsProfile());
+          if (currentReader.currentSettingsProfileName === currentReader.defaultSettingsProfileName) {
+            localStorage.setItem(currentReader.settingsNames.settingsProfile, currentSettings);
+          } else if (currentReader.database) {
+            const transaction = currentReader.database.transaction([currentReader.settingsNames.settingsProfiles], 'readwrite');
+            const objectStore = transaction.objectStore(currentReader.settingsNames.settingsProfiles);
+            objectStore.put({ name: currentReader.currentSettingsProfileName, settings: currentSettings });
+          }
+          localStorage.setItem(currentReader.settingsNames.currentSettingsProfile, currentReader.currentSettingsProfileName);
+          currentReader.settingsProfileIsModified = false;
+        }
+        catch (err) {
+          console.error(err);
+          alert(err);
+        }
+      },
+
+      saveCurrentText() {
+        const currentReader = this;
+        try {
+          if (currentReader.currentTextName === currentReader.defaultTextName) {
+            localStorage.setItem(currentReader.settingsNames.text, currentReader.elements.textInput.value);
+          } else if (currentReader.database) {
+            const transaction = currentReader.database.transaction([currentReader.settingsNames.texts], 'readwrite');
+            const objectStore = transaction.objectStore(currentReader.settingsNames.texts);
+            objectStore.put({ title: currentReader.currentTextName, content: currentReader.elements.textInput.value });
+          }
+          localStorage.setItem(currentReader.settingsNames.currentTextName, currentReader.currentTextName);
+          currentReader.textIsModified = false;
+        }
+        catch (err) {
+          console.error(err);
+          alert(err);
+        }
+      },
+
+      deleteCurrentSettingsProfile() {
+        const currentReader = this;
+        if (currentReader.currentSettingsProfileName === currentReader.defaultSettingsProfileName) {
+          alert(`Cannot delete the ${currentReader.defaultSettingsProfileName} settings profile.`);
+          return;
+        }
+        if (confirm(`Are you sure you want to delete the settings profile "${currentReader.currentSettingsProfileName}"?`)) {
+          currentReader.pauseAnimation();
+          const transaction = currentReader.database.transaction([currentReader.settingsNames.settingsProfiles], 'readwrite');
+          const objectStore = transaction.objectStore(currentReader.settingsNames.settingsProfiles);
+          objectStore.delete(currentReader.currentSettingsProfileName);
+          let settingsProfiles = JSON.parse(localStorage.getItem(currentReader.settingsNames.settingsProfiles) || '[]');
+          settingsProfiles = settingsProfiles.filter(profileName => profileName !== currentReader.currentSettingsProfileName);
+          localStorage.setItem(currentReader.settingsNames.settingsProfiles, JSON.stringify(settingsProfiles));
+          const option = currentReader.elements.settingsProfileSelect.querySelector(`option[value="${currentReader.currentSettingsProfileName}"]`);
+          if (option) option.remove();
+          currentReader.elements.settingsProfileSelect.value = currentReader.defaultSettingsProfileName;
+          currentReader.settingsProfileIsModified = false;
+          currentReader.switchSettingsProfile();
+        }
+      },
+
       deleteCurrentText() {
         const currentReader = this;
         if (currentReader.currentTextName === currentReader.defaultTextName) {
@@ -2095,8 +2201,8 @@
         }
         if (confirm(`Are you sure you want to delete the text "${currentReader.currentTextName}"?`)) {
           currentReader.stopPlayback(true);
-          const transaction = currentReader.database.transaction([this.settingsNames.texts], 'readwrite');
-          const objectStore = transaction.objectStore(this.settingsNames.texts);
+          const transaction = currentReader.database.transaction([currentReader.settingsNames.texts], 'readwrite');
+          const objectStore = transaction.objectStore(currentReader.settingsNames.texts);
           objectStore.delete(currentReader.currentTextName);
           let texts = JSON.parse(localStorage.getItem(currentReader.settingsNames.texts) || '[]');
           texts = texts.filter(text => text !== currentReader.currentTextName);
@@ -2106,6 +2212,135 @@
           currentReader.elements.textSelect.value = currentReader.defaultTextName;
           currentReader.textIsModified = false;
           currentReader.switchText();
+        }
+      },
+
+      deleteAllSettingsProfiles() {
+        const currentReader = this;
+        if (confirm('Are you sure you want to delete all settings profiles?')) {
+          localStorage.removeItem(currentReader.settingsNames.settingsProfile);
+          if (currentReader.database) {
+            try {
+              const transaction = currentReader.database.transaction([currentReader.settingsNames.settingsProfiles], 'readwrite');
+              const objectStore = transaction.objectStore(currentReader.settingsNames.settingsProfiles);
+              const request = objectStore.clear();
+              request.onupgradeneeded = function (event) {
+                currentReader.locationReload();
+              };
+              request.onsuccess = function (event) {
+                localStorage.removeItem(currentReader.settingsNames.settingsProfiles);
+                currentReader.locationReload();
+              };
+              request.onerror = function (event) {
+                const message = `IndexedDB error: ${event.target.errorCode}`;
+                alert(message);
+                currentReader.locationReload();
+              };
+              request.onblocked = function (event) {
+                const message = `IndexedDB blocked: ${event.target.errorCode}\nTry again later.`;
+                alert(message);
+                currentReader.locationReload();
+              };
+            }
+            catch (err) {
+              alert(err);
+              currentReader.locationReload();
+            }
+          }
+          else {
+            currentReader.locationReload();
+          }
+        }
+        else {
+          currentReader.deleteDatabaseViewCounter += 1;
+          if (currentReader.deleteDatabaseViewCounter >= currentReader.deleteDatabaseViewMax) {
+            currentReader.elements.deleteDatabase.style.display = '';
+          }
+        }
+      },
+
+      deleteAllTexts() {
+        const currentReader = this;
+        if (confirm('Are you sure you want to delete all texts?')) {
+          currentReader.lastSavedPosition = null;
+          localStorage.removeItem(currentReader.settingsNames.lastPosition);
+          localStorage.removeItem(currentReader.settingsNames.text);
+          if (currentReader.database) {
+            try {
+              const transaction = currentReader.database.transaction([currentReader.settingsNames.texts], 'readwrite');
+              const objectStore = transaction.objectStore(currentReader.settingsNames.texts);
+              const request = objectStore.clear();
+              request.onupgradeneeded = function (event) {
+                currentReader.locationReload();
+              };
+              request.onsuccess = function (event) {
+                localStorage.removeItem(currentReader.settingsNames.texts);
+                currentReader.locationReload();
+              };
+              request.onerror = function (event) {
+                const message = `IndexedDB error: ${event.target.errorCode}`;
+                alert(message);
+                currentReader.locationReload();
+              };
+              request.onblocked = function (event) {
+                const message = `IndexedDB blocked: ${event.target.errorCode}\nTry again later.`;
+                alert(message);
+                currentReader.locationReload();
+              };
+            }
+            catch (err) {
+              alert(err);
+              currentReader.locationReload();
+            }
+          }
+          else {
+            currentReader.locationReload();
+          }
+        }
+        else {
+          currentReader.deleteDatabaseViewCounter += 1;
+          if (currentReader.deleteDatabaseViewCounter >= currentReader.deleteDatabaseViewMax) {
+            currentReader.elements.deleteDatabase.style.display = '';
+          }
+        }
+      },
+
+      deleteDatabase() {
+        const currentReader = this;
+        if (confirm('Are you sure you want to delete the database?')) {
+          currentReader.lastSavedPosition = null;
+          localStorage.removeItem(currentReader.settingsNames.lastPosition);
+          localStorage.removeItem(currentReader.settingsNames.text);
+          if (currentReader.database) {
+            try {
+              currentReader.database.close();
+              const request = indexedDB.deleteDatabase(currentReader.databaseName);
+              request.onupgradeneeded = function (event) {
+                currentReader.locationReload();
+              };
+              request.onsuccess = function (event) {
+                localStorage.removeItem(currentReader.settingsNames.texts);
+                currentReader.locationReload();
+              };
+              request.onerror = function (event) {
+                const message = `IndexedDB error: ${event.target.errorCode}`;
+                alert(message);
+                currentReader.locationReload();
+              };
+              request.onblocked = function (event) {
+                const message = `IndexedDB blocked: ${event.target.errorCode}\nTry again later.`;
+                alert(message);
+                currentReader.locationReload();
+              };
+            }
+            catch (err) {
+              alert(err);
+              currentReader.locationReload();
+            }
+          }
+          else {
+            currentReader.locationReload();
+          }
         }
       },
 
