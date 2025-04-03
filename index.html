@@ -30,7 +30,7 @@
       --gray-button-disabled-text: rgb(173, 173, 173);
       --blue-button-background: rgb(13, 110, 253);
       --blue-button-hover: rgb(11, 94, 215);
-      --dark-button-background: rgb(33, 37, 41);
+      --dark-button-background: rgb(55, 55, 55);
       --dark-button-hover: rgb(66, 70, 73);
     }
 
@@ -659,7 +659,7 @@
           <button id="delete-text-button" class="dark-button">Delete Text</button>
         </div>
         <div class="mt-10">
-          <label for="text-input">Text</label>
+          <label>Text</label>
           <textarea id="text-input" placeholder="Enter text here"></textarea>
         </div>
         <div class="mt-10">
@@ -684,19 +684,46 @@
           <button id="full-size-toggle" class="cyan-button">Toggle Full Size</button>
         </div>
         <div class="mt-10 items-border">
-          <label for="voice-select">Text-to-Speech</label>
+          <label>Text-to-Speech</label>
           <label id="show-button-element"><input type="checkbox" id="show-button-toggle" checked> Show Speak button</label>
           <div>
             <select id="voice-select"></select>
           </div>
-          <label for='speech-rate-slider'>Speed</label>
+          <label>Speed</label>
           <input type="range" id="speech-rate-slider" min="1" max="300" step="1" value="100">
           <input type="number" id="speech-rate-display" min="1" max="300" step="1" value="100">
         </div>
-        <div class="mt-10">
-          <button id="delete-all-settings-profiles" class="dark-button">Delete all settings profiles</button>
-          <button id="delete-all-texts" class="dark-button">Delete all texts</button>
-          <button id="delete-database" class="dark-button">Delete the entire database</button>
+        <div class="mt-10 items-border">
+          <label>Import</label>
+          <div>
+            <button id="import-all-settings-profiles" class="dark-button">Import all settings profiles</button>
+            <button id="import-all-texts" class="dark-button">Import all texts</button>
+          </div>
+          <div>
+            <button id="import-all-settings-profiles-and-texts" class="dark-button">Import all settings profiles and texts</button>
+            <button id="import-all" class="dark-button">Import all</button>
+          </div>
+        </div>
+        <div class="mt-10 items-border">
+          <label>Export</label>
+          <div>
+            <button id="export-all-settings-profiles" class="dark-button">Export all settings profiles</button>
+            <button id="export-all-texts" class="dark-button">Export all texts</button>
+          </div>
+          <div>
+            <button id="export-all-settings-profiles-and-texts" class="dark-button">Export all settings profiles and texts</button>
+            <button id="export-all" class="dark-button">Export all</button>
+          </div>
+        </div>
+        <div class="mt-10 items-border">
+          <label>Delete</label>
+          <div>
+            <button id="delete-all-settings-profiles" class="dark-button">Delete all settings profiles</button>
+            <button id="delete-all-texts" class="dark-button">Delete all texts</button>
+          </div>
+          <div>
+            <button id="delete-database" class="dark-button">Delete the entire database</button>
+          </div>
         </div>
       </div>
       <div id="info-tab" class="tab-content items-border">
@@ -973,6 +1000,15 @@
         this.elements.voiceSelect = document.getElementById('voice-select');
         this.elements.speechRateSlider = document.getElementById('speech-rate-slider');
         this.elements.speechRateDisplay = document.getElementById('speech-rate-display');
+        this.elements.importAllSettingsProfiles = document.getElementById('import-all-settings-profiles');
+        this.elements.importAllTexts = document.getElementById('import-all-texts');
+        this.elements.importAllSettingsProfilesAndTexts = document.getElementById('import-all-settings-profiles-and-texts');
+        this.elements.importAll = document.getElementById('import-all');
+        this.elements.exportAllSettingsProfiles = document.getElementById('export-all-settings-profiles');
+        this.elements.exportAllTexts = document.getElementById('export-all-texts');
+        this.elements.exportAllSettingsProfilesAndTexts = document.getElementById('export-all-settings-profiles-and-texts');
+        this.elements.exportAll = document.getElementById('export-all');
+
         this.cachedContainerWidth = null;
         this.cachedTextWidth = null;
         this.elements.deleteDatabase.style.display = 'none';
@@ -1080,6 +1116,14 @@
         this.elements.voiceSelect.addEventListener('change', () => this.updateVoice());
         this.elements.speechRateSlider.addEventListener('input', () => this.adjustSpeechRate(this.elements.speechRateSlider.value));
         this.elements.speechRateDisplay.addEventListener('input', () => this.adjustSpeechRate(this.elements.speechRateDisplay.value));
+        this.elements.importAllSettingsProfiles.addEventListener('click', () => this.importAllSettingsProfiles());
+        this.elements.importAllTexts.addEventListener('click', () => this.importAllTexts());
+        this.elements.importAllSettingsProfilesAndTexts.addEventListener('click', () => this.importAllSettingsProfilesAndTexts());
+        this.elements.importAll.addEventListener('click', () => this.importAll());
+        this.elements.exportAllSettingsProfiles.addEventListener('click', () => this.exportAllSettingsProfiles());
+        this.elements.exportAllTexts.addEventListener('click', () => this.exportAllTexts());
+        this.elements.exportAllSettingsProfilesAndTexts.addEventListener('click', () => this.exportAllSettingsProfilesAndTexts());
+        this.elements.exportAll.addEventListener('click', () => this.exportAll());
 
         this.elements.textInput.addEventListener('input', () => { this.textIsModified = true; });
 
@@ -2415,6 +2459,424 @@
         }
       },
 
+      importAllSettingsProfiles() {
+        const currentReader = this;
+        const currentSettingsProfileName = currentReader.currentTextName;
+        if (currentReader.settingsProfileIsModified) {
+          if (!confirm('You have unsaved changes. Are you sure you want to import new settings profiles?')) {
+            currentReader.elements.settingsProfileSelect.value = currentSettingsProfileName;
+            return;
+          }
+        }
+        let element = document.createElement('input');
+        element.id = 'file_upload';
+        element.type = 'file';
+        element.onchange = function (event) {
+          if (window.File && window.FileReader && window.FileList && window.Blob) {
+            let f = event.target.files[0];
+            if (f) {
+              let r = new FileReader;
+              r.addEventListener("load", (function (event) {
+                try {
+                  let jsonParsed = JSON.parse(event.target.result), newSettingsProfiles = [];
+                  console.log(jsonParsed);
+                  for (const jsonObject of jsonParsed[currentReader.settingsNames.settingsProfiles]) {
+                    let name = jsonObject['name'], settings = JSON.stringify(jsonObject['settings']);
+                    if (name && settings) {
+                      newSettingsProfiles.push({
+                        'name': name,
+                        'settings': settings
+                      });
+                    }
+                  }
+                  if (newSettingsProfiles.length > 0) {
+                    currentReader.pauseAnimation();
+                    for (let newSettingsProfile of newSettingsProfiles) {
+                      if (newSettingsProfile['name'] === currentReader.defaultSettingsProfileName) {
+                        localStorage.setItem(currentReader.settingsNames.settingsProfile, newSettingsProfile['settings']);
+                      }
+                      else {
+                        const settingsProfiles = JSON.parse(localStorage.getItem(currentReader.settingsNames.settingsProfiles) || '[]');
+                        if (!settingsProfiles.includes(newSettingsProfile['name'])) {
+                          settingsProfiles.push(newSettingsProfile['name']);
+                        }
+                        const transaction = currentReader.database.transaction([currentReader.settingsNames.settingsProfiles], 'readwrite');
+                        const objectStore = transaction.objectStore(currentReader.settingsNames.settingsProfiles);
+                        objectStore.put({ name: newSettingsProfile['name'], settings: newSettingsProfile['settings'] });
+                        localStorage.setItem(currentReader.settingsNames.settingsProfiles, JSON.stringify(settingsProfiles));
+                      }
+                    }
+                  }
+                  currentReader.locationReload();
+                }
+                catch (err) {
+                  console.error(err);
+                  alert(`Error importing settings profiles: ${err}`);
+                }
+              }));
+              r.readAsText(f);
+            }
+          } else {
+            alert("This functionality not supported by your browser.")
+          }
+        }
+        document.body.appendChild(element);
+        element.click();
+        document.body.removeChild(element);
+      },
+
+      importAllTexts() {
+        const currentReader = this;
+        const currentSettingsProfileName = currentReader.currentTextName;
+        if (currentReader.settingsProfileIsModified) {
+          if (!confirm('You have unsaved changes. Are you sure you want to import new settings profiles?')) {
+            currentReader.elements.settingsProfileSelect.value = currentSettingsProfileName;
+            return;
+          }
+        }
+        let element = document.createElement('input');
+        element.id = 'file_upload';
+        element.type = 'file';
+        element.onchange = function (event) {
+          if (window.File && window.FileReader && window.FileList && window.Blob) {
+            let f = event.target.files[0];
+            if (f) {
+              let r = new FileReader;
+              r.addEventListener("load", (function (event) {
+                try {
+                  let jsonParsed = JSON.parse(event.target.result), newTexts = [];
+                  for (const jsonObject of jsonParsed[currentReader.settingsNames.texts]) {
+                    let title = jsonObject['title'], content = jsonObject['content'];
+                    if (title && content) {
+                      newTexts.push({
+                        'title': title,
+                        'content': content
+                      });
+                    }
+                  }
+                  if (newTexts.length > 0) {
+                    currentReader.pauseAnimation();
+                    for (let newText of newTexts) {
+                      if (newText['title'] === currentReader.defaultTextName) {
+                        localStorage.setItem(currentReader.settingsNames.text, newText['content']);
+                      }
+                      else {
+                        const texts = JSON.parse(localStorage.getItem(currentReader.settingsNames.texts) || '[]');
+                        if (!texts.includes(newText['title'])) {
+                          texts.push(newText['title']);
+                        }
+                        const transaction = currentReader.database.transaction([currentReader.settingsNames.texts], 'readwrite');
+                        const objectStore = transaction.objectStore(currentReader.settingsNames.texts);
+                        objectStore.put({ title: newText['title'], content: newText['content'] });
+                        localStorage.setItem(currentReader.settingsNames.texts, JSON.stringify(texts));
+                      }
+                    }
+                  }
+                  currentReader.locationReload();
+                }
+                catch (err) {
+                  console.error(err);
+                  alert(`Error importing settings texts: ${err}`);
+                }
+              }));
+              r.readAsText(f);
+            }
+          } else {
+            alert("This functionality not supported by your browser.")
+          }
+        }
+        document.body.appendChild(element);
+        element.click();
+        document.body.removeChild(element);
+      },
+
+      importAllSettingsProfilesAndTexts(afterSuccessCallback = null) {
+        const currentReader = this;
+        const currentSettingsProfileName = currentReader.currentTextName;
+        if (currentReader.settingsProfileIsModified) {
+          if (!confirm('You have unsaved changes. Are you sure you want to import new settings profiles?')) {
+            currentReader.elements.settingsProfileSelect.value = currentSettingsProfileName;
+            return;
+          }
+        }
+        let element = document.createElement('input');
+        element.id = 'file_upload';
+        element.type = 'file';
+        element.onchange = function (event) {
+          if (window.File && window.FileReader && window.FileList && window.Blob) {
+            let f = event.target.files[0];
+            if (f) {
+              let r = new FileReader;
+              r.addEventListener("load", (function (event) {
+                try {
+                  let jsonParsed = JSON.parse(event.target.result), newSettingsProfiles = [], newTexts = [];
+                  if (jsonParsed.hasOwnProperty(currentReader.settingsNames.settingsProfiles)) {
+                    for (const jsonObject of jsonParsed[currentReader.settingsNames.settingsProfiles]) {
+                      let name = jsonObject['name'], settings = JSON.stringify(jsonObject['settings']);
+                      if (name && settings) {
+                        newSettingsProfiles.push({
+                          'name': name,
+                          'settings': settings
+                        });
+                      }
+                    }
+                    if (newSettingsProfiles.length > 0) {
+                      currentReader.pauseAnimation();
+                      for (let newSettingsProfile of newSettingsProfiles) {
+                        if (newSettingsProfile['name'] === currentReader.defaultSettingsProfileName) {
+                          localStorage.setItem(currentReader.settingsNames.settingsProfile, newSettingsProfile['settings']);
+                        }
+                        else {
+                          const settingsProfiles = JSON.parse(localStorage.getItem(currentReader.settingsNames.settingsProfiles) || '[]');
+                          if (!settingsProfiles.includes(newSettingsProfile['name'])) {
+                            settingsProfiles.push(newSettingsProfile['name']);
+                          }
+                          const transaction = currentReader.database.transaction([currentReader.settingsNames.settingsProfiles], 'readwrite');
+                          const objectStore = transaction.objectStore(currentReader.settingsNames.settingsProfiles);
+                          objectStore.put({ name: newSettingsProfile['name'], settings: newSettingsProfile['settings'] });
+                          localStorage.setItem(currentReader.settingsNames.settingsProfiles, JSON.stringify(settingsProfiles));
+                        }
+                      }
+                    }
+                  }
+                  if (jsonParsed.hasOwnProperty(currentReader.settingsNames.texts)) {
+                    for (const jsonObject of jsonParsed[currentReader.settingsNames.texts]) {
+                      let title = jsonObject['title'], content = jsonObject['content'];
+                      if (title && content) {
+                        newTexts.push({
+                          'title': title,
+                          'content': content
+                        });
+                      }
+                    }
+                    if (newTexts.length > 0) {
+                      currentReader.pauseAnimation();
+                      for (let newText of newTexts) {
+                        if (newText['title'] === currentReader.defaultTextName) {
+                          localStorage.setItem(currentReader.settingsNames.text, newText['content']);
+                        }
+                        else {
+                          const texts = JSON.parse(localStorage.getItem(currentReader.settingsNames.texts) || '[]');
+                          if (!texts.includes(newText['title'])) {
+                            texts.push(newText['title']);
+                          }
+                          const transaction = currentReader.database.transaction([currentReader.settingsNames.texts], 'readwrite');
+                          const objectStore = transaction.objectStore(currentReader.settingsNames.texts);
+                          objectStore.put({ title: newText['title'], content: newText['content'] });
+                          localStorage.setItem(currentReader.settingsNames.texts, JSON.stringify(texts));
+                        }
+                      }
+                    }
+                  }
+                  if (afterSuccessCallback) {
+                    afterSuccessCallback(jsonParsed);
+                  }
+                  currentReader.locationReload();
+                }
+                catch (err) {
+                  console.error(err);
+                  alert(`Error importing settings profiles and texts: ${err}`);
+                }
+              }));
+              r.readAsText(f);
+            }
+          } else {
+            alert("This functionality not supported by your browser.")
+          }
+        }
+        document.body.appendChild(element);
+        element.click();
+        document.body.removeChild(element);
+      },
+
+      importAll() {
+        const currentReader = this;
+        currentReader.importAllSettingsProfilesAndTexts((jsonParsed) => {
+          for (let [k, v] of Object.entries(jsonParsed)) {
+            if (
+              k !== currentReader.settingsNames.texts && k !== currentReader.settingsNames.text &&
+              k !== currentReader.settingsNames.settingsProfiles && k !== currentReader.settingsNames.settingsProfile
+            ) {
+              localStorage.setItem(k, v);
+            }
+          }
+        });
+      },
+
+      exportAllSettingsProfiles() {
+        const currentReader = this;
+        const defaultSettingsProfile = JSON.parse(localStorage.getItem(currentReader.settingsNames.settingsProfile) || '{}');
+        const settingsProfilesKey = currentReader.settingsNames.settingsProfiles;
+        let exportData = {};
+        exportData[settingsProfilesKey] = [];
+        exportData[settingsProfilesKey].push({
+          name: currentReader.defaultSettingsProfileName,
+          settings: defaultSettingsProfile
+        });
+        if (!currentReader.database) {
+          currentReader.downloadExportFile(exportData);
+          return;
+        }
+        const transaction = currentReader.database.transaction([currentReader.settingsNames.settingsProfiles], 'readonly');
+        const objectStore = transaction.objectStore(currentReader.settingsNames.settingsProfiles);
+        const request = objectStore.getAll();
+        request.onsuccess = () => {
+          const profiles = request.result;
+          profiles.forEach(profile => {
+            exportData[settingsProfilesKey].push({
+              name: profile.name,
+              settings: JSON.parse(profile.settings)
+            });
+          });
+          currentReader.downloadExportFile(exportData, 'settings_profiles');
+        };
+        request.onerror = () => {
+          const message = `Error exporting settings profiles: ${request.error}`;
+          console.error(request.error);
+          alert(message);
+        };
+      },
+
+      exportAllTexts() {
+        const currentReader = this;
+        const defaultText = localStorage.getItem(currentReader.settingsNames.text) || '';
+        const textsKey = currentReader.settingsNames.texts;
+        let exportData = {};
+        exportData[textsKey] = [];
+        exportData[textsKey].push({
+          title: currentReader.defaultTextName,
+          content: defaultText
+        });
+        if (!currentReader.database) {
+          currentReader.downloadExportFile(exportData);
+          return;
+        }
+        const transaction = currentReader.database.transaction([currentReader.settingsNames.texts], 'readonly');
+        const objectStore = transaction.objectStore(currentReader.settingsNames.texts);
+        const request = objectStore.getAll();
+        request.onsuccess = () => {
+          const texts = request.result;
+          texts.forEach(text => {
+            exportData[textsKey].push({
+              title: text.title,
+              content: text.content
+            });
+          });
+          currentReader.downloadExportFile(exportData, 'texts');
+        };
+        request.onerror = () => {
+          const message = `Error exporting texts: ${request.error}`;
+          console.error(request.error);
+          alert(message);
+        };
+      },
+
+      exportAllSettingsProfilesAndTexts(afterSuccessCallback = null) {
+        const currentReader = this;
+        const defaultSettingsProfile = JSON.parse(localStorage.getItem(currentReader.settingsNames.settingsProfile) || '{}');
+        const defaultText = localStorage.getItem(currentReader.settingsNames.text) || '';
+        const settingsProfilesKey = currentReader.settingsNames.settingsProfiles;
+        const textsKey = currentReader.settingsNames.texts;
+        let exportData = {};
+        exportData[settingsProfilesKey] = [];
+        exportData[settingsProfilesKey].push({
+          name: currentReader.defaultSettingsProfileName,
+          settings: defaultSettingsProfile
+        });
+        exportData[textsKey] = [];
+        exportData[textsKey].push({
+          title: currentReader.defaultTextName,
+          content: defaultText
+        });
+        if (!currentReader.database) {
+          currentReader.downloadExportFile(exportData);
+          return;
+        }
+        const transaction = currentReader.database.transaction([currentReader.settingsNames.settingsProfiles], 'readonly');
+        const objectStore = transaction.objectStore(currentReader.settingsNames.settingsProfiles);
+        const request = objectStore.getAll();
+        request.onsuccess = () => {
+          const profiles = request.result;
+          profiles.forEach(profile => {
+            exportData[settingsProfilesKey].push({
+              name: profile.name,
+              settings: JSON.parse(profile.settings)
+            });
+          });
+          const transaction = currentReader.database.transaction([currentReader.settingsNames.texts], 'readonly');
+          const objectStore = transaction.objectStore(currentReader.settingsNames.texts);
+          const nextRequest = objectStore.getAll();
+          nextRequest.onsuccess = () => {
+            const texts = nextRequest.result;
+            texts.forEach(text => {
+              exportData[textsKey].push({
+                title: text.title,
+                content: text.content
+              });
+            });
+            let dataInfoTag = null;
+            if (afterSuccessCallback) {
+              dataInfoTag = afterSuccessCallback(exportData);
+            }
+            if (!dataInfoTag) {
+              dataInfoTag = 'settings_profiles_and_texts';
+            }
+            currentReader.downloadExportFile(exportData, dataInfoTag);
+          };
+          nextRequest.onerror = () => {
+            const message = `Error exporting settings profiles & [texts]: ${nextRequest.error}`;
+            console.error(nextRequest.error);
+            alert(message);
+          };
+        };
+        request.onerror = () => {
+          const message = `Error exporting [settings profiles] & texts: ${request.error}`;
+          console.error(request.error);
+          alert(message);
+        };
+      },
+
+      exportAll() {
+        const currentReader = this;
+        currentReader.exportAllSettingsProfilesAndTexts((exportData) => {
+          for (let localStorageSettingName of Object.values(currentReader.settingsNames)) {
+            const localStorageSettingValue = localStorage.getItem(localStorageSettingName);
+            if (!localStorageSettingValue) {
+              continue;
+            }
+            if (
+              localStorageSettingName !== currentReader.settingsNames.texts &&
+              localStorageSettingName !== currentReader.settingsNames.text &&
+              localStorageSettingName !== currentReader.settingsNames.settingsProfiles &&
+              localStorageSettingName !== currentReader.settingsNames.settingsProfile
+            ) {
+              exportData[localStorageSettingName] = localStorageSettingValue;
+            }
+          }
+          return 'all';
+        });
+      },
+
+      getStrDateTime() {
+        let dts = new Date((new Date().setHours(new Date().getHours() - (new Date().getTimezoneOffset() / 60)))).toISOString();
+        dts = dts.replace('T', ' ').replaceAll('-', '.').slice(0, 19);
+        return dts;
+      },
+
+      downloadExportFile(data, dataInfoTag) {
+        const jsonString = JSON.stringify(data, null, 2);
+        const blob = new Blob([jsonString], { type: 'application/json' });
+        const url = window.URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        let datetimeString = this.getStrDateTime().replaceAll(':', '.').replaceAll(' ', '_');
+        link.download = `tae_${dataInfoTag}_${datetimeString}.json`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        window.URL.revokeObjectURL(url);
+      },
+
       locationReload() {
         setTimeout(function () {
           location.reload();
@@ -2426,7 +2888,6 @@
         this.elements.speechRateSlider.value = value;
         this.elements.speechRateDisplay.value = value;
         localStorage.setItem(this.settingsNames.voiceSpeechRate, this.speechRate);
-        
         if (this.isSpeaking) {
           this.toggleSpeech();
         }
@@ -2435,8 +2896,8 @@
       loadVoices() {
         const updateVoices = () => {
           this.voices = this.speechSynthesis.getVoices();
-          this.elements.voiceSelect.innerHTML = this.voices.map((voice, index) => 
-              `<option value="${index}">${voice.name} (${voice.lang})</option>`
+          this.elements.voiceSelect.innerHTML = this.voices.map((voice, index) =>
+            `<option value="${index}">${voice.name} (${voice.lang})</option>`
           ).join('');
         };
         this.speechSynthesis.onvoiceschanged = updateVoices;
@@ -2535,7 +2996,7 @@
         }
         const wordCount = textToSpeak.split(/\s+/).filter(word => word.length > 0).length;
         const utterance = new SpeechSynthesisUtterance(textToSpeak);
-        
+
         const selectedVoiceIndex = parseInt(this.elements.voiceSelect.value);
         if (this.voices[selectedVoiceIndex]) {
           utterance.voice = this.voices[selectedVoiceIndex];
