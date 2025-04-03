@@ -720,13 +720,18 @@
         </div>
         <div class="mt-10 items-border">
           <label>Appearance</label>
-          <button id="marquee-theme-toggle" class="cyan-button">Toggle Marquee Text Block Theme</button>
-          <button id="theme-toggle" class="cyan-button">Toggle Theme</button>
-          <button id="full-size-toggle" class="cyan-button">Toggle Full Size</button>
+          <div>
+            <label id="show-search-button-element"><input type="checkbox" id="show-search-button-toggle" checked> Show Search button</label>
+          </div>
+          <div>
+            <button id="marquee-theme-toggle" class="cyan-button">Toggle Marquee Text Block Theme</button>
+            <button id="theme-toggle" class="cyan-button">Toggle Theme</button>
+            <button id="full-size-toggle" class="cyan-button">Toggle Full Size</button>
+          </div>
         </div>
         <div class="mt-10 items-border">
           <label>Text-to-Speech</label>
-          <label id="show-button-element"><input type="checkbox" id="show-button-toggle" checked> Show Speak button</label>
+          <label id="show-speak-button-element"><input type="checkbox" id="show-speak-button-toggle" checked> Show Speak button</label>
           <div>
             <select id="voice-select"></select>
           </div>
@@ -890,7 +895,10 @@
         // text-to-speech
         voiceButton: 'sle_voice_button',
         voice: 'sle_voice',
-        voiceSpeechRate: 'sle_voice_speech_rate'
+        voiceSpeechRate: 'sle_voice_speech_rate',
+
+        // search
+        searchButton: 'sle_search_button'
       },
 
       getDefaultSettingsProfile() {
@@ -1042,7 +1050,8 @@
         this.elements.deleteSettingsProfileButton = document.getElementById('delete-settings-profile-button');
         this.elements.saveSettingsProfileButton = document.getElementById('save-settings-profile-button');
         this.elements.textToSpeechContainer = document.getElementById('text-to-speech-container');
-        this.elements.showButtonToggle = document.getElementById('show-button-toggle');
+        this.elements.showSpeakButtonToggle = document.getElementById('show-speak-button-toggle');
+        this.elements.showSearchButtonToggle = document.getElementById('show-search-button-toggle');
         this.elements.speakButton = document.getElementById('speak-button');
         this.elements.voiceSelect = document.getElementById('voice-select');
         this.elements.speechRateSlider = document.getElementById('speech-rate-slider');
@@ -1165,7 +1174,8 @@
         this.elements.newSettingsProfileButton.addEventListener('click', () => this.createNewSettingsProfile());
         this.elements.deleteSettingsProfileButton.addEventListener('click', () => this.deleteCurrentSettingsProfile());
         this.elements.saveSettingsProfileButton.addEventListener('click', () => this.saveCurrentSettingsProfile());
-        this.elements.showButtonToggle.addEventListener('click', () => this.toggleSpeechButton());
+        this.elements.showSpeakButtonToggle.addEventListener('click', () => this.toggleSpeechButton());
+        this.elements.showSearchButtonToggle.addEventListener('click', () => this.toggleSearchButton());
         this.elements.speakButton.addEventListener('click', () => this.toggleSpeech());
         this.elements.voiceSelect.addEventListener('change', () => this.updateVoice());
         this.elements.speechRateSlider.addEventListener('input', () => this.adjustSpeechRate(this.elements.speechRateSlider.value));
@@ -1237,8 +1247,10 @@
         this.isLoopEnabled = localStorage.getItem(this.settingsNames.loop) === 'true';
         if (this.isLoopEnabled) this.elements.loopToggle.classList.add('active');
         this.elements.mainContainer.classList.add(localStorage.getItem(this.settingsNames.appSize) || 'normal-size');
-        this.elements.showButtonToggle.checked = localStorage.getItem(this.settingsNames.voiceButton) === 'true';
+        this.elements.showSpeakButtonToggle.checked = localStorage.getItem(this.settingsNames.voiceButton) === 'true';
         this.toggleSpeechButton();
+        this.elements.showSearchButtonToggle.checked = localStorage.getItem(this.settingsNames.searchButton) === 'true';
+        this.toggleSearchButton();
 
         const voiceIndex = localStorage.getItem(this.settingsNames.voice) || null;
         if (voiceIndex != null) {
@@ -2121,6 +2133,13 @@
               const mark = document.createElement('div');
               mark.className = `search-mark ${index === this.currentMatchIndex ? 'active' : ''}`;
               mark.style.left = `${Math.max(0, Math.min(100, matchProgress))}%`;
+              mark.addEventListener('click', (event) => {
+                event.stopPropagation();
+                this.currentPosition = match.position;
+                this.elements.marqueeDisplay.style.left = `${this.currentPosition}px`;
+                this.lastSavedPosition = this.currentPosition;
+                this.updateProgressBar();
+              });
               this.elements.progressBarContainer.appendChild(mark);
             });
           }
@@ -2550,7 +2569,6 @@
               r.addEventListener("load", (function (event) {
                 try {
                   let jsonParsed = JSON.parse(event.target.result), newSettingsProfiles = [];
-                  console.log(jsonParsed);
                   for (const jsonObject of jsonParsed[currentReader.settingsNames.settingsProfiles]) {
                     let name = jsonObject['name'], settings = JSON.stringify(jsonObject['settings']);
                     if (name && settings) {
@@ -2983,8 +3001,13 @@
       },
 
       toggleSpeechButton() {
-        this.elements.textToSpeechContainer.style.display = this.elements.showButtonToggle.checked ? '' : 'none';
-        localStorage.setItem(this.settingsNames.voiceButton, this.elements.showButtonToggle.checked);
+        this.elements.textToSpeechContainer.style.display = this.elements.showSpeakButtonToggle.checked ? '' : 'none';
+        localStorage.setItem(this.settingsNames.voiceButton, this.elements.showSpeakButtonToggle.checked);
+      },
+
+      toggleSearchButton() {
+        this.elements.searchContainer.style.display = this.elements.showSearchButtonToggle.checked ? '' : 'none';
+        localStorage.setItem(this.settingsNames.searchButton, this.elements.showSearchButtonToggle.checked);
       },
 
       toggleSpeech() {
@@ -3038,20 +3061,22 @@
         }
 
         currentReader.startAnimation(false, false);
-        const text = this.previousText;
-        if (!text) {
+        const processedText = this.elements.marqueeDisplay.textContent;
+        const realText = this.previousText;
+        if (!processedText || !realText) {
           return;
         }
 
         let startSpanIndex = 0;
         const spans = Array.from(this.elements.marqueeDisplay.querySelectorAll('.marquee-word-span'));
+        const words = realText.split(/\s+/).filter(w => w);
         if (this.currentPosition !== null) {
           const containerWidth = this.cachedContainerWidth;
           const textWidth = this.cachedTextWidth;
           const startPos = 0;
           const endPos = containerWidth - textWidth;
           const progress = (this.currentPosition - startPos) / (endPos - startPos);
-          const charIndex = Math.floor(progress * text.length);
+          const charIndex = Math.floor(progress * processedText.length);
           let currentCharCount = 0;
           for (let i = 0; i < spans.length; i++) {
             currentCharCount += spans[i].textContent.length + 1;
@@ -3062,11 +3087,13 @@
           }
         }
 
-        const textToSpeak = spans.slice(startSpanIndex).map(span => span.textContent).join(' ');
-        if (!textToSpeak) return;
+        if (spans.length <= startSpanIndex || words.length <= startSpanIndex || spans.length !== words.length) {
+          return;
+        }
+        const realTextFromIndex = words.slice(startSpanIndex).join(' ');
 
-        const wordCount = textToSpeak.split(/\s+/).filter(word => word.length > 0).length;
-        const utterance = new SpeechSynthesisUtterance(textToSpeak);
+        const wordCount = words.length;
+        const utterance = new SpeechSynthesisUtterance(realTextFromIndex);
         const selectedVoiceIndex = parseInt(this.elements.voiceSelect.value);
         if (this.voices[selectedVoiceIndex]) {
           utterance.voice = this.voices[selectedVoiceIndex];
@@ -3081,7 +3108,7 @@
 
         utterance.onboundary = (event) => {
           if (event.name === 'word') {
-            const wordIndex = textToSpeak.substring(0, event.charIndex).split(/\s+/).filter(w => w).length;
+            const wordIndex = realTextFromIndex.substring(0, event.charIndex).split(/\s+/).filter(w => w).length;
             const spanIndex = Math.min(wordIndex, spanPositions.length - 1);
 
             const containerWidth = currentReader.cachedContainerWidth;
@@ -3090,7 +3117,7 @@
             const endPos = containerWidth - textWidth;
 
             currentReader.currentPosition = spanPositions[spanIndex];
-            currentReader.currentPosition = Math.max(endPos, Math.min(startPos, currentReader.currentPosition));
+            currentReader.currentPosition = Math.max(endPos, Math.min(startPos, currentReader.currentPosition + containerWidth * Math.max(0, Math.min(0.5, containerWidth / 100 - 5))));
             currentReader.elements.marqueeDisplay.style.left = `${currentReader.currentPosition}px`;
 
             const progress = (currentReader.currentPosition - startPos) / (endPos - startPos);
@@ -3199,6 +3226,7 @@
         const textWidth = this.cachedTextWidth;
         const startPos = 0;
         const endPos = containerWidth - textWidth;
+        const caseInsensitive = this.searchQuery === this.searchQuery.toLowerCase();
 
         const spans = Array.from(this.elements.marqueeDisplay.querySelectorAll('.marquee-word-span'));
         const queryWords = this.searchQuery.split(/\s+/).filter(word => word);
@@ -3208,7 +3236,7 @@
           let matchText = '';
           for (let j = 0; j < queryWords.length; j++) {
             const span = spans[i + j];
-            const spanText = span.textContent.toLowerCase();
+            const spanText = caseInsensitive ? span.textContent.toLowerCase() : span.textContent;
             matchText += (j > 0 ? ' ' : '') + spanText;
             if (!spanText.includes(queryWords[j])) {
               isMatch = false;
