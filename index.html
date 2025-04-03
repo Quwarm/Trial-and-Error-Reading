@@ -15,6 +15,8 @@
       --border-color-inv: #e0e0e0;
       --green-button-background: rgb(25, 135, 84);
       --green-button-hover: rgb(21, 115, 71);
+      --purple-button-background: rgb(84, 25, 135);
+      --purple-button-hover: rgb(71, 21, 115);
       --orange-button-background: rgb(218, 104, 11);
       --orange-button-hover: rgb(194, 93, 10);
       --red-button-background: rgb(187, 45, 59);
@@ -71,12 +73,15 @@
     #marquee-controls-container,
     #marquee-container,
     #controls-container,
+    #text-to-speech-container,
     #additional-settings-container {
       text-align: center;
     }
 
     label {
       display: block;
+      padding-top: 5px;
+      padding-bottom: 5px;
     }
 
     #text-input {
@@ -189,7 +194,7 @@
       font-size: 22px;
     }
 
-    #play-pause-button, #stop-button {
+    #play-pause-button, #stop-button, #speak-button {
       min-width: 100px;
     }
 
@@ -209,12 +214,25 @@
       background-color: var(--orange-button-hover);
     }
 
+    #speak-button {
+      background-color: var(--purple-button-background);
+    }
+
+    #speak-button:hover {
+      background-color: var(--purple-button-hover);
+    }
+
     #stop-button {
       background-color: var(--red-button-background);
     }
 
     #stop-button:hover {
       background-color: var(--red-button-hover);
+    }
+
+    #play-pause-button:disabled, #stop-button:disabled, #speak-button:disabled {
+      background-color: var(--gray-button-disabled-background);
+      color: var(--gray-button-disabled-text);
     }
 
     .marquee-letter-span {
@@ -360,6 +378,10 @@
       margin-top: 20px;
     }
 
+    .mb-10 {
+      margin-bottom: 10px;
+    }
+
     .mb-20 {
       margin-bottom: 20px;
     }
@@ -502,10 +524,13 @@
       }
       input[type="range"] {
         width: 30%;
-        margin-right: 30%;
+        margin-right: 25%;
       }
       input[type="number"] {
         width: 30%;
+      }
+      select {
+        width: 100%;
       }
       #tab-navigation {
         flex-direction: column;
@@ -537,6 +562,9 @@
         <button id="stop-button">Stop <kbd>S</kbd></button>
         <button id="fast-forward-button" class="action-button" disabled>&gt;&gt; <kbd>→</kbd></button>
       </div>
+      <div id="text-to-speech-container" class="mt-10">
+        <button id="speak-button">Speak</button>
+      </div>
       <div>
         <button id="loop-toggle">Loop <kbd>L</kbd></button>
         <div id="progress-display" class="mt-10" style="display: none;"></div>
@@ -565,12 +593,12 @@
           <button id="copy-text" class="action-button" disabled>⏏ Copy text ⏏</button>
         </div>
         <div class="mt-10">
-          <div>Text size</div>
+          <label>Text size</label>
           <input type="range" id="font-size-slider" min="8" max="50" value="50">
           <input type="number" id="font-size-display" min="8" max="50" value="50">
         </div>
         <div class="mt-10">
-          <div>Speed <kbd>+</kbd><kbd>-</kbd></div>
+          <label>Speed <kbd>+</kbd><kbd>-</kbd></label>
           <input type="range" id="speed-slider" min="1" max="200" value="100">
           <input type="number" id="speed-display" min="1" max="200" value="100">
         </div>
@@ -649,10 +677,21 @@
         <div class="mt-10">
           <label id="show-color-info-element"><input type="checkbox" id="show-color-info-toggle" checked> Show letters-colors info <kbd>ESC</kbd></label>
         </div>
-        <div class="mt-10">
+        <div class="mt-10 items-border">
+          <label>Appearance</label>
           <button id="marquee-theme-toggle" class="cyan-button">Toggle Marquee Text Block Theme</button>
           <button id="theme-toggle" class="cyan-button">Toggle Theme</button>
           <button id="full-size-toggle" class="cyan-button">Toggle Full Size</button>
+        </div>
+        <div class="mt-10 items-border">
+          <label for="voice-select">Text-to-Speech</label>
+          <label id="show-button-element"><input type="checkbox" id="show-button-toggle" checked> Show Speak button</label>
+          <div>
+            <select id="voice-select"></select>
+          </div>
+          <label for='speech-rate-slider'>Speed</label>
+          <input type="range" id="speech-rate-slider" min="1" max="300" step="1" value="100">
+          <input type="number" id="speech-rate-display" min="1" max="300" step="1" value="100">
         </div>
         <div class="mt-10">
           <button id="delete-all-settings-profiles" class="dark-button">Delete all settings profiles</button>
@@ -723,6 +762,12 @@
       cachedContainerWidth: null,
       cachedTextWidth: null,
 
+      speechSynthesis: null,
+      isSpeaking: false,
+      currentVoice: null,
+      voices: [],
+      speechRate: 100,
+
       themes: [
         'dark',
         'light'
@@ -766,7 +811,12 @@
         marqueeThemeToggle: 'sle_marquee_theme_toggle',
         appSizeToggle: 'sle_app_size_toggle',
         activeTab: 'sle_active_tab',
-        lastPosition: 'sle_last_position'
+        lastPosition: 'sle_last_position',
+
+        // text-to-speech
+        voiceButton: 'sle_voice_button',
+        voice: 'sle_voice',
+        voiceSpeechRate: 'sle_voice_speech_rate'
       },
 
       getDefaultSettingsProfile() {
@@ -833,17 +883,25 @@
         console.info(currentReader);
         currentReader.loadBackground();
         currentReader.cacheElements();
-        currentReader.loadDb(function () {
-          try {
-            currentReader.setupPatterns();
-            currentReader.bindEvents();
-            currentReader.loadPreferences();
-          }
-          catch (err) {
-            console.error(err);
-            currentReader.elements.mainContainer.innerHTML = `Not supported:<br>${err}`;
-          }
-        });
+        try {
+          currentReader.speechSynthesis = window.speechSynthesis;
+          currentReader.loadVoices();
+          currentReader.loadDb(function () {
+            try {
+              currentReader.setupPatterns();
+              currentReader.bindEvents();
+              currentReader.loadPreferences();
+            }
+            catch (err) {
+              console.error(err);
+              currentReader.elements.mainContainer.innerHTML = `Not supported:<br>${err}`;
+            }
+          });
+        }
+        catch (err) {
+          console.error(err);
+          currentReader.elements.mainContainer.innerHTML = `Not supported:<br>${err}`;
+        }
       },
 
       loadBackground() {
@@ -909,6 +967,12 @@
         this.elements.newSettingsProfileButton = document.getElementById('new-settings-profile-button');
         this.elements.deleteSettingsProfileButton = document.getElementById('delete-settings-profile-button');
         this.elements.saveSettingsProfileButton = document.getElementById('save-settings-profile-button');
+        this.elements.textToSpeechContainer = document.getElementById('text-to-speech-container');
+        this.elements.showButtonToggle = document.getElementById('show-button-toggle');
+        this.elements.speakButton = document.getElementById('speak-button');
+        this.elements.voiceSelect = document.getElementById('voice-select');
+        this.elements.speechRateSlider = document.getElementById('speech-rate-slider');
+        this.elements.speechRateDisplay = document.getElementById('speech-rate-display');
         this.cachedContainerWidth = null;
         this.cachedTextWidth = null;
         this.elements.deleteDatabase.style.display = 'none';
@@ -1011,6 +1075,11 @@
         this.elements.newSettingsProfileButton.addEventListener('click', () => this.createNewSettingsProfile());
         this.elements.deleteSettingsProfileButton.addEventListener('click', () => this.deleteCurrentSettingsProfile());
         this.elements.saveSettingsProfileButton.addEventListener('click', () => this.saveCurrentSettingsProfile());
+        this.elements.showButtonToggle.addEventListener('click', () => this.toggleSpeechButton());
+        this.elements.speakButton.addEventListener('click', () => this.toggleSpeech());
+        this.elements.voiceSelect.addEventListener('change', () => this.updateVoice());
+        this.elements.speechRateSlider.addEventListener('input', () => this.adjustSpeechRate(this.elements.speechRateSlider.value));
+        this.elements.speechRateDisplay.addEventListener('input', () => this.adjustSpeechRate(this.elements.speechRateDisplay.value));
 
         this.elements.textInput.addEventListener('input', () => { this.textIsModified = true; });
 
@@ -1066,6 +1135,17 @@
         this.isLoopEnabled = localStorage.getItem(this.settingsNames.loop) === 'true';
         if (this.isLoopEnabled) this.elements.loopToggle.classList.add('active');
         this.elements.mainContainer.classList.add(localStorage.getItem(this.settingsNames.appSize) || 'normal-size');
+        this.elements.showButtonToggle.checked = localStorage.getItem(this.settingsNames.voiceButton) === 'true';
+        this.toggleSpeechButton();
+
+        const voiceIndex = localStorage.getItem(this.settingsNames.voice) || null;
+        if (voiceIndex != null) {
+          this.elements.voiceSelect.value = voiceIndex;
+        }
+        const voiceSpeechRate = localStorage.getItem(this.settingsNames.voiceSpeechRate) || null;
+        if (voiceSpeechRate != null) {
+          this.adjustSpeechRate(voiceSpeechRate);
+        }
 
         const currentTextName = localStorage.getItem(this.settingsNames.currentTextName) || this.defaultTextName;
         const texts = JSON.parse(localStorage.getItem(this.settingsNames.texts) || '[]');
@@ -1127,6 +1207,7 @@
         this.lastSavedPosition = null;
         this.elements.tabNavigation.style.display = '';
         this.elements.tabContent.style.display = '';
+        this.elements.speakButton.style.display = '';
         this.updateProgressBar();
         if (fully && this.previousText !== null) {
           this.animationStartTime = null;
@@ -1333,6 +1414,7 @@
               this.lastSavedPosition = null;
               this.elements.tabNavigation.style.display = '';
               this.elements.tabContent.style.display = '';
+              this.elements.speakButton.style.display = '';
             }
           } else {
             this.elements.marqueeDisplay.style.left = `${newPosition}px`;
@@ -1356,6 +1438,7 @@
           this.elements.progressDisplay.style.display = '';
           this.elements.tabNavigation.style.display = 'none';
           this.elements.tabContent.style.display = 'none';
+          this.elements.speakButton.style.display = 'none';
           this.animationTimer = setTimeout(animate, stepDelay);
         }
         return true;
@@ -1367,6 +1450,7 @@
           this.animationTimer = null;
           this.elements.playPauseButton.textContent = 'Start';
           this.elements.playPauseButton.classList.remove('pause');
+          this.elements.speakButton.style.display = '';
           this.elements.marqueeControlsContainer.style.display = '';
           this.elements.loopToggle.style.display = '';
           this.elements.colorDetails.style.display = this.elements.colorEncoderToggle.checked && this.elements.showColorInfoToggle.checked ? '' : 'none';
@@ -2050,7 +2134,7 @@
       createNewSettingsProfile() {
         const currentReader = this;
         const currentSettingsProfileName = currentReader.currentTextName;
-        const newSettingsProfile = JSON.stringify(currentReader.getDefaultSettingsProfile());
+        const newSettingsProfile = JSON.stringify(currentReader.getCurrentSettingsProfile());
         if (currentReader.settingsProfileIsModified) {
           if (!confirm('You have unsaved changes. Are you sure you want to create a new settings profile?')) {
             currentReader.elements.settingsProfileSelect.value = currentSettingsProfileName;
@@ -2335,7 +2419,209 @@
         setTimeout(function () {
           location.reload();
         }, 1);
+      },
+
+      adjustSpeechRate(value) {
+        this.speechRate = parseFloat(value);
+        this.elements.speechRateSlider.value = value;
+        this.elements.speechRateDisplay.value = value;
+        localStorage.setItem(this.settingsNames.voiceSpeechRate, this.speechRate);
+        
+        if (this.isSpeaking) {
+          this.toggleSpeech();
+        }
+      },
+
+      loadVoices() {
+        const updateVoices = () => {
+          this.voices = this.speechSynthesis.getVoices();
+          this.elements.voiceSelect.innerHTML = this.voices.map((voice, index) => 
+              `<option value="${index}">${voice.name} (${voice.lang})</option>`
+          ).join('');
+        };
+        this.speechSynthesis.onvoiceschanged = updateVoices;
+        updateVoices();
+      },
+
+      updateVoice() {
+        localStorage.setItem(this.settingsNames.voice, this.elements.voiceSelect.value);
+        if (this.isSpeaking) {
+          this.toggleSpeech();
+        }
+      },
+
+      toggleSpeechButton() {
+        this.elements.textToSpeechContainer.style.display = this.elements.showButtonToggle.checked ? '' : 'none';
+        localStorage.setItem(this.settingsNames.voiceButton, this.elements.showButtonToggle.checked);
+      },
+
+      toggleSpeech() {
+        if (!this.speechSynthesis) return;
+
+        const currentReader = this;
+
+        const startUpdate = function () {
+          currentReader.isSpeaking = true;
+          currentReader.elements.speakButton.textContent = 'Stop';
+          currentReader.elements.playPauseButton.disabled = true;
+          currentReader.elements.stopButton.disabled = true;
+          currentReader.elements.rewindButton.disabled = true;
+          currentReader.elements.fastForwardButton.disabled = true;
+          currentReader.elements.refreshText.disabled = true;
+          currentReader.elements.refreshColors.disabled = true;
+          currentReader.elements.copyText.disabled = true;
+          currentReader.elements.marqueeControlsContainer.style.display = 'none';
+          currentReader.elements.progressDisplay.style.display = '';
+          currentReader.elements.tabNavigation.style.display = 'none';
+          currentReader.elements.tabContent.style.display = 'none';
+          currentReader.elements.loopToggle.style.display = 'none';
+          currentReader.animationStartTime = Date.now();
+          this.isSpeaking = true;
+        };
+
+        const stopUpdate = function () {
+          currentReader.speechSynthesis.cancel();
+          currentReader.isSpeaking = false;
+          currentReader.elements.speakButton.textContent = 'Speak';
+          currentReader.elements.playPauseButton.disabled = false;
+          currentReader.elements.stopButton.disabled = false;
+          currentReader.elements.rewindButton.disabled = false;
+          currentReader.elements.fastForwardButton.disabled = false;
+          currentReader.elements.refreshText.disabled = false;
+          currentReader.elements.refreshColors.disabled = false;
+          currentReader.elements.copyText.disabled = false;
+          currentReader.elements.marqueeControlsContainer.style.display = '';
+          currentReader.elements.progressDisplay.style.display = '';
+          currentReader.elements.tabNavigation.style.display = '';
+          currentReader.elements.tabContent.style.display = '';
+          currentReader.elements.loopToggle.style.display = '';
+          this.isSpeaking = false;
+        };
+
+        if (this.isSpeaking) {
+          stopUpdate();
+          return;
+        }
+
+        currentReader.startAnimation(false, false);
+        const text = this.previousText;
+        if (!text) {
+          return;
+        }
+
+        let startIndex = 0;
+        this.previousPosition = this.currentPosition;
+        if (this.currentPosition !== null) {
+          const containerWidth = this.cachedContainerWidth;
+          const textWidth = this.cachedTextWidth;
+          const startPos = containerWidth;
+          const endPos = -textWidth;
+          const progress = 1 - (this.currentPosition - endPos) / (startPos - endPos);
+          startIndex = Math.floor(progress * text.length);
+          startIndex = Math.min(startIndex, text.length - 1);
+          while (startIndex > 0) {
+            if (text[startIndex] != ' ') {
+              startIndex--;
+            }
+            else {
+              break;
+            }
+          }
+        }
+
+        const textToSpeak = text.slice(startIndex);
+        if (!textToSpeak) {
+          return;
+        }
+        const wordCount = textToSpeak.split(/\s+/).filter(word => word.length > 0).length;
+        const utterance = new SpeechSynthesisUtterance(textToSpeak);
+        
+        const selectedVoiceIndex = parseInt(this.elements.voiceSelect.value);
+        if (this.voices[selectedVoiceIndex]) {
+          utterance.voice = this.voices[selectedVoiceIndex];
+        }
+        utterance.rate = this.speechRate / 100;
+
+        utterance.onboundary = (event) => {
+          if (event.name === 'word') {
+            const containerWidth = currentReader.cachedContainerWidth;
+            const textWidth = currentReader.cachedTextWidth;
+            const startPos = containerWidth;
+            const endPos = -textWidth;
+            const previousPosition = currentReader.currentPosition;
+            const progress = 1 - (currentReader.currentPosition - endPos) / (startPos - endPos);
+            const charIndex = startIndex + event.charIndex;
+            const nextCharIndex = Math.max(0, charIndex + (event.charLength * 2.5 * (0.5 - progress)));
+            currentReader.updateTextPositionForSpeech(charIndex, nextCharIndex, text.length);
+            const newPosition = currentReader.currentPosition;
+            if (this.previousPosition > newPosition) {
+              const newLastUpdateTime = Date.now();
+              const actualStepDelay = Math.floor((newLastUpdateTime - currentReader.animationStartTime) / Math.max(1e-9, this.previousPosition - newPosition) * 10) / 10;
+              const secondsRemaining = Math.floor(actualStepDelay * (newPosition - endPos) / 1000);
+              currentReader.elements.progressDisplay.innerHTML = currentReader.formatTime(secondsRemaining);
+              const totalSeconds = actualStepDelay * (startPos - endPos) / 1000;
+              const wpm = totalSeconds ? Math.max(1, Math.floor(wordCount / (totalSeconds / 60))) : wordCount;
+              currentReader.elements.progressDisplay.innerHTML += `<br>WPM: ${wpm}`;
+              const progress100 = Math.floor(100 * progress);
+              currentReader.elements.progressDisplay.innerHTML += `<br>Progress: ${progress100}%`;
+            }
+          }
+        };
+
+        utterance.onend = () => {
+          const containerWidth = currentReader.cachedContainerWidth;
+          const textWidth = currentReader.cachedTextWidth;
+          const startPos = containerWidth;
+          const endPos = -textWidth;
+          const newPosition = endPos;
+          if (this.previousPosition > newPosition) {
+            const progress = 1 - (newPosition - endPos) / (startPos - endPos);
+            const newLastUpdateTime = Date.now();
+            const actualStepDelay = Math.floor((newLastUpdateTime - currentReader.animationStartTime) / Math.max(1e-9, this.previousPosition - newPosition) * 10) / 10;
+            const secondsRemaining = Math.floor(actualStepDelay * (newPosition - endPos) / 1000);
+            currentReader.elements.progressDisplay.innerHTML = currentReader.formatTime(secondsRemaining);
+            const totalSeconds = actualStepDelay * (startPos - endPos) / 1000;
+            const wpm = totalSeconds ? Math.max(1, Math.floor(wordCount / (totalSeconds / 60))) : wordCount;
+            currentReader.elements.progressDisplay.innerHTML += `<br>WPM: ${wpm}`;
+            const progress100 = Math.floor(100 * progress);
+            currentReader.elements.progressDisplay.innerHTML += `<br>Progress: ${progress100}%`;
+          }
+          currentReader.currentPosition = startPos;
+          currentReader.elements.marqueeDisplay.style.left = `${currentReader.currentPosition}px`;
+          currentReader.lastSavedPosition = currentReader.currentPosition;
+          currentReader.updateProgressBar();
+          stopUpdate();
+          if (currentReader.elements.loopToggle.classList.contains('active')) {
+            currentReader.currentPosition = null;
+            setTimeout(() => {
+              return currentReader.toggleSpeech();
+            }, 50);
+          }
+        };
+
+        startUpdate();
+        this.speechSynthesis.speak(utterance);
+      },
+
+      updateTextPositionForSpeech(charIndex, nextCharIndex, totalLength) {
+        if (!this.isSpeaking) return;
+
+        const containerWidth = this.cachedContainerWidth;
+        const textWidth = this.cachedTextWidth;
+
+        const progress = charIndex / totalLength;
+        const nextProgress = nextCharIndex / totalLength;
+        const startPos = containerWidth;
+        const endPos = -textWidth;
+
+        this.currentPosition = Math.max(-textWidth, Math.min(containerWidth, startPos - (startPos - endPos) * progress));
+        this.lastSavedPosition = this.currentPosition;
+        const nextPosition = Math.max(-textWidth, Math.min(containerWidth, startPos - (startPos - endPos) * nextProgress));
+
+        this.elements.marqueeDisplay.style.left = `${nextPosition}px`;
+        this.updateProgressBar();
       }
+
     };
 
     document.addEventListener('DOMContentLoaded', () => {
