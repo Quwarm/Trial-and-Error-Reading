@@ -17,6 +17,8 @@
       --green-button-hover: rgb(21, 115, 71);
       --purple-button-background: rgb(84, 25, 135);
       --purple-button-hover: rgb(71, 21, 115);
+      --dark-blue-button-background: rgb(25, 48, 134);
+      --dark-blue-button-hover: rgb(21, 42, 116);
       --orange-button-background: rgb(218, 104, 11);
       --orange-button-hover: rgb(194, 93, 10);
       --red-button-background: rgb(187, 45, 59);
@@ -194,7 +196,7 @@
       font-size: 22px;
     }
 
-    #play-pause-button, #stop-button, #speak-button {
+    #play-pause-button, #stop-button, #speak-button, #search-button {
       min-width: 100px;
     }
 
@@ -214,12 +216,20 @@
       background-color: var(--orange-button-hover);
     }
 
-    #speak-button {
+    #speak-button, #search-button {
       background-color: var(--purple-button-background);
     }
 
-    #speak-button:hover {
+    #speak-button:hover, #search-button:hover {
       background-color: var(--purple-button-hover);
+    }
+
+    #search-button {
+      background-color: var(--dark-blue-button-background);
+    }
+
+    #search-button:hover {
+      background-color: var(--dark-blue-button-hover);
     }
 
     #stop-button {
@@ -230,7 +240,7 @@
       background-color: var(--red-button-hover);
     }
 
-    #play-pause-button:disabled, #stop-button:disabled, #speak-button:disabled {
+    #play-pause-button:disabled, #stop-button:disabled, #speak-button:disabled, #search-button:disabled {
       background-color: var(--gray-button-disabled-background);
       color: var(--gray-button-disabled-text);
     }
@@ -510,6 +520,29 @@
       text-align: center;
     }
 
+    .search-highlight {
+      background-color: #ffff99;
+      color: black;
+    }
+
+    .search-highlight.active {
+      background-color: #ffcc00;
+      font-weight: bold;
+    }
+
+    .search-mark {
+      position: absolute;
+      width: 2px;
+      height: 100%;
+      background-color: yellow;
+      z-index: 10;
+    }
+
+    .search-mark.active {
+      background-color: orange;
+      width: 3px;
+    }
+
     @media (max-width: 600px) {
       button {
         width: 100%;
@@ -565,7 +598,15 @@
       <div id="text-to-speech-container" class="mt-10">
         <button id="speak-button">Speak</button>
       </div>
-      <div>
+      <div id="search-container">
+        <button id="search-button">Search</button>
+        <div id="search-controls" class="items-border" style="display: none;">
+            <input type="text" id="search-input" placeholder="Enter search query...">
+            <button id="search-prev-button">Previous</button>
+            <button id="search-next-button">Next</button>
+        </div>
+      </div>
+      <div id="under-controls-container">
         <button id="loop-toggle">Loop <kbd>L</kbd></button>
         <div id="progress-display" class="mt-10" style="display: none;"></div>
         <div id="color-details" class="mt-10" style="display: none;"></div>
@@ -795,6 +836,12 @@
       voices: [],
       speechRate: 100,
 
+      isSearchActive: false,
+      searchQuery: '',
+      searchMatches: [],
+      currentMatchIndex: -1,
+      textToSearch: '',
+
       themes: [
         'dark',
         'light'
@@ -1008,6 +1055,13 @@
         this.elements.exportAllTexts = document.getElementById('export-all-texts');
         this.elements.exportAllSettingsProfilesAndTexts = document.getElementById('export-all-settings-profiles-and-texts');
         this.elements.exportAll = document.getElementById('export-all');
+        this.elements.searchContainer = document.getElementById('search-container');
+        this.elements.searchButton = document.getElementById('search-button');
+        this.elements.searchControls = document.getElementById('search-controls');
+        this.elements.searchInput = document.getElementById('search-input');
+        this.elements.searchNextButton = document.getElementById('search-next-button');
+        this.elements.searchPrevButton = document.getElementById('search-prev-button');
+        this.elements.underControlsContainer = document.getElementById('under-controls-container');
 
         this.cachedContainerWidth = null;
         this.cachedTextWidth = null;
@@ -1124,6 +1178,10 @@
         this.elements.exportAllTexts.addEventListener('click', () => this.exportAllTexts());
         this.elements.exportAllSettingsProfilesAndTexts.addEventListener('click', () => this.exportAllSettingsProfilesAndTexts());
         this.elements.exportAll.addEventListener('click', () => this.exportAll());
+        this.elements.searchButton.addEventListener('click', () => this.toggleSearch());
+        this.elements.searchInput.addEventListener('input', (e) => this.handleSearchInput(e.target.value));
+        this.elements.searchNextButton.addEventListener('click', () => this.goToNextMatch());
+        this.elements.searchPrevButton.addEventListener('click', () => this.goToPreviousMatch());
 
         this.elements.textInput.addEventListener('input', () => { this.textIsModified = true; });
 
@@ -2053,6 +2111,19 @@
           const endPos = -textWidth;
           const progress = Math.min(100, Math.max(0, Math.floor(100 * (1 - (this.currentPosition - endPos) / (startPos - endPos)) * 10) / 10));
           this.elements.progressBar.style.width = `${progress}%`;
+          
+          const existingMarks = this.elements.progressBarContainer.querySelectorAll('.search-mark');
+          existingMarks.forEach(mark => mark.remove());
+
+          if (this.searchMatches.length > 0) {
+            this.searchMatches.forEach((match, index) => {
+              const matchProgress = ((match.position - startPos) / (endPos - startPos)) * 100;
+              const mark = document.createElement('div');
+              mark.className = `search-mark ${index === this.currentMatchIndex ? 'active' : ''}`;
+              mark.style.left = `${Math.max(0, Math.min(100, matchProgress))}%`;
+              this.elements.progressBarContainer.appendChild(mark);
+            });
+          }
         } else {
           this.elements.progressBar.style.width = '0%';
         }
@@ -2936,6 +3007,7 @@
           currentReader.elements.tabNavigation.style.display = 'none';
           currentReader.elements.tabContent.style.display = 'none';
           currentReader.elements.loopToggle.style.display = 'none';
+          currentReader.elements.searchContainer.style.display = 'none';
           currentReader.animationStartTime = Date.now();
           this.isSpeaking = true;
         };
@@ -2956,6 +3028,7 @@
           currentReader.elements.tabNavigation.style.display = '';
           currentReader.elements.tabContent.style.display = '';
           currentReader.elements.loopToggle.style.display = '';
+          currentReader.elements.searchContainer.style.display = '';
           this.isSpeaking = false;
         };
 
@@ -3081,7 +3154,146 @@
 
         this.elements.marqueeDisplay.style.left = `${nextPosition}px`;
         this.updateProgressBar();
-      }
+      },
+
+      toggleSearch() {
+        const currentReader = this;
+
+        if (this.animationTimer || this.isSpeaking) {
+          alert('Please stop animation or speech first.');
+          return;
+        }
+
+        currentReader.startAnimation(false, false);
+        this.textToSearch = this.elements.marqueeDisplay.textContent;
+        if (!this.textToSearch) {
+          return;
+        }
+
+        this.isSearchActive = !this.isSearchActive;
+        this.elements.searchButton.textContent = this.isSearchActive ? 'Close' : 'Search';
+        this.elements.searchControls.style.display = this.isSearchActive ? 'block' : 'none';
+
+        if (this.isSearchActive) {
+          currentReader.elements.playPauseButton.disabled = true;
+          currentReader.elements.stopButton.disabled = true;
+          currentReader.elements.rewindButton.disabled = false;
+          currentReader.elements.fastForwardButton.disabled = false;
+          currentReader.elements.refreshText.disabled = true;
+          currentReader.elements.refreshColors.disabled = true;
+          currentReader.elements.copyText.disabled = true;
+          currentReader.elements.marqueeControlsContainer.style.display = 'none';
+          currentReader.elements.progressDisplay.style.display = '';
+          currentReader.elements.tabNavigation.style.display = 'none';
+          currentReader.elements.tabContent.style.display = 'none';
+          currentReader.elements.textToSpeechContainer.style.display = 'none';
+          currentReader.elements.underControlsContainer.style.display = 'none';
+          currentReader.elements.searchInput.focus();
+          currentReader.handleSearchInput(currentReader.elements.searchInput.value);
+        } else {
+          currentReader.elements.playPauseButton.disabled = false;
+          currentReader.elements.stopButton.disabled = false;
+          currentReader.elements.rewindButton.disabled = false;
+          currentReader.elements.fastForwardButton.disabled = false;
+          currentReader.elements.refreshText.disabled = false;
+          currentReader.elements.refreshColors.disabled = false;
+          currentReader.elements.copyText.disabled = false;
+          currentReader.elements.marqueeControlsContainer.style.display = '';
+          currentReader.elements.progressDisplay.style.display = '';
+          currentReader.elements.tabNavigation.style.display = '';
+          currentReader.elements.tabContent.style.display = '';
+          currentReader.elements.textToSpeechContainer.style.display = '';
+          currentReader.elements.underControlsContainer.style.display = '';
+          currentReader.clearSearch();
+        }
+      },
+
+      handleSearchInput(query) {
+        this.searchQuery = query.trim();
+        this.searchMatches = [];
+        this.currentMatchIndex = -1;
+        const text = this.textToSearch;
+
+        if (!this.searchQuery || !text) {
+          this.updateProgressBar();
+          return;
+        }
+
+        this.updateCachedSizes();
+        const containerWidth = this.cachedContainerWidth;
+        const textWidth = this.cachedTextWidth;
+        const startPos = 0;
+        const endPos = containerWidth - textWidth;
+
+        const spans = Array.from(this.elements.marqueeDisplay.querySelectorAll('.marquee-word-span'));
+        const queryWords = this.searchQuery.split(/\s+/).filter(word => word);
+        for (let i = 0; i <= spans.length - queryWords.length; i++) {
+          let matchSpans = [];
+          let isMatch = true;
+          let matchText = '';
+          for (let j = 0; j < queryWords.length; j++) {
+            const span = spans[i + j];
+            const spanText = span.textContent.toLowerCase();
+            matchText += (j > 0 ? ' ' : '') + spanText;
+            if (!spanText.includes(queryWords[j])) {
+              isMatch = false;
+              break;
+            }
+            matchSpans.push(span);
+          }
+          if (isMatch && matchText.includes(this.searchQuery)) {
+            const firstSpanRect = matchSpans[0].getBoundingClientRect();
+            const marqueeRect = this.elements.marqueeDisplay.getBoundingClientRect();
+            const position = -(firstSpanRect.left - marqueeRect.left);
+            const matchLength = matchSpans.reduce((sum, span) => sum + span.getBoundingClientRect().width, 0) +
+              (matchSpans.length - 1) * parseFloat(getComputedStyle(matchSpans[0]).marginRight || 0);
+            this.searchMatches.push({ spanElements: matchSpans, position, matchLength });
+          }
+        }
+
+        this.updateProgressBar();
+        if (this.searchMatches.length > 0) {
+            this.currentMatchIndex = 0;
+            this.goToMatch(this.currentMatchIndex);
+        }
+      },
+
+      goToMatch(index) {
+        if (index < 0 || index >= this.searchMatches.length) return;
+
+        this.currentMatchIndex = index;
+        const match = this.searchMatches[this.currentMatchIndex];
+
+        this.currentPosition = match.position;
+        const containerWidth = this.cachedContainerWidth;
+        const textWidth = this.cachedTextWidth;
+        const endPos = containerWidth - textWidth;
+
+        this.currentPosition = Math.max(endPos, Math.min(0, this.currentPosition));
+        this.elements.marqueeDisplay.style.left = `${this.currentPosition}px`;
+        this.updateProgressBar();
+      },
+
+      goToNextMatch() {
+        if (this.searchMatches.length === 0) return;
+        const nextIndex = (this.currentMatchIndex + 1) % this.searchMatches.length;
+        this.goToMatch(nextIndex);
+      },
+
+      goToPreviousMatch() {
+        if (this.searchMatches.length === 0) return;
+        const prevIndex = this.currentMatchIndex - 1 < 0 ? this.searchMatches.length - 1 : this.currentMatchIndex - 1;
+        this.goToMatch(prevIndex);
+      },
+
+      clearSearch() {
+        this.searchQuery = '';
+        this.searchMatches = [];
+        this.currentMatchIndex = -1;
+        this.textToSearch = '';
+        this.elements.searchInput.value = '';
+        this.updateProgressBar();
+      },
 
     };
 
