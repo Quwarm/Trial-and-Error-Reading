@@ -3043,117 +3043,92 @@
           return;
         }
 
-        let startIndex = 0;
-        this.previousPosition = this.currentPosition;
+        let startSpanIndex = 0;
+        const spans = Array.from(this.elements.marqueeDisplay.querySelectorAll('.marquee-word-span'));
         if (this.currentPosition !== null) {
           const containerWidth = this.cachedContainerWidth;
           const textWidth = this.cachedTextWidth;
-          const startPos = containerWidth;
-          const endPos = -textWidth;
-          const progress = 1 - (this.currentPosition - endPos) / (startPos - endPos);
-          startIndex = Math.floor(progress * text.length);
-          startIndex = Math.min(startIndex, text.length - 1);
-          while (startIndex > 0) {
-            if (text[startIndex] != ' ') {
-              startIndex--;
-            }
-            else {
+          const startPos = 0;
+          const endPos = containerWidth - textWidth;
+          const progress = (this.currentPosition - startPos) / (endPos - startPos);
+          const charIndex = Math.floor(progress * text.length);
+          let currentCharCount = 0;
+          for (let i = 0; i < spans.length; i++) {
+            currentCharCount += spans[i].textContent.length + 1;
+            if (currentCharCount > charIndex) {
+              startSpanIndex = i;
               break;
             }
           }
         }
 
-        const textToSpeak = text.slice(startIndex);
-        if (!textToSpeak) {
-          return;
-        }
+        const textToSpeak = spans.slice(startSpanIndex).map(span => span.textContent).join(' ');
+        if (!textToSpeak) return;
+
         const wordCount = textToSpeak.split(/\s+/).filter(word => word.length > 0).length;
         const utterance = new SpeechSynthesisUtterance(textToSpeak);
-
         const selectedVoiceIndex = parseInt(this.elements.voiceSelect.value);
         if (this.voices[selectedVoiceIndex]) {
           utterance.voice = this.voices[selectedVoiceIndex];
         }
         utterance.rate = this.speechRate / 100;
 
+        const spanPositions = spans.slice(startSpanIndex).map(span => {
+          const spanRect = span.getBoundingClientRect();
+          const marqueeRect = this.elements.marqueeDisplay.getBoundingClientRect();
+          return -(spanRect.left - marqueeRect.left);
+        });
+
         utterance.onboundary = (event) => {
           if (event.name === 'word') {
+            const wordIndex = textToSpeak.substring(0, event.charIndex).split(/\s+/).filter(w => w).length;
+            const spanIndex = Math.min(wordIndex, spanPositions.length - 1);
+
             const containerWidth = currentReader.cachedContainerWidth;
             const textWidth = currentReader.cachedTextWidth;
-            const startPos = containerWidth;
-            const endPos = -textWidth;
-            const previousPosition = currentReader.currentPosition;
-            const progress = 1 - (currentReader.currentPosition - endPos) / (startPos - endPos);
-            const charIndex = startIndex + event.charIndex;
-            const nextCharIndex = Math.max(0, charIndex + (event.charLength * 2.5 * (0.5 - progress)));
-            currentReader.updateTextPositionForSpeech(charIndex, nextCharIndex, text.length);
-            const newPosition = currentReader.currentPosition;
-            if (this.previousPosition > newPosition) {
-              const newLastUpdateTime = Date.now();
-              const actualStepDelay = Math.floor((newLastUpdateTime - currentReader.animationStartTime) / Math.max(1e-9, this.previousPosition - newPosition) * 10) / 10;
-              const secondsRemaining = Math.floor(actualStepDelay * (newPosition - endPos) / 1000);
-              currentReader.elements.progressDisplay.innerHTML = currentReader.formatTime(secondsRemaining);
-              const totalSeconds = actualStepDelay * (startPos - endPos) / 1000;
-              const wpm = totalSeconds ? Math.max(1, Math.floor(wordCount / (totalSeconds / 60))) : wordCount;
-              currentReader.elements.progressDisplay.innerHTML += `<br>WPM: ${wpm}`;
-              const progress100 = Math.floor(100 * progress);
-              currentReader.elements.progressDisplay.innerHTML += `<br>Progress: ${progress100}%`;
-            }
+            const startPos = 0;
+            const endPos = containerWidth - textWidth;
+
+            currentReader.currentPosition = spanPositions[spanIndex];
+            currentReader.currentPosition = Math.max(endPos, Math.min(startPos, currentReader.currentPosition));
+            currentReader.elements.marqueeDisplay.style.left = `${currentReader.currentPosition}px`;
+
+            const progress = (currentReader.currentPosition - startPos) / (endPos - startPos);
+            const newLastUpdateTime = Date.now();
+            const elapsedTime = (newLastUpdateTime - currentReader.animationStartTime) / 1000;
+            const wordsPerSecond = wordIndex / elapsedTime;
+            const remainingWords = wordCount - wordIndex;
+            const secondsRemaining = wordsPerSecond ? (remainingWords / wordsPerSecond) : 0;
+
+            currentReader.elements.progressDisplay.innerHTML = currentReader.formatTime(secondsRemaining);
+            const wpm = elapsedTime > 0 ? Math.floor(wordIndex / (elapsedTime / 60)) : wordCount;
+            currentReader.elements.progressDisplay.innerHTML += `<br>WPM: ${wpm}`;
+            const progressPercent = Math.floor(progress * 100);
+            currentReader.elements.progressDisplay.innerHTML += `<br>Progress: ${progressPercent}%`;
+
+            currentReader.updateProgressBar();
           }
         };
 
         utterance.onend = () => {
           const containerWidth = currentReader.cachedContainerWidth;
           const textWidth = currentReader.cachedTextWidth;
-          const startPos = containerWidth;
-          const endPos = -textWidth;
-          const newPosition = endPos;
-          if (this.previousPosition > newPosition) {
-            const progress = 1 - (newPosition - endPos) / (startPos - endPos);
-            const newLastUpdateTime = Date.now();
-            const actualStepDelay = Math.floor((newLastUpdateTime - currentReader.animationStartTime) / Math.max(1e-9, this.previousPosition - newPosition) * 10) / 10;
-            const secondsRemaining = Math.floor(actualStepDelay * (newPosition - endPos) / 1000);
-            currentReader.elements.progressDisplay.innerHTML = currentReader.formatTime(secondsRemaining);
-            const totalSeconds = actualStepDelay * (startPos - endPos) / 1000;
-            const wpm = totalSeconds ? Math.max(1, Math.floor(wordCount / (totalSeconds / 60))) : wordCount;
-            currentReader.elements.progressDisplay.innerHTML += `<br>WPM: ${wpm}`;
-            const progress100 = Math.floor(100 * progress);
-            currentReader.elements.progressDisplay.innerHTML += `<br>Progress: ${progress100}%`;
-          }
-          currentReader.currentPosition = startPos;
+          const endPos = containerWidth - textWidth;
+
+          currentReader.currentPosition = endPos;
           currentReader.elements.marqueeDisplay.style.left = `${currentReader.currentPosition}px`;
           currentReader.lastSavedPosition = currentReader.currentPosition;
           currentReader.updateProgressBar();
           stopUpdate();
+
           if (currentReader.elements.loopToggle.classList.contains('active')) {
             currentReader.currentPosition = null;
-            setTimeout(() => {
-              return currentReader.toggleSpeech();
-            }, 50);
+            setTimeout(() => currentReader.toggleSpeech(), 50);
           }
         };
 
         startUpdate();
         this.speechSynthesis.speak(utterance);
-      },
-
-      updateTextPositionForSpeech(charIndex, nextCharIndex, totalLength) {
-        if (!this.isSpeaking) return;
-
-        const containerWidth = this.cachedContainerWidth;
-        const textWidth = this.cachedTextWidth;
-
-        const progress = charIndex / totalLength;
-        const nextProgress = nextCharIndex / totalLength;
-        const startPos = containerWidth;
-        const endPos = -textWidth;
-
-        this.currentPosition = Math.max(-textWidth, Math.min(containerWidth, startPos - (startPos - endPos) * progress));
-        this.lastSavedPosition = this.currentPosition;
-        const nextPosition = Math.max(-textWidth, Math.min(containerWidth, startPos - (startPos - endPos) * nextProgress));
-
-        this.elements.marqueeDisplay.style.left = `${nextPosition}px`;
-        this.updateProgressBar();
       },
 
       toggleSearch() {
