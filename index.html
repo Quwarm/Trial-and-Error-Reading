@@ -344,8 +344,10 @@
     }
 
     #letter-shuffle-select,
+    #letter-skip-select,
     #letter-elimination-select,
-    #word-shuffle-select {
+    #word-shuffle-select,
+    #word-skip-select {
       min-width: 150px;
     }
 
@@ -676,6 +678,22 @@
           <input type="number" id="speed-display" min="1" max="200" value="100">
         </div>
         <div class="mt-10">
+          <span class="select-label">Skipping letters:</span>
+          <select id="letter-skip-select">
+            <option value="no">-</option>
+            <option value="10%_letters">10%</option>
+            <option value="20%_letters">20%</option>
+            <option value="30%_letters">30%</option>
+            <option value="40%_letters">40%</option>
+            <option value="50%_letters">50%</option>
+            <option value="60%_letters">60%</option>
+            <option value="70%_letters">70%</option>
+            <option value="80%_letters">80%</option>
+            <option value="90%_letters">90%</option>
+            <option value="100%_letters">Almost all letters</option>
+          </select>
+        </div>
+        <div class="mt-10">
           <span class="select-label">Shuffling letters:</span>
           <select id="letter-shuffle-select">
             <option value="no">-</option>
@@ -699,6 +717,28 @@
             <option value="20%_random">20% smart-random</option>
             <option value="30%_random">30% smart-random</option>
             <option value="40%_random">40% smart-random</option>
+            <option value="50%_random">40% smart-random</option>
+          </select>
+        </div>
+        <div class="mt-10">
+          <span class="select-label">Skipping words:</span>
+          <select id="word-skip-select">
+            <option value="no">-</option>
+            <option value="5%_words">5%</option>
+            <option value="10%_words">10%</option>
+            <option value="15%_words">15%</option>
+            <option value="20%_words">20%</option>
+            <option value="25%_words">25%</option>
+            <option value="30%_words">30%</option>
+            <option value="35%_words">35%</option>
+            <option value="40%_words">40%</option>
+            <option value="45%_words">45%</option>
+            <option value="50%_words">50%</option>
+            <option value="60%_words">60%</option>
+            <option value="70%_words">70%</option>
+            <option value="80%_words">80%</option>
+            <option value="90%_words">90%</option>
+            <option value="100%_words">100%</option>
           </select>
         </div>
         <div class="mt-10">
@@ -857,12 +897,16 @@
       lastUpdateTime: null,
       colorMap: new Map(),
       colorList: [],
+
       previousText: null,
       previousLetterShuffle: '',
+      previousLetterSkip: '',
       previousWordShuffle: '',
+      previousWordSkip: '',
       previousLetterElimination: '',
       previousColorInput: '',
       previousPosition: null,
+
       wasColorTaskEnabled: null,
       wasColorTaskChecked: true,
       isLoopEnabled: false,
@@ -937,7 +981,9 @@
         colorTaskColors: 'sle_color_task_colors',
         speed: 'sle_speed',
         shufflingLetters: 'sle_shuffling_letters',
+        skippingLetters: 'sle_skipping_letters',
         shufflingWords: 'sle_shuffling_words',
+        skippingWords: 'sle_skipping_words',
         eliminatingLetters: 'sle_eliminating_letters',
         textSize: 'sle_text_size',
 
@@ -967,7 +1013,9 @@
         settings[this.settingsNames.colorTaskColors] = '';
         settings[this.settingsNames.speed] = '90';
         settings[this.settingsNames.shufflingLetters] = 'no';
+        settings[this.settingsNames.skippingLetters] = 'no';
         settings[this.settingsNames.shufflingWords] = 'no';
+        settings[this.settingsNames.skippingWords] = 'no';
         settings[this.settingsNames.eliminatingLetters] = 'no';
         settings[this.settingsNames.textSize] = '42';
         return settings;
@@ -980,7 +1028,9 @@
         settings[this.settingsNames.colorTaskColors] = this.elements.colorInput.value;
         settings[this.settingsNames.speed] = this.elements.speedDisplay.value;
         settings[this.settingsNames.shufflingLetters] = this.elements.letterShuffleSelect.value;
+        settings[this.settingsNames.skippingLetters] = this.elements.letterSkipSelect.value;
         settings[this.settingsNames.shufflingWords] = this.elements.wordShuffleSelect.value;
+        settings[this.settingsNames.skippingWords] = this.elements.wordSkipSelect.value;
         settings[this.settingsNames.eliminatingLetters] = this.elements.letterEliminationSelect.value;
         settings[this.settingsNames.textSize] = this.elements.fontSizeDisplay.value;
         return settings;
@@ -1005,8 +1055,14 @@
         currentKey = this.settingsNames.shufflingLetters;
         this.elements.letterShuffleSelect.value = keys.includes(currentKey) ? settingsProfileData[currentKey] : defaultSettings[currentKey];
 
+        currentKey = this.settingsNames.skippingLetters;
+        this.elements.letterSkipSelect.value = keys.includes(currentKey) ? settingsProfileData[currentKey] : defaultSettings[currentKey];
+
         currentKey = this.settingsNames.shufflingWords;
         this.elements.wordShuffleSelect.value = keys.includes(currentKey) ? settingsProfileData[currentKey] : defaultSettings[currentKey];
+
+        currentKey = this.settingsNames.skippingWords;
+        this.elements.wordSkipSelect.value = keys.includes(currentKey) ? settingsProfileData[currentKey] : defaultSettings[currentKey];
 
         currentKey = this.settingsNames.eliminatingLetters;
         this.elements.letterEliminationSelect.value = keys.includes(currentKey) ? settingsProfileData[currentKey] : defaultSettings[currentKey];
@@ -1059,8 +1115,10 @@
         this.elements.colorDetails = document.getElementById('color-details');
         this.elements.appendTextToggle = document.getElementById('append-text-toggle');
         this.elements.letterShuffleSelect = document.getElementById('letter-shuffle-select');
-        this.elements.wordShuffleSelect = document.getElementById('word-shuffle-select');
         this.elements.letterEliminationSelect = document.getElementById('letter-elimination-select');
+        this.elements.letterSkipSelect = document.getElementById('letter-skip-select');
+        this.elements.wordShuffleSelect = document.getElementById('word-shuffle-select');
+        this.elements.wordSkipSelect = document.getElementById('word-skip-select');
         this.elements.marqueeDisplay = document.getElementById('marquee-display');
         this.elements.marqueeControlsContainer = document.getElementById('marquee-controls-container');
         this.elements.marqueeContainer = document.getElementById('marquee-container');
@@ -1199,9 +1257,11 @@
       setupPatterns() {
         this.vowelPattern = new RegExp('[\u0041\u0045\u0049\u004f\u0055\u0410\u0415\u0401\u0418\u041e\u0423\u042b\u042d\u042e\u042f\u0391\u0395\u0397\u0399\u039f\u03a5\u03a9\u0101\u012b\u016b\u0113\u014d]', 'ui');
         this.letterPattern = new RegExp(/\p{L}/, 'ui');
+        this.wordPattern = new RegExp(/\p{L}+/, 'ui');
         this.punctuationPattern = new RegExp(/\p{S}|\p{Ps}|\p{Pe}|\p{Pi}|\p{Pf}|[!"#%&*,./:;?@^]|^-$/, 'ui');
         this.vowelPatternG = new RegExp(this.vowelPattern, 'uig');
         this.letterPatternG = new RegExp(this.letterPattern, 'uig');
+        this.wordPatternG = new RegExp(this.wordPattern, 'uig');
       },
 
       bindEvents() {
@@ -1269,19 +1329,23 @@
         this.elements.searchNextButton.addEventListener('click', () => this.goToNextMatch());
         this.elements.searchPrevButton.addEventListener('click', () => this.goToPreviousMatch());
 
-        this.elements.textInput.addEventListener('input', () => { this.textIsModified = true; });
+        const textModified = () => { this.textIsModified = true; };
+        this.elements.textInput.addEventListener('input', textModified);
 
-        this.elements.fontSizeSlider.addEventListener('change', () => { this.settingsProfileIsModified = true; });
-        this.elements.fontSizeDisplay.addEventListener('change', () => { this.settingsProfileIsModified = true; });
-        this.elements.speedSlider.addEventListener('change', () => { this.settingsProfileIsModified = true; });
-        this.elements.speedDisplay.addEventListener('change', () => { this.settingsProfileIsModified = true; });
-        this.elements.letterShuffleSelect.addEventListener('change', () => { this.settingsProfileIsModified = true; });
-        this.elements.letterEliminationSelect.addEventListener('change', () => { this.settingsProfileIsModified = true; });
-        this.elements.wordShuffleSelect.addEventListener('change', () => { this.settingsProfileIsModified = true; });
-        this.elements.colorEncoderToggle.addEventListener('click', () => { this.settingsProfileIsModified = true; });
-        this.elements.colorLetterCount.addEventListener('change', () => { this.settingsProfileIsModified = true; });
-        this.elements.dumpColors.addEventListener('click', () => { this.settingsProfileIsModified = true; });
-        this.elements.colorInput.addEventListener('change', () => { this.settingsProfileIsModified = true; });
+        const settingsProfileModified = () => { this.settingsProfileIsModified = true; };
+        this.elements.fontSizeSlider.addEventListener('change', settingsProfileModified);
+        this.elements.fontSizeDisplay.addEventListener('change', settingsProfileModified);
+        this.elements.speedSlider.addEventListener('change', settingsProfileModified);
+        this.elements.speedDisplay.addEventListener('change', settingsProfileModified);
+        this.elements.letterShuffleSelect.addEventListener('change', settingsProfileModified);
+        this.elements.letterSkipSelect.addEventListener('change', settingsProfileModified);
+        this.elements.letterEliminationSelect.addEventListener('change', settingsProfileModified);
+        this.elements.wordShuffleSelect.addEventListener('change', settingsProfileModified);
+        this.elements.wordSkipSelect.addEventListener('change', settingsProfileModified);
+        this.elements.colorEncoderToggle.addEventListener('click', settingsProfileModified);
+        this.elements.colorLetterCount.addEventListener('change', settingsProfileModified);
+        this.elements.dumpColors.addEventListener('click', settingsProfileModified);
+        this.elements.colorInput.addEventListener('change', settingsProfileModified);
 
         document.addEventListener('keydown', e => this.handleKeyPress(e));
         const currentReader = this;
@@ -1567,8 +1631,11 @@
 
         const textNeedsUpdate = this.currentPosition == null || this.previousText !== cleanedText ||
           this.previousLetterShuffle !== this.elements.letterShuffleSelect.value ||
+          this.previousLetterSkip !== this.elements.letterSkipSelect.value ||
           this.previousLetterElimination !== this.elements.letterEliminationSelect.value ||
-          this.previousWordShuffle !== this.elements.wordShuffleSelect.value;
+          this.previousWordShuffle !== this.elements.wordShuffleSelect.value ||
+          this.previousWordSkip !== this.elements.wordSkipSelect.value
+        ;
 
         const colorsNeedsUpdate = !this.wasColorTaskChecked || palleteChanged ||
           this.wasColorTaskEnabled !== this.elements.colorEncoderToggle.checked ||
@@ -1609,7 +1676,9 @@
 
         this.previousText = cleanedText;
         this.previousLetterShuffle = this.elements.letterShuffleSelect.value;
+        this.previousLetterSkip = this.elements.letterSkipSelect.value;
         this.previousWordShuffle = this.elements.wordShuffleSelect.value;
+        this.previousWordSkip = this.elements.wordSkipSelect.value;
         this.previousLetterElimination = this.elements.letterEliminationSelect.value;
         this.previousColorInput = this.elements.colorInput.value;
         this.previousPosition = this.currentPosition;
@@ -1709,18 +1778,25 @@
         const textLines = text.split('\n');
         const refLines = referenceText.split('\n');
         return textLines.map((line, index) => {
-          const words = line.split(/\s+/).filter(word => word);
+          let words = line.split(/\s+/).filter(word => word);
           const refWords = refLines[index] ? refLines[index].split(/\s+/) : words;
           let processedWords = words;
           let processedRefWords = refWords;
+
+          if (shouldModify && this.elements.wordSkipSelect.value !== 'no') {
+            const match = /(\d+)%_words/.exec(this.elements.wordSkipSelect.value);
+            if (match) {
+              processedWords = this.skipWords(processedWords, parseInt(match[1]) / 100);
+            }
+          }
 
           if (shouldModify && this.elements.wordShuffleSelect.value !== 'no') {
             const match = /(\d+)_words?/.exec(this.elements.wordShuffleSelect.value);
             if (match) {
               const groupSize = parseInt(match[1]);
-              const shuffledIndices = this.shuffleWordGroups(words, groupSize);
-              processedWords = shuffledIndices.map(i => words[i]);
-              processedRefWords = shuffledIndices.map(i => refWords[i]);
+              const shuffledIndices = this.shuffleWordGroups(processedWords, groupSize);
+              processedWords = shuffledIndices.map(i => processedWords[i]);
+              processedRefWords = shuffledIndices.map(i => processedRefWords[i]);
             }
           }
 
@@ -1735,6 +1811,13 @@
                 modifiedWord = this.eliminateLetters(this.vowelPatternG, modifiedWord, parseInt(vowelMatch[1]) / 100);
               } else if (randomMatch) {
                 modifiedWord = this.eliminateLetters(this.letterPatternG, modifiedWord, parseInt(randomMatch[1]) / 100);
+              }
+            }
+
+            if (shouldModify && this.elements.letterSkipSelect.value !== 'no' && word.length > 1) {
+              const skipMatch = /(\d+)%_letters/.exec(this.elements.letterSkipSelect.value);
+              if (skipMatch) {
+                modifiedWord = this.skipLetters(modifiedWord, parseInt(skipMatch[1]) / 100);
               }
             }
 
@@ -1771,14 +1854,17 @@
             }
 
             const coloredWord = Array.from(modifiedWord).map(colorize).join('');
-            return this.elements.letterShuffleSelect.value !== 'no' || this.elements.letterEliminationSelect.value !== 'no'
+            return this.elements.letterShuffleSelect.value !== 'no' ||
+              this.elements.letterEliminationSelect.value !== 'no' ||
+              this.elements.letterSkipSelect.value !== 'no' ||
+              this.elements.wordSkipSelect.value !== 'no'
               ? `<span class="marquee-word-span clickable" onclick="MarqueeReader.showWordHint('${escapeString(modifiedWord)}', '${escapeString(processedRefWords[i] || word)}')">${coloredWord}</span>`
               : `<span class="marquee-word-span">${coloredWord}</span>`;
           }).join(' ');
         }).join('\n');
       },
 
-      eliminateLetters(regex, word, percentOfLetters) {
+      eliminateLetters(regex, word, percentOfLetters, onlyReturnIndices = false) {
         let lettersOnly = word;
         lettersOnly = word.replace(/[^\p{L}]/ug, '');
         let matchIndices = [];
@@ -1831,6 +1917,9 @@
         vowelIndices.sort(cmp);
         otherIndices.sort(cmp);
         let indicesToRemove = [...duplicateIndices, ...vowelIndices, ...otherIndices].slice(0, numToRemove).sort((a, b) => a - b);
+        if (onlyReturnIndices) {
+          return indicesToRemove;
+        }
         let wordParts = [];
         let start = 0;
         for (let removeIndex of indicesToRemove) {
@@ -1862,10 +1951,11 @@
           let shuffleableIndices = [];
           let fixedIndices = new Set();
           for (let j = 0; j < groupLength; j++) {
-            if (this.punctuationPattern.test(groupWords[j])) {
-              fixedIndices.add(j);
-            } else {
+            if (!this.punctuationPattern.test(groupWords[j]) && this.wordPattern.test(groupWords[j])) {
               shuffleableIndices.push(j);
+            }
+            else {
+              fixedIndices.add(j);
             }
           }
           this.shuffleArray(shuffleableIndices);
@@ -1881,6 +1971,60 @@
           start += groupLength;
         }
         return shuffledIndices;
+      },
+
+      maxDistanceIndexes(length) {
+        if (length <= 0) return [];
+        const result = [0];
+        const remaining = new Set();
+        for (let i = 1; i < length; i++) remaining.add(i);
+        while (remaining.size > 0) {
+          let maxDist = -1;
+          let bestIdx = -1;
+          for (const current of remaining) {
+            let currentDist = Infinity;
+            for (const prev of result) {
+              currentDist = Math.min(currentDist, Math.abs(current - prev));
+            }
+            if (currentDist > maxDist) {
+              maxDist = currentDist;
+              bestIdx = current;
+            }
+          }
+          result.push(bestIdx);
+          remaining.delete(bestIdx);
+        }
+        return result;
+      },
+
+      skipWords(words, percent) {
+        const wordsToSkip = Math.floor(words.filter((v, i) => this.wordPattern.test(v)).length * percent);
+        let indices1 = [], indices2 = [];
+        for (let i = 0; i < words.length; ++i) {
+          (i % 2 ? indices1 : indices2).push(i)
+        }
+        if (Math.random() < 0.5) {
+          [indices1, indices2] = [indices2, indices1];
+        }
+        const newIndices1 = this.maxDistanceIndexes(indices1.length);
+        const newIndices2 = this.maxDistanceIndexes(indices2.length);
+        const indices = [...newIndices1.map(i => indices1[i]), ...newIndices2.map(i => indices2[i])];
+        let newWords = words.slice();
+        for (let i = 0, k = 0; i < indices.length && k < wordsToSkip; ++i) {
+          const currentIndex = indices[i];
+          const word = words[currentIndex];
+          const newWord = word.replaceAll(this.wordPatternG, '_');
+          if (word !== newWord) {
+            newWords[currentIndex] = newWord;
+            ++k;
+          }
+        }
+        return newWords;
+      },
+
+      skipLetters(word, percent) {
+        const lettersIndices = this.eliminateLetters(this.letterPatternG, word, percent, true);
+        return [...word].map((v, i) => lettersIndices.includes(i) ? '_' : v).join('');
       },
 
       isLetter(char) {
