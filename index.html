@@ -17,6 +17,8 @@
       --green-button-hover: rgb(21, 115, 71);
       --purple-button-background: rgb(84, 25, 135);
       --purple-button-hover: rgb(71, 21, 115);
+      --dark-cyan-button-background: rgb(25, 103, 134);
+      --dark-cyan-button-hover: rgb(21, 89, 116);
       --dark-blue-button-background: rgb(25, 48, 134);
       --dark-blue-button-hover: rgb(21, 42, 116);
       --orange-button-background: rgb(218, 104, 11);
@@ -146,20 +148,52 @@
       color: white;
     }
 
-    .blue-button {
-      background-color: var(--blue-button-background);
-    }
-
-    .blue-button:hover {
-      background-color: var(--blue-button-hover);
-    }
-
     .green-button {
       background-color: var(--green-button-background);
     }
 
     .green-button:hover {
       background-color: var(--green-button-hover);
+    }
+
+    .purple-button {
+      background-color: var(--purple-button-background);
+    }
+
+    .purple-button:hover {
+      background-color: var(--purple-button-hover);
+    }
+
+    .dark-cyan-button {
+      background-color: var(--dark-cyan-button-background);
+    }
+
+    .dark-cyan-button:hover {
+      background-color: var(--dark-cyan-button-hover);
+    }
+
+    .dark-blue-button {
+      background-color: var(--dark-blue-button-background);
+    }
+
+    .dark-blue-button:hover {
+      background-color: var(--dark-blue-button-hover);
+    }
+
+    .orange-button {
+      background-color: var(--orange-button-background);
+    }
+
+    .orange-button:hover {
+      background-color: var(--orange-button-hover);
+    }
+
+    .red-button {
+      background-color: var(--red-button-background);
+    }
+
+    .red-button:hover {
+      background-color: var(--red-button-hover);
     }
 
     .cyan-button {
@@ -170,6 +204,14 @@
       background-color: var(--cyan-button-hover);
     }
 
+    .blue-button {
+      background-color: var(--blue-button-background);
+    }
+
+    .blue-button:hover {
+      background-color: var(--blue-button-hover);
+    }
+
     .dark-button {
       background-color: var(--dark-button-background);
     }
@@ -178,16 +220,16 @@
       background-color: var(--dark-button-hover);
     }
 
-    .action-button {
+    .gray-button {
       background-color: var(--gray-button-background);
       color: var(--gray-button-text);
     }
 
-    .action-button:hover {
+    .gray-button:hover {
       background-color: var(--gray-button-hover);
     }
 
-    .action-button:disabled {
+    .gray-button-disabled:disabled {
       background-color: var(--gray-button-disabled-background);
       color: var(--gray-button-disabled-text);
     }
@@ -216,20 +258,9 @@
       background-color: var(--orange-button-hover);
     }
 
-    #speak-button, #search-button {
-      background-color: var(--purple-button-background);
-    }
-
-    #speak-button:hover, #search-button:hover {
-      background-color: var(--purple-button-hover);
-    }
-
-    #search-button {
-      background-color: var(--dark-blue-button-background);
-    }
-
-    #search-button:hover {
-      background-color: var(--dark-blue-button-hover);
+    #play-pause-button:disabled {
+      background-color: var(--gray-button-disabled-background);
+      color: var(--gray-button-disabled-text);
     }
 
     #stop-button {
@@ -240,7 +271,7 @@
       background-color: var(--red-button-hover);
     }
 
-    #play-pause-button:disabled, #stop-button:disabled, #speak-button:disabled, #search-button:disabled {
+    #stop-button:disabled {
       background-color: var(--gray-button-disabled-background);
       color: var(--gray-button-disabled-text);
     }
@@ -590,24 +621,24 @@
 
     <div id="controls-container" class="mt-10">
       <div>
-        <button id="rewind-button" class="action-button" disabled>&lt;&lt; <kbd>←</kbd></button>
+        <button id="rewind-button" class="gray-button gray-button-disabled" disabled>&lt;&lt; <kbd>←</kbd></button>
         <button id="play-pause-button">Start <kbd>Space</kbd></button>
         <button id="stop-button">Stop <kbd>S</kbd></button>
-        <button id="fast-forward-button" class="action-button" disabled>&gt;&gt; <kbd>→</kbd></button>
+        <button id="fast-forward-button" class="gray-button gray-button-disabled" disabled>&gt;&gt; <kbd>→</kbd></button>
       </div>
-      <div id="text-to-speech-container" class="mt-10">
-        <button id="speak-button">Speak</button>
+      <div id="text-to-speech-container">
+        <button id="speak-button" class="purple-button gray-button-disabled">Speak</button>
       </div>
       <div id="search-container">
-        <button id="search-button">Search</button>
+        <button id="search-button" class="dark-blue-button gray-button-disabled">Search</button>
         <div id="search-controls" class="items-border" style="display: none;">
-            <input type="text" id="search-input" placeholder="Enter search query...">
-            <button id="search-prev-button">Previous</button>
-            <button id="search-next-button">Next</button>
+            <input type="text" id="search-input" class="mt-10 mb-10" placeholder="Enter search query...">
+            <button id="search-prev-button" class="gray-button gray-button-disabled">Previous</button>
+            <button id="search-next-button" class="gray-button gray-button-disabled">Next</button>
         </div>
       </div>
       <div id="under-controls-container">
-        <button id="loop-toggle">Loop <kbd>L</kbd></button>
+        <button id="loop-toggle" class="gray-button gray-button-disabled">Loop <kbd>L</kbd></button>
         <div id="progress-display" class="mt-10" style="display: none;"></div>
         <div id="color-details" class="mt-10" style="display: none;"></div>
       </div>
@@ -624,14 +655,15 @@
       <div id="manipulations-tab" class="tab-content active items-border">
         <div class="mt-10">
           <select id="settings-profile-select"></select>
-          <button id="new-settings-profile-button" class="green-button">New Settings</button>
-          <button id="save-settings-profile-button" class="blue-button">Save Settings</button>
-          <button id="delete-settings-profile-button" class="dark-button">Delete Settings</button>
+          <button id="new-settings-profile-button" class="green-button gray-button-disabled">New Settings</button>
+          <button id="duplicate-settings-profile-button" class="dark-cyan-button gray-button-disabled">Duplicate Settings</button>
+          <button id="save-settings-profile-button" class="blue-button gray-button-disabled">Save Settings</button>
+          <button id="delete-settings-profile-button" class="dark-button gray-button-disabled">Delete Settings</button>
         </div>
         <div id="marquee-controls-container" class="mt-10">
-          <button id="refresh-text" class="action-button" disabled>↻ Text ↻ <kbd>T</kbd></button>
-          <button id="refresh-colors" class="action-button" disabled>↻ Colors ↻ <kbd>C</kbd></button>
-          <button id="copy-text" class="action-button" disabled>⏏ Copy text ⏏</button>
+          <button id="refresh-text" class="gray-button gray-button-disabled" disabled>↻ Text ↻ <kbd>T</kbd></button>
+          <button id="refresh-colors" class="gray-button gray-button-disabled" disabled>↻ Colors ↻ <kbd>C</kbd></button>
+          <button id="copy-marquee-text" class="gray-button gray-button-disabled" disabled>⏏ Copy text ⏏</button>
         </div>
         <div class="mt-10">
           <label>Text size</label>
@@ -685,7 +717,7 @@
             <span>Number of letters:</span>
             <input type="number" id="color-letter-count" min="0" max="32" value="1">
           </div>
-          <button id="dump-colors" class="mt-10">Dump colors</button>
+          <button id="dump-colors" class="mt-10" class="gray-button gray-button-disabled">Dump colors</button>
           <textarea id="color-input" placeholder="&lt;letter&gt; &lt;color&gt;&#13;&#10;a rgb(0, 0, 0)&#13;&#10;b red&#13;&#10;..."></textarea>
         </div>
         <div class="mt-10">
@@ -695,9 +727,10 @@
         <div class="mt-10">
           <select id="text-select">
           </select>
-          <button id="new-text-button" class="green-button">New Text</button>
-          <button id="save-text-button" class="blue-button">Save Text</button>
-          <button id="delete-text-button" class="dark-button">Delete Text</button>
+          <button id="new-text-button" class="green-button gray-button-disabled">New Text</button>
+          <button id="duplicate-text-button" class="dark-cyan-button gray-button-disabled">Duplicate Text</button>
+          <button id="save-text-button" class="blue-button gray-button-disabled">Save Text</button>
+          <button id="delete-text-button" class="dark-button gray-button-disabled">Delete Text</button>
         </div>
         <div class="mt-10">
           <label>Text</label>
@@ -706,6 +739,9 @@
         <div class="mt-10">
           <div>
             <button id="load-file">Load text file</button>
+            <button id="copy-current-text">Copy text</button>
+          </div>
+          <div>
             <button id="randomize-paragraphs">Randomize paragraphs</button>
             <button id="randomize-sentences">Randomize sentences</button>
           </div>
@@ -733,64 +769,62 @@
           <label><input type="checkbox" id="append-text-toggle" checked> Append text after loading/fetching</label>
         </div>
         <div class="mt-10">
-          <button id="clear-text" class="dark-button">Clear</button>
+          <button id="clear-text" class="dark-button gray-button-disabled">Clear</button>
         </div>
       </div>
       <div id="settings-tab" class="tab-content items-border">
         <div class="mt-10">
           <label id="show-color-info-element"><input type="checkbox" id="show-color-info-toggle" checked> Show letters-colors info <kbd>ESC</kbd></label>
+          <label id="show-speak-button-element"><input type="checkbox" id="show-speak-button-toggle" checked> Show Speak button</label>
+          <label id="show-search-button-element"><input type="checkbox" id="show-search-button-toggle" checked> Show Search button</label>
         </div>
         <div class="mt-10 items-border">
           <label>Appearance</label>
           <div>
-            <label id="show-search-button-element"><input type="checkbox" id="show-search-button-toggle" checked> Show Search button</label>
-          </div>
-          <div>
-            <button id="marquee-theme-toggle" class="cyan-button">Toggle Marquee Text Block Theme</button>
-            <button id="theme-toggle" class="cyan-button">Toggle Theme</button>
-            <button id="full-size-toggle" class="cyan-button">Toggle Full Size</button>
+            <button id="marquee-theme-toggle" class="cyan-button gray-button-disabled">Toggle Marquee Text Block Theme</button>
+            <button id="theme-toggle" class="cyan-button gray-button-disabled">Toggle Theme</button>
+            <button id="full-size-toggle" class="cyan-button gray-button-disabled">Toggle Full Size</button>
           </div>
         </div>
         <div class="mt-10 items-border">
           <label>Text-to-Speech</label>
-          <label id="show-speak-button-element"><input type="checkbox" id="show-speak-button-toggle" checked> Show Speak button</label>
           <div>
             <select id="voice-select"></select>
           </div>
-          <label>Speed</label>
+          <label class="mt-10">Speed</label>
           <input type="range" id="speech-rate-slider" min="1" max="300" step="1" value="100">
           <input type="number" id="speech-rate-display" min="1" max="300" step="1" value="100">
         </div>
         <div class="mt-10 items-border">
           <label>Import</label>
           <div>
-            <button id="import-all-settings-profiles" class="dark-button">Import all settings profiles</button>
-            <button id="import-all-texts" class="dark-button">Import all texts</button>
+            <button id="import-all-settings-profiles" class="dark-button gray-button-disabled">Import all settings profiles</button>
+            <button id="import-all-texts" class="dark-button gray-button-disabled">Import all texts</button>
           </div>
           <div>
-            <button id="import-all-settings-profiles-and-texts" class="dark-button">Import all settings profiles and texts</button>
-            <button id="import-all" class="dark-button">Import all</button>
+            <button id="import-all-settings-profiles-and-texts" class="dark-button gray-button-disabled">Import all settings profiles and texts</button>
+            <button id="import-all" class="dark-button gray-button-disabled">Import all</button>
           </div>
         </div>
         <div class="mt-10 items-border">
           <label>Export</label>
           <div>
-            <button id="export-all-settings-profiles" class="dark-button">Export all settings profiles</button>
-            <button id="export-all-texts" class="dark-button">Export all texts</button>
+            <button id="export-all-settings-profiles" class="dark-button gray-button-disabled">Export all settings profiles</button>
+            <button id="export-all-texts" class="dark-button gray-button-disabled">Export all texts</button>
           </div>
           <div>
-            <button id="export-all-settings-profiles-and-texts" class="dark-button">Export all settings profiles and texts</button>
-            <button id="export-all" class="dark-button">Export all</button>
+            <button id="export-all-settings-profiles-and-texts" class="dark-button gray-button-disabled">Export all settings profiles and texts</button>
+            <button id="export-all" class="dark-button gray-button-disabled">Export all</button>
           </div>
         </div>
         <div class="mt-10 items-border">
           <label>Delete</label>
           <div>
-            <button id="delete-all-settings-profiles" class="dark-button">Delete all settings profiles</button>
-            <button id="delete-all-texts" class="dark-button">Delete all texts</button>
+            <button id="delete-all-settings-profiles" class="dark-button gray-button-disabled">Delete all settings profiles</button>
+            <button id="delete-all-texts" class="dark-button gray-button-disabled">Delete all texts</button>
           </div>
           <div>
-            <button id="delete-database" class="dark-button">Delete the entire database</button>
+            <button id="delete-database" class="dark-button gray-button-disabled">Delete the entire database</button>
           </div>
         </div>
       </div>
@@ -1058,7 +1092,8 @@
         this.elements.showColorInfoToggle = document.getElementById('show-color-info-toggle');
         this.elements.refreshText = document.getElementById('refresh-text');
         this.elements.refreshColors = document.getElementById('refresh-colors');
-        this.elements.copyText = document.getElementById('copy-text');
+        this.elements.copyMarqueeText = document.getElementById('copy-marquee-text');
+        this.elements.copyCurrentText = document.getElementById('copy-current-text');
         this.elements.textHelper = document.getElementById('text-helper');
         this.elements.marqueeThemeToggle = document.getElementById('marquee-theme-toggle');
         this.elements.loopToggle = document.getElementById('loop-toggle');
@@ -1072,11 +1107,13 @@
         this.elements.progressBar = document.getElementById('progress-bar');
         this.elements.textSelect = document.getElementById('text-select');
         this.elements.newTextButton = document.getElementById('new-text-button');
+        this.elements.duplicateTextButton = document.getElementById('duplicate-text-button');
         this.elements.deleteTextButton = document.getElementById('delete-text-button');
         this.elements.saveTextButton = document.getElementById('save-text-button');
         this.elements.colorEncoderDiv = document.getElementById('color-encoder-div');
         this.elements.settingsProfileSelect = document.getElementById('settings-profile-select');
         this.elements.newSettingsProfileButton = document.getElementById('new-settings-profile-button');
+        this.elements.duplicateSettingsProfileButton = document.getElementById('duplicate-settings-profile-button');
         this.elements.deleteSettingsProfileButton = document.getElementById('delete-settings-profile-button');
         this.elements.saveSettingsProfileButton = document.getElementById('save-settings-profile-button');
         this.elements.textToSpeechContainer = document.getElementById('text-to-speech-container');
@@ -1115,6 +1152,7 @@
           currentReader.elements.deleteTextButton.style.display = 'none';
           currentReader.elements.settingsProfileSelect.style.display = 'none';
           currentReader.elements.newSettingsProfileButton.style.display = 'none';
+          currentReader.elements.duplicateSettingsProfileButton.style.display = 'none';
           currentReader.elements.deleteSettingsProfileButton.style.display = 'none';
         }
         currentReader.database = null;
@@ -1191,7 +1229,8 @@
         this.elements.appendTextToggle.addEventListener('click', () => this.toggleAppendText());
         this.elements.refreshText.addEventListener('click', () => this.refreshMarqueeText());
         this.elements.refreshColors.addEventListener('click', () => this.refreshMarqueeColors());
-        this.elements.copyText.addEventListener('click', () => this.copyMarqueeText());
+        this.elements.copyMarqueeText.addEventListener('click', () => this.copyMarqueeText());
+        this.elements.copyCurrentText.addEventListener('click', () => this.copyCurrentText());
         this.elements.loopToggle.addEventListener('click', () => this.toggleLoop());
         this.elements.rewindButton.addEventListener('click', () => this.rewind());
         this.elements.fastForwardButton.addEventListener('click', () => this.fastForward());
@@ -1203,10 +1242,12 @@
         this.elements.progressBarContainer.addEventListener('click', (e) => this.handleProgressBarClick(e));
         this.elements.textSelect.addEventListener('change', () => this.switchText());
         this.elements.newTextButton.addEventListener('click', () => this.createNewText());
+        this.elements.duplicateTextButton.addEventListener('click', () => this.duplicateText());
         this.elements.deleteTextButton.addEventListener('click', () => this.deleteCurrentText());
         this.elements.saveTextButton.addEventListener('click', () => this.saveCurrentText());
         this.elements.settingsProfileSelect.addEventListener('change', () => this.switchSettingsProfile());
         this.elements.newSettingsProfileButton.addEventListener('click', () => this.createNewSettingsProfile());
+        this.elements.duplicateSettingsProfileButton.addEventListener('click', () => this.duplicateSettingsProfile());
         this.elements.deleteSettingsProfileButton.addEventListener('click', () => this.deleteCurrentSettingsProfile());
         this.elements.saveSettingsProfileButton.addEventListener('click', () => this.saveCurrentSettingsProfile());
         this.elements.showSpeakButtonToggle.addEventListener('click', () => this.toggleSpeechButton());
@@ -1323,7 +1364,7 @@
         this.elements.fastForwardButton.disabled = true;
         this.elements.refreshText.disabled = true;
         this.elements.refreshColors.disabled = true;
-        this.elements.copyText.disabled = true;
+        this.elements.copyMarqueeText.disabled = true;
         const marqueeThemeToggle = localStorage.getItem(this.settingsNames.marqueeThemeToggle) || this.marqueeThemes[0];
         this.elements.body.classList.add(marqueeThemeToggle);
         this.elements.marqueeThemeToggle.innerHTML += ` [${marqueeThemeToggle.slice(-1)}]`;
@@ -1407,6 +1448,7 @@
         this.elements.tabNavigation.style.display = '';
         this.elements.tabContent.style.display = '';
         this.elements.speakButton.style.display = '';
+        this.elements.searchButton.style.display = '';
         this.updateProgressBar();
         if (fully && this.previousText !== null) {
           this.animationStartTime = null;
@@ -1417,7 +1459,7 @@
           this.elements.fastForwardButton.disabled = true;
           this.elements.refreshText.disabled = true;
           this.elements.refreshColors.disabled = true;
-          this.elements.copyText.disabled = true;
+          this.elements.copyMarqueeText.disabled = true;
         }
       },
 
@@ -1614,6 +1656,7 @@
               this.elements.tabNavigation.style.display = '';
               this.elements.tabContent.style.display = '';
               this.elements.speakButton.style.display = '';
+              this.elements.searchButton.style.display = '';
             }
           } else {
             this.elements.marqueeDisplay.style.left = `${newPosition}px`;
@@ -1628,7 +1671,7 @@
         this.elements.fastForwardButton.disabled = false;
         this.elements.refreshText.disabled = false;
         this.elements.refreshColors.disabled = false;
-        this.elements.copyText.disabled = false;
+        this.elements.copyMarqueeText.disabled = false;
         if (movement) {
           this.elements.loopToggle.style.display = 'none';
           this.elements.playPauseButton.textContent = 'Pause';
@@ -1638,6 +1681,7 @@
           this.elements.tabNavigation.style.display = 'none';
           this.elements.tabContent.style.display = 'none';
           this.elements.speakButton.style.display = 'none';
+          this.elements.searchButton.style.display = 'none';
           this.animationTimer = setTimeout(animate, stepDelay);
         }
         return true;
@@ -1650,6 +1694,7 @@
           this.elements.playPauseButton.textContent = 'Start';
           this.elements.playPauseButton.classList.remove('pause');
           this.elements.speakButton.style.display = '';
+          this.elements.searchButton.style.display = '';
           this.elements.marqueeControlsContainer.style.display = '';
           this.elements.loopToggle.style.display = '';
           this.elements.colorDetails.style.display = this.elements.colorEncoderToggle.checked && this.elements.showColorInfoToggle.checked ? '' : 'none';
@@ -2032,6 +2077,10 @@
         if (this.currentPosition !== null) {
           navigator.clipboard.writeText(this.elements.marqueeDisplay.textContent);
         }
+      },
+
+      copyCurrentText() {
+        navigator.clipboard.writeText(this.elements.textInput.value);
       },
 
       toggleColorEncoder(updateMarqueeTextBlock = true) {
@@ -2433,10 +2482,13 @@
         }
       },
 
-      createNewSettingsProfile() {
+      createNewSettingsProfile(settingsProfile = null) {
         const currentReader = this;
         const currentSettingsProfileName = currentReader.currentTextName;
-        const newSettingsProfile = JSON.stringify(currentReader.getCurrentSettingsProfile());
+        if (!settingsProfile) {
+          settingsProfile = currentReader.getDefaultSettingsProfile();
+        }
+        const newSettingsProfile = JSON.stringify(settingsProfile);
         if (currentReader.settingsProfileIsModified) {
           if (!confirm('You have unsaved changes. Are you sure you want to create a new settings profile?')) {
             currentReader.elements.settingsProfileSelect.value = currentSettingsProfileName;
@@ -2469,7 +2521,11 @@
         currentReader.switchSettingsProfile();
       },
 
-      createNewText() {
+      duplicateSettingsProfile() {
+        this.createNewSettingsProfile(this.getCurrentSettingsProfile());
+      },
+
+      createNewText(defaultContent = '') {
         const currentReader = this;
         const currentTextName = currentReader.currentTextName;
         if (currentReader.textIsModified) {
@@ -2493,7 +2549,7 @@
         texts.push(name);
         const transaction = currentReader.database.transaction([currentReader.settingsNames.texts], 'readwrite');
         const objectStore = transaction.objectStore(currentReader.settingsNames.texts);
-        objectStore.add({ title: name, content: '' });
+        objectStore.add({ title: name, content: defaultContent });
         localStorage.setItem(currentReader.settingsNames.texts, JSON.stringify(texts));
         const option = document.createElement('option');
         option.value = name;
@@ -2502,6 +2558,10 @@
         currentReader.elements.textSelect.value = name;
         currentReader.textIsModified = false;
         currentReader.switchText();
+      },
+
+      duplicateText() {
+        this.createNewText(this.elements.textInput.value);
       },
 
       saveCurrentSettingsProfile() {
@@ -3192,7 +3252,8 @@
           currentReader.elements.fastForwardButton.disabled = true;
           currentReader.elements.refreshText.disabled = true;
           currentReader.elements.refreshColors.disabled = true;
-          currentReader.elements.copyText.disabled = true;
+          currentReader.elements.copyMarqueeText.disabled = true;
+          currentReader.elements.searchButton.disabled = true;
           currentReader.elements.marqueeControlsContainer.style.display = 'none';
           currentReader.elements.progressDisplay.style.display = '';
           currentReader.elements.tabNavigation.style.display = 'none';
@@ -3213,7 +3274,8 @@
           currentReader.elements.fastForwardButton.disabled = false;
           currentReader.elements.refreshText.disabled = false;
           currentReader.elements.refreshColors.disabled = false;
-          currentReader.elements.copyText.disabled = false;
+          currentReader.elements.copyMarqueeText.disabled = false;
+          currentReader.elements.searchButton.disabled = false;
           currentReader.elements.marqueeControlsContainer.style.display = '';
           currentReader.elements.progressDisplay.style.display = '';
           currentReader.elements.tabNavigation.style.display = '';
@@ -3351,7 +3413,7 @@
           currentReader.elements.fastForwardButton.disabled = false;
           currentReader.elements.refreshText.disabled = true;
           currentReader.elements.refreshColors.disabled = true;
-          currentReader.elements.copyText.disabled = true;
+          currentReader.elements.copyMarqueeText.disabled = true;
           currentReader.elements.marqueeControlsContainer.style.display = 'none';
           currentReader.elements.progressDisplay.style.display = '';
           currentReader.elements.tabNavigation.style.display = 'none';
@@ -3367,7 +3429,7 @@
           currentReader.elements.fastForwardButton.disabled = false;
           currentReader.elements.refreshText.disabled = false;
           currentReader.elements.refreshColors.disabled = false;
-          currentReader.elements.copyText.disabled = false;
+          currentReader.elements.copyMarqueeText.disabled = false;
           currentReader.elements.marqueeControlsContainer.style.display = '';
           currentReader.elements.progressDisplay.style.display = '';
           currentReader.elements.tabNavigation.style.display = '';
