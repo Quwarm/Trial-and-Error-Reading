@@ -557,6 +557,14 @@
       text-align: center;
     }
 
+    .speak-mark {
+      position: absolute;
+      width: 3px;
+      height: 100%;
+      background-color: var(--border-color);
+      z-index: 10;
+    }
+
     .search-highlight {
       background-color: #ffff99;
       color: black;
@@ -571,13 +579,32 @@
       position: absolute;
       width: 2px;
       height: 100%;
-      background-color: yellow;
+      background-color: rgb(245,245,245);
       z-index: 10;
     }
 
     .search-mark.active {
-      background-color: orange;
+      background-color: rgb(112,128,144);
       width: 3px;
+    }
+
+    .bookmark-item {
+      margin: 5px 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .bookmark-name {
+      cursor: pointer;
+    }
+
+    .bookmark-mark {
+      position: absolute;
+      width: 2px;
+      height: 100%;
+      background-color: #00ff00;
+      cursor: pointer;
     }
 
     button:active {
@@ -625,7 +652,7 @@
     }
   </style>
 </head>
-<body class="">
+<body class="dark">
   <div id="main-container" class="container normal-size">
     <div id="progress-bar-container">
       <div id="progress-bar"></div>
@@ -645,6 +672,20 @@
       <div id="text-to-speech-container">
         <button id="speak-button" class="purple-button gray-button-disabled">Speak</button>
       </div>
+      <!-- <div id="bookmarks-container">
+        <button id="bookmarks-button">Bookmarks</button>
+        <div id="bookmarks-controls" style="display: none;">
+          <div>
+            <button id="save-bookmarks-button">Save Bookmarks</button>
+            <button id="cancel-bookmarks-button">Cancel</button>
+          </div>
+          <div>
+            <input type="text" id="bookmark-name-input" placeholder="Bookmark name">
+            <button id="add-bookmark-button">Add Bookmark</button>
+          </div>
+          <div id="bookmarks-list"></div>
+        </div>
+      </div> -->
       <div id="search-container">
         <button id="search-button" class="dark-blue-button gray-button-disabled">Search</button>
         <div id="search-controls" class="items-border" style="display: none;">
@@ -731,7 +772,7 @@
             <option value="20%_random">20% smart-random</option>
             <option value="30%_random">30% smart-random</option>
             <option value="40%_random">40% smart-random</option>
-            <option value="50%_random">40% smart-random</option>
+            <option value="50%_random">50% smart-random</option>
           </select>
         </div>
         <div class="mt-10">
@@ -748,10 +789,15 @@
             <option value="40%_words">40%</option>
             <option value="45%_words">45%</option>
             <option value="50%_words">50%</option>
+            <option value="55%_words">55%</option>
             <option value="60%_words">60%</option>
+            <option value="65%_words">65%</option>
             <option value="70%_words">70%</option>
+            <option value="75%_words">75%</option>
             <option value="80%_words">80%</option>
+            <option value="85%_words">85%</option>
             <option value="90%_words">90%</option>
+            <option value="95%_words">95%</option>
             <option value="100%_words">100%</option>
           </select>
         </div>
@@ -945,6 +991,7 @@
       database: null,
       defaultTextName: 'Default',
       currentTextName: 'Default',
+      currentTextBookmarks: [],
       textIsModified: false,
       defaultSettingsProfileName: 'Default',
       currentSettingsProfileName: 'Default',
@@ -959,8 +1006,8 @@
       cachedContainerWidth: null,
       cachedTextWidth: null,
 
-      speechSynthesis: null,
       isSpeaking: false,
+      speechSynthesis: null,
       currentVoice: null,
       voices: [],
       speechRate: 100,
@@ -970,6 +1017,9 @@
       searchMatches: [],
       currentMatchIndex: -1,
       textToSearch: '',
+
+      isBookmarksActive: false,
+      tmpBookmarks: null,
 
       themes: [
         'dark',
@@ -1127,6 +1177,8 @@
 
       loadBackground() {
         this.elements.body = document.body;
+        this.elements.body.classList.remove('light');
+        this.elements.body.classList.remove('dark');
         this.elements.body.classList.add(localStorage.getItem(this.settingsNames.theme) || this.themes[0]);
       },
 
@@ -1222,6 +1274,13 @@
         this.elements.searchNextButton = document.getElementById('search-next-button');
         this.elements.searchPrevButton = document.getElementById('search-prev-button');
         this.elements.underControlsContainer = document.getElementById('under-controls-container');
+        // this.elements.bookmarksButton = document.getElementById("bookmarks-button");
+        // this.elements.bookmarksControls = document.getElementById("bookmarks-controls");
+        // this.elements.bookmarkNameInput = document.getElementById("bookmark-name-input");
+        // this.elements.addBookmarkButton = document.getElementById("add-bookmark-button");
+        // this.elements.bookmarksList = document.getElementById("bookmarks-list");
+        // this.elements.saveBookmarksButton = document.getElementById("save-bookmarks-button");
+        // this.elements.cancelBookmarksButton = document.getElementById("cancel-bookmarks-button");
 
         this.cachedContainerWidth = null;
         this.cachedTextWidth = null;
@@ -1291,6 +1350,7 @@
       },
 
       bindEvents() {
+        const currentReader = this;
         this.elements.playPauseButton.addEventListener('click', () => this.togglePlayback());
         this.elements.stopButton.addEventListener('click', () => this.stopPlayback());
         this.elements.themeToggle.addEventListener('click', () => this.switchTheme());
@@ -1355,6 +1415,14 @@
         this.elements.searchInput.addEventListener('input', (e) => this.handleSearchInput(e.target.value));
         this.elements.searchNextButton.addEventListener('click', () => this.goToNextMatch());
         this.elements.searchPrevButton.addEventListener('click', () => this.goToPreviousMatch());
+        // this.elements.bookmarksButton.addEventListener("click", () => this.toggleBookmarks());
+        // this.elements.addBookmarkButton.addEventListener("click", () => this.addBookmark());
+        // this.elements.saveBookmarksButton.addEventListener("click", () => {
+        //   currentReader.bookmarks.set(currentReader.currentTextName, [...currentReader.tmpBookmarks]);
+        //   currentReader.saveBookmarksToDB();
+        //   currentReader.toggleBookmarks();
+        // });
+        // this.elements.cancelBookmarksButton.addEventListener("click", () => this.toggleBookmarks());
 
         const textModified = () => { this.textIsModified = true; };
         this.elements.textInput.addEventListener('input', textModified);
@@ -1375,7 +1443,6 @@
         this.elements.colorInput.addEventListener('change', settingsProfileModified);
 
         document.addEventListener('keydown', e => this.handleKeyPress(e));
-        const currentReader = this;
         window.addEventListener('resize', () => {
           if (currentReader.currentPosition !== null) {
             currentReader.updateCachedSizes();
@@ -2466,6 +2533,10 @@
           }
           currentSentence = currentSentence.trim();
           if (currentSentence) {
+            const lastChar = currentSentence[currentSentence.length - 1];
+            if (!(lastChar === '.' || lastChar === '!' || lastChar === '?')) {
+              currentSentence = currentSentence.concat('.');
+            }
             sentences.push(currentSentence);
           }
           return sentences;
@@ -2479,7 +2550,7 @@
       },
 
       savePosition() {
-        if (this.lastSavedPosition !== null) {
+        if (this.lastSavedPosition !== null && (this.cachedContainerWidth == null || this.lastSavedPosition < this.cachedContainerWidth)) {
           localStorage.setItem(this.settingsNames.lastPosition, this.lastSavedPosition);
         } else {
           localStorage.removeItem(this.settingsNames.lastPosition);
@@ -2551,10 +2622,7 @@
               mark.style.left = `${Math.max(0, Math.min(100, matchProgress))}%`;
               mark.addEventListener('click', (event) => {
                 event.stopPropagation();
-                this.currentPosition = match.position;
-                this.elements.marqueeDisplay.style.left = `${this.currentPosition}px`;
-                this.lastSavedPosition = this.currentPosition;
-                this.updateProgressBar();
+                this.goToMatch(index);
               });
               this.elements.progressBarContainer.appendChild(mark);
             });
@@ -2699,7 +2767,7 @@
           name = prompt('Enter a unique name for the new settings profile:');
           if (!name) return;
           const settingsProfiles = JSON.parse(localStorage.getItem(currentReader.settingsNames.settingsProfiles) || '[]');
-          if (settingsProfiles.includes(name)) {
+          if (settingsProfiles.includes(name) || name === this.defaultSettingsProfileName) {
             alert('This settings profile name already exists. Please choose another one.');
             name = null;
           }
@@ -2738,7 +2806,7 @@
           name = prompt('Enter a unique name for the new text:');
           if (!name) return;
           const texts = JSON.parse(localStorage.getItem(currentReader.settingsNames.texts) || '[]');
-          if (texts.includes(name)) {
+          if (texts.includes(name) || name === this.defaultTextName) {
             alert('This text name already exists. Please choose another one.');
             name = null;
           }
@@ -3460,7 +3528,7 @@
           currentReader.elements.loopToggle.style.display = 'none';
           currentReader.elements.searchContainer.style.display = 'none';
           currentReader.animationStartTime = Date.now();
-          this.isSpeaking = true;
+          currentReader.isSpeaking = true;
         };
 
         const stopUpdate = function () {
@@ -3481,7 +3549,9 @@
           currentReader.elements.tabContent.style.display = '';
           currentReader.elements.loopToggle.style.display = '';
           currentReader.elements.searchContainer.style.display = '';
-          this.isSpeaking = false;
+          const existingSpeakMarks = currentReader.elements.progressBarContainer.querySelectorAll('.speak-mark');
+          existingSpeakMarks.forEach(mark => mark.remove());
+          currentReader.isSpeaking = false;
         };
 
         if (this.isSpeaking) {
@@ -3499,11 +3569,12 @@
         let startSpanIndex = 0;
         const spans = Array.from(this.elements.marqueeDisplay.querySelectorAll('.marquee-word-span'));
         const words = realText.split(/\s+/).filter(w => w);
+        const containerWidth = this.cachedContainerWidth;
+        const textWidth = this.cachedTextWidth;
+        const shift = containerWidth * Math.max(0, Math.min(0.5, containerWidth / 100 - 5));
         if (this.currentPosition !== null) {
-          const containerWidth = this.cachedContainerWidth;
-          const textWidth = this.cachedTextWidth;
-          const startPos = 0;
-          const endPos = containerWidth - textWidth;
+          const startPos = shift;
+          const endPos = shift - textWidth;
           const progress = (this.currentPosition - startPos) / (endPos - startPos);
           const charIndex = Math.floor(progress * processedText.length);
           let currentCharCount = 0;
@@ -3535,18 +3606,24 @@
           return -(spanRect.left - marqueeRect.left);
         });
 
+        const mark = document.createElement('div');
+        mark.className = `speak-mark`;
+        mark.style.left = (shift * 100 / containerWidth) + '%';
+        mark.addEventListener('click', (event) => {
+          event.stopPropagation();
+        });
+        let markAdded = false;
+
         utterance.onboundary = (event) => {
           if (event.name === 'word') {
             const wordIndex = realTextFromIndex.substring(0, event.charIndex).split(/\s+/).filter(w => w).length;
             const spanIndex = Math.min(wordIndex, spanPositions.length - 1);
 
-            const containerWidth = currentReader.cachedContainerWidth;
-            const textWidth = currentReader.cachedTextWidth;
-            const startPos = 0;
-            const endPos = containerWidth - textWidth;
+            const startPos = containerWidth;
+            const endPos = -textWidth;
 
             currentReader.currentPosition = spanPositions[spanIndex];
-            currentReader.currentPosition = Math.max(endPos, Math.min(startPos, currentReader.currentPosition + containerWidth * Math.max(0, Math.min(0.5, containerWidth / 100 - 5))));
+            currentReader.currentPosition = Math.max(endPos, Math.min(startPos, currentReader.currentPosition + shift));
             currentReader.elements.marqueeDisplay.style.left = `${currentReader.currentPosition}px`;
 
             const progress = (currentReader.currentPosition - startPos) / (endPos - startPos);
@@ -3562,17 +3639,38 @@
             const progressPercent = Math.floor(progress * 100);
             currentReader.elements.progressDisplay.innerHTML += `<br>Progress: ${progressPercent}%`;
 
+            if (!markAdded) {
+              currentReader.elements.progressBarContainer.appendChild(mark);
+              markAdded = true;
+            }
             currentReader.updateProgressBar();
           }
         };
 
         utterance.onend = () => {
-          const containerWidth = currentReader.cachedContainerWidth;
-          const textWidth = currentReader.cachedTextWidth;
-          const endPos = containerWidth - textWidth;
+          const startPos = containerWidth;
+          const endPos = -textWidth;
 
           currentReader.currentPosition = endPos;
           currentReader.elements.marqueeDisplay.style.left = `${currentReader.currentPosition}px`;
+
+          const progress = (currentReader.currentPosition - startPos) / (endPos - startPos);
+          const newLastUpdateTime = Date.now();
+          const elapsedTime = (newLastUpdateTime - currentReader.animationStartTime) / 1000;
+          const wordsPerSecond = (wordCount - 1) / elapsedTime;
+          const remainingWords = wordCount - (wordCount - 1);
+          const secondsRemaining = wordsPerSecond ? (remainingWords / wordsPerSecond) : 0;
+
+          currentReader.elements.progressDisplay.innerHTML = currentReader.formatTime(secondsRemaining);
+          const wpm = elapsedTime > 0 ? Math.floor((wordCount - 1) / (elapsedTime / 60)) : wordCount;
+          currentReader.elements.progressDisplay.innerHTML += `<br>WPM: ${wpm}`;
+          const progressPercent = Math.floor(progress * 100);
+          currentReader.elements.progressDisplay.innerHTML += `<br>Progress: ${progressPercent}%`;
+
+          if (markAdded) {
+            mark.remove();
+          }
+
           currentReader.lastSavedPosition = currentReader.currentPosition;
           currentReader.updateProgressBar();
           stopUpdate();
@@ -3701,7 +3799,6 @@
         const textWidth = this.cachedTextWidth;
         const endPos = containerWidth - textWidth;
 
-        this.currentPosition = Math.max(endPos, Math.min(0, this.currentPosition));
         this.elements.marqueeDisplay.style.left = `${this.currentPosition}px`;
         this.updateProgressBar();
       },
