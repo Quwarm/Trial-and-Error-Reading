@@ -704,10 +704,32 @@
           <textarea id="text-input" placeholder="Enter text here"></textarea>
         </div>
         <div class="mt-10">
-          <button id="load-sentence">Load [one of the 22831 sentences] <kbd>N</kbd></button>
-          <button id="load-wiki">Load [random wiki summary]</button>
-          <button id="load-file">Load [from file]</button>
-          <button id="load-metaphorpsum" style="display: none;">Load [random sentence from metaphorpsum]</button>
+          <div>
+            <button id="load-file">Load text file</button>
+            <button id="randomize-paragraphs">Randomize paragraphs</button>
+            <button id="randomize-sentences">Randomize sentences</button>
+          </div>
+          <div class="mt-10 items-border">
+            <label>English random sentences</label>
+            <div>
+              <button id="load-sentence-wordsmyth-beginner">[En] Wordsmyth Beginner [6152]</button>
+            </div>
+            <div>
+              <button id="load-sentence-wordsmyth-intermediate">[En] Wordsmyth Intermediate []</button>
+            </div>
+            <div>
+              <button id="load-sentence-wordsmyth-advanced">[En] Wordsmyth Advanced []</button>
+            </div>
+            <div>
+              <button id="load-sentence-merriam-webster">[En] Merriam-Webster [10668]</button>
+            </div>
+            <div>
+              <button id="load-wiki">[En] Wiki Random Summary</button>
+            </div>
+            <div>
+              <button id="load-metaphorpsum" style="display: none;">[En] Metaphorpsum Random Sentence</button>
+            </div>
+          </div>
           <label><input type="checkbox" id="append-text-toggle" checked> Append text after loading/fetching</label>
         </div>
         <div class="mt-10">
@@ -859,7 +881,10 @@
         'marquee-theme-4'
       ],
 
-      sentenceGenerator: null,
+      sentenceWordsmyth1Generator: null,
+      sentenceWordsmyth2Generator: null,
+      sentenceWordsmyth3Generator: null,
+      sentenceMerriamWebsterGenerator: null,
 
       settingsNames: {
         // texts
@@ -1013,10 +1038,15 @@
         this.elements.deleteAllTexts = document.getElementById('delete-all-texts');
         this.elements.deleteDatabase = document.getElementById('delete-database');
         this.elements.clearText = document.getElementById('clear-text');
-        this.elements.loadSentence = document.getElementById('load-sentence');
+        this.elements.loadSentenceWordsmythBeginner = document.getElementById('load-sentence-wordsmyth-beginner');
+        this.elements.loadSentenceWordsmythIntermediate = document.getElementById('load-sentence-wordsmyth-intermediate');
+        this.elements.loadSentenceWordsmythAdvanced = document.getElementById('load-sentence-wordsmyth-advanced');
+        this.elements.loadSentenceMerriamWebster = document.getElementById('load-sentence-merriam-webster');
         this.elements.loadWiki = document.getElementById('load-wiki');
         this.elements.loadMetaphorpsum = document.getElementById('load-metaphorpsum');
         this.elements.loadFile = document.getElementById('load-file');
+        this.elements.randomizeParagraphs = document.getElementById('randomize-paragraphs');
+        this.elements.randomizeSentences = document.getElementById('randomize-sentences');
         this.elements.colorEncoderToggle = document.getElementById('color-encoder-toggle');
         this.elements.colorEncoderOptions = document.getElementById('color-encoder-options');
         this.elements.colorLetterCount = document.getElementById('color-letter-count');
@@ -1146,10 +1176,15 @@
         this.elements.deleteAllTexts.addEventListener('click', () => this.deleteAllTexts());
         this.elements.deleteDatabase.addEventListener('click', () => this.deleteDatabase());
         this.elements.clearText.addEventListener('click', () => this.clearInput());
-        this.elements.loadSentence.addEventListener('click', () => this.fetchSentence());
+        this.elements.loadSentenceWordsmythBeginner.addEventListener('click', () => this.fetchSentenceWordsmythBeginner());
+        this.elements.loadSentenceWordsmythIntermediate.addEventListener('click', () => this.fetchSentenceWordsmythIntermediate());
+        this.elements.loadSentenceWordsmythAdvanced.addEventListener('click', () => this.fetchSentenceWordsmythAdvanced());
+        this.elements.loadSentenceMerriamWebster.addEventListener('click', () => this.fetchSentenceMerriamWebster());
         this.elements.loadWiki.addEventListener('click', () => this.fetchWikipedia());
         this.elements.loadMetaphorpsum.addEventListener('click', () => this.fetchMetaphorpsum());
         this.elements.loadFile.addEventListener('click', () => this.loadFromFile());
+        this.elements.randomizeParagraphs.addEventListener('click', () => this.randomizeParagraphs());
+        this.elements.randomizeSentences.addEventListener('click', () => this.randomizeSentences());
         this.elements.colorEncoderToggle.addEventListener('click', () => this.toggleColorEncoder());
         this.elements.dumpColors.addEventListener('click', () => this.dumpColorMap());
         this.elements.showColorInfoToggle.addEventListener('click', () => this.toggleColorDetails());
@@ -1216,12 +1251,62 @@
           }
         });
         currentReader.restoreActiveTab();
-        currentReader.sentenceGenerator = function* () {
+
+        // sentences generators
+        currentReader.sentenceWordsmyth1Generator = function* () {
           let sentences = [];
           try {
-            sentences = getSentences();
+            sentences = getSentencesWordsmyth1();
           } catch (e) {
-            alert('[Sentences.js] Sentences not found!');
+            alert('[wordsmyth1.js] Sentences not found!');
+            return;
+          }
+          while (true) {
+            currentReader.shuffleArray(sentences);
+            for (const sentence of sentences) {
+              yield sentence;
+            }
+          }
+        }();
+
+        currentReader.sentenceWordsmyth2Generator = function* () {
+          let sentences = [];
+          try {
+            sentences = getSentencesWordsmyth2();
+          } catch (e) {
+            alert('[wordsmyth2.js] Sentences not found!');
+            return;
+          }
+          while (true) {
+            currentReader.shuffleArray(sentences);
+            for (const sentence of sentences) {
+              yield sentence;
+            }
+          }
+        }();
+
+        currentReader.sentenceWordsmyth3Generator = function* () {
+          let sentences = [];
+          try {
+            sentences = getSentencesWordsmyth3();
+          } catch (e) {
+            alert('[wordsmyth3.js] Sentences not found!');
+            return;
+          }
+          while (true) {
+            currentReader.shuffleArray(sentences);
+            for (const sentence of sentences) {
+              yield sentence;
+            }
+          }
+        }();
+
+        currentReader.sentenceMerriamWebsterGenerator = function* () {
+          let sentences = [];
+          try {
+            sentences = getSentencesMerriamWebster();
+          } catch (e) {
+            alert('[merriam_webster.js] Sentences not found!');
             return;
           }
           while (true) {
@@ -1995,11 +2080,56 @@
         this.textIsModified = true;
       },
 
-      fetchSentence() {
+      fetchSentenceWordsmythBeginner() {
         if (this.animationTimer) {
           return;
         }
-        const next = this.sentenceGenerator.next();
+        const next = this.sentenceWordsmyth1Generator.next();
+        if (!next.done) {
+          const sentence = next.value;
+          if (sentence) {
+            const text = /[.!?]$/.test(sentence) ? sentence : `${sentence}.`;
+            this.elements.textInput.value = this.elements.appendTextToggle.checked ? `${this.elements.textInput.value}${this.elements.textInput.value ? '\n\n' : ''}${text}` : text;
+            this.textIsModified = true;
+          }
+        }
+      },
+
+      fetchSentenceWordsmythIntermediate() {
+        if (this.animationTimer) {
+          return;
+        }
+        const next = this.sentenceWordsmyth2Generator.next();
+        if (!next.done) {
+          const sentence = next.value;
+          if (sentence) {
+            const text = /[.!?]$/.test(sentence) ? sentence : `${sentence}.`;
+            this.elements.textInput.value = this.elements.appendTextToggle.checked ? `${this.elements.textInput.value}${this.elements.textInput.value ? '\n\n' : ''}${text}` : text;
+            this.textIsModified = true;
+          }
+        }
+      },
+
+      fetchSentenceWordsmythAdvanced() {
+        if (this.animationTimer) {
+          return;
+        }
+        const next = this.sentenceWordsmyth3Generator.next();
+        if (!next.done) {
+          const sentence = next.value;
+          if (sentence) {
+            const text = /[.!?]$/.test(sentence) ? sentence : `${sentence}.`;
+            this.elements.textInput.value = this.elements.appendTextToggle.checked ? `${this.elements.textInput.value}${this.elements.textInput.value ? '\n\n' : ''}${text}` : text;
+            this.textIsModified = true;
+          }
+        }
+      },
+
+      fetchSentenceMerriamWebster() {
+        if (this.animationTimer) {
+          return;
+        }
+        const next = this.sentenceMerriamWebsterGenerator.next();
         if (!next.done) {
           const sentence = next.value;
           if (sentence) {
@@ -2060,6 +2190,46 @@
         this.elements.body.removeChild(input);
       },
 
+      randomizeParagraphs() {
+        const currentReader = this;
+        const text = this.elements.textInput.value;
+        let paragraphs = text.split('\n').filter(p => p.trim());
+        currentReader.shuffleArray(paragraphs);
+        this.elements.textInput.value = paragraphs.join('\n\n');
+      },
+
+      randomizeSentences() {
+        const currentReader = this;
+        const text = this.elements.textInput.value;
+        const paragraphs = text.split('\n').filter(p => p.trim());
+        const splitIntoSentences = (paragraph) => {
+          const sentences = [];
+          let currentSentence = '';
+          for (let i = 0; i < paragraph.length; i++) {
+            const char = paragraph[i];
+            currentSentence += char;
+            if (char === '.' || char === '!' || char === '?') {
+              if (i === paragraph.length - 1 || paragraph[i + 1] === ' ') {
+                sentences.push(currentSentence.trim());
+                currentSentence = '';
+                i++;
+              }
+            }
+          }
+          currentSentence = currentSentence.trim();
+          if (currentSentence) {
+            sentences.push(currentSentence);
+          }
+          return sentences;
+        };
+        const processedParagraphs = paragraphs.map(paragraph => {
+          let sentences = splitIntoSentences(paragraph);
+          currentReader.shuffleArray(sentences);
+          return sentences.join(' ');
+        });
+        this.elements.textInput.value = processedParagraphs.join('\n\n');
+      },
+
       savePosition() {
         if (this.lastSavedPosition !== null) {
           localStorage.setItem(this.settingsNames.lastPosition, this.lastSavedPosition);
@@ -2109,8 +2279,6 @@
           case 'T': this.refreshMarqueeText(); break;
           case 'c':
           case 'C': this.refreshMarqueeColors(); break;
-          case 'n':
-          case 'N': this.fetchSentence(); break;
           case 'Escape': if (this.elements.colorEncoderToggle.checked) this.elements.showColorInfoToggle.click(); break;
         }
       },
@@ -3301,9 +3469,17 @@
     };
 
     document.addEventListener('DOMContentLoaded', () => {
-      const script = document.createElement('script');
-      script.src = 'sentences.js?version=1';
-      document.head.appendChild(script);
+      let scriptsPaths = [
+        'sentences/wordsmyth1.js?version=1',
+        'sentences/wordsmyth2.js?version=1',
+        'sentences/wordsmyth3.js?version=1',
+        'sentences/merriam_webster.js?version=1',
+      ];
+      for (let scriptPath of scriptsPaths) {
+        const script = document.createElement('script');
+        script.src = scriptPath;
+        document.head.appendChild(script);
+      }
       MarqueeReader.initialize();
     });
   </script>
