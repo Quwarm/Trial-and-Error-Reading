@@ -6,6 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Trial and Error Reading</title>
   <link rel="icon" type="image/png" href="favicon.png" />
+  <link rel="stylesheet" href="styles/minireset.min.css" />
   <script src="sentences/merriam_webster.js" type="text/javascript"></script>
   <script src="sentences/wordsmyth1.js" type="text/javascript"></script>
   <script src="sentences/wordsmyth2.js" type="text/javascript"></script>
@@ -58,6 +59,7 @@
     }
 
     body {
+      font-size: 16px;
       font-family: Arial, sans-serif;
       margin: 0;
       padding: 20px;
@@ -66,84 +68,87 @@
       transition: background-color 0.3s, color 0.3s;
     }
 
-    span {
-      unicode-bidi: embed;
-    }
-
-    .container.normal-size {
-      max-width: 1000px;
-      margin: 0 auto;
-    }
-
-    .container.max-size {
-      max-width: 100%;
-      margin: 0 auto;
-    }
-
-    #marquee-controls-container,
-    #marquee-container,
-    #controls-container,
-    #text-to-speech-container,
-    #additional-settings-container {
-      text-align: center;
+    h3 {
+      font-size: 16px;
+      padding: 8px 0px;
     }
 
     label {
       display: block;
-      padding-top: 5px;
-      padding-bottom: 5px;
+      padding: 8px 0px;
     }
 
-    #text-input {
-      width: 100%;
-      min-height: 300px;
-      padding: 10px;
-      font-size: 16px;
-      resize: vertical;
-      box-sizing: border-box;
-      white-space: pre-wrap;
-      word-wrap: break-word;
-      background-color: var(--container-background);
-      border-color: var(--border-color);
-      color: var(--text-color);
+    span {
+      unicode-bidi: embed;
     }
 
-    #color-input {
-      width: 100%;
-      min-height: 100px;
-      padding: 10px;
-      font-size: 16px;
-      resize: vertical;
-      box-sizing: border-box;
-      white-space: pre-wrap;
-      word-wrap: break-word;
-      background-color: var(--container-background);
-      border-color: var(--border-color);
-      color: var(--text-color);
+    hr {
+      background-color: var(--border-color-inv);
+      height: 1px;
+      border: 0;
     }
 
-    #marquee-container {
-      width: 100%;
-      height: 60px;
-      overflow: hidden;
-      position: relative;
-      border: 2px solid var(--border-color);
-      padding-left: 2px;
-      padding-right: 2px;
-      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-      direction: ltr;
-      background-color: var(--container-background);
+    select,
+    input[type="number"],
+    input[type="text"] {
+      text-align: center;
     }
 
-    #marquee-display {
-      position: absolute;
-      white-space: nowrap;
-      line-height: 60px;
-      text-align: right;
+    input[type="checkbox"] {
+      transform: scale(1.3);
+      padding-left: 3px;
     }
+
+    /* Margin */
+
+    .tab-content * {
+      margin: 1px;
+    }
+
+    /* Padding */
+    button, .tab-button {
+      padding: 10px 15px;
+      min-height: 42px;
+    }
+
+    select, input[type="text"], input[type="number"] {
+      padding: 8px 0px;
+    }
+
+    #text-input, #color-input {
+      padding: 5px;
+    }
+
+    kbd {
+      padding: 1px 4px;
+    }
+
+    /* A tag */
+
+    a {
+      text-decoration: none;
+      font-weight: bold;
+    }
+
+    body.light a {
+      color: #aaa;
+    }
+
+    body.light a:hover {
+      color: #555;
+    }
+
+    body.dark a {
+      color: #555;
+    }
+
+    body.dark a:hover {
+      color: #aaa;
+    }
+
+    /* Buttons */
 
     button {
-      padding: 10px 20px;
       font-size: 16px;
       border: none;
       border-radius: 5px;
@@ -154,6 +159,19 @@
       color: white;
     }
 
+    button:active {
+      transform: scale(0.99);
+    }
+
+    button:disabled {
+      background-color: var(--gray-button-disabled-background);
+      color: var(--gray-button-disabled-text);
+    }
+
+    .clickable {
+      cursor: pointer;
+    }
+    
     .green-button {
       background-color: var(--green-button-background);
     }
@@ -243,19 +261,6 @@
       background-color: var(--gray-button-hover);
     }
 
-    .gray-button-disabled:disabled {
-      background-color: var(--gray-button-disabled-background);
-      color: var(--gray-button-disabled-text);
-    }
-
-    #color-details {
-      font-size: 22px;
-    }
-
-    #play-pause-button, #stop-button, #speak-button, #search-button, #bookmarks-button {
-      min-width: 100px;
-    }
-
     #play-pause-button {
       background-color: var(--green-button-background);
     }
@@ -290,12 +295,226 @@
       color: var(--gray-button-disabled-text);
     }
 
-    .marquee-letter-span {
+    body.light #loop-toggle {
+      background-color: rgb(230, 230, 230);
+      color: rgb(173, 173, 173);
+      min-width: 70px;
+    }
+
+    body.light #loop-toggle.active {
+      background-color: rgb(200, 200, 200);
+      color: rgb(0, 0, 0);
+    }
+
+    body.dark #loop-toggle {
+      background-color: rgb(90, 90, 90);
+      color: rgb(70, 70, 70);
+      min-width: 70px;
+    }
+
+    body.dark #loop-toggle.active {
+      background-color: rgb(90, 90, 90);
+      color: rgb(255, 255, 255);
+    }
+
+    /* Tabs */
+
+    .container-items-in-center {
+      text-align: center;
+    }
+
+    .tab-button {
+      flex: 1;
+      border: none;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+
+    body.light .tab-button {
+      background-color: rgb(230, 230, 230);
+      color: rgb(173, 173, 173);
+    }
+
+    body.light .tab-button.active {
+      background-color: rgb(200, 200, 200);
+      color: rgb(0, 0, 0);
+    }
+
+    body.dark .tab-button {
+      background-color: rgb(90, 90, 90);
+      color: rgb(70, 70, 70);
+    }
+
+    body.dark .tab-button.active {
+      background-color: rgb(90, 90, 90);
+      color: rgb(255, 255, 255);
+    }
+
+    .tab-content {
+      display: none;
+    }
+
+    .tab-content.active {
+      display: block;
+    }
+
+    #tab-navigation {
+      display: flex;
+      justify-content: space-around;
+    }
+    
+    .with-rounded-border {
+      border-radius: 10px;
+      padding: 2px;
+      border-width: 2px;
+      border-style: solid;
+    }
+
+    body.light .with-rounded-border {
+      border-color: rgb(230, 230, 230);
+    }
+
+    body.light .with-rounded-border.active {
+      border-color: rgb(200, 200, 200);
+    }
+
+    body.dark .with-rounded-border {
+      border-color: rgb(90, 90, 90);
+    }
+
+    body.dark .with-rounded-border.active {
+      border-color: rgb(90, 90, 90);
+    }
+
+    /* By ID */
+
+    #main-container.normal-size {
+      max-width: 1000px;
+      margin: 0 auto;
+    }
+
+    #main-container.max-size {
+      max-width: 100%;
+      margin: 0 auto;
+    }
+
+    #controls-container button {
+      min-width: 100px;
+    }
+
+    #color-details {
+      font-size: 22px;
+    }
+
+    #text-input, #color-input {
+      width: 100%;
+      font-size: 16px;
+      resize: vertical;
       box-sizing: border-box;
+      white-space: pre-wrap;
+      word-wrap: break-word;
+      background-color: var(--container-background);
+      border-color: var(--border-color);
+      color: var(--text-color);
+    }
+
+    #text-input {
+      min-height: 300px;
+    }
+
+    #color-input {
+      min-height: 100px;
+    }
+
+    /* kbd tags */
+
+    kbd {
+      border: 1px solid;
+      border-radius: 3px;
+      font-size: 12px;
+      font-family: monospace;
+    }
+
+    body.light kbd {
+      background-color: rgb(200, 200, 200);
+      border-color: rgb(90, 90, 90);
+      color: #333;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+    }
+
+    body.dark kbd {
+      background-color: rgb(60, 60, 60);
+      border-color: rgb(200, 200, 200);
+      color: #e0e0e0;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+    }
+
+    /* Progress bar & Marquee */
+
+    #progress-bar-container {
+      width: 100%;
+      height: 20px;
+      background-color: var(--container-background);
+      border: 1px solid var(--border-color);
+      position: relative;
+      cursor: pointer;
+      margin-bottom: 5px;
+    }
+
+    #progress-bar {
+      height: 100%;
+      background-color: var(--green-button-background);
+      width: 0%;
+      transition: width 0.1s linear;
+    }
+
+    body.dark #progress-bar {
+      background-color: var(--green-button-hover);
+    }
+
+    #marquee-container {
+      width: 100%;
+      height: 60px;
+      overflow: hidden;
+      position: relative;
+      border: 2px solid var(--border-color);
+      padding-left: 2px;
+      padding-right: 2px;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+      direction: ltr;
+      background-color: var(--container-background);
+    }
+
+    #marquee-display {
+      position: absolute;
+      white-space: nowrap;
+      line-height: 60px;
+      text-align: right;
+    }
+
+    #settings-profile-select, #text-select {
+      width: 27%;
+      text-align: center;
+    }
+  
+    #load-wiki-language-select {
+      width: 16%;
+      text-align: center;
+    }
+
+    #voice-select {
+      width: 50%;
+      text-align: center;
+    }
+
+    /* Marquee themes */
+    
+    .marquee-word-span {
       display: inline-block;
     }
 
-    .marquee-word-span {
+    .marquee-letter-span {
+      box-sizing: border-box;
       display: inline-block;
     }
 
@@ -341,231 +560,7 @@
       word-spacing: 30px;
     }
 
-    #speed-display,
-    #font-size-display {
-      text-align: center;
-    }
-
-    input[type="text"],
-    input[type="number"],
-    select {
-      padding: 8px 4px;
-      text-align: center;
-    }
-
-    .clickable {
-      cursor: pointer;
-    }
-
-    #letter-shuffle-select,
-    #letter-skip-select,
-    #letter-elimination-select,
-    #word-shuffle-select,
-    #word-skip-select {
-      min-width: 150px;
-    }
-
-    .select-label {
-      min-width: 150px;
-      display: inline-block;
-    }
-
-    input[type="range"] {
-      width: 225px;
-      padding: 0 4px;
-    }
-
-    input[type="number"] {
-      width: 70px;
-    }
-
-    input[type="checkbox"] {
-      transform: scale(1.4);
-      margin: 7px 4px;
-    }
-
-    kbd {
-      border: 1px solid;
-      border-radius: 3px;
-      padding: 1px 4px;
-      font-size: 12px;
-      font-family: monospace;
-    }
-
-    body.light kbd {
-      background-color: rgb(200, 200, 200);
-      border-color: rgb(90, 90, 90);
-      color: #333;
-      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
-    }
-
-    body.dark kbd {
-      background-color: rgb(60, 60, 60);
-      border-color: rgb(200, 200, 200);
-      color: #e0e0e0;
-      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
-    }
-
-    a {
-      text-decoration: none;
-      font-weight: bold;
-    }
-
-    body.light a {
-      color: #aaa;
-    }
-
-    body.light a:hover {
-      color: #555;
-    }
-
-    body.dark a {
-      color: #555;
-    }
-
-    body.dark a:hover {
-      color: #aaa;
-    }
-
-    .mt-10 {
-      margin-top: 10px;
-    }
-
-    .mt-20 {
-      margin-top: 20px;
-    }
-
-    .mb-10 {
-      margin-bottom: 10px;
-    }
-
-    .mb-20 {
-      margin-bottom: 20px;
-    }
-
-    #tab-navigation {
-      display: flex;
-      justify-content: space-around;
-    }
-
-    .tab-button {
-      flex: 1;
-      padding: 10px;
-      border: none;
-      cursor: pointer;
-      transition: background-color 0.3s;
-    }
-
-    body.light .tab-button {
-      background-color: rgb(230, 230, 230);
-      color: rgb(173, 173, 173);
-    }
-
-    body.light .tab-button.active {
-      background-color: rgb(200, 200, 200);
-      color: rgb(0, 0, 0);
-    }
-
-    body.dark .tab-button {
-      background-color: rgb(90, 90, 90);
-      color: rgb(70, 70, 70);
-    }
-
-    body.dark .tab-button.active {
-      background-color: rgb(90, 90, 90);
-      color: rgb(255, 255, 255);
-    }
-
-    .tab-content {
-      display: none;
-      text-align: center;
-    }
-
-    .tab-content.active {
-      display: block;
-    }
-
-    .items-border {
-      border-radius: 10px;
-      padding: 2px;
-    }
-
-    body.light .items-border {
-      border: 2px solid rgb(230, 230, 230);
-    }
-
-    body.light .items-border.active {
-      border: 2px solid rgb(200, 200, 200);
-    }
-
-    body.dark .items-border {
-      border: 2px solid rgb(90, 90, 90);
-    }
-
-    body.dark .items-border.active {
-      border: 2px solid rgb(90, 90, 90);
-    }
-
-    body.light #loop-toggle {
-      background-color: rgb(230, 230, 230);
-      color: rgb(173, 173, 173);
-      min-width: 70px;
-    }
-
-    body.light #loop-toggle.active {
-      background-color: rgb(200, 200, 200);
-      color: rgb(0, 0, 0);
-    }
-
-    body.dark #loop-toggle {
-      background-color: rgb(90, 90, 90);
-      color: rgb(70, 70, 70);
-      min-width: 70px;
-    }
-
-    body.dark #loop-toggle.active {
-      background-color: rgb(90, 90, 90);
-      color: rgb(255, 255, 255);
-    }
-
-    #progress-bar-container {
-      width: 100%;
-      height: 20px;
-      background-color: var(--container-background);
-      border: 1px solid var(--border-color);
-      position: relative;
-      cursor: pointer;
-      margin-bottom: 5px;
-    }
-
-    #progress-bar {
-      height: 100%;
-      background-color: var(--green-button-background);
-      width: 0%;
-      transition: width 0.1s linear;
-    }
-
-    body.dark #progress-bar {
-      background-color: var(--green-button-hover);
-    }
-
-    #info-tab ul {
-      list-style-type: disc;
-      padding-left: 20px;
-      text-align: left;
-      max-width: 600px;
-      margin: 0 auto;
-    }
-    #info-tab li {
-      margin-bottom: 10px;
-    }
-
-    #settings-profile-select, #text-select, #voice-select {
-      min-width: 20%;
-      max-width: 50%;
-      padding: 8px;
-      text-align: center;
-    }
+    /* Speak function */
 
     .speak-mark {
       position: absolute;
@@ -575,21 +570,14 @@
       z-index: 10;
     }
 
-    .search-highlight {
-      background-color: #ffff99;
-      color: black;
-    }
-
-    .search-highlight.active {
-      background-color: #ffcc00;
-      font-weight: bold;
-    }
+    /* Search function */
 
     .search-mark {
       position: absolute;
       width: 2px;
       height: 100%;
       background-color: rgb(245,245,245);
+      cursor: pointer;
       z-index: 10;
     }
 
@@ -598,11 +586,26 @@
       width: 3px;
     }
 
+    /* Bookmarks function */
+
+    .bookmark-mark {
+      position: absolute;
+      width: 2px;
+      height: 100%;
+      background-color: rgb(255, 127, 36);
+      cursor: pointer;
+      z-index: 10;
+    }
+
+    #bookmarks-list {
+      max-width: 400px;
+      margin: 0 auto;
+    }
+
     .bookmark-item {
       align-items: center;
       display: block;
-      margin-top: 10px;
-      margin-bottom: 10px;
+      margin: 10px 0px;
     }
 
     .bookmark-name {
@@ -620,27 +623,16 @@
       vertical-align: middle;
     }
 
-    .bookmark-mark {
-      position: absolute;
-      width: 2px;
-      height: 100%;
-      background-color: rgb(255, 127, 36);
-      cursor: pointer;
-    }
-
-    #bookmarks-list {
-      max-width: 400px;
+    /* Info tab */
+    #info-tab ul {
+      list-style-type: disc;
+      text-align: left;
+      max-width: 600px;
       margin: 0 auto;
     }
-
-    button:active {
-      transform: scale(0.99);
-    }
-
-    hr {
-      background-color: var(--border-color-inv);
-      height: 1px;
-      border: 0;
+    
+    #info-tab li {
+      margin-bottom: 10px;
     }
 
     @media (max-width: 600px) {
@@ -651,19 +643,15 @@
       kbd {
         display: none;
       }
-      #settings-profile-select, #text-select, #voice-select {
-        min-width: 100%;
-        max-width: 100%;
-      }
-      input[type="range"] {
-        width: 30%;
-        margin-right: 25%;
-      }
-      input[type="number"] {
-        width: 30%;
-      }
       select {
         width: 100%;
+      }
+      input[type="range"] ~ input[type="number"] {
+        width: 30%;
+        margin-left: 20%;
+      }
+      .tab-content * {
+        margin: 5px 1px;
       }
       #tab-navigation {
         flex-direction: column;
@@ -672,56 +660,46 @@
         padding: 2px;
         margin-bottom: 10px;
       }
-      .tab-button {
-        margin-bottom: 5px;
-      }
-      .bookmark-name {
-        margin-top: 10px;
-      }
-      .bookmark-remove-button {
-        margin: 10px 0px 0px 0px;
-        padding: 5px;
-      }
-      #bookmark-name-input {
-        margin-top: 30px;
+      #settings-profile-select, #text-select, #load-wiki-language-select, #voice-select{
+        width: 100%;
       }
     }
   </style>
 </head>
 <body class="dark">
-  <div id="main-container" class="container normal-size">
+  <div id="main-container" class="normal-size">
     <div id="progress-bar-container">
       <div id="progress-bar"></div>
     </div>
 
-    <div id="marquee-container" class="mt-20">
+    <div id="marquee-container">
       <span id="marquee-display"></span>
     </div>
 
-    <div id="controls-container" class="mt-10">
+    <div id="controls-container" class="container-items-in-center">
       <div>
-        <button id="rewind-button" class="gray-button gray-button-disabled" disabled>&lt;&lt; <kbd>←</kbd></button>
+        <button id="rewind-button" class="gray-button" disabled>&lt;&lt; <kbd>←</kbd></button>
         <button id="play-pause-button">Start <kbd>Space</kbd></button>
         <button id="stop-button">Stop <kbd>S</kbd></button>
-        <button id="fast-forward-button" class="gray-button gray-button-disabled" disabled>&gt;&gt; <kbd>→</kbd></button>
+        <button id="fast-forward-button" class="gray-button" disabled>&gt;&gt; <kbd>→</kbd></button>
       </div>
       <div id="text-to-speech-container">
-        <button id="speak-button" class="purple-button gray-button-disabled">Speak</button>
+        <button id="speak-button" class="purple-button">Speak</button>
       </div>
       <div id="search-container">
-        <button id="search-button" class="dark-blue-button gray-button-disabled">Search</button>
-        <div id="search-controls" class="items-border" style="display: none;">
-            <input type="text" id="search-input" class="mt-10 mb-10" placeholder="Enter search query...">
-            <button id="search-prev-button" class="gray-button gray-button-disabled">Previous</button>
-            <button id="search-next-button" class="gray-button gray-button-disabled">Next</button>
+        <button id="search-button" class="dark-blue-button">Search</button>
+        <div id="search-controls" class="with-rounded-border" style="display: none;">
+            <input type="text" id="search-input" placeholder="Enter search query...">
+            <button id="search-prev-button" class="gray-button">Previous</button>
+            <button id="search-next-button" class="gray-button">Next</button>
         </div>
       </div>
       <div id="bookmarks-container">
-        <button id="bookmarks-button" class="chocolate-button gray-button-disabled">Bookmarks</button>
+        <button id="bookmarks-button" class="chocolate-button">Bookmarks</button>
         <div id="bookmarks-controls" style="display: none;">
           <div>
-            <button id="save-bookmarks-button" class="green-button gray-button-disabled">Save bookmarks</button>
-            <button id="cancel-bookmarks-button" class="red-button gray-button-disabled">Cancel</button>
+            <button id="save-bookmarks-button" class="green-button">Save bookmarks</button>
+            <button id="cancel-bookmarks-button" class="red-button">Cancel</button>
           </div>
           <div>
             <input type="text" id="bookmark-name-input" placeholder="Bookmark name">
@@ -730,14 +708,14 @@
           <div id="bookmarks-list"></div>
         </div>
       </div>
-      <div id="under-controls-container">
-        <button id="loop-toggle" class="gray-button gray-button-disabled">Loop <kbd>L</kbd></button>
-        <div id="progress-display" class="mt-10" style="display: none;"></div>
-        <div id="color-details" class="mt-10" style="display: none;"></div>
+      <div id="controls-container-footer">
+        <button id="loop-toggle" class="gray-button">Loop <kbd>L</kbd></button>
+        <div id="progress-display" style="display: none;"></div>
+        <div id="color-details" style="display: none;"></div>
       </div>
     </div>
 
-    <div id="tab-navigation" class="mt-10" role="tablist">
+    <div id="tab-navigation" role="tablist" class="container-items-in-center">
       <button class="tab-button active" data-tab="manipulations-tab" role="tab" aria-selected="true">Manipulations</button>
       <button class="tab-button" data-tab="texts-tab" role="tab" aria-selected="false">Texts</button>
       <button class="tab-button" data-tab="settings-tab" role="tab" aria-selected="false">Settings</button>
@@ -745,242 +723,373 @@
     </div>
 
     <div id="tab-content">
-      <div id="manipulations-tab" class="tab-content active items-border">
-        <div class="mt-10">
+      <div id="manipulations-tab" class="tab-content active container-items-in-center with-rounded-border">
+        <div>
           <select id="settings-profile-select"></select>
-          <button id="new-settings-profile-button" class="green-button gray-button-disabled">New Settings</button>
-          <button id="duplicate-settings-profile-button" class="dark-cyan-button gray-button-disabled">Duplicate Settings</button>
-          <button id="save-settings-profile-button" class="blue-button gray-button-disabled">Save Settings</button>
-          <button id="delete-settings-profile-button" class="dark-button gray-button-disabled">Delete Settings</button>
+          <button id="new-settings-profile-button" class="green-button">New</button>
+          <button id="duplicate-settings-profile-button" class="dark-cyan-button">Duplicate</button>
+          <button id="save-settings-profile-button" class="blue-button">Save</button>
+          <button id="delete-settings-profile-button" class="dark-button">Delete</button>
         </div>
-        <div id="marquee-controls-container" class="mt-10">
-          <button id="refresh-text" class="gray-button gray-button-disabled" disabled>↻ Text ↻ <kbd>T</kbd></button>
-          <button id="refresh-colors" class="gray-button gray-button-disabled" disabled>↻ Colors ↻ <kbd>C</kbd></button>
-          <button id="copy-marquee-text" class="gray-button gray-button-disabled" disabled>⏏ Copy text ⏏</button>
+        <div>
+          <button id="refresh-text" class="gray-button" disabled>↻ Text ↻ <kbd>T</kbd></button>
+          <button id="refresh-colors" class="gray-button" disabled>↻ Colors ↻ <kbd>C</kbd></button>
+          <button id="copy-marquee-text" class="gray-button" disabled>Copy text</button>
         </div>
-        <div class="mt-10">
-          <label>Text size</label>
+        <div>
+          <label for="font-size-number"><span>Text size</span></label>
           <input type="range" id="font-size-slider" min="8" max="50" value="50">
-          <input type="number" id="font-size-display" min="8" max="50" value="50">
+          <input type="number" id="font-size-number" min="8" max="50" value="50">
         </div>
-        <div class="mt-10">
-          <label>Speed <kbd>+</kbd><kbd>-</kbd></label>
+        <div>
+          <label for="speed-number"><span>Speed <kbd>+</kbd><kbd>-</kbd></span></label>
           <input type="range" id="speed-slider" min="1" max="200" value="100">
-          <input type="number" id="speed-display" min="1" max="200" value="100">
+          <input type="number" id="speed-number" min="1" max="200" value="100">
         </div>
-        <div class="mt-10">
-          <span class="select-label">Skipping letters:</span>
-          <select id="letter-skip-select">
-            <option value="no">-</option>
-            <option value="10%_letters">10%</option>
-            <option value="20%_letters">20%</option>
-            <option value="30%_letters">30%</option>
-            <option value="40%_letters">40%</option>
-            <option value="50%_letters">50%</option>
-            <option value="60%_letters">60%</option>
-            <option value="70%_letters">70%</option>
-            <option value="80%_letters">80%</option>
-            <option value="90%_letters">90%</option>
-            <option value="100%_letters">Almost all letters</option>
-          </select>
+        <div>
+          <label>
+            <span>Skipping letters:</span>
+            <select id="letter-skip-select">
+              <option value="no">-</option>
+              <option value="10%_letters">10%</option>
+              <option value="20%_letters">20%</option>
+              <option value="30%_letters">30%</option>
+              <option value="40%_letters">40%</option>
+              <option value="50%_letters">50%</option>
+              <option value="60%_letters">60%</option>
+              <option value="70%_letters">70%</option>
+              <option value="80%_letters">80%</option>
+              <option value="90%_letters">90%</option>
+              <option value="100%_letters">Almost all letters</option>
+            </select>
+          </label>
         </div>
-        <div class="mt-10">
-          <span class="select-label">Shuffling letters:</span>
-          <select id="letter-shuffle-select">
-            <option value="no">-</option>
-            <option value="easy">Easy</option>
-            <option value="medium">Medium</option>
-            <option value="medium_plus">Medium+</option>
-            <option value="hard">Hard</option>
-            <option value="very-hard">Very Hard</option>
-          </select>
+        <div>
+          <label>
+            <span>Shuffling letters:</span>
+            <select id="letter-shuffle-select">
+              <option value="no">-</option>
+              <option value="easy">Easy</option>
+              <option value="medium">Medium</option>
+              <option value="medium_plus">Medium+</option>
+              <option value="hard">Hard</option>
+              <option value="very-hard">Very Hard</option>
+            </select>
+          </label>
         </div>
-        <div class="mt-10">
-          <span class="select-label">Eliminating letters:</span>
-          <select id="letter-elimination-select">
-            <option value="no">-</option>
-            <option value="20%_vowels">20% vowels</option>
-            <option value="40%_vowels">40% vowels</option>
-            <option value="60%_vowels">60% vowels</option>
-            <option value="80%_vowels">80% vowels</option>
-            <option value="100%_vowels">Almost all vowels</option>
-            <option value="10%_random">10% smart-random</option>
-            <option value="20%_random">20% smart-random</option>
-            <option value="30%_random">30% smart-random</option>
-            <option value="40%_random">40% smart-random</option>
-            <option value="50%_random">50% smart-random</option>
-          </select>
+        <div>
+          <label>
+            <span>Eliminating letters:</span>
+            <select id="letter-elimination-select">
+              <option value="no">-</option>
+              <option value="20%_vowels">20% vowels</option>
+              <option value="40%_vowels">40% vowels</option>
+              <option value="60%_vowels">60% vowels</option>
+              <option value="80%_vowels">80% vowels</option>
+              <option value="100%_vowels">Almost all vowels</option>
+              <option value="10%_random">10% smart-random</option>
+              <option value="20%_random">20% smart-random</option>
+              <option value="30%_random">30% smart-random</option>
+              <option value="40%_random">40% smart-random</option>
+              <option value="50%_random">50% smart-random</option>
+            </select>
+          </label>
         </div>
-        <div class="mt-10">
-          <span class="select-label">Skipping words:</span>
-          <select id="word-skip-select">
-            <option value="no">-</option>
-            <option value="5%_words">5%</option>
-            <option value="10%_words">10%</option>
-            <option value="15%_words">15%</option>
-            <option value="20%_words">20%</option>
-            <option value="25%_words">25%</option>
-            <option value="30%_words">30%</option>
-            <option value="35%_words">35%</option>
-            <option value="40%_words">40%</option>
-            <option value="45%_words">45%</option>
-            <option value="50%_words">50%</option>
-            <option value="55%_words">55%</option>
-            <option value="60%_words">60%</option>
-            <option value="65%_words">65%</option>
-            <option value="70%_words">70%</option>
-            <option value="75%_words">75%</option>
-            <option value="80%_words">80%</option>
-            <option value="85%_words">85%</option>
-            <option value="90%_words">90%</option>
-            <option value="95%_words">95%</option>
-            <option value="100%_words">100%</option>
-          </select>
+        <div>
+          <label>
+            <span>Skipping words:</span>
+            <select id="word-skip-select">
+              <option value="no">-</option>
+              <option value="5%_words">5%</option>
+              <option value="10%_words">10%</option>
+              <option value="15%_words">15%</option>
+              <option value="20%_words">20%</option>
+              <option value="25%_words">25%</option>
+              <option value="30%_words">30%</option>
+              <option value="35%_words">35%</option>
+              <option value="40%_words">40%</option>
+              <option value="45%_words">45%</option>
+              <option value="50%_words">50%</option>
+              <option value="55%_words">55%</option>
+              <option value="60%_words">60%</option>
+              <option value="65%_words">65%</option>
+              <option value="70%_words">70%</option>
+              <option value="75%_words">75%</option>
+              <option value="80%_words">80%</option>
+              <option value="85%_words">85%</option>
+              <option value="90%_words">90%</option>
+              <option value="95%_words">95%</option>
+              <option value="100%_words">100%</option>
+            </select>
+          </label>
         </div>
-        <div class="mt-10">
-          <span class="select-label">Shuffling words:</span>
-          <select id="word-shuffle-select">
-            <option value="no">-</option>
-            <option value="2_words">Two words</option>
-            <option value="3_words">Three words</option>
-            <option value="4_words">Four words</option>
-            <option value="5_words">Five words</option>
-          </select>
+        <div>
+          <label>
+            <span>Shuffling words:</span>
+            <select id="word-shuffle-select">
+              <option value="no">-</option>
+              <option value="2_words">Two words</option>
+              <option value="3_words">Three words</option>
+              <option value="4_words">Four words</option>
+              <option value="5_words">Five words</option>
+            </select>
+          </label>
         </div>
-        <div id="color-encoder-div" class="mt-10">
-          <label><input type="checkbox" id="color-encoder-toggle" checked> Color encoder task <kbd>E</kbd></label>
-          <div id="color-encoder-options" class="mt-10">
-            <span>Number of letters:</span>
-            <input type="number" id="color-letter-count" min="0" max="32" value="1">
+        <div id="color-encoder-div">
+          <label>
+            <input type="checkbox" id="color-encoder-toggle" checked>
+            <span>Color encoder task <kbd>E</kbd></span>
+          </label>
+          <div id="color-encoder-options">
+            <div>
+              <label>
+                <span>Number of letters:</span>
+                <input type="number" id="color-letter-count" min="0" max="32" value="1">
+              </label>
+            </div>
+            <button id="dump-colors" class="gray-button">Dump colors</button>
+            <textarea id="color-input" placeholder="&lt;letter&gt; &lt;color&gt;&#13;&#10;a rgb(0, 0, 0)&#13;&#10;b red&#13;&#10;..."></textarea>
           </div>
-          <button id="dump-colors" class="mt-10" class="gray-button gray-button-disabled">Dump colors</button>
-          <textarea id="color-input" placeholder="&lt;letter&gt; &lt;color&gt;&#13;&#10;a rgb(0, 0, 0)&#13;&#10;b red&#13;&#10;..."></textarea>
-        </div>
-        <div class="mt-10">
         </div>
       </div>
-      <div id="texts-tab" class="tab-content items-border">
-        <div class="mt-10">
+      <div id="texts-tab" class="tab-content container-items-in-center with-rounded-border">
+        <div>
           <select id="text-select">
           </select>
-          <button id="new-text-button" class="green-button gray-button-disabled">New Text</button>
-          <button id="duplicate-text-button" class="dark-cyan-button gray-button-disabled">Duplicate Text</button>
-          <button id="save-text-button" class="blue-button gray-button-disabled">Save Text</button>
-          <button id="delete-text-button" class="dark-button gray-button-disabled">Delete Text</button>
+          <button id="new-text-button" class="green-button">New</button>
+          <button id="duplicate-text-button" class="dark-cyan-button">Duplicate</button>
+          <button id="save-text-button" class="blue-button">Save</button>
+          <button id="delete-text-button" class="dark-button">Delete</button>
         </div>
-        <div class="mt-10">
-          <label>Text</label>
-          <textarea id="text-input" placeholder="Enter text here"></textarea>
+        <div>
+          <label>
+            <span>Text</span>
+            <textarea id="text-input" placeholder="Enter text here"></textarea>
+          </label>
         </div>
-        <div class="mt-10">
+        <div>
           <div>
             <button id="load-file">Load text file</button>
             <button id="copy-current-text">Copy text</button>
           </div>
           <div>
-            <button id="randomize-paragraphs" class="dark-button gray-button-disabled">Randomize paragraphs</button>
-            <button id="randomize-sentences" class="dark-button gray-button-disabled">Randomize sentences</button>
+            <button id="randomize-paragraphs" class="dark-button">Randomize paragraphs</button>
+            <button id="randomize-sentences" class="dark-button">Randomize sentences</button>
           </div>
-          <div class="mt-10 items-border">
-            <label>English random sentences</label>
+          <div class="with-rounded-border">
+            <h3>Random paragraphs</h3>
             <div>
-              <label for="sentence-count-input">Number of sentences:<input type="number" id="sentence-count-input" min="1" max="10000" value="1"></label>
+              <label>
+                <span>Number of paragraphs:</span>
+                <input type="number" id="sentence-count-input" min="1" max="10000" value="1">
+              </label>
             </div>
             <div>
-              <button id="load-sentence-wordsmyth-beginner">[En] Wordsmyth Beginner's dictionary [6153]</button>
+              <label>
+                <select id="load-wiki-language-select">
+                  <option value="sq">Albanian</option>
+                  <option value="alt">Southern Altai</option>
+                  <option value="ar">Arabic</option>
+                  <option value="arz">Egyptian Arabic</option>
+                  <option value="ary">Moroccan Arabic</option>
+                  <option value="arc">Aramaic</option>
+                  <option value="hy">Armenian</option>
+                  <option value="hyw">Western Armenian</option>
+                  <option value="azb">South Azerbaijani</option>
+                  <option value="ban">Balinese</option>
+                  <option value="ba">Bashkir</option>
+                  <option value="btm">Batak Mandailing</option>
+                  <option value="bbc">Batak Toba</option>
+                  <option value="be">Belarusian</option>
+                  <option value="be-tarask">Belarusian (Taraškievica orthography)</option>
+                  <option value="bug">Buginese</option>
+                  <option value="bg">Bulgarian</option>
+                  <option value="ch">Chamorro</option>
+                  <option value="chr">Cherokee</option>
+                  <option value="zh-classical">Literary Chinese</option>
+                  <option value="cs">Czech</option>
+                  <option value="dga">Southern Dagaare</option>
+                  <option value="en">English</option>
+                  <option value="jam">Jamaican Creole English</option>
+                  <option value="ang">Old English</option>
+                  <option value="simple">Simple English</option>
+                  <option value="eo">Esperanto</option>
+                  <option value="fr">French</option>
+                  <option value="ka">Georgian</option>
+                  <option value="de">German</option>
+                  <option value="nds">Low German</option>
+                  <option value="pfl">Palatine German</option>
+                  <option value="pdc">Pennsylvania German</option>
+                  <option value="frr">Northern Frisian</option>
+                  <option value="got">Gothic</option>
+                  <option value="el">Greek</option>
+                  <option value="ha">Hausa</option>
+                  <option value="he">Hebrew</option>
+                  <option value="hu">Hungarian</option>
+                  <option value="it">Italian</option>
+                  <option value="ja">Japanese</option>
+                  <option value="jv">Javanese</option>
+                  <option value="kn">Kannada</option>
+                  <option value="kk">Kazakh</option>
+                  <option value="km">Khmer</option>
+                  <option value="lo">Lao</option>
+                  <option value="la">Latin</option>
+                  <option value="lez">Lezghian</option>
+                  <option value="lij">Ligurian</option>
+                  <option value="li">Limburgish</option>
+                  <option value="ln">Lingala</option>
+                  <option value="lfn">Lingua Franca Nova</option>
+                  <option value="lt">Lithuanian</option>
+                  <option value="olo">Livvi-Karelian</option>
+                  <option value="mnw">Mon</option>
+                  <option value="mn">Mongolian</option>
+                  <option value="nr">South Ndebele</option>
+                  <option value="new">Newari</option>
+                  <option value="fa">Persian</option>
+                  <option value="pl">Polish</option>
+                  <option value="ro">Romanian</option>
+                  <option value="rmy">Vlax Romani</option>
+                  <option value="ru">Russian</option>
+                  <option value="bxr">Russia Buriat</option>
+                  <option value="se">Northern Sami</option>
+                  <option value="si">Sinhala</option>
+                  <option value="nso">Northern Sotho</option>
+                  <option value="st">Southern Sotho</option>
+                  <option value="es">Spanish</option>
+                  <option value="su">Sundanese</option>
+                  <option value="tl">Tagalog</option>
+                  <option value="tdd">Tai Nuea</option>
+                  <option value="ta">Tamil</option>
+                  <option value="tt">Tatar</option>
+                  <option value="crh">Crimean Tatar</option>
+                  <option value="th">Thai</option>
+                  <option value="bo">Tibetan</option>
+                  <option value="tr">Turkish</option>
+                  <option value="uk">Ukrainian</option>
+                  <option value="vi">Vietnamese</option>
+                  <option value="yi">Yiddish</option>
+                </select>
+                <button id="load-wiki-button">Wiki summary</button>
+              </label>
             </div>
             <div>
-              <button id="load-sentence-wordsmyth-intermediate">[En] Wordsmyth Intermediate dictionary [13438]</button>
+              <button id="load-sentence-wordsmyth-beginner">[En] Wordsmyth Beginner's [6153]</button>
             </div>
             <div>
-              <button id="load-sentence-wordsmyth-advanced">[En] Wordsmyth Advanced dictionary [21394]</button>
+              <button id="load-sentence-wordsmyth-intermediate">[En] Wordsmyth Intermediate [13438]</button>
             </div>
             <div>
-              <button id="load-sentence-merriam-webster">[En] Merriam-Webster dictionary [10668]</button>
-            </div>
-            <hr>
-            <div>
-              <button id="load-wiki">[En] Wiki random summary</button>
+              <button id="load-sentence-wordsmyth-advanced">[En] Wordsmyth Advanced [21394]</button>
             </div>
             <div>
-              <button id="load-underthekey">[En] Underthekey random sentence</button>
+              <button id="load-sentence-merriam-webster">[En] Merriam-Webster [10668]</button>
             </div>
-            <div>
-              <button id="load-metaphorpsum" style="display: none;">[En] Metaphorpsum random sentence</button>
+            <div id="hidden-content-1" style="display: none;">
+              <hr>
+              <div>
+                <button id="load-underthekey">[En] Underthekey random sentence</button>
+              </div>
+              <div>
+                <button id="load-metaphorpsum">[En] Metaphorpsum random sentence</button>
+              </div>
             </div>
           </div>
-          <label><input type="checkbox" id="append-text-toggle" checked>Append text after loading/fetching</label>
+          <label>
+            <input type="checkbox" id="append-text-toggle" checked>
+            <span>Append text after loading/fetching</span>
+          </label>
         </div>
-        <div class="mt-10">
-          <button id="clear-text" class="dark-button gray-button-disabled">Clear</button>
+        <div>
+          <button id="clear-text" class="dark-button">Clear</button>
         </div>
       </div>
-      <div id="settings-tab" class="tab-content items-border">
-        <div class="mt-10 items-border">
-          <label>Appearance</label>
-          <label id="show-color-info-element"><input type="checkbox" id="show-color-info-toggle" checked> Show Letters-Colors <kbd>ESC</kbd></label>
-          <label id="show-speak-button-element"><input type="checkbox" id="show-speak-button-toggle" checked> Show Speak button</label>
-          <label id="show-bookmarks-button-element"><input type="checkbox" id="show-bookmarks-button-toggle" checked> Show Bookmarks button</label>
-          <label id="show-search-button-element"><input type="checkbox" id="show-search-button-toggle" checked> Show Search button</label>
+      <div id="settings-tab" class="tab-content container-items-in-center with-rounded-border">
+        <div class="with-rounded-border">
+          <h3>Appearance</h3>
+          <label>
+            <input type="checkbox" id="show-color-info-toggle" checked>
+            <span>Show Letters-Colors <kbd>ESC</kbd></span>
+          </label>
+          <label>
+            <input type="checkbox" id="show-speak-button-toggle" checked>
+            <span>Show Speak button</span>
+          </label>
+          <label>
+            <input type="checkbox" id="show-bookmarks-button-toggle" checked>
+            <span>Show Bookmarks button</span>
+          </label>
+          <label>
+            <input type="checkbox" id="show-search-button-toggle" checked>
+            <span>Show Search button</span>
+          </label>
           <div>
-            <button id="marquee-theme-toggle" class="cyan-button gray-button-disabled">Toggle Marquee Text Block Theme</button>
-            <button id="theme-toggle" class="cyan-button gray-button-disabled">Toggle Theme</button>
-            <button id="full-size-toggle" class="cyan-button gray-button-disabled">Toggle Full Size</button>
+            <button id="marquee-theme-toggle" class="cyan-button">Toggle Marquee Text Block Theme</button>
+            <button id="theme-toggle" class="cyan-button">Toggle Theme</button>
+            <button id="full-size-toggle" class="cyan-button">Toggle Full Size</button>
           </div>
         </div>
-        <div class="mt-10 items-border">
-          <label>Text-to-Speech</label>
+        <div class="with-rounded-border">
+          <h3>Text-to-Speech</h3>
           <div>
             <select id="voice-select"></select>
           </div>
-          <label class="mt-10">Speed</label>
+          <label for="speech-rate-number"><span>Speed</span></label>
           <input type="range" id="speech-rate-slider" min="1" max="300" step="1" value="100">
-          <input type="number" id="speech-rate-display" min="1" max="300" step="1" value="100">
+          <input type="number" id="speech-rate-number" min="1" max="300" step="1" value="100">
           <div>
-            <label><input type="checkbox" id="faster-transitions-toggle" checked>Faster transitions between sentences</label>
+            <label>
+              <input type="checkbox" id="faster-transitions-toggle" checked>
+              <span>Faster transitions between sentences</span>
+            </label>
           </div>
         </div>
-        <div class="mt-10 items-border">
-          <label>Import</label>
+        <div class="with-rounded-border">
+          <h3>Import</h3>
           <div>
-            <label><input type="checkbox" id="import-replace-toggle" checked>Replace current data when provided</label>
+            <label>
+              <input type="checkbox" id="import-replace-toggle" checked>
+              <span>Replace current data when provided</span>
+            </label>
           </div>
           <div>
-            <button id="import-all-settings-profiles" class="dark-button gray-button-disabled">Import all settings profiles</button>
-            <button id="import-all-texts" class="dark-button gray-button-disabled">Import all texts</button>
+            <button id="import-all-settings-profiles" class="dark-button">Import all settings profiles</button>
+            <button id="import-all-texts" class="dark-button">Import all texts</button>
           </div>
           <div>
-            <button id="import-all-settings-profiles-and-texts" class="dark-button gray-button-disabled">Import all settings profiles and texts</button>
-            <button id="import-all" class="dark-button gray-button-disabled">Import all</button>
-          </div>
-        </div>
-        <div class="mt-10 items-border">
-          <label>Export</label>
-          <div>
-            <label><input type="checkbox" id="export-all-texts-with-bookmarks-toggle" checked>Export texts with bookmarks</label>
-          </div>
-          <div>
-            <button id="export-all-settings-profiles" class="dark-button gray-button-disabled">Export all settings profiles</button>
-            <button id="export-all-texts" class="dark-button gray-button-disabled">Export all texts</button>
-          </div>
-          <div>
-            <button id="export-all-settings-profiles-and-texts" class="dark-button gray-button-disabled">Export all settings profiles and texts</button>
-            <button id="export-all" class="dark-button gray-button-disabled">Export all</button>
+            <button id="import-all-settings-profiles-and-texts" class="dark-button">Import all settings profiles and texts</button>
+            <button id="import-all" class="dark-button">Import all</button>
           </div>
         </div>
-        <div class="mt-10 items-border">
-          <label>Delete</label>
+        <div class="with-rounded-border">
+          <h3>Export</h3>
           <div>
-            <button id="delete-all-settings-profiles" class="dark-button gray-button-disabled">Delete all settings profiles</button>
-            <button id="delete-all-texts" class="dark-button gray-button-disabled">Delete all texts</button>
+            <label>
+              <input type="checkbox" id="export-all-texts-with-bookmarks-toggle" checked>
+              <span>Export texts with bookmarks</span>
+            </label>
           </div>
           <div>
-            <button id="delete-database" class="dark-button gray-button-disabled">Delete the entire database</button>
+            <button id="export-all-settings-profiles" class="dark-button">Export all settings profiles</button>
+            <button id="export-all-texts" class="dark-button">Export all texts</button>
+          </div>
+          <div>
+            <button id="export-all-settings-profiles-and-texts" class="dark-button">Export all settings profiles and texts</button>
+            <button id="export-all" class="dark-button">Export all</button>
+          </div>
+        </div>
+        <div class="with-rounded-border">
+          <h3>Delete</h3>
+          <div>
+            <button id="delete-all-settings-profiles" class="dark-button">Delete all settings profiles</button>
+            <button id="delete-all-texts" class="dark-button">Delete all texts</button>
+          </div>
+          <div>
+            <button id="delete-database" class="dark-button">Delete the entire database</button>
           </div>
         </div>
       </div>
-      <div id="info-tab" class="tab-content items-border">
-        <div class="mt-20">
+      <div id="info-tab" class="tab-content container-items-in-center with-rounded-border">
+        <div>
             <p>Here are some tips and recommendations to help you effectively use this website:</p>
             <ul>
                 <li><strong>Resist checking answers too soon:</strong> Avoid looking up the solution until you're certain you don't know a word or have spent enough time trying to figure it out.</li>
@@ -992,7 +1101,6 @@
                 <li><strong>Increase difficulty:</strong> Continuously ramp up the exercise difficulty to maintain progress, rather than staying at an easy level for too long.</li>
             </ul>
         </div>
-        <div class="mb-20"></div>
         <a href="https://github.com/Quwarm/Trial-and-Error-Reading" target="_blank">GitHub</a>
       </div>
     </div>
@@ -1062,6 +1170,11 @@
       isBookmarksActive: false,
       tmpBookmarks: [],
 
+      sentenceInitCount: 0,
+      sentenceCounter: 0,
+      sentenceHash: 0,
+      sentenceDownloadDelay: 1050,
+
       themes: [
         'dark',
         'light'
@@ -1110,6 +1223,7 @@
         fasterTransitionsToggle: 'sle_faster_transitions_toggle',
         exportTextsWithBookmarksToggle: 'sle_export_texts_with_bookmarks_toggle',
         sentenceCountToGenerate: 'sle_sentence_count_to_generate',
+        wikiLang: 'sle_wiki_lang',
         loop: 'sle_loop',
         theme: 'sle_theme',
         marqueeThemeToggle: 'sle_marquee_theme_toggle',
@@ -1149,13 +1263,13 @@
         settings[this.settingsNames.colorTaskToggle] = this.elements.colorEncoderToggle.checked;
         settings[this.settingsNames.colorTaskLetters] = this.elements.colorLetterCount.value;
         settings[this.settingsNames.colorTaskColors] = this.elements.colorInput.value;
-        settings[this.settingsNames.speed] = this.elements.speedDisplay.value;
+        settings[this.settingsNames.speed] = this.elements.speedNumber.value;
         settings[this.settingsNames.shufflingLetters] = this.elements.letterShuffleSelect.value;
         settings[this.settingsNames.skippingLetters] = this.elements.letterSkipSelect.value;
         settings[this.settingsNames.shufflingWords] = this.elements.wordShuffleSelect.value;
         settings[this.settingsNames.skippingWords] = this.elements.wordSkipSelect.value;
         settings[this.settingsNames.eliminatingLetters] = this.elements.letterEliminationSelect.value;
-        settings[this.settingsNames.textSize] = this.elements.fontSizeDisplay.value;
+        settings[this.settingsNames.textSize] = this.elements.fontSizeNumber.value;
         return settings;
       },
 
@@ -1173,7 +1287,7 @@
         this.elements.colorInput.value = keys.includes(currentKey) ? settingsProfileData[currentKey] : defaultSettings[currentKey];
 
         currentKey = this.settingsNames.speed;
-        this.elements.speedDisplay.value = keys.includes(currentKey) ? settingsProfileData[currentKey] : defaultSettings[currentKey];
+        this.elements.speedNumber.value = keys.includes(currentKey) ? settingsProfileData[currentKey] : defaultSettings[currentKey];
 
         currentKey = this.settingsNames.shufflingLetters;
         this.elements.letterShuffleSelect.value = keys.includes(currentKey) ? settingsProfileData[currentKey] : defaultSettings[currentKey];
@@ -1191,10 +1305,10 @@
         this.elements.letterEliminationSelect.value = keys.includes(currentKey) ? settingsProfileData[currentKey] : defaultSettings[currentKey];
 
         currentKey = this.settingsNames.textSize;
-        this.elements.fontSizeDisplay.value = keys.includes(currentKey) ? settingsProfileData[currentKey] : defaultSettings[currentKey];
+        this.elements.fontSizeNumber.value = keys.includes(currentKey) ? settingsProfileData[currentKey] : defaultSettings[currentKey];
 
-        this.adjustSpeed(this.elements.speedDisplay.value);
-        this.adjustFontSize(this.elements.fontSizeDisplay.value);
+        this.adjustSpeed(this.elements.speedNumber.value);
+        this.adjustFontSize(this.elements.fontSizeNumber.value);
         this.toggleColorEncoder();
       },
 
@@ -1235,7 +1349,7 @@
         this.elements.mainContainer = document.getElementById('main-container');
         this.elements.textInput = document.getElementById('text-input');
         this.elements.speedSlider = document.getElementById('speed-slider');
-        this.elements.speedDisplay = document.getElementById('speed-display');
+        this.elements.speedNumber = document.getElementById('speed-number');
         this.elements.progressDisplay = document.getElementById('progress-display');
         this.elements.colorDetails = document.getElementById('color-details');
         this.elements.appendTextToggle = document.getElementById('append-text-toggle');
@@ -1245,7 +1359,6 @@
         this.elements.wordShuffleSelect = document.getElementById('word-shuffle-select');
         this.elements.wordSkipSelect = document.getElementById('word-skip-select');
         this.elements.marqueeDisplay = document.getElementById('marquee-display');
-        this.elements.marqueeControlsContainer = document.getElementById('marquee-controls-container');
         this.elements.marqueeContainer = document.getElementById('marquee-container');
         this.elements.playPauseButton = document.getElementById('play-pause-button');
         this.elements.stopButton = document.getElementById('stop-button');
@@ -1260,7 +1373,8 @@
         this.elements.loadSentenceWordsmythIntermediate = document.getElementById('load-sentence-wordsmyth-intermediate');
         this.elements.loadSentenceWordsmythAdvanced = document.getElementById('load-sentence-wordsmyth-advanced');
         this.elements.loadSentenceMerriamWebster = document.getElementById('load-sentence-merriam-webster');
-        this.elements.loadWiki = document.getElementById('load-wiki');
+        this.elements.loadWikiLanguageSelect = document.getElementById('load-wiki-language-select');
+        this.elements.loadWikiButton = document.getElementById('load-wiki-button');
         this.elements.loadUnderthekey = document.getElementById('load-underthekey');
         this.elements.loadMetaphorpsum = document.getElementById('load-metaphorpsum');
         this.elements.loadFile = document.getElementById('load-file');
@@ -1273,7 +1387,6 @@
         this.elements.fastForwardButton = document.getElementById('fast-forward-button');
         this.elements.colorInput = document.getElementById('color-input');
         this.elements.dumpColors = document.getElementById('dump-colors');
-        this.elements.showColorInfoElement = document.getElementById('show-color-info-element');
         this.elements.showColorInfoToggle = document.getElementById('show-color-info-toggle');
         this.elements.refreshText = document.getElementById('refresh-text');
         this.elements.refreshColors = document.getElementById('refresh-colors');
@@ -1283,7 +1396,7 @@
         this.elements.marqueeThemeToggle = document.getElementById('marquee-theme-toggle');
         this.elements.loopToggle = document.getElementById('loop-toggle');
         this.elements.fontSizeSlider = document.getElementById('font-size-slider');
-        this.elements.fontSizeDisplay = document.getElementById('font-size-display');
+        this.elements.fontSizeNumber = document.getElementById('font-size-number');
         this.elements.tabButtons = document.querySelectorAll('.tab-button');
         this.elements.tabNavigation = document.getElementById('tab-navigation');
         this.elements.tabContent = document.getElementById('tab-content');
@@ -1308,7 +1421,7 @@
         this.elements.speakButton = document.getElementById('speak-button');
         this.elements.voiceSelect = document.getElementById('voice-select');
         this.elements.speechRateSlider = document.getElementById('speech-rate-slider');
-        this.elements.speechRateDisplay = document.getElementById('speech-rate-display');
+        this.elements.speechRateNumber = document.getElementById('speech-rate-number');
         this.elements.importAllSettingsProfiles = document.getElementById('import-all-settings-profiles');
         this.elements.importAllTexts = document.getElementById('import-all-texts');
         this.elements.importAllSettingsProfilesAndTexts = document.getElementById('import-all-settings-profiles-and-texts');
@@ -1324,7 +1437,7 @@
         this.elements.searchInput = document.getElementById('search-input');
         this.elements.searchNextButton = document.getElementById('search-next-button');
         this.elements.searchPrevButton = document.getElementById('search-prev-button');
-        this.elements.underControlsContainer = document.getElementById('under-controls-container');
+        this.elements.controlsContainerFooter = document.getElementById('controls-container-footer');
         this.elements.bookmarksButton = document.getElementById("bookmarks-button");
         this.elements.bookmarksContainer = document.getElementById("bookmarks-container");
         this.elements.bookmarksControls = document.getElementById("bookmarks-controls");
@@ -1420,7 +1533,7 @@
         this.elements.loadSentenceWordsmythIntermediate.addEventListener('click', () => this.fetchSentenceWordsmythIntermediate());
         this.elements.loadSentenceWordsmythAdvanced.addEventListener('click', () => this.fetchSentenceWordsmythAdvanced());
         this.elements.loadSentenceMerriamWebster.addEventListener('click', () => this.fetchSentenceMerriamWebster());
-        this.elements.loadWiki.addEventListener('click', () => this.fetchWikipedia());
+        this.elements.loadWikiButton.addEventListener('click', () => this.fetchWikipedia());
         this.elements.loadUnderthekey.addEventListener('click', () => this.fetchUnderthekey());
         this.elements.loadMetaphorpsum.addEventListener('click', () => this.fetchMetaphorpsum());
         this.elements.loadFile.addEventListener('click', () => this.loadFromFile());
@@ -1438,9 +1551,9 @@
         this.elements.rewindButton.addEventListener('click', () => this.rewind());
         this.elements.fastForwardButton.addEventListener('click', () => this.fastForward());
         this.elements.fontSizeSlider.addEventListener('input', () => this.adjustFontSize(this.elements.fontSizeSlider.value));
-        this.elements.fontSizeDisplay.addEventListener('input', () => this.adjustFontSize(this.elements.fontSizeDisplay.value));
+        this.elements.fontSizeNumber.addEventListener('input', () => this.adjustFontSize(this.elements.fontSizeNumber.value));
         this.elements.speedSlider.addEventListener('input', () => this.adjustSpeed(this.elements.speedSlider.value));
-        this.elements.speedDisplay.addEventListener('input', () => this.adjustSpeed(this.elements.speedDisplay.value));
+        this.elements.speedNumber.addEventListener('input', () => this.adjustSpeed(this.elements.speedNumber.value));
         this.elements.tabButtons.forEach(button => button.addEventListener('click', () => this.switchTab(button)));
         this.elements.progressBarContainer.addEventListener('click', (e) => this.handleProgressBarClick(e));
         this.elements.textSelect.addEventListener('change', () => this.switchText());
@@ -1459,7 +1572,7 @@
         this.elements.speakButton.addEventListener('click', () => this.toggleSpeech());
         this.elements.voiceSelect.addEventListener('change', () => this.updateVoice());
         this.elements.speechRateSlider.addEventListener('input', () => this.adjustSpeechRate(this.elements.speechRateSlider.value));
-        this.elements.speechRateDisplay.addEventListener('input', () => this.adjustSpeechRate(this.elements.speechRateDisplay.value));
+        this.elements.speechRateNumber.addEventListener('input', () => this.adjustSpeechRate(this.elements.speechRateNumber.value));
         this.elements.importAllSettingsProfiles.addEventListener('click', () => this.importAllSettingsProfiles());
         this.elements.importAllTexts.addEventListener('click', () => this.importAllTexts());
         this.elements.importAllSettingsProfilesAndTexts.addEventListener('click', () => this.importAllSettingsProfilesAndTexts());
@@ -1484,6 +1597,7 @@
         });
         this.elements.importReplaceToggle.addEventListener('click', () => this.toggleImportReplace());
         this.elements.sentenceCountInput.addEventListener('input', () => this.saveSentenceCountToGenerate());
+        this.elements.loadWikiLanguageSelect.addEventListener('input', () => this.saveWikiLang());
         this.elements.fasterTransitionsToggle.addEventListener('click', () => this.toggleFasterTransitions());
         this.elements.exportAllTextsWithBookmarksToggle.addEventListener('click', () => this.toggleExportTextsWithBookmarks());
 
@@ -1492,9 +1606,9 @@
 
         const settingsProfileModified = () => { currentReader.settingsProfileIsModified = true; };
         this.elements.fontSizeSlider.addEventListener('change', settingsProfileModified);
-        this.elements.fontSizeDisplay.addEventListener('change', settingsProfileModified);
+        this.elements.fontSizeNumber.addEventListener('change', settingsProfileModified);
         this.elements.speedSlider.addEventListener('change', settingsProfileModified);
-        this.elements.speedDisplay.addEventListener('change', settingsProfileModified);
+        this.elements.speedNumber.addEventListener('change', settingsProfileModified);
         this.elements.letterShuffleSelect.addEventListener('change', settingsProfileModified);
         this.elements.letterSkipSelect.addEventListener('change', settingsProfileModified);
         this.elements.letterEliminationSelect.addEventListener('change', settingsProfileModified);
@@ -1604,6 +1718,8 @@
         this.toggleImportReplace();
         this.elements.sentenceCountInput.value = localStorage.getItem(this.settingsNames.sentenceCountToGenerate) || '1';
         this.saveSentenceCountToGenerate();
+        this.elements.loadWikiLanguageSelect.value = localStorage.getItem(this.settingsNames.wikiLang) || 'en';
+        this.saveWikiLang();
         this.elements.fasterTransitionsToggle.checked = localStorage.getItem(this.settingsNames.fasterTransitionsToggle) === 'true';
         this.toggleFasterTransitions();
         this.elements.exportAllTextsWithBookmarksToggle.checked = localStorage.getItem(this.settingsNames.exportTextsWithBookmarksToggle) !== 'false';
@@ -1675,7 +1791,7 @@
         this.elements.speakButton.style.display = '';
         this.elements.searchButton.style.display = '';
         this.elements.bookmarksButton.style.display = '';
-        this.elements.underControlsContainer.style.display = '';
+        this.elements.controlsContainerFooter.style.display = '';
         this.elements.loopToggle.style.display = '';
         this.elements.progressDisplay.style.display = 'none';
         this.elements.tabNavigation.style.display = '';
@@ -1828,7 +1944,7 @@
         const textWidth = this.cachedTextWidth;
         const startPos = containerWidth;
         const endPos = -textWidth;
-        const speed = parseInt(this.elements.speedDisplay.value);
+        const speed = parseInt(this.elements.speedNumber.value);
 
         const stepSize = speed > 80 ? (1 + (speed - 80) / 15) : 1;
         const stepDelay = speed > 20 ? Math.max(10, 110 - speed) : (Math.max(10, 110 - speed) + 10 * (20 - speed));
@@ -1887,7 +2003,7 @@
               this.elements.speakButton.style.display = '';
               this.elements.searchButton.style.display = '';
               this.elements.bookmarksButton.style.display = '';
-              this.elements.underControlsContainer.style.display = '';
+              this.elements.controlsContainerFooter.style.display = '';
               this.elements.loopToggle.style.display = '';
               this.elements.progressDisplay.style.display = '';
               this.elements.tabNavigation.style.display = '';
@@ -1913,7 +2029,7 @@
           this.elements.speakButton.style.display = 'none';
           this.elements.searchButton.style.display = 'none';
           this.elements.bookmarksButton.style.display = 'none';
-          this.elements.underControlsContainer.style.display = '';
+          this.elements.controlsContainerFooter.style.display = '';
           this.elements.loopToggle.style.display = 'none';
           this.elements.progressDisplay.style.display = '';
           this.elements.tabNavigation.style.display = 'none';
@@ -1932,7 +2048,7 @@
           this.elements.speakButton.style.display = '';
           this.elements.searchButton.style.display = '';
           this.elements.bookmarksButton.style.display = '';
-          this.elements.underControlsContainer.style.display = '';
+          this.elements.controlsContainerFooter.style.display = '';
           this.elements.loopToggle.style.display = '';
           this.elements.progressDisplay.style.display = '';
           this.elements.tabNavigation.style.display = '';
@@ -2253,7 +2369,7 @@
 
       toggleFullSize() {
         const sizes = ['max-size', 'normal-size'];
-        const container = document.querySelector('.container');
+        const container = this.elements.mainContainer;
         const current = sizes.find(size => container.classList.contains(size));
         const next = sizes[(sizes.indexOf(current) + 1) % sizes.length] || sizes[0];
         sizes.forEach(size => container.classList.remove(size));
@@ -2287,6 +2403,10 @@
         localStorage.setItem(this.settingsNames.sentenceCountToGenerate, this.elements.sentenceCountInput.value);
       },
 
+      saveWikiLang() {
+        localStorage.setItem(this.settingsNames.wikiLang, this.elements.loadWikiLanguageSelect.value);
+      },
+
       switchTab(button) {
         this.elements.tabButtons.forEach(btn => {
           btn.classList.remove('active');
@@ -2313,13 +2433,13 @@
 
       adjustFontSize(value) {
         this.elements.fontSizeSlider.value = value;
-        this.elements.fontSizeDisplay.value = value;
+        this.elements.fontSizeNumber.value = value;
         this.elements.marqueeDisplay.style.fontSize = `${value}px`;
       },
 
       adjustSpeed(value) {
         this.elements.speedSlider.value = value;
-        this.elements.speedDisplay.value = value;
+        this.elements.speedNumber.value = value;
       },
 
       rewind() {
@@ -2415,13 +2535,11 @@
 
       toggleColorEncoder(updateMarqueeTextBlock = true) {
         const isVisible = this.elements.colorEncoderToggle.checked;
-        this.elements.colorInput.style.display = isVisible ? '' : 'none';
-        this.elements.dumpColors.style.display = isVisible ? '' : 'none';
         this.elements.colorEncoderOptions.style.display = isVisible ? '' : 'none';
         this.elements.colorDetails.style.display = this.elements.showColorInfoToggle.checked && isVisible ? '' : 'none';
-        this.elements.colorEncoderDiv.classList.remove('items-border');
+        this.elements.colorEncoderDiv.classList.remove('with-rounded-border');
         if (isVisible) {
-          this.elements.colorEncoderDiv.classList.add('items-border');
+          this.elements.colorEncoderDiv.classList.add('with-rounded-border');
         }
         if (updateMarqueeTextBlock) {
           const wasPlaying = this.animationTimer !== null;
@@ -2532,26 +2650,47 @@
         }
       },
 
-      fetchWikipedia() {
-        if (this.animationTimer) {
+      fetchWikipedia(cycle = false) {
+        if (this.animationTimer || this.elements.sentenceCountInput.value <= 0) {
           return;
         }
         const currentReader = this;
-        fetch('https://en.wikipedia.org/api/rest_v1/page/random/summary')
+        const currentHash = cycle ? currentReader.sentenceHash : (currentReader.sentenceHash += 1);
+        if (!cycle) {
+          currentReader.sentenceInitCount = currentReader.elements.sentenceCountInput.value - 1;
+          currentReader.sentenceCounter = currentReader.sentenceInitCount;
+        }
+        const lang = currentReader.elements.loadWikiLanguageSelect.value;
+        if (lang) {
+          fetch(`https://${lang}.wikipedia.org/api/rest_v1/page/random/summary`)
           .then(response => response.json())
           .then(data => {
             const text = data.extract.trim();
             currentReader.elements.textInput.value = currentReader.elements.appendTextToggle.checked ? `${currentReader.elements.textInput.value}${currentReader.elements.textInput.value ? '\n\n' : ''}${text}` : text;
             currentReader.textIsModified = true;
+            console.log(currentHash === currentReader.sentenceHash, currentReader.sentenceInitCount, currentReader.sentenceCounter);
+            if (currentHash === currentReader.sentenceHash && currentReader.sentenceCounter > 0) {
+              currentReader.sentenceCounter = Math.max(0, currentReader.sentenceCounter - 1);
+              setTimeout(() => currentReader.fetchWikipedia(true), currentReader.sentenceDownloadDelay);
+            }
+            else if (currentHash === currentReader.sentenceHash && currentReader.sentenceInitCount >= 1 && currentReader.sentenceCounter <= 0) {
+              alert('Downloaded!');
+            }
           })
           .catch(() => alert('[Wiki] Data fetching error'));
+        }
       },
 
-      fetchUnderthekey() {
-        if (this.animationTimer) {
+      fetchUnderthekey(cycle = false) {
+        if (this.animationTimer || this.elements.sentenceCountInput.value <= 0) {
           return;
         }
         const currentReader = this;
+        const currentHash = cycle ? currentReader.sentenceHash : (currentReader.sentenceHash += 1);
+        if (!cycle) {
+          currentReader.sentenceInitCount = currentReader.elements.sentenceCountInput.value - 1;
+          currentReader.sentenceCounter = currentReader.sentenceInitCount;
+        }
         fetch('https://sentence.underthekey.com/language?language=eng')
           .then(response => response.json())
           .then(data => {
@@ -2560,20 +2699,39 @@
               currentReader.elements.textInput.value = currentReader.elements.appendTextToggle.checked ? `${currentReader.elements.textInput.value}${currentReader.elements.textInput.value ? '\n\n' : ''}${text}` : text;
               currentReader.textIsModified = true;
             }
+            if (currentHash === currentReader.sentenceHash && currentReader.sentenceCounter > 0) {
+              currentReader.sentenceCounter = Math.max(0, currentReader.sentenceCounter - 1);
+              setTimeout(() => currentReader.fetchUnderthekey(true), currentReader.sentenceDownloadDelay);
+            }
+            else if (currentHash === currentReader.sentenceHash && currentReader.sentenceInitCount >= 1 && currentReader.sentenceCounter <= 0) {
+              alert('Downloaded!');
+            }
           })
           .catch(() => alert('[Underthekey] Data fetching error'));
       },
 
-      fetchMetaphorpsum() {
-        if (this.animationTimer) {
+      fetchMetaphorpsum(cycle = false) {
+        if (this.animationTimer || this.elements.sentenceCountInput.value <= 0) {
           return;
         }
         const currentReader = this;
+        const currentHash = cycle ? currentReader.sentenceHash : (currentReader.sentenceHash += 1);
+        if (!cycle) {
+          currentReader.sentenceInitCount = currentReader.elements.sentenceCountInput.value - 1;
+          currentReader.sentenceCounter = currentReader.sentenceInitCount;
+        }
         fetch('http://metaphorpsum.com/sentences/1')
           .then(response => response.text())
           .then(text => {
             currentReader.elements.textInput.value = currentReader.elements.appendTextToggle.checked ? `${currentReader.elements.textInput.value}${currentReader.elements.textInput.value ? '\n\n' : ''}${text.trim()}` : text.trim();
             currentReader.textIsModified = true;
+            if (currentHash === currentReader.sentenceHash && currentReader.sentenceCounter > 0) {
+              currentReader.sentenceCounter = Math.max(0, currentReader.sentenceCounter - 1);
+              setTimeout(() => currentReader.fetchMetaphorpsum(true), currentReader.sentenceDownloadDelay);
+            }
+            else if (currentHash === currentReader.sentenceHash && currentReader.sentenceInitCount >= 1 && currentReader.sentenceCounter <= 0) {
+              alert('Downloaded!');
+            }
           })
           .catch(() => alert('[Metaphorpsum] Data fetching error'));
       },
@@ -2694,8 +2852,8 @@
           case 'E': this.elements.colorEncoderToggle.click(); break;
           case 's':
           case 'S': this.stopPlayback(); break;
-          case '+': if (!this.animationTimer) this.elements.speedDisplay.value = parseInt(this.elements.speedDisplay.value) + 1; this.adjustSpeed(this.elements.speedDisplay.value); break;
-          case '-': if (!this.animationTimer) this.elements.speedDisplay.value = parseInt(this.elements.speedDisplay.value) - 1; this.adjustSpeed(this.elements.speedDisplay.value); break;
+          case '+': if (!this.animationTimer) this.elements.speedNumber.value = parseInt(this.elements.speedNumber.value) + 1; this.adjustSpeed(this.elements.speedNumber.value); break;
+          case '-': if (!this.animationTimer) this.elements.speedNumber.value = parseInt(this.elements.speedNumber.value) - 1; this.adjustSpeed(this.elements.speedNumber.value); break;
           case 't':
           case 'T': this.refreshMarqueeText(); break;
           case 'c':
@@ -3598,7 +3756,7 @@
       adjustSpeechRate(value) {
         this.speechRate = parseFloat(value);
         this.elements.speechRateSlider.value = value;
-        this.elements.speechRateDisplay.value = value;
+        this.elements.speechRateNumber.value = value;
         localStorage.setItem(this.settingsNames.voiceSpeechRate, this.speechRate);
         if (this.isSpeaking) {
           this.toggleSpeech();
@@ -3655,7 +3813,7 @@
           currentReader.elements.copyMarqueeText.disabled = true;
           currentReader.elements.searchButton.style.display = 'none';
           currentReader.elements.bookmarksButton.style.display = 'none';
-          currentReader.elements.underControlsContainer.style.display = '';
+          currentReader.elements.controlsContainerFooter.style.display = '';
           currentReader.elements.loopToggle.style.display = 'none';
           currentReader.elements.progressDisplay.style.display = '';
           currentReader.elements.tabNavigation.style.display = 'none';
@@ -3677,7 +3835,7 @@
           currentReader.elements.copyMarqueeText.disabled = false;
           currentReader.elements.searchButton.style.display = '';
           currentReader.elements.bookmarksButton.style.display = '';
-          currentReader.elements.underControlsContainer.style.display = '';
+          currentReader.elements.controlsContainerFooter.style.display = '';
           currentReader.elements.loopToggle.style.display = '';
           currentReader.elements.progressDisplay.style.display = '';
           currentReader.elements.tabNavigation.style.display = '';
@@ -3844,7 +4002,7 @@
           currentReader.elements.copyMarqueeText.disabled = true;
           currentReader.elements.speakButton.style.display = 'none';
           currentReader.elements.bookmarksButton.style.display = 'none';
-          currentReader.elements.underControlsContainer.style.display = '';
+          currentReader.elements.controlsContainerFooter.style.display = '';
           currentReader.elements.loopToggle.style.display = 'none';
           currentReader.elements.progressDisplay.style.display = 'none';
           currentReader.elements.tabNavigation.style.display = 'none';
@@ -3861,7 +4019,7 @@
           currentReader.elements.copyMarqueeText.disabled = false;
           currentReader.elements.speakButton.style.display = '';
           currentReader.elements.bookmarksButton.style.display = '';
-          currentReader.elements.underControlsContainer.style.display = '';
+          currentReader.elements.controlsContainerFooter.style.display = '';
           currentReader.elements.loopToggle.style.display = '';
           currentReader.elements.progressDisplay.style.display = '';
           currentReader.elements.tabNavigation.style.display = '';
@@ -3985,7 +4143,7 @@
           this.elements.copyMarqueeText.disabled = true;
           this.elements.speakButton.style.display = 'none';
           this.elements.searchButton.style.display = 'none';
-          this.elements.underControlsContainer.style.display = '';
+          this.elements.controlsContainerFooter.style.display = '';
           this.elements.loopToggle.style.display = 'none';
           this.elements.progressDisplay.style.display = 'none';
           this.elements.tabNavigation.style.display = 'none';
@@ -4004,7 +4162,7 @@
           this.elements.copyMarqueeText.disabled = false;
           this.elements.speakButton.style.display = '';
           this.elements.searchButton.style.display = '';
-          this.elements.underControlsContainer.style.display = '';
+          this.elements.controlsContainerFooter.style.display = '';
           this.elements.loopToggle.style.display = '';
           this.elements.progressDisplay.style.display = '';
           this.elements.tabNavigation.style.display = '';
@@ -4021,12 +4179,12 @@
         const bookmarks = currentReader.tmpBookmarks.sort((a, b) => a.progress - b.progress);
         bookmarks.forEach((bookmark, index) => {
           const bookmarkDiv = document.createElement("div");
-          bookmarkDiv.className = "bookmark-item items-border";
+          bookmarkDiv.className = "bookmark-item with-rounded-border";
 
           const nameElem = document.createElement("div");
           nameElem.textContent = bookmark.name;
           nameElem.innerHTML += '<br>' + bookmark.progress.toFixed(2) + '%';
-          nameElem.className = "bookmark-name clickable";
+          nameElem.className = "bookmark-name";
           nameElem.onclick = () => currentReader.goToBookmark(bookmark.progress);
 
           const removeButton = document.createElement("button");
