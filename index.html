@@ -21,6 +21,8 @@
       --green-button-hover: rgb(21, 115, 71);
       --purple-button-background: rgb(84, 25, 135);
       --purple-button-hover: rgb(71, 21, 115);
+      --chocolate-button-background: rgb(102, 52, 46);
+      --chocolate-button-hover: rgb(84, 43, 38);
       --dark-cyan-button-background: rgb(25, 103, 134);
       --dark-cyan-button-hover: rgb(21, 89, 116);
       --dark-blue-button-background: rgb(25, 48, 134);
@@ -168,6 +170,14 @@
       background-color: var(--purple-button-hover);
     }
 
+    .chocolate-button {
+      background-color: var(--chocolate-button-background);
+    }
+
+    .chocolate-button:hover {
+      background-color: var(--chocolate-button-hover);
+    }
+
     .dark-cyan-button {
       background-color: var(--dark-cyan-button-background);
     }
@@ -242,7 +252,7 @@
       font-size: 22px;
     }
 
-    #play-pause-button, #stop-button, #speak-button, #search-button {
+    #play-pause-button, #stop-button, #speak-button, #search-button, #bookmarks-button {
       min-width: 100px;
     }
 
@@ -550,7 +560,7 @@
       margin-bottom: 10px;
     }
 
-    #settings-profile-select, #text-select {
+    #settings-profile-select, #text-select, #voice-select {
       min-width: 20%;
       max-width: 50%;
       padding: 8px;
@@ -589,22 +599,38 @@
     }
 
     .bookmark-item {
-      margin: 5px 0;
-      display: flex;
-      justify-content: space-between;
       align-items: center;
+      display: block;
+      margin-top: 10px;
+      margin-bottom: 10px;
     }
 
     .bookmark-name {
-      cursor: pointer;
+      min-width: 70%;
+      max-width: 100%;
+      display: inline-block;
+      word-wrap: break-word;
+      vertical-align: middle;
+    }
+    
+    .bookmark-remove-button {
+      min-width: 25%;
+      max-width: 100%;
+      display: inline-block;
+      vertical-align: middle;
     }
 
     .bookmark-mark {
       position: absolute;
       width: 2px;
       height: 100%;
-      background-color: #00ff00;
+      background-color: rgb(255, 127, 36);
       cursor: pointer;
+    }
+
+    #bookmarks-list {
+      max-width: 400px;
+      margin: 0 auto;
     }
 
     button:active {
@@ -625,7 +651,7 @@
       kbd {
         display: none;
       }
-      #settings-profile-select, #text-select {
+      #settings-profile-select, #text-select, #voice-select {
         min-width: 100%;
         max-width: 100%;
       }
@@ -648,6 +674,16 @@
       }
       .tab-button {
         margin-bottom: 5px;
+      }
+      .bookmark-name {
+        margin-top: 10px;
+      }
+      .bookmark-remove-button {
+        margin: 10px 0px 0px 0px;
+        padding: 5px;
+      }
+      #bookmark-name-input {
+        margin-top: 30px;
       }
     }
   </style>
@@ -672,26 +708,26 @@
       <div id="text-to-speech-container">
         <button id="speak-button" class="purple-button gray-button-disabled">Speak</button>
       </div>
-      <!-- <div id="bookmarks-container">
-        <button id="bookmarks-button">Bookmarks</button>
-        <div id="bookmarks-controls" style="display: none;">
-          <div>
-            <button id="save-bookmarks-button">Save Bookmarks</button>
-            <button id="cancel-bookmarks-button">Cancel</button>
-          </div>
-          <div>
-            <input type="text" id="bookmark-name-input" placeholder="Bookmark name">
-            <button id="add-bookmark-button">Add Bookmark</button>
-          </div>
-          <div id="bookmarks-list"></div>
-        </div>
-      </div> -->
       <div id="search-container">
         <button id="search-button" class="dark-blue-button gray-button-disabled">Search</button>
         <div id="search-controls" class="items-border" style="display: none;">
             <input type="text" id="search-input" class="mt-10 mb-10" placeholder="Enter search query...">
             <button id="search-prev-button" class="gray-button gray-button-disabled">Previous</button>
             <button id="search-next-button" class="gray-button gray-button-disabled">Next</button>
+        </div>
+      </div>
+      <div id="bookmarks-container">
+        <button id="bookmarks-button" class="chocolate-button gray-button-disabled">Bookmarks</button>
+        <div id="bookmarks-controls" style="display: none;">
+          <div>
+            <button id="save-bookmarks-button" class="green-button gray-button-disabled">Save bookmarks</button>
+            <button id="cancel-bookmarks-button" class="red-button gray-button-disabled">Cancel</button>
+          </div>
+          <div>
+            <input type="text" id="bookmark-name-input" placeholder="Bookmark name">
+            <button id="add-bookmark-button">Add Bookmark</button>
+          </div>
+          <div id="bookmarks-list"></div>
         </div>
       </div>
       <div id="under-controls-container">
@@ -848,10 +884,7 @@
           <div class="mt-10 items-border">
             <label>English random sentences</label>
             <div>
-              <label for="sentence-count-input">
-                Number of sentences:
-                <input type="number" id="sentence-count-input" min="1" max="10000" value="1">
-              </label>
+              <label for="sentence-count-input">Number of sentences:<input type="number" id="sentence-count-input" min="1" max="10000" value="1"></label>
             </div>
             <div>
               <button id="load-sentence-wordsmyth-beginner">[En] Wordsmyth Beginner's dictionary [6153]</button>
@@ -876,20 +909,19 @@
               <button id="load-metaphorpsum" style="display: none;">[En] Metaphorpsum random sentence</button>
             </div>
           </div>
-          <label><input type="checkbox" id="append-text-toggle" checked> Append text after loading/fetching</label>
+          <label><input type="checkbox" id="append-text-toggle" checked>Append text after loading/fetching</label>
         </div>
         <div class="mt-10">
           <button id="clear-text" class="dark-button gray-button-disabled">Clear</button>
         </div>
       </div>
       <div id="settings-tab" class="tab-content items-border">
-        <div class="mt-10">
-          <label id="show-color-info-element"><input type="checkbox" id="show-color-info-toggle" checked> Show letters-colors info <kbd>ESC</kbd></label>
-          <label id="show-speak-button-element"><input type="checkbox" id="show-speak-button-toggle" checked> Show Speak button</label>
-          <label id="show-search-button-element"><input type="checkbox" id="show-search-button-toggle" checked> Show Search button</label>
-        </div>
         <div class="mt-10 items-border">
           <label>Appearance</label>
+          <label id="show-color-info-element"><input type="checkbox" id="show-color-info-toggle" checked> Show Letters-Colors <kbd>ESC</kbd></label>
+          <label id="show-speak-button-element"><input type="checkbox" id="show-speak-button-toggle" checked> Show Speak button</label>
+          <label id="show-bookmarks-button-element"><input type="checkbox" id="show-bookmarks-button-toggle" checked> Show Bookmarks button</label>
+          <label id="show-search-button-element"><input type="checkbox" id="show-search-button-toggle" checked> Show Search button</label>
           <div>
             <button id="marquee-theme-toggle" class="cyan-button gray-button-disabled">Toggle Marquee Text Block Theme</button>
             <button id="theme-toggle" class="cyan-button gray-button-disabled">Toggle Theme</button>
@@ -904,9 +936,15 @@
           <label class="mt-10">Speed</label>
           <input type="range" id="speech-rate-slider" min="1" max="300" step="1" value="100">
           <input type="number" id="speech-rate-display" min="1" max="300" step="1" value="100">
+          <div>
+            <label><input type="checkbox" id="faster-transitions-toggle" checked>Faster transitions between sentences</label>
+          </div>
         </div>
         <div class="mt-10 items-border">
           <label>Import</label>
+          <div>
+            <label><input type="checkbox" id="import-replace-toggle" checked>Replace current data when provided</label>
+          </div>
           <div>
             <button id="import-all-settings-profiles" class="dark-button gray-button-disabled">Import all settings profiles</button>
             <button id="import-all-texts" class="dark-button gray-button-disabled">Import all texts</button>
@@ -918,6 +956,9 @@
         </div>
         <div class="mt-10 items-border">
           <label>Export</label>
+          <div>
+            <label><input type="checkbox" id="export-all-texts-with-bookmarks-toggle" checked>Export texts with bookmarks</label>
+          </div>
           <div>
             <button id="export-all-settings-profiles" class="dark-button gray-button-disabled">Export all settings profiles</button>
             <button id="export-all-texts" class="dark-button gray-button-disabled">Export all texts</button>
@@ -1019,7 +1060,7 @@
       textToSearch: '',
 
       isBookmarksActive: false,
-      tmpBookmarks: null,
+      tmpBookmarks: [],
 
       themes: [
         'dark',
@@ -1042,6 +1083,7 @@
         // texts
         currentTextName: 'sle_current_text_name',
         text: 'sle_text',
+        textBookmarks: 'sle_text_bookmarks',
         texts: 'sle_texts',
 
         // settings profiles
@@ -1064,6 +1106,10 @@
         // non-profile settings
         showColorInfoToggle: 'sle_show_color_info_toggle',
         appendTextToggle: 'sle_append_text_toggle',
+        importReplaceToggle: 'sle_import_replace_toggle',
+        fasterTransitionsToggle: 'sle_faster_transitions_toggle',
+        exportTextsWithBookmarksToggle: 'sle_export_texts_with_bookmarks_toggle',
+        sentenceCountToGenerate: 'sle_sentence_count_to_generate',
         loop: 'sle_loop',
         theme: 'sle_theme',
         marqueeThemeToggle: 'sle_marquee_theme_toggle',
@@ -1077,11 +1123,14 @@
         voiceSpeechRate: 'sle_voice_speech_rate',
 
         // search
-        searchButton: 'sle_search_button'
+        searchButton: 'sle_search_button',
+
+        // bookmarks
+        bookmarksButton: 'sle_bookmarks_button',
       },
 
       getDefaultSettingsProfile() {
-        let settings = {};
+        const settings = {};
         settings[this.settingsNames.colorTaskToggle] = false;
         settings[this.settingsNames.colorTaskLetters] = '1';
         settings[this.settingsNames.colorTaskColors] = '';
@@ -1096,7 +1145,7 @@
       },
 
       getCurrentSettingsProfile() {
-        let settings = {};
+        const settings = {};
         settings[this.settingsNames.colorTaskToggle] = this.elements.colorEncoderToggle.checked;
         settings[this.settingsNames.colorTaskLetters] = this.elements.colorLetterCount.value;
         settings[this.settingsNames.colorTaskColors] = this.elements.colorInput.value;
@@ -1254,6 +1303,7 @@
         this.elements.saveSettingsProfileButton = document.getElementById('save-settings-profile-button');
         this.elements.textToSpeechContainer = document.getElementById('text-to-speech-container');
         this.elements.showSpeakButtonToggle = document.getElementById('show-speak-button-toggle');
+        this.elements.showBookmarksButtonToggle = document.getElementById('show-bookmarks-button-toggle');
         this.elements.showSearchButtonToggle = document.getElementById('show-search-button-toggle');
         this.elements.speakButton = document.getElementById('speak-button');
         this.elements.voiceSelect = document.getElementById('voice-select');
@@ -1265,6 +1315,7 @@
         this.elements.importAll = document.getElementById('import-all');
         this.elements.exportAllSettingsProfiles = document.getElementById('export-all-settings-profiles');
         this.elements.exportAllTexts = document.getElementById('export-all-texts');
+        this.elements.exportAllTextsWithBookmarksToggle = document.getElementById('export-all-texts-with-bookmarks-toggle');
         this.elements.exportAllSettingsProfilesAndTexts = document.getElementById('export-all-settings-profiles-and-texts');
         this.elements.exportAll = document.getElementById('export-all');
         this.elements.searchContainer = document.getElementById('search-container');
@@ -1274,13 +1325,16 @@
         this.elements.searchNextButton = document.getElementById('search-next-button');
         this.elements.searchPrevButton = document.getElementById('search-prev-button');
         this.elements.underControlsContainer = document.getElementById('under-controls-container');
-        // this.elements.bookmarksButton = document.getElementById("bookmarks-button");
-        // this.elements.bookmarksControls = document.getElementById("bookmarks-controls");
-        // this.elements.bookmarkNameInput = document.getElementById("bookmark-name-input");
-        // this.elements.addBookmarkButton = document.getElementById("add-bookmark-button");
-        // this.elements.bookmarksList = document.getElementById("bookmarks-list");
-        // this.elements.saveBookmarksButton = document.getElementById("save-bookmarks-button");
-        // this.elements.cancelBookmarksButton = document.getElementById("cancel-bookmarks-button");
+        this.elements.bookmarksButton = document.getElementById("bookmarks-button");
+        this.elements.bookmarksContainer = document.getElementById("bookmarks-container");
+        this.elements.bookmarksControls = document.getElementById("bookmarks-controls");
+        this.elements.bookmarkNameInput = document.getElementById("bookmark-name-input");
+        this.elements.addBookmarkButton = document.getElementById("add-bookmark-button");
+        this.elements.bookmarksList = document.getElementById("bookmarks-list");
+        this.elements.saveBookmarksButton = document.getElementById("save-bookmarks-button");
+        this.elements.cancelBookmarksButton = document.getElementById("cancel-bookmarks-button");
+        this.elements.importReplaceToggle = document.getElementById("import-replace-toggle");
+        this.elements.fasterTransitionsToggle = document.getElementById("faster-transitions-toggle");
 
         this.cachedContainerWidth = null;
         this.cachedTextWidth = null;
@@ -1292,6 +1346,7 @@
         const hideTextSelectElements = function () {
           currentReader.elements.textSelect.style.display = 'none';
           currentReader.elements.newTextButton.style.display = 'none';
+          currentReader.elements.duplicateTextButton.style.display = 'none';
           currentReader.elements.deleteTextButton.style.display = 'none';
           currentReader.elements.settingsProfileSelect.style.display = 'none';
           currentReader.elements.newSettingsProfileButton.style.display = 'none';
@@ -1308,29 +1363,30 @@
           };
           request.onsuccess = function (event) {
             currentReader.database = event.target.result;
-            callback();
+            return callback();
           };
           request.onerror = function (event) {
             currentReader.database = null;
-            const message = `IndexedDB error: ${event.target.errorCode}`;
-            console.error(message);
+            const message = `IndexedDB error: ${event.target.error}`;
+            console.error(event.target.error);
             hideTextSelectElements();
             alert(message);
-            callback();
+            return callback();
           };
           request.onblocked = function (event) {
             currentReader.database = null;
-            const message = `IndexedDB blocked: ${event.target.errorCode}`;
+            const message = `IndexedDB blocked`;
             console.error(message);
             hideTextSelectElements();
             alert(message);
-            callback();
+            return callback();
           };
         } catch (err) {
           currentReader.database = null;
           console.error(err);
           hideTextSelectElements();
-          callback();
+          alert(message);
+          return callback();
         }
       },
 
@@ -1398,6 +1454,7 @@
         this.elements.deleteSettingsProfileButton.addEventListener('click', () => this.deleteCurrentSettingsProfile());
         this.elements.saveSettingsProfileButton.addEventListener('click', () => this.saveCurrentSettingsProfile());
         this.elements.showSpeakButtonToggle.addEventListener('click', () => this.toggleSpeechButton());
+        this.elements.showBookmarksButtonToggle.addEventListener('click', () => this.toggleBookmarksButton());
         this.elements.showSearchButtonToggle.addEventListener('click', () => this.toggleSearchButton());
         this.elements.speakButton.addEventListener('click', () => this.toggleSpeech());
         this.elements.voiceSelect.addEventListener('change', () => this.updateVoice());
@@ -1415,19 +1472,25 @@
         this.elements.searchInput.addEventListener('input', (e) => this.handleSearchInput(e.target.value));
         this.elements.searchNextButton.addEventListener('click', () => this.goToNextMatch());
         this.elements.searchPrevButton.addEventListener('click', () => this.goToPreviousMatch());
-        // this.elements.bookmarksButton.addEventListener("click", () => this.toggleBookmarks());
-        // this.elements.addBookmarkButton.addEventListener("click", () => this.addBookmark());
-        // this.elements.saveBookmarksButton.addEventListener("click", () => {
-        //   currentReader.bookmarks.set(currentReader.currentTextName, [...currentReader.tmpBookmarks]);
-        //   currentReader.saveBookmarksToDB();
-        //   currentReader.toggleBookmarks();
-        // });
-        // this.elements.cancelBookmarksButton.addEventListener("click", () => this.toggleBookmarks());
+        this.elements.bookmarksButton.addEventListener("click", () => this.toggleBookmarks());
+        this.elements.addBookmarkButton.addEventListener("click", () => this.addBookmark());
+        this.elements.saveBookmarksButton.addEventListener("click", () => this.saveBookmarksToDB());
+        this.elements.cancelBookmarksButton.addEventListener("click", () => {
+          if (JSON.stringify(currentReader.currentTextBookmarks) !== JSON.stringify(currentReader.tmpBookmarks) &&
+              !confirm('Are you sure you want to close bookmarks block without saving changes?')) {
+            return;
+          }
+          currentReader.toggleBookmarks();
+        });
+        this.elements.importReplaceToggle.addEventListener('click', () => this.toggleImportReplace());
+        this.elements.sentenceCountInput.addEventListener('input', () => this.saveSentenceCountToGenerate());
+        this.elements.fasterTransitionsToggle.addEventListener('click', () => this.toggleFasterTransitions());
+        this.elements.exportAllTextsWithBookmarksToggle.addEventListener('click', () => this.toggleExportTextsWithBookmarks());
 
-        const textModified = () => { this.textIsModified = true; };
+        const textModified = () => { currentReader.textIsModified = true; };
         this.elements.textInput.addEventListener('input', textModified);
 
-        const settingsProfileModified = () => { this.settingsProfileIsModified = true; };
+        const settingsProfileModified = () => { currentReader.settingsProfileIsModified = true; };
         this.elements.fontSizeSlider.addEventListener('change', settingsProfileModified);
         this.elements.fontSizeDisplay.addEventListener('change', settingsProfileModified);
         this.elements.speedSlider.addEventListener('change', settingsProfileModified);
@@ -1457,7 +1520,7 @@
           try {
             sentences = getSentencesWordsmyth1();
           } catch (e) {
-            alert('[wordsmyth1.js] Sentences not found!');
+            alert('[wordsmyth1.js] Sentences not found');
             return;
           }
           while (true) {
@@ -1473,7 +1536,7 @@
           try {
             sentences = getSentencesWordsmyth2();
           } catch (e) {
-            alert('[wordsmyth2.js] Sentences not found!');
+            alert('[wordsmyth2.js] Sentences not found');
             return;
           }
           while (true) {
@@ -1489,7 +1552,7 @@
           try {
             sentences = getSentencesWordsmyth3();
           } catch (e) {
-            alert('[wordsmyth3.js] Sentences not found!');
+            alert('[wordsmyth3.js] Sentences not found');
             return;
           }
           while (true) {
@@ -1505,7 +1568,7 @@
           try {
             sentences = getSentencesMerriamWebster();
           } catch (e) {
-            alert('[merriam_webster.js] Sentences not found!');
+            alert('[merriam_webster.js] Sentences not found');
             return;
           }
           while (true) {
@@ -1530,11 +1593,21 @@
         this.elements.showColorInfoToggle.checked = localStorage.getItem(this.settingsNames.showColorInfoToggle) !== 'false';
         this.isLoopEnabled = localStorage.getItem(this.settingsNames.loop) === 'true';
         if (this.isLoopEnabled) this.elements.loopToggle.classList.add('active');
-        this.elements.mainContainer.classList.add(localStorage.getItem(this.settingsNames.appSize) || 'normal-size');
+        this.elements.mainContainer.classList.add(localStorage.getItem(this.settingsNames.appSizeToggle) || 'normal-size');
         this.elements.showSpeakButtonToggle.checked = localStorage.getItem(this.settingsNames.voiceButton) === 'true';
         this.toggleSpeechButton();
+        this.elements.showBookmarksButtonToggle.checked = localStorage.getItem(this.settingsNames.bookmarksButton) === 'true';
+        this.toggleBookmarksButton();
         this.elements.showSearchButtonToggle.checked = localStorage.getItem(this.settingsNames.searchButton) === 'true';
         this.toggleSearchButton();
+        this.elements.importReplaceToggle.checked = localStorage.getItem(this.settingsNames.importReplaceToggle) !== 'false';
+        this.toggleImportReplace();
+        this.elements.sentenceCountInput.value = localStorage.getItem(this.settingsNames.sentenceCountToGenerate) || '1';
+        this.saveSentenceCountToGenerate();
+        this.elements.fasterTransitionsToggle.checked = localStorage.getItem(this.settingsNames.fasterTransitionsToggle) === 'true';
+        this.toggleFasterTransitions();
+        this.elements.exportAllTextsWithBookmarksToggle.checked = localStorage.getItem(this.settingsNames.exportTextsWithBookmarksToggle) !== 'false';
+        this.toggleExportTextsWithBookmarks();
 
         const voiceIndex = localStorage.getItem(this.settingsNames.voice) || null;
         if (voiceIndex != null) {
@@ -1572,7 +1645,7 @@
             currentReader.toggleColorEncoder(false);
             currentReader.toggleColorDetails();
             currentReader.lastSavedPosition = localStorage.getItem(currentReader.settingsNames.lastPosition);
-            if (currentReader.lastSavedPosition && currentReader.elements.textInput.value && confirm('Resume from last position?')) {
+            if (currentReader.lastSavedPosition && currentReader.elements.textInput.value) {
               currentReader.currentPosition = parseInt(currentReader.lastSavedPosition);
               setTimeout(() => {
                 currentReader.startAnimation(false, false);
@@ -1599,14 +1672,15 @@
         this.elements.playPauseButton.classList.remove('pause');
         this.currentPosition = this.cachedContainerWidth;
         this.elements.marqueeDisplay.style.left = `${this.currentPosition}px`;
-        this.elements.marqueeControlsContainer.style.display = '';
-        this.elements.progressDisplay.style.display = 'none';
-        this.elements.loopToggle.style.display = '';
-        this.lastSavedPosition = null;
-        this.elements.tabNavigation.style.display = '';
-        this.elements.tabContent.style.display = '';
         this.elements.speakButton.style.display = '';
         this.elements.searchButton.style.display = '';
+        this.elements.bookmarksButton.style.display = '';
+        this.elements.underControlsContainer.style.display = '';
+        this.elements.loopToggle.style.display = '';
+        this.elements.progressDisplay.style.display = 'none';
+        this.elements.tabNavigation.style.display = '';
+        this.elements.tabContent.style.display = '';
+        this.lastSavedPosition = null;
         this.updateProgressBar();
         if (fully && this.previousText !== null) {
           this.animationStartTime = null;
@@ -1626,7 +1700,7 @@
         htmlValue = htmlValue.replace(/\p{Z}+/ug, ' ');
         htmlValue = htmlValue.replace(/\p{C}+/ug, '');
         if (!htmlValue) {
-          alert('Please add text');
+          alert(`The text "${this.currentTextName}" is empty`);
           return false;
         }
 
@@ -1682,7 +1756,7 @@
             });
           }
           this.colorList.reverse();
-          for (let x of this.colorList.slice()) {
+          for (const x of this.colorList.slice()) {
             if (this.colorMap.size > targetSize) {
               if (preservedColors.get(x) == null) {
                 this.colorMap.delete(x);
@@ -1695,7 +1769,7 @@
           }
           this.colorList.sort((a, b) => (preservedLetters.indexOf(a) - preservedLetters.indexOf(b)));
           this.colorList.reverse();
-          for (let x of this.colorList.slice()) {
+          for (const x of this.colorList.slice()) {
             if (this.colorMap.size > targetSize) {
               this.colorMap.delete(x);
               this.colorList.splice(this.colorList.indexOf(x), 1);
@@ -1705,9 +1779,6 @@
             }
           }
           this.colorList.sort();
-          this.elements.colorDetails.style.display = this.elements.showColorInfoToggle.checked ? '' : 'none';
-        } else if (!resume && movement) {
-          this.elements.colorDetails.style.display = 'none';
         }
 
         if (!resume) {
@@ -1790,7 +1861,7 @@
           const totalSeconds = actualStepDelay * (startPos - endPos) / 1000;
           const wpm = totalSeconds ? Math.max(1, Math.floor(this.wordCount / (totalSeconds / 60))) : this.wordCount;
           this.elements.progressDisplay.innerHTML += `<br>WPM: ${wpm}`;
-          const progress = Math.floor(100 * (1 - (newPosition - endPos) / (startPos - endPos)));
+          const progress = Math.max(0, Math.min(100, Math.floor((newPosition - startPos) * 100 / (endPos - startPos))));
           this.elements.progressDisplay.innerHTML += `<br>Progress: ${progress}%`;
           this.lastUpdateTime = newLastUpdateTime;
 
@@ -1810,16 +1881,17 @@
               this.elements.marqueeDisplay.style.left = `${endPos}px`;
               clearTimeout(this.animationTimer);
               this.animationTimer = null;
+              this.lastSavedPosition = null;
               this.elements.playPauseButton.textContent = 'Start';
               this.elements.playPauseButton.classList.remove('pause');
-              this.elements.marqueeControlsContainer.style.display = '';
-              this.elements.colorDetails.style.display = this.elements.colorEncoderToggle.checked && this.elements.showColorInfoToggle.checked ? '' : 'none';
-              this.elements.loopToggle.style.display = '';
-              this.lastSavedPosition = null;
-              this.elements.tabNavigation.style.display = '';
-              this.elements.tabContent.style.display = '';
               this.elements.speakButton.style.display = '';
               this.elements.searchButton.style.display = '';
+              this.elements.bookmarksButton.style.display = '';
+              this.elements.underControlsContainer.style.display = '';
+              this.elements.loopToggle.style.display = '';
+              this.elements.progressDisplay.style.display = '';
+              this.elements.tabNavigation.style.display = '';
+              this.elements.tabContent.style.display = '';
             }
           } else {
             this.elements.marqueeDisplay.style.left = `${newPosition}px`;
@@ -1836,15 +1908,16 @@
         this.elements.refreshColors.disabled = false;
         this.elements.copyMarqueeText.disabled = false;
         if (movement) {
-          this.elements.loopToggle.style.display = 'none';
           this.elements.playPauseButton.textContent = 'Pause';
           this.elements.playPauseButton.classList.add('pause');
-          this.elements.marqueeControlsContainer.style.display = 'none';
+          this.elements.speakButton.style.display = 'none';
+          this.elements.searchButton.style.display = 'none';
+          this.elements.bookmarksButton.style.display = 'none';
+          this.elements.underControlsContainer.style.display = '';
+          this.elements.loopToggle.style.display = 'none';
           this.elements.progressDisplay.style.display = '';
           this.elements.tabNavigation.style.display = 'none';
           this.elements.tabContent.style.display = 'none';
-          this.elements.speakButton.style.display = 'none';
-          this.elements.searchButton.style.display = 'none';
           this.animationTimer = setTimeout(animate, stepDelay);
         }
         return true;
@@ -1858,9 +1931,10 @@
           this.elements.playPauseButton.classList.remove('pause');
           this.elements.speakButton.style.display = '';
           this.elements.searchButton.style.display = '';
-          this.elements.marqueeControlsContainer.style.display = '';
+          this.elements.bookmarksButton.style.display = '';
+          this.elements.underControlsContainer.style.display = '';
           this.elements.loopToggle.style.display = '';
-          this.elements.colorDetails.style.display = this.elements.colorEncoderToggle.checked && this.elements.showColorInfoToggle.checked ? '' : 'none';
+          this.elements.progressDisplay.style.display = '';
           this.elements.tabNavigation.style.display = '';
           this.elements.tabContent.style.display = '';
           this.updateProgressBar();
@@ -1872,7 +1946,7 @@
         const textLines = text.split('\n');
         const refLines = referenceText.split('\n');
         return textLines.map((line, index) => {
-          let words = line.split(/\s+/).filter(word => word);
+          const words = line.split(/\s+/).filter(word => word);
           const refWords = refLines[index] ? refLines[index].split(/\s+/) : words;
           let processedWords = words;
           let processedRefWords = refWords;
@@ -1896,7 +1970,7 @@
 
           return processedWords.map((word, i) => {
             let modifiedWord = word;
-            let skipShuffle = /^[A-Z\d']/.test(word) || /[\u2032\u2033\u2034\u2057\u2019\u0060\u00B4\uFF40\u02F4]/.test(word);
+            const skipShuffle = /^[A-Z\d']/.test(word) || /[\u2032\u2033\u2034\u2057\u2019\u0060\u00B4\uFF40\u02F4]/.test(word);
 
             if (shouldModify && this.elements.letterEliminationSelect.value !== 'no' && word.length > 1) {
               const vowelMatch = /(\d+)%_vowels/.exec(this.elements.letterEliminationSelect.value);
@@ -1921,8 +1995,8 @@
                 const threshold = this.elements.letterShuffleSelect.value === 'hard' || this.elements.letterShuffleSelect.value === 'very-hard' ? 0 :
                   this.elements.letterShuffleSelect.value === 'medium' || this.elements.letterShuffleSelect.value === 'medium_plus' ? 1 : Math.floor(part.length / 3);
                 const suffixLength = this.elements.letterShuffleSelect.value === 'medium_plus' ? 0 : threshold;
-                let letters = [];
-                for (let x of part) {
+                const letters = [];
+                for (const x of part) {
                   if (this.isLetter(x)) {
                     letters.push(x);
                   }
@@ -1953,19 +2027,21 @@
               this.elements.letterSkipSelect.value !== 'no' ||
               this.elements.wordSkipSelect.value !== 'no'
               ? `<span class="marquee-word-span clickable" onclick="MarqueeReader.showWordHint('${escapeString(modifiedWord)}', '${escapeString(processedRefWords[i] || word)}')">${coloredWord}</span>`
-              : `<span class="marquee-word-span">${coloredWord}</span>`;
+              : (
+                this.elements.colorEncoderToggle.checked
+                ? `<span class="marquee-word-span clickable" onclick="MarqueeReader.showWordHint('${escapeString(modifiedWord)}')">${coloredWord}</span>`
+                : `<span class="marquee-word-span">${coloredWord}</span>`);
           }).join(' ');
         }).join('\n');
       },
 
       eliminateLetters(regex, word, percentOfLetters, onlyReturnIndices = false) {
-        let lettersOnly = word;
-        lettersOnly = word.replace(/[^\p{L}]/ug, '');
-        let matchIndices = [];
+        const lettersOnly = word.replace(/[^\p{L}]/ug, '');
+        const matchIndices = [];
         let isFirstMatch = true;
         regex.lastIndex = 0;
         while (true) {
-          let match = regex.exec(word);
+          const match = regex.exec(word);
           if (match === null) break;
           if (isFirstMatch) {
             isFirstMatch = false;
@@ -1975,7 +2051,7 @@
         }
         regex.lastIndex = 0;
         if (matchIndices.length > 0 && word.length >= 2 && regex === this.letterPatternG) {
-          let lastIndex = matchIndices[matchIndices.length - 1];
+          const lastIndex = matchIndices[matchIndices.length - 1];
           if (!this.vowelPattern.test(word[lastIndex]) || (lastIndex > 0 && this.vowelPattern.test(word[lastIndex - 1]))) {
             matchIndices.pop();
           }
@@ -1983,7 +2059,7 @@
         let effectiveLength = lettersOnly.length;
         if (regex === this.vowelPatternG) {
           let vowelCount = 0;
-          for (let char of word) {
+          for (const char of word) {
             this.vowelPattern.lastIndex = 0;
             if (this.vowelPattern.test(char)) {
               vowelCount++;
@@ -1991,13 +2067,13 @@
           }
           effectiveLength = vowelCount;
         }
-        let numToRemove = Math.min(Math.floor(effectiveLength * percentOfLetters), matchIndices.length);
-        let shuffledIndices = Array.from(matchIndices);
+        const numToRemove = Math.min(Math.floor(effectiveLength * percentOfLetters), matchIndices.length);
+        const shuffledIndices = Array.from(matchIndices);
         this.shuffleArray(shuffledIndices);
-        let duplicateIndices = [];
-        let vowelIndices = [];
-        let otherIndices = [];
-        for (let index of shuffledIndices) {
+        const duplicateIndices = [];
+        const vowelIndices = [];
+        const otherIndices = [];
+        for (const index of shuffledIndices) {
           if (index > 0 && word[index - 1] === word[index]) {
             duplicateIndices.push(index);
           } else if (this.vowelPattern.test(word[index])) {
@@ -2010,13 +2086,13 @@
         duplicateIndices.sort(cmp);
         vowelIndices.sort(cmp);
         otherIndices.sort(cmp);
-        let indicesToRemove = [...duplicateIndices, ...vowelIndices, ...otherIndices].slice(0, numToRemove).sort((a, b) => a - b);
+        const indicesToRemove = [...duplicateIndices, ...vowelIndices, ...otherIndices].slice(0, numToRemove).sort((a, b) => a - b);
         if (onlyReturnIndices) {
           return indicesToRemove;
         }
-        let wordParts = [];
+        const wordParts = [];
         let start = 0;
-        for (let removeIndex of indicesToRemove) {
+        for (const removeIndex of indicesToRemove) {
           if (start < removeIndex) {
             wordParts.push(word.slice(start, removeIndex));
           }
@@ -2029,11 +2105,11 @@
       },
 
       shuffleWordGroups(words, groupSize) {
-        let shuffledIndices = [];
+        const shuffledIndices = [];
         for (let start = 0; start < words.length;) {
           let groupWords = words.slice(start, start + groupSize);
-          let subGroupWords = [groupWords[0]];
-          let hasPunctuation = this.punctuationPattern.test(groupWords[0]);
+          const subGroupWords = [groupWords[0]];
+          const hasPunctuation = this.punctuationPattern.test(groupWords[0]);
           for (let j = 1; j < groupWords.length; j++) {
             if (hasPunctuation || this.punctuationPattern.test(groupWords[j])) {
               break;
@@ -2041,9 +2117,9 @@
             subGroupWords.push(groupWords[j]);
           }
           groupWords = subGroupWords;
-          let groupLength = groupWords.length;
-          let shuffleableIndices = [];
-          let fixedIndices = new Set();
+          const groupLength = groupWords.length;
+          const shuffleableIndices = [];
+          const fixedIndices = new Set();
           for (let j = 0; j < groupLength; j++) {
             if (!this.punctuationPattern.test(groupWords[j]) && this.wordPattern.test(groupWords[j])) {
               shuffleableIndices.push(j);
@@ -2103,7 +2179,7 @@
         const newIndices1 = this.maxDistanceIndexes(indices1.length);
         const newIndices2 = this.maxDistanceIndexes(indices2.length);
         const indices = [...newIndices1.map(i => indices1[i]), ...newIndices2.map(i => indices2[i])];
-        let newWords = words.slice();
+        const newWords = words.slice();
         for (let i = 0, k = 0; i < indices.length && k < wordsToSkip; ++i) {
           const currentIndex = indices[i];
           const word = words[currentIndex];
@@ -2182,7 +2258,7 @@
         const next = sizes[(sizes.indexOf(current) + 1) % sizes.length] || sizes[0];
         sizes.forEach(size => container.classList.remove(size));
         container.classList.add(next);
-        localStorage.setItem(this.settingsNames.appSize, next);
+        localStorage.setItem(this.settingsNames.appSizeToggle, next);
         if (this.currentPosition !== null) {
           this.updateCachedSizes();
           this.updateProgressBar();
@@ -2193,6 +2269,22 @@
         this.isLoopEnabled = !this.isLoopEnabled;
         this.elements.loopToggle.classList.toggle('active');
         localStorage.setItem(this.settingsNames.loop, this.isLoopEnabled);
+      },
+
+      toggleImportReplace() {
+        localStorage.setItem(this.settingsNames.importReplaceToggle, this.elements.importReplaceToggle.checked);
+      },
+
+      toggleFasterTransitions() {
+        localStorage.setItem(this.settingsNames.fasterTransitionsToggle, this.elements.fasterTransitionsToggle.checked);
+      },
+
+      toggleExportTextsWithBookmarks() {
+        localStorage.setItem(this.settingsNames.exportTextsWithBookmarksToggle, this.elements.exportAllTextsWithBookmarksToggle.checked);
+      },
+
+      saveSentenceCountToGenerate() {
+        localStorage.setItem(this.settingsNames.sentenceCountToGenerate, this.elements.sentenceCountInput.value);
       },
 
       switchTab(button) {
@@ -2353,11 +2445,12 @@
       },
 
       dumpColorMap() {
-        this.colorList.forEach(char => {
-          const color = this.hexToRgb(this.colorMap.get(char));
+        const currentReader = this;
+        currentReader.colorList.forEach(char => {
+          const color = currentReader.hexToRgb(currentReader.colorMap.get(char));
           const entry = `${char.toUpperCase()} ${color}`;
-          if (!this.elements.colorInput.value.includes(entry)) {
-            this.elements.colorInput.value += (this.elements.colorInput.value && !this.elements.colorInput.value.endsWith('\n') ? '\n' : '') + entry + '\n';
+          if (!currentReader.elements.colorInput.value.includes(entry)) {
+            currentReader.elements.colorInput.value += (currentReader.elements.colorInput.value && !currentReader.elements.colorInput.value.endsWith('\n') ? '\n' : '') + entry + '\n';
           }
         });
       },
@@ -2443,49 +2536,53 @@
         if (this.animationTimer) {
           return;
         }
+        const currentReader = this;
         fetch('https://en.wikipedia.org/api/rest_v1/page/random/summary')
           .then(response => response.json())
           .then(data => {
             const text = data.extract.trim();
-            this.elements.textInput.value = this.elements.appendTextToggle.checked ? `${this.elements.textInput.value}${this.elements.textInput.value ? '\n\n' : ''}${text}` : text;
-            this.textIsModified = true;
+            currentReader.elements.textInput.value = currentReader.elements.appendTextToggle.checked ? `${currentReader.elements.textInput.value}${currentReader.elements.textInput.value ? '\n\n' : ''}${text}` : text;
+            currentReader.textIsModified = true;
           })
-          .catch(() => alert('[Wiki] Data Fetching Error.'));
+          .catch(() => alert('[Wiki] Data fetching error'));
       },
 
       fetchUnderthekey() {
         if (this.animationTimer) {
           return;
         }
+        const currentReader = this;
         fetch('https://sentence.underthekey.com/language?language=eng')
           .then(response => response.json())
           .then(data => {
-            for (let sentence of data) {
+            for (const sentence of data) {
               const text = sentence['content'].trim();
-              this.elements.textInput.value = this.elements.appendTextToggle.checked ? `${this.elements.textInput.value}${this.elements.textInput.value ? '\n\n' : ''}${text}` : text;
-              this.textIsModified = true;
+              currentReader.elements.textInput.value = currentReader.elements.appendTextToggle.checked ? `${currentReader.elements.textInput.value}${currentReader.elements.textInput.value ? '\n\n' : ''}${text}` : text;
+              currentReader.textIsModified = true;
             }
           })
-          .catch(() => alert('[Underthekey] Data Fetching Error.'));
+          .catch(() => alert('[Underthekey] Data fetching error'));
       },
 
       fetchMetaphorpsum() {
         if (this.animationTimer) {
           return;
         }
+        const currentReader = this;
         fetch('http://metaphorpsum.com/sentences/1')
           .then(response => response.text())
           .then(text => {
-            this.elements.textInput.value = this.elements.appendTextToggle.checked ? `${this.elements.textInput.value}${this.elements.textInput.value ? '\n\n' : ''}${text.trim()}` : text.trim();
-            this.textIsModified = true;
+            currentReader.elements.textInput.value = currentReader.elements.appendTextToggle.checked ? `${currentReader.elements.textInput.value}${currentReader.elements.textInput.value ? '\n\n' : ''}${text.trim()}` : text.trim();
+            currentReader.textIsModified = true;
           })
-          .catch(() => alert('[Metaphorpsum] Data Fetching Error.'));
+          .catch(() => alert('[Metaphorpsum] Data fetching error'));
       },
 
       loadFromFile() {
         if (this.animationTimer) {
           return;
         }
+        const currentReader = this;
         const input = document.createElement('input');
         input.type = 'file';
         input.onchange = e => {
@@ -2494,8 +2591,8 @@
             const reader = new FileReader();
             reader.onload = event => {
               const text = event.target.result.trim();
-              this.elements.textInput.value = this.elements.appendTextToggle.checked ? `${this.elements.textInput.value}${this.elements.textInput.value ? '\n\n' : ''}${text}` : text;
-              this.textIsModified = true;
+              currentReader.elements.textInput.value = currentReader.elements.appendTextToggle.checked ? `${currentReader.elements.textInput.value}${currentReader.elements.textInput.value ? '\n\n' : ''}${text}` : text;
+              currentReader.textIsModified = true;
             };
             reader.readAsText(file);
           }
@@ -2508,7 +2605,7 @@
       randomizeParagraphs() {
         const currentReader = this;
         const text = this.elements.textInput.value;
-        let paragraphs = text.split('\n').filter(p => p.trim());
+        const paragraphs = text.split('\n').filter(p => p.trim());
         currentReader.shuffleArray(paragraphs);
         this.elements.textInput.value = paragraphs.join('\n\n');
       },
@@ -2542,7 +2639,7 @@
           return sentences;
         };
         const processedParagraphs = paragraphs.map(paragraph => {
-          let sentences = splitIntoSentences(paragraph);
+          const sentences = splitIntoSentences(paragraph);
           currentReader.shuffleArray(sentences);
           return sentences.join(' ');
         });
@@ -2566,8 +2663,13 @@
         }
       },
 
-      showWordHint(shuffled, original) {
-        alert(`${shuffled} -> ${original}`);
+      showWordHint(shuffled, original = null) {
+        if (original) {
+          alert(`${shuffled} -> ${original}`);
+        }
+        else {
+          alert(`${shuffled}`);
+        }
       },
 
       hexToRgb(hex) {
@@ -2598,33 +2700,34 @@
           case 'T': this.refreshMarqueeText(); break;
           case 'c':
           case 'C': this.refreshMarqueeColors(); break;
-          case 'Escape': if (this.elements.colorEncoderToggle.checked) this.elements.showColorInfoToggle.click(); break;
+          case 'Escape': this.elements.showColorInfoToggle.click(); break;
         }
       },
 
       updateProgressBar() {
+        const currentReader = this;
         if (this.currentPosition !== null) {
           const containerWidth = this.cachedContainerWidth;
           const textWidth = this.cachedTextWidth;
           const startPos = containerWidth;
           const endPos = -textWidth;
-          const progress = Math.min(100, Math.max(0, Math.floor(100 * (1 - (this.currentPosition - endPos) / (startPos - endPos)) * 10) / 10));
+          const progress = Math.max(0, Math.min(100, (this.currentPosition - startPos) * 100 / (endPos - startPos)));
           this.elements.progressBar.style.width = `${progress}%`;
           
-          const existingMarks = this.elements.progressBarContainer.querySelectorAll('.search-mark');
-          existingMarks.forEach(mark => mark.remove());
+          const searchMarks = this.elements.progressBarContainer.querySelectorAll('.search-mark');
+          searchMarks.forEach(mark => mark.remove());
 
           if (this.searchMatches.length > 0) {
             this.searchMatches.forEach((match, index) => {
-              const matchProgress = ((match.position - startPos) / (endPos - startPos)) * 100;
+              const matchProgress = Math.max(0, Math.min(100, (match.position - startPos) * 100 / (endPos - startPos)));
               const mark = document.createElement('div');
-              mark.className = `search-mark ${index === this.currentMatchIndex ? 'active' : ''}`;
-              mark.style.left = `${Math.max(0, Math.min(100, matchProgress))}%`;
+              mark.className = `search-mark ${index === currentReader.currentMatchIndex ? 'active' : ''}`;
+              mark.style.left = `${matchProgress}%`;
               mark.addEventListener('click', (event) => {
                 event.stopPropagation();
-                this.goToMatch(index);
+                currentReader.goToMatch(index);
               });
-              this.elements.progressBarContainer.appendChild(mark);
+              currentReader.elements.progressBarContainer.appendChild(mark);
             });
           }
         } else {
@@ -2665,7 +2768,7 @@
           return;
         }
         if (currentReader.settingsProfileIsModified) {
-          if (!confirm('You have unsaved changes. Are you sure you want to switch settings profile?')) {
+          if (!confirm('You have unsaved changes. Are you sure you want to discard the changes and switch settings profile?')) {
             currentReader.elements.settingsProfileSelect.value = currentSettingsProfileName;
             return;
           }
@@ -2674,29 +2777,28 @@
         const selectedSettingsProfileName = currentReader.elements.settingsProfileSelect.value;
         if (selectedSettingsProfileName === currentReader.defaultSettingsProfileName) {
           currentReader.setSettingsProfile(JSON.parse(localStorage.getItem(currentReader.settingsNames.settingsProfile) || '{}'));
-          currentReader.settingsProfileIsModified = false;
           currentReader.currentSettingsProfileName = selectedSettingsProfileName;
           localStorage.setItem(currentReader.settingsNames.currentSettingsProfile, currentReader.currentSettingsProfileName);
+          currentReader.settingsProfileIsModified = false;
           if (callback) {
-            callback();
+            return callback();
           }
         } else {
           const transaction = currentReader.database.transaction([currentReader.settingsNames.settingsProfiles], 'readonly');
           const objectStore = transaction.objectStore(currentReader.settingsNames.settingsProfiles);
           const request = objectStore.get(selectedSettingsProfileName);
           request.onsuccess = () => {
-            currentReader.setSettingsProfile(JSON.parse(request.result ? request.result.settings : ''));
+            const data = request.result;
+            currentReader.setSettingsProfile(JSON.parse(data && data.settings ? data.settings : '{}'));
+            currentReader.currentSettingsProfileName = selectedSettingsProfileName;
+            localStorage.setItem(currentReader.settingsNames.currentSettingsProfile, currentReader.currentSettingsProfileName);
             currentReader.settingsProfileIsModified = false;
             if (callback) {
-              callback();
+              return callback();
             }
           };
-          currentReader.currentSettingsProfileName = selectedSettingsProfileName;
-          localStorage.setItem(currentReader.settingsNames.currentSettingsProfile, currentReader.currentSettingsProfileName);
           request.onerror = () => {
-            alert('Error loading text from IndexedDB.');
             currentReader.currentSettingsProfileName = currentReader.defaultSettingsProfileName;
-            currentReader.elements.settingsProfileSelect.value = currentReader.defaultSettingsProfileName;
             localStorage.setItem(currentReader.settingsNames.currentSettingsProfile, currentReader.currentSettingsProfileName);
             currentReader.locationReload();
           };
@@ -2711,7 +2813,7 @@
           return;
         }
         if (currentReader.textIsModified) {
-          if (!confirm('You have unsaved changes. Are you sure you want to switch texts?')) {
+          if (!confirm('You have unsaved changes. Are you sure you want to discard the changes and switch text?')) {
             currentReader.elements.textSelect.value = currentTextName;
             return;
           }
@@ -2719,30 +2821,31 @@
         currentReader.stopPlayback(true);
         const selectedTextName = currentReader.elements.textSelect.value;
         if (selectedTextName === currentReader.defaultTextName) {
+          currentReader.currentTextBookmarks = JSON.parse(localStorage.getItem(currentReader.settingsNames.textBookmarks) || '[]');
           currentReader.elements.textInput.value = localStorage.getItem(currentReader.settingsNames.text) || '';
-          currentReader.textIsModified = false;
           currentReader.currentTextName = selectedTextName;
           localStorage.setItem(currentReader.settingsNames.currentTextName, currentReader.currentTextName);
+          currentReader.textIsModified = false;
           if (callback) {
-            callback();
+            return callback();
           }
         } else {
           const transaction = currentReader.database.transaction([currentReader.settingsNames.texts], 'readonly');
           const objectStore = transaction.objectStore(currentReader.settingsNames.texts);
           const request = objectStore.get(selectedTextName);
           request.onsuccess = () => {
-            currentReader.elements.textInput.value = request.result ? request.result.content : '';
+            const data = request.result;
+            currentReader.currentTextBookmarks = data && data.bookmarks ? JSON.parse(data.bookmarks) : [];
+            currentReader.elements.textInput.value = data && data.content ? data.content : '';
+            currentReader.currentTextName = selectedTextName;
+            localStorage.setItem(currentReader.settingsNames.currentTextName, currentReader.currentTextName);
             currentReader.textIsModified = false;
             if (callback) {
-              callback();
+              return callback();
             }
           };
-          currentReader.currentTextName = selectedTextName;
-          localStorage.setItem(currentReader.settingsNames.currentTextName, currentReader.currentTextName);
           request.onerror = () => {
-            alert('Error loading text from IndexedDB.');
             currentReader.currentTextName = currentReader.defaultTextName;
-            currentReader.elements.textSelect.value = currentReader.defaultTextName;
             localStorage.setItem(currentReader.settingsNames.currentTextName, currentReader.currentTextName);
             currentReader.locationReload();
           };
@@ -2751,13 +2854,13 @@
 
       createNewSettingsProfile(settingsProfile = null) {
         const currentReader = this;
-        const currentSettingsProfileName = currentReader.currentTextName;
+        const currentSettingsProfileName = currentReader.currentSettingsProfileName;
         if (!settingsProfile) {
           settingsProfile = currentReader.getDefaultSettingsProfile();
         }
         const newSettingsProfile = JSON.stringify(settingsProfile);
         if (currentReader.settingsProfileIsModified) {
-          if (!confirm('You have unsaved changes. Are you sure you want to create a new settings profile?')) {
+          if (!confirm('You have unsaved changes. Are you sure you want to discard the changes and create a new settings profile?')) {
             currentReader.elements.settingsProfileSelect.value = currentSettingsProfileName;
             return;
           }
@@ -2767,8 +2870,8 @@
           name = prompt('Enter a unique name for the new settings profile:');
           if (!name) return;
           const settingsProfiles = JSON.parse(localStorage.getItem(currentReader.settingsNames.settingsProfiles) || '[]');
-          if (settingsProfiles.includes(name) || name === this.defaultSettingsProfileName) {
-            alert('This settings profile name already exists. Please choose another one.');
+          if (settingsProfiles.includes(name) || name === currentReader.defaultSettingsProfileName) {
+            alert('This settings profile name already exists. Choose another one.');
             name = null;
           }
         } while (!name);
@@ -2778,25 +2881,31 @@
         const transaction = currentReader.database.transaction([currentReader.settingsNames.settingsProfiles], 'readwrite');
         const objectStore = transaction.objectStore(currentReader.settingsNames.settingsProfiles);
         objectStore.add({ name: name, settings: newSettingsProfile });
-        localStorage.setItem(currentReader.settingsNames.settingsProfiles, JSON.stringify(settingsProfiles));
-        const option = document.createElement('option');
-        option.value = name;
-        option.textContent = name;
-        currentReader.elements.settingsProfileSelect.appendChild(option);
-        currentReader.elements.settingsProfileSelect.value = name;
-        currentReader.settingsProfileIsModified = false;
-        currentReader.switchSettingsProfile();
+        transaction.oncomplete = () => {
+          localStorage.setItem(currentReader.settingsNames.settingsProfiles, JSON.stringify(settingsProfiles));
+          const option = document.createElement('option');
+          option.value = name;
+          option.textContent = name;
+          currentReader.elements.settingsProfileSelect.appendChild(option);
+          currentReader.elements.settingsProfileSelect.value = name;
+          currentReader.settingsProfileIsModified = false;
+          currentReader.switchSettingsProfile();
+        };
+        transaction.onabort = () => {
+          console.error(transaction.error);
+          alert(transaction.error);
+        };
       },
 
       duplicateSettingsProfile() {
         this.createNewSettingsProfile(this.getCurrentSettingsProfile());
       },
 
-      createNewText(defaultContent = '') {
+      createNewText(defaultContent = '', defaultBookmarks = []) {
         const currentReader = this;
         const currentTextName = currentReader.currentTextName;
         if (currentReader.textIsModified) {
-          if (!confirm('You have unsaved changes. Are you sure you want to create a new text?')) {
+          if (!confirm('You have unsaved changes. Are you sure you want to discard the changes and create a new text?')) {
             currentReader.elements.textSelect.value = currentTextName;
             return;
           }
@@ -2807,7 +2916,7 @@
           if (!name) return;
           const texts = JSON.parse(localStorage.getItem(currentReader.settingsNames.texts) || '[]');
           if (texts.includes(name) || name === this.defaultTextName) {
-            alert('This text name already exists. Please choose another one.');
+            alert('This text name already exists. Choose another one.');
             name = null;
           }
         } while (!name);
@@ -2816,34 +2925,43 @@
         texts.push(name);
         const transaction = currentReader.database.transaction([currentReader.settingsNames.texts], 'readwrite');
         const objectStore = transaction.objectStore(currentReader.settingsNames.texts);
-        objectStore.add({ title: name, content: defaultContent });
-        localStorage.setItem(currentReader.settingsNames.texts, JSON.stringify(texts));
-        const option = document.createElement('option');
-        option.value = name;
-        option.textContent = name;
-        currentReader.elements.textSelect.appendChild(option);
-        currentReader.elements.textSelect.value = name;
-        currentReader.textIsModified = false;
-        currentReader.switchText();
+        objectStore.add({ title: name, content: defaultContent, bookmarks: JSON.stringify(defaultBookmarks) });
+        transaction.oncomplete = () => {
+          localStorage.setItem(currentReader.settingsNames.texts, JSON.stringify(texts));
+          const option = document.createElement('option');
+          option.value = name;
+          option.textContent = name;
+          currentReader.elements.textSelect.appendChild(option);
+          currentReader.elements.textSelect.value = name;
+          currentReader.textIsModified = false;
+          currentReader.switchText();
+        };
+        transaction.onabort = () => {
+          console.error(transaction.error);
+          alert(transaction.error);
+        };
       },
 
       duplicateText() {
-        this.createNewText(this.elements.textInput.value);
+        this.createNewText(this.elements.textInput.value, this.currentTextBookmarks);
       },
 
       saveCurrentSettingsProfile() {
         const currentReader = this;
         try {
-          let currentSettings = JSON.stringify(currentReader.getCurrentSettingsProfile());
+          const currentSettings = JSON.stringify(currentReader.getCurrentSettingsProfile());
           if (currentReader.currentSettingsProfileName === currentReader.defaultSettingsProfileName) {
             localStorage.setItem(currentReader.settingsNames.settingsProfile, currentSettings);
+            currentReader.settingsProfileIsModified = false;
           } else if (currentReader.database) {
             const transaction = currentReader.database.transaction([currentReader.settingsNames.settingsProfiles], 'readwrite');
             const objectStore = transaction.objectStore(currentReader.settingsNames.settingsProfiles);
-            objectStore.put({ name: currentReader.currentSettingsProfileName, settings: currentSettings });
+            const request = objectStore.put({ name: currentReader.currentSettingsProfileName, settings: currentSettings });
+            request.onsuccess = () => {
+              currentReader.settingsProfileIsModified = false;
+            };
           }
           localStorage.setItem(currentReader.settingsNames.currentSettingsProfile, currentReader.currentSettingsProfileName);
-          currentReader.settingsProfileIsModified = false;
         }
         catch (err) {
           console.error(err);
@@ -2856,13 +2974,21 @@
         try {
           if (currentReader.currentTextName === currentReader.defaultTextName) {
             localStorage.setItem(currentReader.settingsNames.text, currentReader.elements.textInput.value);
+            localStorage.setItem(currentReader.settingsNames.textBookmarks, JSON.stringify(currentReader.currentTextBookmarks));
+            currentReader.textIsModified = false;
           } else if (currentReader.database) {
             const transaction = currentReader.database.transaction([currentReader.settingsNames.texts], 'readwrite');
             const objectStore = transaction.objectStore(currentReader.settingsNames.texts);
-            objectStore.put({ title: currentReader.currentTextName, content: currentReader.elements.textInput.value });
+            const request = objectStore.put({
+              title: currentReader.currentTextName,
+              content: currentReader.elements.textInput.value,
+              bookmarks: JSON.stringify(currentReader.currentTextBookmarks),
+            });
+            request.onsuccess = () => {
+              currentReader.textIsModified = false;
+            };
           }
           localStorage.setItem(currentReader.settingsNames.currentTextName, currentReader.currentTextName);
-          currentReader.textIsModified = false;
         }
         catch (err) {
           console.error(err);
@@ -2873,7 +2999,7 @@
       deleteCurrentSettingsProfile() {
         const currentReader = this;
         if (currentReader.currentSettingsProfileName === currentReader.defaultSettingsProfileName) {
-          alert(`Cannot delete the ${currentReader.defaultSettingsProfileName} settings profile.`);
+          alert(`Cannot delete the "${currentReader.defaultSettingsProfileName}" settings profile`);
           return;
         }
         if (confirm(`Are you sure you want to delete the settings profile "${currentReader.currentSettingsProfileName}"?`)) {
@@ -2881,73 +3007,73 @@
           const transaction = currentReader.database.transaction([currentReader.settingsNames.settingsProfiles], 'readwrite');
           const objectStore = transaction.objectStore(currentReader.settingsNames.settingsProfiles);
           objectStore.delete(currentReader.currentSettingsProfileName);
-          let settingsProfiles = JSON.parse(localStorage.getItem(currentReader.settingsNames.settingsProfiles) || '[]');
-          settingsProfiles = settingsProfiles.filter(profileName => profileName !== currentReader.currentSettingsProfileName);
-          localStorage.setItem(currentReader.settingsNames.settingsProfiles, JSON.stringify(settingsProfiles));
-          const option = currentReader.elements.settingsProfileSelect.querySelector(`option[value="${currentReader.currentSettingsProfileName}"]`);
-          if (option) option.remove();
-          currentReader.elements.settingsProfileSelect.value = currentReader.defaultSettingsProfileName;
-          currentReader.settingsProfileIsModified = false;
-          currentReader.switchSettingsProfile();
+          transaction.oncomplete = () => {
+            let settingsProfiles = JSON.parse(localStorage.getItem(currentReader.settingsNames.settingsProfiles) || '[]');
+            settingsProfiles = settingsProfiles.filter(profileName => profileName !== currentReader.currentSettingsProfileName);
+            localStorage.setItem(currentReader.settingsNames.settingsProfiles, JSON.stringify(settingsProfiles));
+            const option = currentReader.elements.settingsProfileSelect.querySelector(`option[value="${currentReader.currentSettingsProfileName}"]`);
+            if (option) option.remove();
+            currentReader.elements.settingsProfileSelect.value = currentReader.defaultSettingsProfileName;
+            currentReader.settingsProfileIsModified = false;
+            currentReader.switchSettingsProfile();
+          };
+          transaction.onabort = () => {
+            console.error(transaction.error);
+            alert(transaction.error);
+          };
         }
       },
 
       deleteCurrentText() {
         const currentReader = this;
         if (currentReader.currentTextName === currentReader.defaultTextName) {
-          alert(`Cannot delete the ${currentReader.defaultTextName} text.`);
+          alert(`Cannot delete the "${currentReader.defaultTextName}" text`);
           return;
         }
-        if (confirm(`Are you sure you want to delete the text "${currentReader.currentTextName}"?`)) {
+        if (confirm(`Are you sure you want to delete the text "${currentReader.currentTextName}"? This action will also remove all associated bookmarks.`)) {
           currentReader.stopPlayback(true);
           const transaction = currentReader.database.transaction([currentReader.settingsNames.texts], 'readwrite');
           const objectStore = transaction.objectStore(currentReader.settingsNames.texts);
           objectStore.delete(currentReader.currentTextName);
-          let texts = JSON.parse(localStorage.getItem(currentReader.settingsNames.texts) || '[]');
-          texts = texts.filter(text => text !== currentReader.currentTextName);
-          localStorage.setItem(currentReader.settingsNames.texts, JSON.stringify(texts));
-          const option = currentReader.elements.textSelect.querySelector(`option[value="${currentReader.currentTextName}"]`);
-          if (option) option.remove();
-          currentReader.elements.textSelect.value = currentReader.defaultTextName;
-          currentReader.textIsModified = false;
-          currentReader.switchText();
+          transaction.oncomplete = () => {
+            let texts = JSON.parse(localStorage.getItem(currentReader.settingsNames.texts) || '[]');
+            texts = texts.filter(text => text !== currentReader.currentTextName);
+            localStorage.setItem(currentReader.settingsNames.texts, JSON.stringify(texts));
+            const option = currentReader.elements.textSelect.querySelector(`option[value="${currentReader.currentTextName}"]`);
+            if (option) option.remove();
+            currentReader.elements.textSelect.value = currentReader.defaultTextName;
+            currentReader.textIsModified = false;
+            currentReader.switchText();
+          };
+          transaction.onabort = () => {
+            console.error(transaction.error);
+            alert(transaction.error);
+          };
         }
       },
 
-      deleteAllSettingsProfiles() {
+      deleteAllSettingsProfiles(callback = null) {
         const currentReader = this;
         if (confirm('Are you sure you want to delete all settings profiles?')) {
-          localStorage.removeItem(currentReader.settingsNames.settingsProfile);
           if (currentReader.database) {
-            try {
-              const transaction = currentReader.database.transaction([currentReader.settingsNames.settingsProfiles], 'readwrite');
-              const objectStore = transaction.objectStore(currentReader.settingsNames.settingsProfiles);
-              const request = objectStore.clear();
-              request.onupgradeneeded = function (event) {
-                currentReader.locationReload();
-              };
-              request.onsuccess = function (event) {
-                localStorage.removeItem(currentReader.settingsNames.settingsProfiles);
-                currentReader.locationReload();
-              };
-              request.onerror = function (event) {
-                const message = `IndexedDB error: ${event.target.errorCode}`;
-                alert(message);
-                currentReader.locationReload();
-              };
-              request.onblocked = function (event) {
-                const message = `IndexedDB blocked: ${event.target.errorCode}\nTry again later.`;
-                alert(message);
-                currentReader.locationReload();
-              };
-            }
-            catch (err) {
-              alert(err);
+            const transaction = currentReader.database.transaction([currentReader.settingsNames.settingsProfiles], 'readwrite');
+            const objectStore = transaction.objectStore(currentReader.settingsNames.settingsProfiles);
+            const request = objectStore.clear();
+            transaction.oncomplete = () => {
+              localStorage.removeItem(currentReader.settingsNames.settingsProfile);
+              localStorage.removeItem(currentReader.settingsNames.settingsProfiles);
+              if (callback) {
+                return callback();
+              }
               currentReader.locationReload();
-            }
+            };
+            transaction.onabort = () => {
+              console.error(transaction.error);
+              alert(transaction.error);
+            };
           }
           else {
-            currentReader.locationReload();
+            localStorage.removeItem(currentReader.settingsNames.settingsProfile);
           }
         }
         else {
@@ -2958,42 +3084,34 @@
         }
       },
 
-      deleteAllTexts() {
+      deleteAllTexts(callback = null) {
         const currentReader = this;
-        if (confirm('Are you sure you want to delete all texts?')) {
-          currentReader.lastSavedPosition = null;
-          localStorage.removeItem(currentReader.settingsNames.lastPosition);
-          localStorage.removeItem(currentReader.settingsNames.text);
+        if (confirm('Are you sure you want to delete all texts? This action will also remove all bookmarks.')) {
           if (currentReader.database) {
-            try {
-              const transaction = currentReader.database.transaction([currentReader.settingsNames.texts], 'readwrite');
-              const objectStore = transaction.objectStore(currentReader.settingsNames.texts);
-              const request = objectStore.clear();
-              request.onupgradeneeded = function (event) {
-                currentReader.locationReload();
-              };
-              request.onsuccess = function (event) {
-                localStorage.removeItem(currentReader.settingsNames.texts);
-                currentReader.locationReload();
-              };
-              request.onerror = function (event) {
-                const message = `IndexedDB error: ${event.target.errorCode}`;
-                alert(message);
-                currentReader.locationReload();
-              };
-              request.onblocked = function (event) {
-                const message = `IndexedDB blocked: ${event.target.errorCode}\nTry again later.`;
-                alert(message);
-                currentReader.locationReload();
-              };
-            }
-            catch (err) {
-              alert(err);
+            const transaction = currentReader.database.transaction([currentReader.settingsNames.texts], 'readwrite');
+            const objectStore = transaction.objectStore(currentReader.settingsNames.texts);
+            const request = objectStore.clear();
+            transaction.oncomplete = () => {
+              currentReader.lastSavedPosition = null;
+              localStorage.removeItem(currentReader.settingsNames.lastPosition);
+              localStorage.removeItem(currentReader.settingsNames.text);
+              localStorage.removeItem(currentReader.settingsNames.texts);
+              localStorage.removeItem(currentReader.settingsNames.textBookmarks);
+              if (callback) {
+                return callback();
+              }
               currentReader.locationReload();
-            }
+            };
+            transaction.onabort = () => {
+              console.error(transaction.error);
+              alert(transaction.error);
+            };
           }
           else {
-            currentReader.locationReload();
+            currentReader.lastSavedPosition = null;
+            localStorage.removeItem(currentReader.settingsNames.lastPosition);
+            localStorage.removeItem(currentReader.settingsNames.text);
+            localStorage.removeItem(currentReader.settingsNames.textBookmarks);
           }
         }
         else {
@@ -3004,104 +3122,141 @@
         }
       },
 
-      deleteDatabase() {
+      deleteDatabase(callback = null) {
         const currentReader = this;
-        if (confirm('Are you sure you want to delete the database?')) {
-          currentReader.lastSavedPosition = null;
-          localStorage.removeItem(currentReader.settingsNames.lastPosition);
-          localStorage.removeItem(currentReader.settingsNames.text);
-          localStorage.removeItem(currentReader.settingsNames.settingsProfile);
+        if (confirm('Are you sure you want to delete the database? This action will also remove all bookmarks.')) {
           if (currentReader.database) {
-            try {
-              currentReader.database.close();
-              const request = indexedDB.deleteDatabase(currentReader.databaseName);
-              request.onupgradeneeded = function (event) {
-                currentReader.locationReload();
-              };
-              request.onsuccess = function (event) {
-                localStorage.removeItem(currentReader.settingsNames.texts);
-                currentReader.locationReload();
-              };
-              request.onerror = function (event) {
-                const message = `IndexedDB error: ${event.target.errorCode}`;
-                alert(message);
-                currentReader.locationReload();
-              };
-              request.onblocked = function (event) {
-                const message = `IndexedDB blocked: ${event.target.errorCode}\nTry again later.`;
-                alert(message);
-                currentReader.locationReload();
-              };
-            }
-            catch (err) {
-              alert(err);
+            currentReader.database.close();
+            const request = indexedDB.deleteDatabase(currentReader.databaseName);
+            request.onsuccess = () => {
+              currentReader.lastSavedPosition = null;
+              localStorage.removeItem(currentReader.settingsNames.lastPosition);
+              localStorage.removeItem(currentReader.settingsNames.settingsProfile);
+              localStorage.removeItem(currentReader.settingsNames.settingsProfiles);
+              localStorage.removeItem(currentReader.settingsNames.text);
+              localStorage.removeItem(currentReader.settingsNames.texts);
+              localStorage.removeItem(currentReader.settingsNames.textBookmarks);
+              if (callback) {
+                return callback();
+              }
               currentReader.locationReload();
-            }
+            };
+            request.onerror = (event) => {
+              console.error(event.target.error);
+              alert(event.target.error);
+            };
+            request.onblocked = (event) => {
+              console.error(event.type);
+              alert(event.type);
+            };
           }
           else {
-            currentReader.locationReload();
+            currentReader.lastSavedPosition = null;
+            localStorage.removeItem(currentReader.settingsNames.lastPosition);
+            localStorage.removeItem(currentReader.settingsNames.settingsProfile);
+            localStorage.removeItem(currentReader.settingsNames.settingsProfiles);
+            localStorage.removeItem(currentReader.settingsNames.text);
+            localStorage.removeItem(currentReader.settingsNames.texts);
+            localStorage.removeItem(currentReader.settingsNames.textBookmarks);
           }
         }
       },
 
-      importAllSettingsProfiles() {
+      importAllSettingsProfilesAux(data, callback = null) {
         const currentReader = this;
-        const currentSettingsProfileName = currentReader.currentTextName;
+        try {
+          const jsonParsed = JSON.parse(data), newSettingsProfiles = [];
+          for (const jsonObject of (jsonParsed[currentReader.settingsNames.settingsProfiles] || [])) {
+            const name = jsonObject['name'], settings = JSON.stringify(jsonObject['settings']);
+            if (name && settings) {
+              newSettingsProfiles.push({
+                'name': name,
+                'settings': settings
+              });
+            }
+          }
+          const settingsProfiles = JSON.parse(localStorage.getItem(currentReader.settingsNames.settingsProfiles) || '[]');
+          if (newSettingsProfiles.length > 0) {
+            currentReader.pauseAnimation();
+            const transaction = currentReader.database ? currentReader.database.transaction([currentReader.settingsNames.settingsProfiles], 'readwrite') : null;
+            const objectStore = currentReader.database ? transaction.objectStore(currentReader.settingsNames.settingsProfiles) : null;
+            for (const newSettingsProfile of newSettingsProfiles) {
+              const name = newSettingsProfile['name'];
+              const settings = newSettingsProfile['settings'];
+              if (name === currentReader.defaultSettingsProfileName) {
+                if (currentReader.elements.importReplaceToggle.checked) {
+                  localStorage.setItem(currentReader.settingsNames.settingsProfile, settings);
+                }
+              }
+              else if (currentReader.database) {
+                const included = settingsProfiles.includes(name);
+                if (!included) {
+                  settingsProfiles.push(name);
+                }
+                const data = { name: name, settings: settings };
+                if (currentReader.elements.importReplaceToggle.checked) {
+                  objectStore.put(data);
+                }
+                else if (!included) {
+                  objectStore.add(data);
+                }
+              }
+            }
+            if (currentReader.database) {
+              transaction.oncomplete = () => {
+                localStorage.setItem(currentReader.settingsNames.settingsProfiles, JSON.stringify(settingsProfiles));
+                if (callback) {
+                  return callback(jsonParsed);
+                }
+                currentReader.locationReload();
+              };
+              transaction.onabort = () => {
+                console.error(transaction.error);
+                alert(transaction.error);
+              };
+            }
+            else {
+              if (callback) {
+                return callback(jsonParsed);
+              }
+              currentReader.locationReload();
+            }
+          }
+          else {
+            if (callback) {
+              return callback(jsonParsed);
+            }
+            alert('No settings profiles found in the file');
+          }
+        }
+        catch (err) {
+          console.error(err);
+          alert(`Error importing settings profiles: ${err}`);
+        }
+      },
+
+      importAllSettingsProfiles(callback = null) {
+        const currentReader = this;
         if (currentReader.settingsProfileIsModified) {
-          if (!confirm('You have unsaved changes. Are you sure you want to import new settings profiles?')) {
-            currentReader.elements.settingsProfileSelect.value = currentSettingsProfileName;
+          if (!confirm('You have unsaved changes. Are you sure you want to discard the changes and import new settings profiles?')) {
             return;
           }
         }
-        let element = document.createElement('input');
+        const element = document.createElement('input');
         element.id = 'file_upload';
         element.type = 'file';
         element.onchange = function (event) {
           if (window.File && window.FileReader && window.FileList && window.Blob) {
-            let f = event.target.files[0];
+            const f = event.target.files[0];
             if (f) {
-              let r = new FileReader;
+              const r = new FileReader;
               r.addEventListener("load", (function (event) {
-                try {
-                  let jsonParsed = JSON.parse(event.target.result), newSettingsProfiles = [];
-                  for (const jsonObject of jsonParsed[currentReader.settingsNames.settingsProfiles]) {
-                    let name = jsonObject['name'], settings = JSON.stringify(jsonObject['settings']);
-                    if (name && settings) {
-                      newSettingsProfiles.push({
-                        'name': name,
-                        'settings': settings
-                      });
-                    }
-                  }
-                  if (newSettingsProfiles.length > 0) {
-                    currentReader.pauseAnimation();
-                    for (let newSettingsProfile of newSettingsProfiles) {
-                      if (newSettingsProfile['name'] === currentReader.defaultSettingsProfileName) {
-                        localStorage.setItem(currentReader.settingsNames.settingsProfile, newSettingsProfile['settings']);
-                      }
-                      else {
-                        const settingsProfiles = JSON.parse(localStorage.getItem(currentReader.settingsNames.settingsProfiles) || '[]');
-                        if (!settingsProfiles.includes(newSettingsProfile['name'])) {
-                          settingsProfiles.push(newSettingsProfile['name']);
-                        }
-                        const transaction = currentReader.database.transaction([currentReader.settingsNames.settingsProfiles], 'readwrite');
-                        const objectStore = transaction.objectStore(currentReader.settingsNames.settingsProfiles);
-                        objectStore.put({ name: newSettingsProfile['name'], settings: newSettingsProfile['settings'] });
-                        localStorage.setItem(currentReader.settingsNames.settingsProfiles, JSON.stringify(settingsProfiles));
-                      }
-                    }
-                  }
-                  currentReader.locationReload();
-                }
-                catch (err) {
-                  console.error(err);
-                  alert(`Error importing settings profiles: ${err}`);
-                }
+                return currentReader.importAllSettingsProfilesAux(event.target.result, callback);
               }));
               r.readAsText(f);
             }
           } else {
-            alert("This functionality not supported by your browser.")
+            alert("This functionality is not supported by your browser")
           }
         }
         document.body.appendChild(element);
@@ -3109,64 +3264,119 @@
         document.body.removeChild(element);
       },
 
-      importAllTexts() {
+      importAllTextsAux(data, callback = null) {
         const currentReader = this;
-        const currentSettingsProfileName = currentReader.currentTextName;
-        if (currentReader.settingsProfileIsModified) {
-          if (!confirm('You have unsaved changes. Are you sure you want to import new settings profiles?')) {
-            currentReader.elements.settingsProfileSelect.value = currentSettingsProfileName;
+        try {
+          const jsonParsed = JSON.parse(data), newTexts = [];
+          for (const jsonObject of (jsonParsed[currentReader.settingsNames.texts] || [])) {
+            const title = jsonObject['title'], content = jsonObject['content'], bookmarks = jsonObject['bookmarks'];
+            if (title && content) {
+              newTexts.push({
+                'title': title,
+                'content': content,
+                'bookmarks': JSON.stringify(bookmarks || [])
+              });
+            }
+          }
+          const texts = JSON.parse(localStorage.getItem(currentReader.settingsNames.texts) || '[]');
+          if (newTexts.length > 0) {
+            currentReader.stopPlayback(true);
+            const transaction = currentReader.database ? currentReader.database.transaction([currentReader.settingsNames.texts], 'readwrite') : null;
+            const objectStore = currentReader.database ? transaction.objectStore(currentReader.settingsNames.texts) : null;
+            for (const newText of newTexts) {
+              const title = newText['title'];
+              const content = newText['content'];
+              const bookmarks = newText['bookmarks'];
+              if (title === currentReader.defaultTextName) {
+                if (currentReader.elements.importReplaceToggle.checked) {
+                  localStorage.setItem(currentReader.settingsNames.text, content);
+                  localStorage.setItem(currentReader.settingsNames.textBookmarks, bookmarks);
+                  if (currentReader.currentTextName === currentReader.defaultTextName) {
+                    currentReader.lastSavedPosition = null;
+                    localStorage.removeItem(currentReader.settingsNames.lastPosition);
+                  }
+                }
+              }
+              else if (currentReader.database) {
+                const included = texts.includes(title);
+                if (!included) {
+                  texts.push(title);
+                }
+                const data = {
+                  title: title,
+                  content: content,
+                  bookmarks: bookmarks,
+                };
+                let changed = false;
+                if (currentReader.elements.importReplaceToggle.checked) {
+                  objectStore.put(data);
+                  changed = true;
+                }
+                else if (!included) {
+                  objectStore.add(data);
+                  changed = true;
+                }
+                if (changed && currentReader.currentTextName === title) {
+                  currentReader.lastSavedPosition = null;
+                  localStorage.removeItem(currentReader.settingsNames.lastPosition);
+                }
+              }
+            }
+            if (currentReader.database) {
+              transaction.oncomplete = () => {
+                localStorage.setItem(currentReader.settingsNames.texts, JSON.stringify(texts));
+                if (callback) {
+                  return callback(jsonParsed);
+                }
+                currentReader.locationReload();
+              };
+              transaction.onabort = () => {
+                console.error(transaction.error);
+                alert(transaction.error);
+              };
+            }
+            else {
+              if (callback) {
+                return callback(jsonParsed);
+              }
+              currentReader.locationReload();
+            }
+          }
+          else {
+            if (callback) {
+              return callback(jsonParsed);
+            }
+            alert('No texts found in the file');
+          }
+        }
+        catch (err) {
+          console.error(err);
+          alert(`Error importing texts: ${err}`);
+        }
+      },
+
+      importAllTexts(callback = null) {
+        const currentReader = this;
+        if (currentReader.textIsModified) {
+          if (!confirm('You have unsaved changes. Are you sure you want to discard the changes and import new texts?')) {
             return;
           }
         }
-        let element = document.createElement('input');
+        const element = document.createElement('input');
         element.id = 'file_upload';
         element.type = 'file';
         element.onchange = function (event) {
           if (window.File && window.FileReader && window.FileList && window.Blob) {
-            let f = event.target.files[0];
+            const f = event.target.files[0];
             if (f) {
-              let r = new FileReader;
+              const r = new FileReader;
               r.addEventListener("load", (function (event) {
-                try {
-                  let jsonParsed = JSON.parse(event.target.result), newTexts = [];
-                  for (const jsonObject of jsonParsed[currentReader.settingsNames.texts]) {
-                    let title = jsonObject['title'], content = jsonObject['content'];
-                    if (title && content) {
-                      newTexts.push({
-                        'title': title,
-                        'content': content
-                      });
-                    }
-                  }
-                  if (newTexts.length > 0) {
-                    currentReader.pauseAnimation();
-                    for (let newText of newTexts) {
-                      if (newText['title'] === currentReader.defaultTextName) {
-                        localStorage.setItem(currentReader.settingsNames.text, newText['content']);
-                      }
-                      else {
-                        const texts = JSON.parse(localStorage.getItem(currentReader.settingsNames.texts) || '[]');
-                        if (!texts.includes(newText['title'])) {
-                          texts.push(newText['title']);
-                        }
-                        const transaction = currentReader.database.transaction([currentReader.settingsNames.texts], 'readwrite');
-                        const objectStore = transaction.objectStore(currentReader.settingsNames.texts);
-                        objectStore.put({ title: newText['title'], content: newText['content'] });
-                        localStorage.setItem(currentReader.settingsNames.texts, JSON.stringify(texts));
-                      }
-                    }
-                  }
-                  currentReader.locationReload();
-                }
-                catch (err) {
-                  console.error(err);
-                  alert(`Error importing settings texts: ${err}`);
-                }
+                return currentReader.importAllTextsAux(event.target.result, callback);
               }));
               r.readAsText(f);
             }
           } else {
-            alert("This functionality not supported by your browser.")
+            alert("This functionality is not supported by your browser")
           }
         }
         document.body.appendChild(element);
@@ -3176,96 +3386,38 @@
 
       importAllSettingsProfilesAndTexts(afterSuccessCallback = null) {
         const currentReader = this;
-        const currentSettingsProfileName = currentReader.currentTextName;
         if (currentReader.settingsProfileIsModified) {
-          if (!confirm('You have unsaved changes. Are you sure you want to import new settings profiles?')) {
-            currentReader.elements.settingsProfileSelect.value = currentSettingsProfileName;
+          if (!confirm('You have unsaved changes. Are you sure you want to discard the changes and import new settings profiles?')) {
             return;
           }
         }
-        let element = document.createElement('input');
+        if (currentReader.textIsModified) {
+          if (!confirm('You have unsaved changes. Are you sure you want to discard the changes and import new texts?')) {
+            return;
+          }
+        }
+        const element = document.createElement('input');
         element.id = 'file_upload';
         element.type = 'file';
         element.onchange = function (event) {
           if (window.File && window.FileReader && window.FileList && window.Blob) {
-            let f = event.target.files[0];
+            const f = event.target.files[0];
             if (f) {
-              let r = new FileReader;
+              const r = new FileReader;
               r.addEventListener("load", (function (event) {
-                try {
-                  let jsonParsed = JSON.parse(event.target.result), newSettingsProfiles = [], newTexts = [];
-                  if (jsonParsed.hasOwnProperty(currentReader.settingsNames.settingsProfiles)) {
-                    for (const jsonObject of jsonParsed[currentReader.settingsNames.settingsProfiles]) {
-                      let name = jsonObject['name'], settings = JSON.stringify(jsonObject['settings']);
-                      if (name && settings) {
-                        newSettingsProfiles.push({
-                          'name': name,
-                          'settings': settings
-                        });
-                      }
+                currentReader.importAllSettingsProfilesAux(event.target.result, (jsonParsed1) => {
+                  currentReader.importAllTextsAux(event.target.result, (jsonParsed2) => {
+                    if (afterSuccessCallback) {
+                      return afterSuccessCallback(jsonParsed2);
                     }
-                    if (newSettingsProfiles.length > 0) {
-                      currentReader.pauseAnimation();
-                      for (let newSettingsProfile of newSettingsProfiles) {
-                        if (newSettingsProfile['name'] === currentReader.defaultSettingsProfileName) {
-                          localStorage.setItem(currentReader.settingsNames.settingsProfile, newSettingsProfile['settings']);
-                        }
-                        else {
-                          const settingsProfiles = JSON.parse(localStorage.getItem(currentReader.settingsNames.settingsProfiles) || '[]');
-                          if (!settingsProfiles.includes(newSettingsProfile['name'])) {
-                            settingsProfiles.push(newSettingsProfile['name']);
-                          }
-                          const transaction = currentReader.database.transaction([currentReader.settingsNames.settingsProfiles], 'readwrite');
-                          const objectStore = transaction.objectStore(currentReader.settingsNames.settingsProfiles);
-                          objectStore.put({ name: newSettingsProfile['name'], settings: newSettingsProfile['settings'] });
-                          localStorage.setItem(currentReader.settingsNames.settingsProfiles, JSON.stringify(settingsProfiles));
-                        }
-                      }
-                    }
-                  }
-                  if (jsonParsed.hasOwnProperty(currentReader.settingsNames.texts)) {
-                    for (const jsonObject of jsonParsed[currentReader.settingsNames.texts]) {
-                      let title = jsonObject['title'], content = jsonObject['content'];
-                      if (title && content) {
-                        newTexts.push({
-                          'title': title,
-                          'content': content
-                        });
-                      }
-                    }
-                    if (newTexts.length > 0) {
-                      currentReader.pauseAnimation();
-                      for (let newText of newTexts) {
-                        if (newText['title'] === currentReader.defaultTextName) {
-                          localStorage.setItem(currentReader.settingsNames.text, newText['content']);
-                        }
-                        else {
-                          const texts = JSON.parse(localStorage.getItem(currentReader.settingsNames.texts) || '[]');
-                          if (!texts.includes(newText['title'])) {
-                            texts.push(newText['title']);
-                          }
-                          const transaction = currentReader.database.transaction([currentReader.settingsNames.texts], 'readwrite');
-                          const objectStore = transaction.objectStore(currentReader.settingsNames.texts);
-                          objectStore.put({ title: newText['title'], content: newText['content'] });
-                          localStorage.setItem(currentReader.settingsNames.texts, JSON.stringify(texts));
-                        }
-                      }
-                    }
-                  }
-                  if (afterSuccessCallback) {
-                    afterSuccessCallback(jsonParsed);
-                  }
-                  currentReader.locationReload();
-                }
-                catch (err) {
-                  console.error(err);
-                  alert(`Error importing settings profiles and texts: ${err}`);
-                }
+                    currentReader.locationReload();
+                  });
+                });
               }));
               r.readAsText(f);
             }
           } else {
-            alert("This functionality not supported by your browser.")
+            alert("This functionality is not supported by your browser")
           }
         }
         document.body.appendChild(element);
@@ -3276,28 +3428,41 @@
       importAll() {
         const currentReader = this;
         currentReader.importAllSettingsProfilesAndTexts((jsonParsed) => {
-          for (let [k, v] of Object.entries(jsonParsed)) {
+          if (!currentReader.elements.importReplaceToggle.checked) {
+            return;
+          }
+          for (const [k, v] of Object.entries(jsonParsed)) {
+            if (k == null || v == null) {
+              continue;
+            }
             if (
-              k !== currentReader.settingsNames.texts && k !== currentReader.settingsNames.text &&
-              k !== currentReader.settingsNames.settingsProfiles && k !== currentReader.settingsNames.settingsProfile
+              k !== currentReader.settingsNames.textBookmarks &&
+              k !== currentReader.settingsNames.texts &&
+              k !== currentReader.settingsNames.text &&
+              k !== currentReader.settingsNames.settingsProfiles &&
+              k !== currentReader.settingsNames.settingsProfile
             ) {
               localStorage.setItem(k, v);
             }
           }
+          currentReader.locationReload();
         });
       },
 
-      exportAllSettingsProfiles() {
+      exportAllSettingsProfiles(callback = null) {
         const currentReader = this;
         const defaultSettingsProfile = JSON.parse(localStorage.getItem(currentReader.settingsNames.settingsProfile) || '{}');
         const settingsProfilesKey = currentReader.settingsNames.settingsProfiles;
-        let exportData = {};
+        const exportData = {};
         exportData[settingsProfilesKey] = [];
         exportData[settingsProfilesKey].push({
           name: currentReader.defaultSettingsProfileName,
           settings: defaultSettingsProfile
         });
         if (!currentReader.database) {
+          if (callback) {
+            return callback(exportData);
+          }
           currentReader.downloadExportFile(exportData);
           return;
         }
@@ -3312,26 +3477,34 @@
               settings: JSON.parse(profile.settings)
             });
           });
+          if (callback) {
+            return callback(exportData);
+          }
           currentReader.downloadExportFile(exportData, 'settings_profiles');
         };
-        request.onerror = () => {
-          const message = `Error exporting settings profiles: ${request.error}`;
-          console.error(request.error);
+        request.onerror = (event) => {
+          const message = `Error exporting settings profiles: ${event.target.error}`;
+          console.error(event.target.error);
           alert(message);
         };
       },
 
-      exportAllTexts() {
+      exportAllTexts(callback = null) {
         const currentReader = this;
         const defaultText = localStorage.getItem(currentReader.settingsNames.text) || '';
+        const defaultTextBookmarks = JSON.parse(localStorage.getItem(currentReader.settingsNames.textBookmarks) || '[]');
         const textsKey = currentReader.settingsNames.texts;
-        let exportData = {};
+        const exportData = {};
         exportData[textsKey] = [];
         exportData[textsKey].push({
           title: currentReader.defaultTextName,
-          content: defaultText
+          content: defaultText,
+          bookmarks: currentReader.elements.exportAllTextsWithBookmarksToggle.checked ? defaultTextBookmarks : []
         });
         if (!currentReader.database) {
+          if (callback) {
+            return callback(exportData);
+          }
           currentReader.downloadExportFile(exportData);
           return;
         }
@@ -3343,92 +3516,47 @@
           texts.forEach(text => {
             exportData[textsKey].push({
               title: text.title,
-              content: text.content
+              content: text.content,
+              bookmarks: currentReader.elements.exportAllTextsWithBookmarksToggle.checked ? JSON.parse(text.bookmarks || '[]') : [],
             });
           });
+          if (callback) {
+            return callback(exportData);
+          }
           currentReader.downloadExportFile(exportData, 'texts');
         };
         request.onerror = () => {
-          const message = `Error exporting texts: ${request.error}`;
-          console.error(request.error);
+          const message = `Error exporting texts: ${event.target.error}`;
+          console.error(event.target.error);
           alert(message);
         };
       },
 
       exportAllSettingsProfilesAndTexts(afterSuccessCallback = null) {
         const currentReader = this;
-        const defaultSettingsProfile = JSON.parse(localStorage.getItem(currentReader.settingsNames.settingsProfile) || '{}');
-        const defaultText = localStorage.getItem(currentReader.settingsNames.text) || '';
-        const settingsProfilesKey = currentReader.settingsNames.settingsProfiles;
-        const textsKey = currentReader.settingsNames.texts;
-        let exportData = {};
-        exportData[settingsProfilesKey] = [];
-        exportData[settingsProfilesKey].push({
-          name: currentReader.defaultSettingsProfileName,
-          settings: defaultSettingsProfile
-        });
-        exportData[textsKey] = [];
-        exportData[textsKey].push({
-          title: currentReader.defaultTextName,
-          content: defaultText
-        });
-        if (!currentReader.database) {
-          currentReader.downloadExportFile(exportData);
-          return;
-        }
-        const transaction = currentReader.database.transaction([currentReader.settingsNames.settingsProfiles], 'readonly');
-        const objectStore = transaction.objectStore(currentReader.settingsNames.settingsProfiles);
-        const request = objectStore.getAll();
-        request.onsuccess = () => {
-          const profiles = request.result;
-          profiles.forEach(profile => {
-            exportData[settingsProfilesKey].push({
-              name: profile.name,
-              settings: JSON.parse(profile.settings)
-            });
+        currentReader.exportAllSettingsProfiles((exportData1) => {
+          return currentReader.exportAllTexts((exportData2) => {
+            const name = 'settings_profiles_and_texts';
+            const exportData = {
+              ...exportData1,
+              ...exportData2,
+            };
+            const newName = afterSuccessCallback ? afterSuccessCallback(exportData) : '';
+            currentReader.downloadExportFile(exportData, newName ? newName : name);
           });
-          const transaction = currentReader.database.transaction([currentReader.settingsNames.texts], 'readonly');
-          const objectStore = transaction.objectStore(currentReader.settingsNames.texts);
-          const nextRequest = objectStore.getAll();
-          nextRequest.onsuccess = () => {
-            const texts = nextRequest.result;
-            texts.forEach(text => {
-              exportData[textsKey].push({
-                title: text.title,
-                content: text.content
-              });
-            });
-            let dataInfoTag = null;
-            if (afterSuccessCallback) {
-              dataInfoTag = afterSuccessCallback(exportData);
-            }
-            if (!dataInfoTag) {
-              dataInfoTag = 'settings_profiles_and_texts';
-            }
-            currentReader.downloadExportFile(exportData, dataInfoTag);
-          };
-          nextRequest.onerror = () => {
-            const message = `Error exporting settings profiles & [texts]: ${nextRequest.error}`;
-            console.error(nextRequest.error);
-            alert(message);
-          };
-        };
-        request.onerror = () => {
-          const message = `Error exporting [settings profiles] & texts: ${request.error}`;
-          console.error(request.error);
-          alert(message);
-        };
+        });
       },
 
       exportAll() {
         const currentReader = this;
         currentReader.exportAllSettingsProfilesAndTexts((exportData) => {
-          for (let localStorageSettingName of Object.values(currentReader.settingsNames)) {
+          for (const localStorageSettingName of Object.values(currentReader.settingsNames)) {
             const localStorageSettingValue = localStorage.getItem(localStorageSettingName);
-            if (!localStorageSettingValue) {
+            if (localStorageSettingValue == null) {
               continue;
             }
             if (
+              localStorageSettingName !== currentReader.settingsNames.textBookmarks &&
               localStorageSettingName !== currentReader.settingsNames.texts &&
               localStorageSettingName !== currentReader.settingsNames.text &&
               localStorageSettingName !== currentReader.settingsNames.settingsProfiles &&
@@ -3453,8 +3581,8 @@
         const url = window.URL.createObjectURL(blob);
         const link = document.createElement('a');
         link.href = url;
-        let datetimeString = this.getStrDateTime().replaceAll(':', '.').replaceAll(' ', '_');
-        link.download = `tae_${dataInfoTag}_${datetimeString}.json`;
+        const datetimeString = this.getStrDateTime().replaceAll(':', '.').replaceAll(' ', '_');
+        link.download = `reading_${dataInfoTag}_${datetimeString}.json`;
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
@@ -3481,7 +3609,7 @@
         const updateVoices = () => {
           this.voices = this.speechSynthesis.getVoices();
           this.elements.voiceSelect.innerHTML = this.voices.map((voice, index) =>
-            `<option value="${index}">${voice.name} (${voice.lang})</option>`
+            `<option value="${index}">[${voice.lang}] ${voice.name}</option>`
           ).join('');
         };
         this.speechSynthesis.onvoiceschanged = updateVoices;
@@ -3505,6 +3633,11 @@
         localStorage.setItem(this.settingsNames.searchButton, this.elements.showSearchButtonToggle.checked);
       },
 
+      toggleBookmarksButton() {
+        this.elements.bookmarksContainer.style.display = this.elements.showBookmarksButtonToggle.checked ? '' : 'none';
+        localStorage.setItem(this.settingsNames.bookmarksButton, this.elements.showBookmarksButtonToggle.checked);
+      },
+
       toggleSpeech() {
         if (!this.speechSynthesis) return;
 
@@ -3520,13 +3653,13 @@
           currentReader.elements.refreshText.disabled = true;
           currentReader.elements.refreshColors.disabled = true;
           currentReader.elements.copyMarqueeText.disabled = true;
-          currentReader.elements.searchButton.disabled = true;
-          currentReader.elements.marqueeControlsContainer.style.display = 'none';
+          currentReader.elements.searchButton.style.display = 'none';
+          currentReader.elements.bookmarksButton.style.display = 'none';
+          currentReader.elements.underControlsContainer.style.display = '';
+          currentReader.elements.loopToggle.style.display = 'none';
           currentReader.elements.progressDisplay.style.display = '';
           currentReader.elements.tabNavigation.style.display = 'none';
           currentReader.elements.tabContent.style.display = 'none';
-          currentReader.elements.loopToggle.style.display = 'none';
-          currentReader.elements.searchContainer.style.display = 'none';
           currentReader.animationStartTime = Date.now();
           currentReader.isSpeaking = true;
         };
@@ -3542,15 +3675,15 @@
           currentReader.elements.refreshText.disabled = false;
           currentReader.elements.refreshColors.disabled = false;
           currentReader.elements.copyMarqueeText.disabled = false;
-          currentReader.elements.searchButton.disabled = false;
-          currentReader.elements.marqueeControlsContainer.style.display = '';
+          currentReader.elements.searchButton.style.display = '';
+          currentReader.elements.bookmarksButton.style.display = '';
+          currentReader.elements.underControlsContainer.style.display = '';
+          currentReader.elements.loopToggle.style.display = '';
           currentReader.elements.progressDisplay.style.display = '';
           currentReader.elements.tabNavigation.style.display = '';
           currentReader.elements.tabContent.style.display = '';
-          currentReader.elements.loopToggle.style.display = '';
-          currentReader.elements.searchContainer.style.display = '';
-          const existingSpeakMarks = currentReader.elements.progressBarContainer.querySelectorAll('.speak-mark');
-          existingSpeakMarks.forEach(mark => mark.remove());
+          const speakMarks = currentReader.elements.progressBarContainer.querySelectorAll('.speak-mark');
+          speakMarks.forEach(mark => mark.remove());
           currentReader.isSpeaking = false;
         };
 
@@ -3559,9 +3692,9 @@
           return;
         }
 
-        currentReader.startAnimation(false, false);
+        this.startAnimation(false, false);
         const processedText = this.elements.marqueeDisplay.textContent;
-        const realText = this.previousText;
+        const realText = this.elements.fasterTransitionsToggle.checked ? this.previousText.replaceAll('.', ';') : this.previousText;
         if (!processedText || !realText) {
           return;
         }
@@ -3608,7 +3741,7 @@
 
         const mark = document.createElement('div');
         mark.className = `speak-mark`;
-        mark.style.left = (shift * 100 / containerWidth) + '%';
+        mark.style.left = Math.max(0, Math.min(100, (shift * 100 / containerWidth))) + '%';
         mark.addEventListener('click', (event) => {
           event.stopPropagation();
         });
@@ -3626,7 +3759,6 @@
             currentReader.currentPosition = Math.max(endPos, Math.min(startPos, currentReader.currentPosition + shift));
             currentReader.elements.marqueeDisplay.style.left = `${currentReader.currentPosition}px`;
 
-            const progress = (currentReader.currentPosition - startPos) / (endPos - startPos);
             const newLastUpdateTime = Date.now();
             const elapsedTime = (newLastUpdateTime - currentReader.animationStartTime) / 1000;
             const wordsPerSecond = wordIndex / elapsedTime;
@@ -3636,8 +3768,8 @@
             currentReader.elements.progressDisplay.innerHTML = currentReader.formatTime(secondsRemaining);
             const wpm = elapsedTime > 0 ? Math.floor(wordIndex / (elapsedTime / 60)) : wordCount;
             currentReader.elements.progressDisplay.innerHTML += `<br>WPM: ${wpm}`;
-            const progressPercent = Math.floor(progress * 100);
-            currentReader.elements.progressDisplay.innerHTML += `<br>Progress: ${progressPercent}%`;
+            const progress = Math.max(0, Math.min(100, Math.floor((currentReader.currentPosition - startPos) * 100 / (endPos - startPos))));
+            currentReader.elements.progressDisplay.innerHTML += `<br>Progress: ${progress}%`;
 
             if (!markAdded) {
               currentReader.elements.progressBarContainer.appendChild(mark);
@@ -3654,7 +3786,6 @@
           currentReader.currentPosition = endPos;
           currentReader.elements.marqueeDisplay.style.left = `${currentReader.currentPosition}px`;
 
-          const progress = (currentReader.currentPosition - startPos) / (endPos - startPos);
           const newLastUpdateTime = Date.now();
           const elapsedTime = (newLastUpdateTime - currentReader.animationStartTime) / 1000;
           const wordsPerSecond = (wordCount - 1) / elapsedTime;
@@ -3664,8 +3795,8 @@
           currentReader.elements.progressDisplay.innerHTML = currentReader.formatTime(secondsRemaining);
           const wpm = elapsedTime > 0 ? Math.floor((wordCount - 1) / (elapsedTime / 60)) : wordCount;
           currentReader.elements.progressDisplay.innerHTML += `<br>WPM: ${wpm}`;
-          const progressPercent = Math.floor(progress * 100);
-          currentReader.elements.progressDisplay.innerHTML += `<br>Progress: ${progressPercent}%`;
+          const progress = Math.max(0, Math.min(100, Math.floor((currentReader.currentPosition - startPos) * 100 / (endPos - startPos))));
+          currentReader.elements.progressDisplay.innerHTML += `<br>Progress: ${progress}%`;
 
           if (markAdded) {
             mark.remove();
@@ -3689,11 +3820,11 @@
         const currentReader = this;
 
         if (this.animationTimer || this.isSpeaking) {
-          alert('Please stop animation or speech first.');
+          alert('Stop animation or speech first');
           return;
         }
 
-        currentReader.startAnimation(false, false);
+        this.startAnimation(false, false);
         this.textToSearch = this.elements.marqueeDisplay.textContent;
         if (!this.textToSearch) {
           return;
@@ -3711,12 +3842,13 @@
           currentReader.elements.refreshText.disabled = true;
           currentReader.elements.refreshColors.disabled = true;
           currentReader.elements.copyMarqueeText.disabled = true;
-          currentReader.elements.marqueeControlsContainer.style.display = 'none';
-          currentReader.elements.progressDisplay.style.display = '';
+          currentReader.elements.speakButton.style.display = 'none';
+          currentReader.elements.bookmarksButton.style.display = 'none';
+          currentReader.elements.underControlsContainer.style.display = '';
+          currentReader.elements.loopToggle.style.display = 'none';
+          currentReader.elements.progressDisplay.style.display = 'none';
           currentReader.elements.tabNavigation.style.display = 'none';
           currentReader.elements.tabContent.style.display = 'none';
-          currentReader.elements.textToSpeechContainer.style.display = 'none';
-          currentReader.elements.underControlsContainer.style.display = 'none';
           currentReader.elements.searchInput.focus();
           currentReader.handleSearchInput(currentReader.elements.searchInput.value);
         } else {
@@ -3727,12 +3859,13 @@
           currentReader.elements.refreshText.disabled = false;
           currentReader.elements.refreshColors.disabled = false;
           currentReader.elements.copyMarqueeText.disabled = false;
-          currentReader.elements.marqueeControlsContainer.style.display = '';
+          currentReader.elements.speakButton.style.display = '';
+          currentReader.elements.bookmarksButton.style.display = '';
+          currentReader.elements.underControlsContainer.style.display = '';
+          currentReader.elements.loopToggle.style.display = '';
           currentReader.elements.progressDisplay.style.display = '';
           currentReader.elements.tabNavigation.style.display = '';
           currentReader.elements.tabContent.style.display = '';
-          currentReader.elements.textToSpeechContainer.style.display = '';
-          currentReader.elements.underControlsContainer.style.display = '';
           currentReader.clearSearch();
         }
       },
@@ -3758,7 +3891,7 @@
         const spans = Array.from(this.elements.marqueeDisplay.querySelectorAll('.marquee-word-span'));
         const queryWords = this.searchQuery.split(/\s+/).filter(word => word);
         for (let i = 0; i <= spans.length - queryWords.length; i++) {
-          let matchSpans = [];
+          const matchSpans = [];
           let isMatch = true;
           let matchText = '';
           for (let j = 0; j < queryWords.length; j++) {
@@ -3822,6 +3955,188 @@
         this.textToSearch = '';
         this.elements.searchInput.value = '';
         this.updateProgressBar();
+      },
+
+      toggleBookmarks() {
+        if (this.animationTimer || this.isSpeaking) {
+          alert("Stop animation or speech first");
+          return;
+        }
+
+        if (!this.previousText) {
+          this.startAnimation(false, false);
+        }
+        if (!this.previousText) {
+          return;
+        }
+
+        this.isBookmarksActive = !this.isBookmarksActive;
+
+        if (this.isBookmarksActive) {
+          this.tmpBookmarks = JSON.parse(JSON.stringify(this.currentTextBookmarks));
+          this.elements.bookmarksButton.style.display = "none";
+          this.elements.bookmarksControls.style.display = "";
+          this.elements.playPauseButton.disabled = true;
+          this.elements.stopButton.disabled = true;
+          this.elements.rewindButton.disabled = false;
+          this.elements.fastForwardButton.disabled = false;
+          this.elements.refreshText.disabled = true;
+          this.elements.refreshColors.disabled = true;
+          this.elements.copyMarqueeText.disabled = true;
+          this.elements.speakButton.style.display = 'none';
+          this.elements.searchButton.style.display = 'none';
+          this.elements.underControlsContainer.style.display = '';
+          this.elements.loopToggle.style.display = 'none';
+          this.elements.progressDisplay.style.display = 'none';
+          this.elements.tabNavigation.style.display = 'none';
+          this.elements.tabContent.style.display = 'none';
+          this.loadBookmarks();
+        } else {
+          this.tmpBookmarks = [];
+          this.elements.bookmarksButton.style.display = "";
+          this.elements.bookmarksControls.style.display = "none";
+          this.elements.playPauseButton.disabled = false;
+          this.elements.stopButton.disabled = false;
+          this.elements.rewindButton.disabled = false;
+          this.elements.fastForwardButton.disabled = false;
+          this.elements.refreshText.disabled = false;
+          this.elements.refreshColors.disabled = false;
+          this.elements.copyMarqueeText.disabled = false;
+          this.elements.speakButton.style.display = '';
+          this.elements.searchButton.style.display = '';
+          this.elements.underControlsContainer.style.display = '';
+          this.elements.loopToggle.style.display = '';
+          this.elements.progressDisplay.style.display = '';
+          this.elements.tabNavigation.style.display = '';
+          this.elements.tabContent.style.display = '';
+          const bookmarkMarks = this.elements.progressBarContainer.querySelectorAll(".bookmark-mark");
+          bookmarkMarks.forEach(mark => mark.remove());
+          this.updateProgressBar();
+        }
+      },
+
+      loadBookmarks() {
+        const currentReader = this;
+        currentReader.elements.bookmarksList.innerHTML = "";
+        const bookmarks = currentReader.tmpBookmarks.sort((a, b) => a.progress - b.progress);
+        bookmarks.forEach((bookmark, index) => {
+          const bookmarkDiv = document.createElement("div");
+          bookmarkDiv.className = "bookmark-item items-border";
+
+          const nameElem = document.createElement("div");
+          nameElem.textContent = bookmark.name;
+          nameElem.innerHTML += '<br>' + bookmark.progress.toFixed(2) + '%';
+          nameElem.className = "bookmark-name clickable";
+          nameElem.onclick = () => currentReader.goToBookmark(bookmark.progress);
+
+          const removeButton = document.createElement("button");
+          removeButton.textContent = "Remove";
+          removeButton.className = "bookmark-remove-button dark-button";
+          removeButton.onclick = () => currentReader.removeBookmark(index);
+
+          bookmarkDiv.appendChild(nameElem);
+          bookmarkDiv.appendChild(removeButton);
+          currentReader.elements.bookmarksList.appendChild(bookmarkDiv);
+        });
+        currentReader.updateBookmarkMarks();
+      },
+
+      addBookmark() {
+        const name = this.elements.bookmarkNameInput.value.trim();
+        if (!name) {
+          alert("The bookmark name is empty");
+          return;
+        }
+        if (this.currentPosition === null) return;
+
+        const containerWidth = this.cachedContainerWidth;
+        const textWidth = this.cachedTextWidth;
+        const startPos = containerWidth;
+        const endPos = -textWidth;
+        const progress = Math.max(0, Math.min(100, (this.currentPosition - startPos) * 100 / (endPos - startPos)));
+        this.tmpBookmarks.push({ name, progress });
+        this.elements.bookmarkNameInput.value = "";
+        this.loadBookmarks();
+      },
+
+      removeBookmark(index) {
+        this.tmpBookmarks.splice(index, 1);
+        this.loadBookmarks();
+      },
+
+      goToBookmark(progress) {
+        const containerWidth = this.cachedContainerWidth;
+        const textWidth = this.cachedTextWidth;
+        const startPos = containerWidth;
+        const endPos = -textWidth;
+        const position = progress * (endPos - startPos) / 100 + startPos;
+        this.currentPosition = position;
+        this.elements.marqueeDisplay.style.left = `${this.currentPosition}px`;
+        this.lastSavedPosition = this.currentPosition;
+        this.updateProgressBar();
+      },
+
+      saveBookmarksToDB() {
+        const currentReader = this;
+
+        if (!currentReader.database) return;
+
+        const bookmarks = (this.isBookmarksActive ? this.tmpBookmarks : this.currentTextBookmarks).sort((a, b) => a.progress - b.progress);
+
+        if (currentReader.currentTextName === currentReader.defaultTextName) {
+          localStorage.setItem(currentReader.settingsNames.textBookmarks, JSON.stringify(bookmarks));
+          currentReader.currentTextBookmarks = bookmarks;
+          currentReader.toggleBookmarks();
+          return;
+        }
+
+        const transaction = currentReader.database.transaction([currentReader.settingsNames.texts], "readwrite");
+        const store = transaction.objectStore(currentReader.settingsNames.texts);
+        const request = store.get(currentReader.currentTextName);
+        request.onsuccess = () => {
+          const data = request.result;
+          const updatedData = {
+            ...data,
+            bookmarks: JSON.stringify(bookmarks)
+          };
+          const nextRequest = store.put(updatedData);
+          nextRequest.onsuccess = () => {
+            currentReader.currentTextBookmarks = bookmarks;
+            currentReader.toggleBookmarks();
+          };
+          nextRequest.onerror = (event) => {
+            const message = `Failed to save bookmarks to database: ${event.target.error}`;
+            console.error(event.target.error);
+            alert(message);
+          };
+        };
+        request.onerror = () => {
+          const message = `Failed to save bookmarks to database: ${event.target.error}`;
+          console.error(event.target.error);
+          alert(message);
+        };
+      },
+
+      updateBookmarkMarks() {
+        const currentReader = this;
+        const bookmarks = (currentReader.isBookmarksActive ? currentReader.tmpBookmarks : currentReader.currentTextBookmarks).sort((a, b) => a.progress - b.progress);
+        const bookmarkMarks = currentReader.elements.progressBarContainer.querySelectorAll(".bookmark-mark");
+        bookmarkMarks.forEach(mark => mark.remove());
+        bookmarks.forEach(bookmark => {
+          const containerWidth = currentReader.cachedContainerWidth;
+          const textWidth = currentReader.cachedTextWidth;
+          const startPos = containerWidth;
+          const endPos = -textWidth;
+          const mark = document.createElement("div");
+          mark.className = "bookmark-mark";
+          mark.style.left = `${bookmark.progress}%`;
+          mark.title = bookmark.name;
+          mark.addEventListener("click", (event) => {
+            event.stopPropagation();
+            currentReader.goToBookmark(bookmark.progress);
+          });
+          currentReader.elements.progressBarContainer.appendChild(mark);
+        });
       },
 
     };
