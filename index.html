@@ -695,7 +695,12 @@
         padding: 2px;
         margin-bottom: 10px;
       }
-      #settings-profile-select, #text-select, #load-wiki-language-select, #voice-select, #rot-n-language-select {
+      #settings-profile-select,
+      #text-select,
+      #load-wiki-language-select,
+      #voice-select,
+      #rot-n-language-select,
+      #skewing-select {
         width: 100%;
       }
       #rot-n-language-info {
@@ -880,11 +885,38 @@
               <option value="no">-</option>
               <option value="text_by_words_180">Text by words 180&deg;</option>
               <option value="text_by_letters_180">Text by letters 180&deg;</option>
-              <option value="word_by_word_180">Random word by word 180&deg;</option>
-              <option value="word_by_letters_180">Random word by letters 180&deg;</option>
-              <option value="letters_180">Random letters 180&deg;</option>
+              <option value="random_word_by_word_180">Random word by word 180&deg;</option>
+              <option value="random_word_by_letters_180">Random word by letters 180&deg;</option>
+              <option value="random_letters_180">Random letters 180&deg;</option>
             </select>
           </label>
+        </div>
+        <div id="skewing-div" class="mt-10 with-rounded-border">
+          <label><input type="checkbox" id="skewing-toggle" checked> Skewing</label>
+          <div id="skewing-options" class="mt-10">
+            <div>
+              <label>
+                <span>Type:</span>
+                <select id="skewing-select">
+                  <option value="text">Text</option>
+                  <option value="word">Word</option>
+                  <option value="letter">Letter</option>
+                </select>
+              </label>
+            </div>
+            <div>
+              <label>
+                <span>Min angle&deg;:</span>
+                <input type="number" id="skewing-number-min" min="-90" max="90" value="1">
+              </label>
+            </div>
+            <div>
+              <label>
+                <span>Max angle&deg;:</span>
+                <input type="number" id="skewing-number-max" min="-90" max="90" value="10">
+              </label>
+            </div>
+          </div>
         </div>
         <div id="rot-n-div" class="mt-10 with-rounded-border">
           <label><input type="checkbox" id="rot-n-toggle" checked> ROT(n)</label>
@@ -1551,6 +1583,10 @@
         rotNToggle: 'sle_rot_n_toggle',
         rotNNumber: 'sle_rot_n_number',
         rotNLanguage: 'sle_rot_n_language',
+        skewingToggle: 'sle_skewing_toggle',
+        skewingType: 'sle_skewing_type',
+        skewingNumberMin: 'sle_skewing_number_min',
+        skewingNumberMax: 'sle_skewing_number_max',
         textSize: 'sle_text_size',
 
         // non-profile settings
@@ -1595,6 +1631,10 @@
         settings[this.settingsNames.rotNToggle] = false;
         settings[this.settingsNames.rotNNumber] = '1';
         settings[this.settingsNames.rotNLanguage] = 'English';
+        settings[this.settingsNames.skewingToggle] = false;
+        settings[this.settingsNames.skewingType] = 'text';
+        settings[this.settingsNames.skewingNumberMin] = '1';
+        settings[this.settingsNames.skewingNumberMax] = '10';
         settings[this.settingsNames.textSize] = '42';
         return settings;
       },
@@ -1614,6 +1654,10 @@
         settings[this.settingsNames.rotNToggle] = this.elements.rotNToggle.checked;
         settings[this.settingsNames.rotNNumber] = this.elements.rotNNumber.value;
         settings[this.settingsNames.rotNLanguage] = this.elements.rotNLanguageSelect.value;
+        settings[this.settingsNames.skewingToggle] = this.elements.skewingToggle.checked;
+        settings[this.settingsNames.skewingType] = this.elements.skewingSelect.value;
+        settings[this.settingsNames.skewingNumberMin] = this.elements.skewingNumberMin.value;
+        settings[this.settingsNames.skewingNumberMax] = this.elements.skewingNumberMax.value;
         settings[this.settingsNames.textSize] = this.elements.fontSizeNumber.value;
         return settings;
       },
@@ -1660,6 +1704,18 @@
 
         currentKey = this.settingsNames.rotNLanguage;
         this.elements.rotNLanguageSelect.value = keys.includes(currentKey) ? settingsProfileData[currentKey] : defaultSettings[currentKey];
+
+        currentKey = this.settingsNames.skewingToggle;
+        this.elements.skewingToggle.checked = keys.includes(currentKey) ? settingsProfileData[currentKey] : defaultSettings[currentKey];
+
+        currentKey = this.settingsNames.skewingType;
+        this.elements.skewingSelect.value = keys.includes(currentKey) ? settingsProfileData[currentKey] : defaultSettings[currentKey];
+
+        currentKey = this.settingsNames.skewingNumberMin;
+        this.elements.skewingNumberMin.value = keys.includes(currentKey) ? settingsProfileData[currentKey] : defaultSettings[currentKey];
+
+        currentKey = this.settingsNames.skewingNumberMax;
+        this.elements.skewingNumberMax.value = keys.includes(currentKey) ? settingsProfileData[currentKey] : defaultSettings[currentKey];
 
         currentKey = this.settingsNames.textSize;
         this.elements.fontSizeNumber.value = keys.includes(currentKey) ? settingsProfileData[currentKey] : defaultSettings[currentKey];
@@ -1812,6 +1868,12 @@
         this.elements.rotNLanguageInfo = document.getElementById('rot-n-language-info');
         this.elements.rotNNumber = document.getElementById('rot-n-number');
         this.elements.rotatingSelect = document.getElementById('rotating-select');
+        this.elements.skewingToggle = document.getElementById('skewing-toggle');
+        this.elements.skewingOptions = document.getElementById('skewing-options');
+        this.elements.skewingDiv = document.getElementById('skewing-div');
+        this.elements.skewingSelect = document.getElementById('skewing-select');
+        this.elements.skewingNumberMin = document.getElementById('skewing-number-min');
+        this.elements.skewingNumberMax = document.getElementById('skewing-number-max');
 
         this.cachedContainerWidth = null;
         this.cachedTextWidth = null;
@@ -1915,10 +1977,10 @@
         this.elements.loopToggle.addEventListener('click', () => this.toggleLoop());
         this.elements.rewindButton.addEventListener('click', () => this.rewind());
         this.elements.fastForwardButton.addEventListener('click', () => this.fastForward());
-        this.elements.fontSizeSlider.addEventListener('input', () => this.adjustFontSize(this.elements.fontSizeSlider.value));
-        this.elements.fontSizeNumber.addEventListener('input', () => this.adjustFontSize(this.elements.fontSizeNumber.value));
-        this.elements.speedSlider.addEventListener('input', () => this.adjustSpeed(this.elements.speedSlider.value));
-        this.elements.speedNumber.addEventListener('input', () => this.adjustSpeed(this.elements.speedNumber.value));
+        this.elements.fontSizeSlider.addEventListener('change', () => this.adjustFontSize(this.elements.fontSizeSlider.value));
+        this.elements.fontSizeNumber.addEventListener('change', () => this.adjustFontSize(this.elements.fontSizeNumber.value));
+        this.elements.speedSlider.addEventListener('change', () => this.adjustSpeed(this.elements.speedSlider.value));
+        this.elements.speedNumber.addEventListener('change', () => this.adjustSpeed(this.elements.speedNumber.value));
         this.elements.tabButtons.forEach(button => button.addEventListener('click', () => this.switchTab(button)));
         this.elements.progressBarContainer.addEventListener('click', (e) => this.handleProgressBarClick(e));
         this.elements.textSelect.addEventListener('change', () => this.switchText());
@@ -1936,8 +1998,8 @@
         this.elements.showSearchButtonToggle.addEventListener('click', () => this.toggleSearchButton());
         this.elements.speakButton.addEventListener('click', () => this.toggleSpeech());
         this.elements.voiceSelect.addEventListener('change', () => this.updateVoice());
-        this.elements.speechRateSlider.addEventListener('input', () => this.adjustSpeechRate(this.elements.speechRateSlider.value));
-        this.elements.speechRateNumber.addEventListener('input', () => this.adjustSpeechRate(this.elements.speechRateNumber.value));
+        this.elements.speechRateSlider.addEventListener('change', () => this.adjustSpeechRate(this.elements.speechRateSlider.value));
+        this.elements.speechRateNumber.addEventListener('change', () => this.adjustSpeechRate(this.elements.speechRateNumber.value));
         this.elements.importAllSettingsProfiles.addEventListener('click', () => this.importAllSettingsProfiles());
         this.elements.importAllTexts.addEventListener('click', () => this.importAllTexts());
         this.elements.importAllSettingsProfilesAndTexts.addEventListener('click', () => this.importAllSettingsProfilesAndTexts());
@@ -1947,7 +2009,7 @@
         this.elements.exportAllSettingsProfilesAndTexts.addEventListener('click', () => this.exportAllSettingsProfilesAndTexts());
         this.elements.exportAll.addEventListener('click', () => this.exportAll());
         this.elements.searchButton.addEventListener('click', () => this.toggleSearch());
-        this.elements.searchInput.addEventListener('input', (e) => this.handleSearchInput(e.target.value));
+        this.elements.searchInput.addEventListener('change', (e) => this.handleSearchInput(e.target.value));
         this.elements.searchNextButton.addEventListener('click', () => this.goToNextMatch());
         this.elements.searchPrevButton.addEventListener('click', () => this.goToPreviousMatch());
         this.elements.bookmarksButton.addEventListener("click", () => this.toggleBookmarks());
@@ -1961,19 +2023,20 @@
           currentReader.toggleBookmarks();
         });
         this.elements.importReplaceToggle.addEventListener('click', () => this.toggleImportReplace());
-        this.elements.sentenceCountInput.addEventListener('input', () => this.saveSentenceCountToGenerate());
+        this.elements.sentenceCountInput.addEventListener('change', () => this.saveSentenceCountToGenerate());
         this.elements.loadWikiLanguageSelect.addEventListener('change', () => this.saveWikiLang());
         this.elements.fasterTransitionsToggle.addEventListener('click', () => this.toggleFasterTransitions());
         this.elements.exportAllTextsWithBookmarksToggle.addEventListener('click', () => this.toggleExportTextsWithBookmarks());
         this.elements.rotNToggle.addEventListener('click', () => this.toggleRotN());
         this.elements.rotNLanguageSelect.addEventListener('change', () => this.toggleRotNLanguageInfo());
-        this.elements.rotNNumber.addEventListener('input', () => this.toggleRotNLanguageInfo());
+        this.elements.rotNNumber.addEventListener('change', () => this.toggleRotNLanguageInfo());
+        this.elements.skewingToggle.addEventListener('click', () => this.toggleSkewing());
 
         const textModified = () => {
           currentReader.textIsModified = true;
           currentReader.controlBeforeUnload();
         };
-        this.elements.textInput.addEventListener('input', textModified);
+        this.elements.textInput.addEventListener('change', textModified);
 
         const settingsProfileModified = function () {
           currentReader.settingsProfileIsModified = true;
@@ -1995,7 +2058,11 @@
         this.elements.rotatingSelect.addEventListener('change', settingsProfileModified);
         this.elements.rotNToggle.addEventListener('click', settingsProfileModified);
         this.elements.rotNLanguageSelect.addEventListener('change', settingsProfileModified);
-        this.elements.rotNNumber.addEventListener('input', settingsProfileModified);
+        this.elements.rotNNumber.addEventListener('change', settingsProfileModified);
+        this.elements.skewingToggle.addEventListener('click', settingsProfileModified);
+        this.elements.skewingSelect.addEventListener('change', settingsProfileModified);
+        this.elements.skewingNumberMin.addEventListener('change', settingsProfileModified);
+        this.elements.skewingNumberMax.addEventListener('change', settingsProfileModified);
 
         document.addEventListener('keydown', e => this.handleKeyPress(e));
         window.addEventListener('resize', () => {
@@ -2151,6 +2218,7 @@
             currentReader.toggleAppendText();
             currentReader.toggleRotN();
             currentReader.toggleRotNLanguageInfo();
+            currentReader.toggleSkewing();
             currentReader.toggleColorEncoder(false);
             currentReader.toggleColorDetails();
             currentReader.lastSavedPosition = localStorage.getItem(currentReader.settingsNames.lastPosition);
@@ -2168,8 +2236,18 @@
         });
       },
 
+      randomInt(minIncluded, maxIncluded) {
+        if (minIncluded === minIncluded && maxIncluded === maxIncluded) {
+          return Math.floor(Math.random() * (maxIncluded - minIncluded + 1)) + minIncluded;
+        }
+        else {
+          return 0;
+        }
+      },
+
       controlBeforeUnload() {
         try {
+          this.unControlBeforeUnload();
           this.controllerForUnload = (event) => {
             event.preventDefault();
             event.returnValue = `You have unsaved changes! Are you sure you want to reload this page?`;
@@ -2342,6 +2420,10 @@
           this.settingsNames.rotNToggle,
           this.settingsNames.rotNNumber,
           this.settingsNames.rotNLanguage,
+          this.settingsNames.skewingToggle,
+          this.settingsNames.skewingType,
+          this.settingsNames.skewingNumberMin,
+          this.settingsNames.skewingNumberMax,
           ].map(x => this.previousSettings[x] !== currentSettings[x])
         ].some(b => b);
 
@@ -2494,6 +2576,40 @@
         const colorEncoderToggleChecked = this.elements.colorEncoderToggle.checked;
         const rotatingSelectValue = this.elements.rotatingSelect.value;
         const rotateClass = 'rotate-180';
+        const skewingToggleChecked = this.elements.skewingToggle.checked;
+        const skewingTypeValue = this.elements.skewingSelect.value;
+        const skewingNumberMinValue = parseInt(this.elements.skewingNumberMin.value || 0);
+        const skewingNumberMaxValue = parseInt(this.elements.skewingNumberMax.value || 0);
+
+        const currentReader = this;
+        const getRandomSkewStyle = () => {
+          return `transform: skewX(${currentReader.randomInt(skewingNumberMinValue, skewingNumberMaxValue)}deg)`;
+        };
+
+        const settingRotate1 = rotatingSelectValue === 'text_by_words_180';
+        const settingRotate2 = rotatingSelectValue === 'text_by_letters_180';
+        const settingRotate3 = rotatingSelectValue === 'random_word_by_word_180';
+        const settingRotate4 = rotatingSelectValue === 'random_word_by_letters_180';
+        const settingRotate5 = rotatingSelectValue === 'random_letters_180';
+        const settingRotate = (
+          settingRotate1 ||
+          settingRotate2 ||
+          settingRotate3 ||
+          settingRotate4 ||
+          settingRotate5
+        );
+
+        const settingSkew1 = skewingToggleChecked && skewingTypeValue == 'text';
+        const settingSkew2 = skewingToggleChecked && skewingTypeValue == 'word';
+        const settingSkew3 = skewingToggleChecked && skewingTypeValue == 'letter';
+        const settingSkew = skewingToggleChecked && (
+          settingSkew1 ||
+          settingSkew2 ||
+          settingSkew3
+        );
+
+        const textRotateSetting = settingRotate1 ? rotateClass : '';
+        const textSkewSetting = settingSkew1 ? getRandomSkewStyle() : '';
 
         if (shouldModify && rotNToggleChecked && rotNNumberValue !== 0 && rotNLanguageValue) {
           for (const x of this.alphabets) {
@@ -2615,47 +2731,53 @@
               modifiedWord = charsList.join('');
             }
 
-            let wordRotate1 = false, wordRotate2 = false, wordRotate3 = false;
-            if (rotatingSelectValue === 'text_by_words_180' || rotatingSelectValue === 'word_by_word_180' && Math.random() < 0.5) {
-              wordRotate1 = true;
-            }
-            else if (rotatingSelectValue === 'text_by_letters_180' || rotatingSelectValue === 'word_by_letters_180' && Math.random() < 0.5) {
-              wordRotate2 = true;
-            }
-            else if (rotatingSelectValue === 'letters_180') {
-              wordRotate3 = true;
-            }
+            const wordRotateSetting4Bool = settingRotate4 && Math.random() < 0.5;
+            const wordRotateSetting = textRotateSetting ? textRotateSetting : (settingRotate3 && Math.random() < 0.5 ? rotateClass : '');
+            const wordSkewSetting = textSkewSetting ? textSkewSetting : (settingSkew2 ? getRandomSkewStyle() : '');
 
             let finalWord = Array.from(modifiedWord).map((char) => {
+              const letterRotateSetting = wordRotateSetting ? '' : (settingRotate2 || wordRotateSetting4Bool || settingRotate5 && Math.random() < 0.5 ? rotateClass : '');
+              const letterSkewSetting = settingSkew3 ? getRandomSkewStyle() : '';
+
               let formatted = char;
-              if (wordRotate2) {
-                formatted = `<span class="marquee-letter-span ${rotateClass}">${formatted}</span>`;
+              let newClasses = [];
+              let newStyles = [];
+              if (letterRotateSetting) {
+                newClasses.push(letterRotateSetting);
               }
-              else if (wordRotate3) {
-                let newFormatted = [];
-                for (const x of formatted) {
-                  newFormatted.push(
-                    Math.random() < 0.5
-                    ? `<span class="marquee-letter-span ${rotateClass}">${x}</span>`
-                    : x
-                  );
-                }
-                formatted = newFormatted.join('');
+              if (letterSkewSetting) {
+                newStyles.push(letterSkewSetting);
+              }
+
+              const newClassesString = newClasses.join(' ');
+              const newStyleString = newStyles ? `style="${newStyles.join(';')}"` : '';
+              if (newClasses.length > 0 || newStyles.length > 0) {
+                formatted = `<span class="marquee-letter-span ${newClassesString}" ${newStyleString}>${formatted}</span>`;
               }
               return colorize(char, formatted);
             }).join('');
 
-            const wordRotate = wordRotate1 ? rotateClass : '';
+            let newClasses = [];
+            let newStyles = [];
+            if (wordRotateSetting) {
+              newClasses.push(wordRotateSetting);
+            }
+            if (wordSkewSetting) {
+              newStyles.push(wordSkewSetting);
+            }
+
+            const newClassesString = newClasses.join(' ');
+            const newStyleString = newStyles ? `style="${newStyles.join(';')}"` : '';
             return letterShuffleSelectValue !== 'no' ||
               letterEliminationSelectValue !== 'no' ||
               letterSkipSelectValue !== 'no' ||
               wordSkipSelectValue !== 'no' ||
               letterMapItemMaxLength > 0
-              ? `<span class="marquee-word-span clickable ${wordRotate}" onclick="MarqueeReader.showWordHint('${escapeString(modifiedWord)}', '${escapeString(processedRefWords[i] || word)}')">${finalWord}</span>`
+              ? `<span class="marquee-word-span clickable ${newClassesString}" ${newStyleString} onclick="MarqueeReader.showWordHint('${escapeString(modifiedWord)}', '${escapeString(processedRefWords[i] || word)}')">${finalWord}</span>`
               : (
-                colorEncoderToggleChecked || (wordRotate1 || wordRotate2 || wordRotate3)
-                ? `<span class="marquee-word-span clickable ${wordRotate}" onclick="MarqueeReader.showWordHint('${escapeString(modifiedWord)}')">${finalWord}</span>`
-                : `<span class="marquee-word-span ${wordRotate}">${finalWord}</span>`);
+                colorEncoderToggleChecked || settingRotate || settingSkew
+                ? `<span class="marquee-word-span clickable ${newClassesString}" ${newStyleString} onclick="MarqueeReader.showWordHint('${escapeString(modifiedWord)}')">${finalWord}</span>`
+                : `<span class="marquee-word-span ${newClassesString}" ${newStyleString}>${finalWord}</span>`);
           }).join(' ');
         }).join('\n');
       },
@@ -3040,6 +3162,15 @@
 
       copyCurrentText() {
         navigator.clipboard.writeText(this.elements.textInput.value);
+      },
+
+      toggleSkewing() {
+        const isVisible = this.elements.skewingToggle.checked;
+        this.elements.skewingOptions.style.display = isVisible ? '' : 'none';
+        this.elements.skewingDiv.classList.remove('with-rounded-border');
+        if (isVisible) {
+          this.elements.skewingDiv.classList.add('with-rounded-border');
+        }
       },
 
       toggleRotN() {
