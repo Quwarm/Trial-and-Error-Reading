@@ -7,6 +7,7 @@
   <title>Trial and Error Reading</title>
   <link rel="icon" type="image/png" href="favicon.png" />
   <link rel="stylesheet" href="styles/minireset.min.css" />
+  <script src="js/alphabets.js" type="text/javascript"></script>
   <script src="sentences/merriam_webster.js" type="text/javascript"></script>
   <script src="sentences/wordsmyth1.js" type="text/javascript"></script>
   <script src="sentences/wordsmyth2.js" type="text/javascript"></script>
@@ -449,6 +450,36 @@
       box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
     }
 
+    /* Translations */
+
+    .translation {
+      border: 1px solid;
+      border-radius: 3px;
+      font-family: monospace;
+      padding: 3px;
+      margin: 10px 5px;
+      display: inline-block;
+    }
+
+    body.light .translation {
+      background-color: rgb(200, 200, 200);
+      border-color: rgb(90, 90, 90);
+      color: #333;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+    }
+
+    body.dark .translation {
+      background-color: rgb(60, 60, 60);
+      border-color: rgb(200, 200, 200);
+      color: #e0e0e0;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+    }
+
+    #rot-n-language-info {
+      width: 50%;
+      margin: 0 auto;
+    }
+
     /* Progress bar & Marquee */
 
     #progress-bar-container {
@@ -458,7 +489,7 @@
       border: 1px solid var(--border-color);
       position: relative;
       cursor: pointer;
-      margin-bottom: 5px;
+      margin-bottom: 18px;
     }
 
     #progress-bar {
@@ -497,7 +528,7 @@
       text-align: center;
     }
   
-    #load-wiki-language-select {
+    #load-wiki-language-select, #rot-n-language-select {
       width: 16%;
       text-align: center;
     }
@@ -660,7 +691,10 @@
         padding: 2px;
         margin-bottom: 10px;
       }
-      #settings-profile-select, #text-select, #load-wiki-language-select, #voice-select{
+      #settings-profile-select, #text-select, #load-wiki-language-select, #voice-select, #rot-n-language-select {
+        width: 100%;
+      }
+      #rot-n-language-info {
         width: 100%;
       }
     }
@@ -835,6 +869,26 @@
             </select>
           </label>
         </div>
+        <div id="rot-n-div" class="mt-10 with-rounded-border">
+          <label><input type="checkbox" id="rot-n-toggle" checked> ROT(n)</label>
+          <div id="rot-n-options" class="mt-10">
+            <div>
+              <label>
+                <span>N:</span>
+                <input type="number" id="rot-n-number" min="-1000" max="1000" value="1">
+              </label>
+            </div>
+            <div class="mt-10">
+              <label>
+                <span class="select-label mt-10">Language:</span>
+                <select id="rot-n-language-select">
+                  <option value="no">-</option>
+                </select>
+              </label>
+              <div id="rot-n-language-info"></div>
+            </div>
+          </div>
+        </div>
         <div id="color-encoder-div">
           <label>
             <input type="checkbox" id="color-encoder-toggle" checked>
@@ -887,87 +941,347 @@
             <div>
               <label>
                 <select id="load-wiki-language-select">
-                  <option value="sq">Albanian</option>
-                  <option value="alt">Southern Altai</option>
-                  <option value="ar">Arabic</option>
-                  <option value="arz">Egyptian Arabic</option>
-                  <option value="ary">Moroccan Arabic</option>
-                  <option value="arc">Aramaic</option>
-                  <option value="hy">Armenian</option>
-                  <option value="hyw">Western Armenian</option>
-                  <option value="azb">South Azerbaijani</option>
-                  <option value="ban">Balinese</option>
-                  <option value="ba">Bashkir</option>
-                  <option value="btm">Batak Mandailing</option>
-                  <option value="bbc">Batak Toba</option>
-                  <option value="be">Belarusian</option>
-                  <option value="be-tarask">Belarusian (Taraškievica orthography)</option>
-                  <option value="bug">Buginese</option>
-                  <option value="bg">Bulgarian</option>
-                  <option value="ch">Chamorro</option>
-                  <option value="chr">Cherokee</option>
-                  <option value="zh-classical">Literary Chinese</option>
-                  <option value="cs">Czech</option>
-                  <option value="dga">Southern Dagaare</option>
-                  <option value="en">English</option>
-                  <option value="jam">Jamaican Creole English</option>
-                  <option value="ang">Old English</option>
-                  <option value="simple">Simple English</option>
-                  <option value="eo">Esperanto</option>
-                  <option value="fr">French</option>
-                  <option value="ka">Georgian</option>
-                  <option value="de">German</option>
-                  <option value="nds">Low German</option>
-                  <option value="pfl">Palatine German</option>
-                  <option value="pdc">Pennsylvania German</option>
-                  <option value="frr">Northern Frisian</option>
-                  <option value="got">Gothic</option>
-                  <option value="el">Greek</option>
-                  <option value="ha">Hausa</option>
-                  <option value="he">Hebrew</option>
-                  <option value="hu">Hungarian</option>
-                  <option value="it">Italian</option>
-                  <option value="ja">Japanese</option>
-                  <option value="jv">Javanese</option>
-                  <option value="kn">Kannada</option>
-                  <option value="kk">Kazakh</option>
-                  <option value="km">Khmer</option>
-                  <option value="lo">Lao</option>
-                  <option value="la">Latin</option>
-                  <option value="lez">Lezghian</option>
-                  <option value="lij">Ligurian</option>
-                  <option value="li">Limburgish</option>
-                  <option value="ln">Lingala</option>
-                  <option value="lfn">Lingua Franca Nova</option>
-                  <option value="lt">Lithuanian</option>
-                  <option value="olo">Livvi-Karelian</option>
-                  <option value="mnw">Mon</option>
-                  <option value="mn">Mongolian</option>
-                  <option value="nr">South Ndebele</option>
-                  <option value="new">Newari</option>
-                  <option value="fa">Persian</option>
-                  <option value="pl">Polish</option>
-                  <option value="ro">Romanian</option>
-                  <option value="rmy">Vlax Romani</option>
-                  <option value="ru">Russian</option>
-                  <option value="bxr">Russia Buriat</option>
-                  <option value="se">Northern Sami</option>
-                  <option value="si">Sinhala</option>
-                  <option value="nso">Northern Sotho</option>
-                  <option value="st">Southern Sotho</option>
-                  <option value="es">Spanish</option>
-                  <option value="su">Sundanese</option>
-                  <option value="tl">Tagalog</option>
-                  <option value="tdd">Tai Nuea</option>
-                  <option value="ta">Tamil</option>
-                  <option value="tt">Tatar</option>
-                  <option value="crh">Crimean Tatar</option>
-                  <option value="th">Thai</option>
-                  <option value="bo">Tibetan</option>
-                  <option value="tr">Turkish</option>
-                  <option value="uk">Ukrainian</option>
-                  <option value="vi">Vietnamese</option>
-                  <option value="yi">Yiddish</option>
+                  <option value="af">Afrikaans / Afrikaans</option>
+                  <option value="sq">Albanian / shqip</option>
+                  <option value="als">Alemannic / Alemannisch</option>
+                  <option value="ami">Amis / Pangcah</option>
+                  <option value="frp">Arpitan / arpetan</option>
+                  <option value="ast">Asturian / asturianu</option>
+                  <option value="tay">Atayal / Tayal</option>
+                  <option value="atj">Atikamekw / Atikamekw</option>
+                  <option value="ay">Aymara / Aymar aru</option>
+                  <option value="ban">Balinese / Basa Bali</option>
+                  <option value="bm">Bambara / bamanankan</option>
+                  <option value="bjn">Banjar / Banjar</option>
+                  <option value="map-bms">Banyumasan / Basa Banyumasan</option>
+                  <option value="eu">Basque / euskara</option>
+                  <option value="btm">Batak Mandailing / Batak Mandailing</option>
+                  <option value="bbc">Batak Toba / Batak Toba</option>
+                  <option value="bar">Bavarian / Boarisch</option>
+                  <option value="bew">Betawi / Betawi</option>
+                  <option value="bi">Bislama / Bislama</option>
+                  <option value="bs">Bosnian / bosanski</option>
+                  <option value="br">Breton / brezhoneg</option>
+                  <option value="bug">Buginese / Basa Ugi</option>
+                  <option value="ceb">Cebuano / Cebuano</option>
+                  <option value="bcl">Central Bikol / Bikol Central</option>
+                  <option value="dtp">Central Dusun / Kadazandusun</option>
+                  <option value="knc">Central Kanuri / Yerwa Kanuri</option>
+                  <option value="ch">Chamorro / Chamoru</option>
+                  <option value="cbk-zam">Chavacano / Chavacano de Zamboanga</option>
+                  <option value="ksh">Colognian / Ripoarisch</option>
+                  <option value="kw">Cornish / kernowek</option>
+                  <option value="co">Corsican / corsu</option>
+                  <option value="hr">Croatian / hrvatski</option>
+                  <option value="dag">Dagbani / dagbanli</option>
+                  <option value="da">Danish / dansk</option>
+                  <option value="diq">Dimli / Zazaki</option>
+                  <option value="nl">Dutch / Nederlands</option>
+                  <option value="en">English / English</option>
+                  <option value="simple">English / Simple English</option>
+                  <option value="ang">Old English / &#198;nglisc</option>
+                  <option value="eo">Esperanto / Esperanto</option>
+                  <option value="et">Estonian / eesti</option>
+                  <option value="fat">Fanti / mfantse</option>
+                  <option value="hif">Fiji Hindi / Fiji Hindi</option>
+                  <option value="fj">Fijian / Na Vosa Vakaviti</option>
+                  <option value="fi">Finnish / suomi</option>
+                  <option value="gur">Frafra / farefare</option>
+                  <option value="fur">Friulian / furlan</option>
+                  <option value="ff">Fula / Fulfulde</option>
+                  <option value="gag">Gagauz / Gagauz</option>
+                  <option value="gl">Galician / galego</option>
+                  <option value="lg">Ganda / Luganda</option>
+                  <option value="de">German / Deutsch</option>
+                  <option value="gpe">Ghanaian Pidgin / Ghanaian Pidgin</option>
+                  <option value="gor">Gorontalo / Bahasa Hulontalo</option>
+                  <option value="guw">Gun / gungbe</option>
+                  <option value="ha">Hausa / Hausa</option>
+                  <option value="hu">Hungarian / magyar</option>
+                  <option value="iba">Iban / Jaku Iban</option>
+                  <option value="io">Ido / Ido</option>
+                  <option value="igl">Igala / Igala</option>
+                  <option value="ig">Igbo / Igbo</option>
+                  <option value="ilo">Iloko / Ilokano</option>
+                  <option value="id">Indonesian / Bahasa Indonesia</option>
+                  <option value="ia">Interlingua / interlingua</option>
+                  <option value="ie">Interlingue / Interlingue</option>
+                  <option value="ga">Irish / Gaeilge</option>
+                  <option value="it">Italian / italiano</option>
+                  <option value="jam">Jamaican Creole English / Patois</option>
+                  <option value="jv">Javanese / Jawa</option>
+                  <option value="kab">Kabyle / Taqbaylit</option>
+                  <option value="kl">Kalaallisut / kalaallisut</option>
+                  <option value="kaa">Kara-Kalpak / Qaraqalpaqsha</option>
+                  <option value="rw">Kinyarwanda / Ikinyarwanda</option>
+                  <option value="kge">Komering / Kumoring</option>
+                  <option value="kg">Kongo / Kongo</option>
+                  <option value="avk">Kotava / Kotava</option>
+                  <option value="lld">Ladin / Ladin</option>
+                  <option value="lad">Ladino / Ladino</option>
+                  <option value="la">Latin / Latina</option>
+                  <option value="lij">Ligurian / Ligure</option>
+                  <option value="li">Limburgish / Limburgs</option>
+                  <option value="lfn">Lingua Franca Nova / Lingua Franca Nova</option>
+                  <option value="olo">Livvi-Karelian / livvinkarjala</option>
+                  <option value="jbo">Lojban / la .lojban.</option>
+                  <option value="lmo">Lombard / lombard</option>
+                  <option value="nds-nl">Low Saxon / Nedersaksies</option>
+                  <option value="dsb">Lower Sorbian / dolnoserbski</option>
+                  <option value="mg">Malagasy / Malagasy</option>
+                  <option value="ms">Malay / Bahasa Melayu</option>
+                  <option value="mt">Maltese / Malti</option>
+                  <option value="gv">Manx / Gaelg</option>
+                  <option value="min">Minangkabau / Minangkabau</option>
+                  <option value="mos">Mossi / moore</option>
+                  <option value="nap">Neapolitan / Napulitano</option>
+                  <option value="nia">Nias / Li Niha</option>
+                  <option value="nrm">Norman / Nouormand</option>
+                  <option value="frr">Northern Frisian / Nordfriisk</option>
+                  <option value="nso">Northern Sotho / Sesotho sa Leboa</option>
+                  <option value="no">Norwegian / norsk</option>
+                  <option value="nn">Norwegian Nynorsk / norsk nynorsk</option>
+                  <option value="nov">Novial / Novial</option>
+                  <option value="ny">Nyanja / Chi-Chewa</option>
+                  <option value="ann">Obolo / Obolo</option>
+                  <option value="oc">Occitan / occitan</option>
+                  <option value="om">Oromo / Oromoo</option>
+                  <option value="pwn">Paiwan / pinayuanan</option>
+                  <option value="pam">Pampanga / Kapampangan</option>
+                  <option value="pag">Pangasinan / Pangasinan</option>
+                  <option value="pap">Papiamento / Papiamentu</option>
+                  <option value="pdc">Pennsylvania German / Deitsch</option>
+                  <option value="pcd">Picard / Picard</option>
+                  <option value="pl">Polish / polski</option>
+                  <option value="qu">Quechua / Runa Simi</option>
+                  <option value="rm">Romansh / rumantsch</option>
+                  <option value="rn">Rundi / ikirundi</option>
+                  <option value="szy">Sakizaya / Sakizaya</option>
+                  <option value="sm">Samoan / Gagana Samoa</option>
+                  <option value="sc">Sardinian / sardu</option>
+                  <option value="stq">Saterland Frisian / Seeltersk</option>
+                  <option value="sco">Scots / Scots</option>
+                  <option value="sn">Shona / chiShona</option>
+                  <option value="scn">Sicilian / sicilianu</option>
+                  <option value="so">Somali / Soomaaliga</option>
+                  <option value="nr">South Ndebele / isiNdebele seSewula</option>
+                  <option value="dga">Southern Dagaare / Dagaare</option>
+                  <option value="st">Southern Sotho / Sesotho</option>
+                  <option value="srn">Sranan Tongo / Sranantongo</option>
+                  <option value="su">Sundanese / Sunda</option>
+                  <option value="sw">Swahili / Kiswahili</option>
+                  <option value="ss">Swati / SiSwati</option>
+                  <option value="sv">Swedish / svenska</option>
+                  <option value="tl">Tagalog / Tagalog</option>
+                  <option value="ty">Tahitian / reo tahiti</option>
+                  <option value="trv">Taroko / Seediq</option>
+                  <option value="tet">Tetum / tetun</option>
+                  <option value="tpi">Tok Pisin / Tok Pisin</option>
+                  <option value="to">Tongan / lea faka-Tonga</option>
+                  <option value="ts">Tsonga / Xitsonga</option>
+                  <option value="tn">Tswana / Setswana</option>
+                  <option value="tum">Tumbuka / chiTumbuka</option>
+                  <option value="tw">Twi / Twi</option>
+                  <option value="kcg">Tyap / Tyap</option>
+                  <option value="hsb">Upper Sorbian / hornjoserbsce</option>
+                  <option value="ve">Venda / Tshivenda</option>
+                  <option value="wa">Walloon / walon</option>
+                  <option value="war">Waray / Winaray</option>
+                  <option value="guc">Wayuu / wayuunaiki</option>
+                  <option value="cy">Welsh / Cymraeg</option>
+                  <option value="bdr">West Coast Bajau / Bajau Sama</option>
+                  <option value="vls">West Flemish / West-Vlams</option>
+                  <option value="fy">Western Frisian / Frysk</option>
+                  <option value="wo">Wolof / Wolof</option>
+                  <option value="xh">Xhosa / isiXhosa</option>
+                  <option value="za">Zhuang / Vahcuengh</option>
+                  <option value="zu">Zulu / isiZulu</option>
+                  <option value="ace">Acehnese / Ac&#232;h</option>
+                  <option value="an">Aragonese / aragon&#233;s</option>
+                  <option value="roa-rup">Aromanian / arm&#227;neashti</option>
+                  <option value="ca">Catalan / catal&#224;</option>
+                  <option value="chy">Cheyenne / Tsets&#234;hest&#226;hese</option>
+                  <option value="eml">Emiliano-Romagnolo / emili&#224;n e rumagn&#242;l</option>
+                  <option value="ext">Extremaduran / estreme&#241;u</option>
+                  <option value="fr">French / fran&#231;ais</option>
+                  <option value="gcr">Guianan Creole / kriy&#242;l gwiyannen</option>
+                  <option value="ht">Haitian Creole / Krey&#242;l ayisyen</option>
+                  <option value="is">Icelandic / &#237;slenska</option>
+                  <option value="ik">Inupiaq / I&#241;upiatun</option>
+                  <option value="csb">Kashubian / kasz&#235;bsczi</option>
+                  <option value="ku">Kurdish / kurd&#238;</option>
+                  <option value="ln">Lingala / ling&#225;la</option>
+                  <option value="lb">Luxembourgish / L&#235;tzebuergesch</option>
+                  <option value="mad">Madurese / Madhur&#226;</option>
+                  <option value="mwl">Mirandese / Mirand&#233;s</option>
+                  <option value="nv">Navajo / Din&#233; bizaad</option>
+                  <option value="pcm">Nigerian Pidgin / Naij&#225;</option>
+                  <option value="se">Northern Sami / davvis&#225;megiella</option>
+                  <option value="pfl">Palatine German / P&#228;lzisch</option>
+                  <option value="pms">Piedmontese / Piemont&#232;is</option>
+                  <option value="pt">Portuguese / portugu&#234;s</option>
+                  <option value="sg">Sango / S&#228;ng&#246;</option>
+                  <option value="gd">Scottish Gaelic / G&#224;idhlig</option>
+                  <option value="es">Spanish / espa&#241;ol</option>
+                  <option value="roa-tara">Tarantino / tarand&#237;ne</option>
+                  <option value="vec">Venetian / v&#232;neto</option>
+                  <option value="fiu-vro">Võro / v&#245;ro</option>
+                  <option value="zea">Zeelandic / Ze&#234;uws</option>
+                  <option value="az">Azerbaijani / az&#601;rbaycanca</option>
+                  <option value="crh">Crimean Tatar / q&#305;r&#305;mtatarca</option>
+                  <option value="cs">Czech / &#269;e&#353;tina</option>
+                  <option value="din">Dinka / Thu&#596;&#331;j&#228;&#331;</option>
+                  <option value="ee">Ewe / e&#651;egbe</option>
+                  <option value="fo">Faroese / f&#248;royskt</option>
+                  <option value="haw">Hawaiian / Hawai&#699;i</option>
+                  <option value="smn">Inari Sami / anar&#226;&#353;kiel&#226;</option>
+                  <option value="kbp">Kabiye / Kab&#617;y&#603;</option>
+                  <option value="ki">Kikuyu / G&#297;k&#361;y&#361;</option>
+                  <option value="kus">Kusaal / K&#651;saal</option>
+                  <option value="ltg">Latgalian / latga&#316;u</option>
+                  <option value="lv">Latvian / latvie&#353;u</option>
+                  <option value="lt">Lithuanian / lietuvi&#371;</option>
+                  <option value="nds">Low German / Plattd&#252;&#252;tsch</option>
+                  <option value="mi">Māori / M&#257;ori</option>
+                  <option value="nah">Nahuatl / N&#257;huatl</option>
+                  <option value="ro">Romanian / rom&#226;n&#259;</option>
+                  <option value="bat-smg">Samogitian / &#382;emait&#279;&#353;ka</option>
+                  <option value="szl">Silesian / &#347;l&#367;nski</option>
+                  <option value="sk">Slovak / sloven&#269;ina</option>
+                  <option value="sl">Slovenian / sloven&#353;&#269;ina</option>
+                  <option value="tly">Talysh / tol&#305;&#351;i</option>
+                  <option value="tr">Turkish / T&#252;rk&#231;e</option>
+                  <option value="tk">Turkmen / T&#252;rkmen&#231;e</option>
+                  <option value="rmy">Vlax Romani / romani &#269;hib</option>
+                  <option value="vo">Volapük / Volap&#252;k</option>
+                  <option value="yo">Yoruba / Yor&#249;b&#225;</option>
+                  <option value="fon">Fon / f&#596;&#768;ngb&#232;</option>
+                  <option value="el">Greek / &#917;&#955;&#955;&#951;&#957;&#953;&#954;&#940;</option>
+                  <option value="pnt">Pontic / &#928;&#959;&#957;&#964;&#953;&#945;&#954;&#940;</option>
+                  <option value="ady">Adyghe / &#1072;&#1076;&#1099;&#1075;&#1072;&#1073;&#1079;&#1101;</option>
+                  <option value="av">Avaric / &#1072;&#1074;&#1072;&#1088;</option>
+                  <option value="be">Belarusian / &#1073;&#1077;&#1083;&#1072;&#1088;&#1091;&#1089;&#1082;&#1072;&#1103;</option>
+                  <option value="be-tarask">Belarusian (Taraškievica orthography) / &#1073;&#1077;&#1083;&#1072;&#1088;&#1091;&#1089;&#1082;&#1072;&#1103; (&#1090;&#1072;&#1088;&#1072;&#1096;&#1082;&#1077;&#1074;&#1110;&#1094;&#1072;)</option>
+                  <option value="bg">Bulgarian / &#1073;&#1098;&#1083;&#1075;&#1072;&#1088;&#1089;&#1082;&#1080;</option>
+                  <option value="ce">Chechen / &#1085;&#1086;&#1093;&#1095;&#1080;&#1081;&#1085;</option>
+                  <option value="mhr">Eastern Mari / &#1086;&#1083;&#1099;&#1082; &#1084;&#1072;&#1088;&#1080;&#1081;</option>
+                  <option value="myv">Erzya / &#1101;&#1088;&#1079;&#1103;&#1085;&#1100;</option>
+                  <option value="kbd">Kabardian / &#1072;&#1076;&#1099;&#1075;&#1101;&#1073;&#1079;&#1101;</option>
+                  <option value="xal">Kalmyk / &#1093;&#1072;&#1083;&#1100;&#1084;&#1075;</option>
+                  <option value="krc">Karachay-Balkar / &#1082;&#1098;&#1072;&#1088;&#1072;&#1095;&#1072;&#1081;-&#1084;&#1072;&#1083;&#1082;&#1098;&#1072;&#1088;</option>
+                  <option value="kv">Komi / &#1082;&#1086;&#1084;&#1080;</option>
+                  <option value="koi">Komi-Permyak / &#1087;&#1077;&#1088;&#1077;&#1084; &#1082;&#1086;&#1084;&#1080;</option>
+                  <option value="ky">Kyrgyz / &#1082;&#1099;&#1088;&#1075;&#1099;&#1079;&#1095;&#1072;</option>
+                  <option value="lbe">Lak / &#1083;&#1072;&#1082;&#1082;&#1091;</option>
+                  <option value="lez">Lezghian / &#1083;&#1077;&#1079;&#1075;&#1080;</option>
+                  <option value="mk">Macedonian / &#1084;&#1072;&#1082;&#1077;&#1076;&#1086;&#1085;&#1089;&#1082;&#1080;</option>
+                  <option value="mdf">Moksha / &#1084;&#1086;&#1082;&#1096;&#1077;&#1085;&#1100;</option>
+                  <option value="mn">Mongolian / &#1084;&#1086;&#1085;&#1075;&#1086;&#1083;</option>
+                  <option value="os">Ossetic / &#1080;&#1088;&#1086;&#1085;</option>
+                  <option value="rsk">Pannonian Rusyn / &#1088;&#1091;&#1089;&#1082;&#1080;</option>
+                  <option value="bxr">Russia Buriat / &#1073;&#1091;&#1088;&#1103;&#1072;&#1076;</option>
+                  <option value="ru">Russian / &#1088;&#1091;&#1089;&#1089;&#1082;&#1080;&#1081;</option>
+                  <option value="rue">Rusyn / &#1088;&#1091;&#1089;&#1080;&#1085;&#1100;&#1089;&#1082;&#1099;&#1081;</option>
+                  <option value="sr">Serbian / &#1089;&#1088;&#1087;&#1089;&#1082;&#1080; / srpski</option>
+                  <option value="sh">Serbo-Croatian / srpskohrvatski / &#1089;&#1088;&#1087;&#1089;&#1082;&#1086;&#1093;&#1088;&#1074;&#1072;&#1090;&#1089;&#1082;&#1080;</option>
+                  <option value="alt">Southern Altai / &#1072;&#1083;&#1090;&#1072;&#1081; &#1090;&#1080;&#1083;</option>
+                  <option value="tt">Tatar / &#1090;&#1072;&#1090;&#1072;&#1088;&#1095;&#1072; / tatar&#231;a</option>
+                  <option value="tyv">Tuvinian / &#1090;&#1099;&#1074;&#1072; &#1076;&#1099;&#1083;</option>
+                  <option value="udm">Udmurt / &#1091;&#1076;&#1084;&#1091;&#1088;&#1090;</option>
+                  <option value="uk">Ukrainian / &#1091;&#1082;&#1088;&#1072;&#1111;&#1085;&#1089;&#1100;&#1082;&#1072;</option>
+                  <option value="uz">Uzbek / o&#699;zbekcha / &#1118;&#1079;&#1073;&#1077;&#1082;&#1095;&#1072;</option>
+                  <option value="mrj">Western Mari / &#1082;&#1099;&#1088;&#1099;&#1082; &#1084;&#1072;&#1088;&#1099;</option>
+                  <option value="sah">Yakut / &#1089;&#1072;&#1093;&#1072; &#1090;&#1099;&#1083;&#1072;</option>
+                  <option value="ab">Abkhazian / &#1072;&#1317;&#1089;&#1096;&#1241;&#1072;</option>
+                  <option value="ba">Bashkir / &#1073;&#1072;&#1096;&#1185;&#1086;&#1088;&#1090;&#1089;&#1072;</option>
+                  <option value="cv">Chuvash / &#1095;&#1233;&#1074;&#1072;&#1096;&#1083;&#1072;</option>
+                  <option value="inh">Ingush / &#1075;&#1216;&#1072;&#1083;&#1075;&#1216;&#1072;&#1081;</option>
+                  <option value="kk">Kazakh / &#1179;&#1072;&#1079;&#1072;&#1179;&#1096;&#1072;</option>
+                  <option value="tg">Tajik / &#1090;&#1086;&#1207;&#1080;&#1082;&#1251;</option>
+                  <option value="hy">Armenian / &#1392;&#1377;&#1397;&#1381;&#1408;&#1381;&#1398;</option>
+                  <option value="hyw">Western Armenian / &#1329;&#1408;&#1381;&#1410;&#1396;&#1407;&#1377;&#1392;&#1377;&#1397;&#1381;&#1408;&#1383;&#1398;</option>
+                  <option value="he">Hebrew / &#1506;&#1489;&#1512;&#1497;&#1514;</option>
+                  <option value="yi">Yiddish / &#1497;&#1497;&#1460;&#1491;&#1497;&#1513;</option>
+                  <option value="ar">Arabic / &#1575;&#1604;&#1593;&#1585;&#1576;&#1610;&#1577;</option>
+                  <option value="arz">Egyptian Arabic / &#1605;&#1589;&#1585;&#1609;</option>
+                  <option value="ary">Moroccan Arabic / &#1575;&#1604;&#1583;&#1575;&#1585;&#1580;&#1577;</option>
+                  <option value="ur">Urdu / &#1575;&#1585;&#1583;&#1608;</option>
+                  <option value="ckb">Central Kurdish / &#1705;&#1608;&#1585;&#1583;&#1740;</option>
+                  <option value="glk">Gilaki / &#1711;&#1740;&#1604;&#1705;&#1740;</option>
+                  <option value="mzn">Mazanderani / &#1605;&#1575;&#1586;&#1616;&#1585;&#1608;&#1606;&#1740;</option>
+                  <option value="ps">Pashto / &#1662;&#1690;&#1578;&#1608;</option>
+                  <option value="fa">Persian / &#1601;&#1575;&#1585;&#1587;&#1740;</option>
+                  <option value="skr">Saraiki / &#1587;&#1585;&#1575;&#1574;&#1740;&#1705;&#1740;</option>
+                  <option value="sd">Sindhi / &#1587;&#1606;&#1676;&#1610;</option>
+                  <option value="azb">South Azerbaijani / &#1578;&#1734;&#1585;&#1705;&#1580;&#1607;</option>
+                  <option value="pnb">Western Punjabi / &#1662;&#1606;&#1580;&#1575;&#1576;&#1740;</option>
+                  <option value="ug">Uyghur / &#1574;&#1735;&#1610;&#1594;&#1735;&#1585;&#1670;&#1749; / Uyghurche</option>
+                  <option value="arc">Aramaic / &#1808;&#1834;&#1825;&#1821;&#1808;</option>
+                  <option value="dv">Divehi / &#1931;&#1960;&#1928;&#1964;&#1920;&#1960;&#1924;&#1958;&#1936;&#1968;</option>
+                  <option value="nqo">N’Ko / &#2002;&#2014;&#1999;</option>
+                  <option value="anp">Angika / &#2309;&#2306;&#2327;&#2367;&#2325;&#2366;</option>
+                  <option value="pi">Pali / &#2346;&#2366;&#2354;&#2367;</option>
+                  <option value="awa">Awadhi / &#2309;&#2357;&#2343;&#2368;</option>
+                  <option value="mr">Marathi / &#2350;&#2352;&#2366;&#2336;&#2368;</option>
+                  <option value="ne">Nepali / &#2344;&#2375;&#2346;&#2366;&#2354;&#2368;</option>
+                  <option value="new">Newari / &#2344;&#2375;&#2346;&#2366;&#2354; &#2349;&#2366;&#2359;&#2366;</option>
+                  <option value="mai">Maithili / &#2350;&#2376;&#2341;&#2367;&#2354;&#2368;</option>
+                  <option value="ks">Kashmiri / &#2325;&#2377;&#2358;&#2369;&#2352; / &#1705;&#1650;&#1588;&#1615;&#1585;</option>
+                  <option value="bh">Bhojpuri / &#2349;&#2379;&#2332;&#2346;&#2369;&#2352;&#2368;</option>
+                  <option value="dty">Doteli / &#2337;&#2379;&#2335;&#2375;&#2354;&#2368;</option>
+                  <option value="gom">Goan Konkani / &#2327;&#2379;&#2306;&#2351;&#2330;&#2368; &#2325;&#2379;&#2306;&#2325;&#2339;&#2368; / G&#245;ychi Konknni</option>
+                  <option value="hi">Hindi / &#2361;&#2367;&#2344;&#2381;&#2342;&#2368;</option>
+                  <option value="sa">Sanskrit / &#2360;&#2306;&#2360;&#2381;&#2325;&#2371;&#2340;&#2350;&#2381;</option>
+                  <option value="bn">Bangla / &#2476;&#2494;&#2434;&#2482;&#2494;</option>
+                  <option value="as">Assamese / &#2437;&#2488;&#2478;&#2496;&#2479;&#2492;&#2494;</option>
+                  <option value="bpy">Bishnupriya / &#2476;&#2495;&#2487;&#2509;&#2467;&#2497;&#2474;&#2509;&#2480;&#2495;&#2479;&#2492;&#2494; &#2478;&#2467;&#2495;&#2474;&#2497;&#2480;&#2496;</option>
+                  <option value="pa">Punjabi / &#2602;&#2672;&#2588;&#2622;&#2604;&#2624;</option>
+                  <option value="gu">Gujarati / &#2711;&#2753;&#2716;&#2736;&#2750;&#2724;&#2752;</option>
+                  <option value="or">Odia / &#2835;&#2849;&#2876;&#2879;&#2822;</option>
+                  <option value="ta">Tamil / &#2980;&#2990;&#3007;&#2996;&#3021;</option>
+                  <option value="te">Telugu / &#3108;&#3142;&#3122;&#3137;&#3095;&#3137;</option>
+                  <option value="tcy">Tulu / &#3236;&#3265;&#3251;&#3265;</option>
+                  <option value="kn">Kannada / &#3221;&#3240;&#3277;&#3240;&#3233;</option>
+                  <option value="ml">Malayalam / &#3374;&#3378;&#3375;&#3390;&#3379;&#3330;</option>
+                  <option value="si">Sinhala / &#3523;&#3538;&#3458;&#3524;&#3517;</option>
+                  <option value="th">Thai / &#3652;&#3607;&#3618;</option>
+                  <option value="lo">Lao / &#3749;&#3762;&#3751;</option>
+                  <option value="dz">Dzongkha / &#3911;&#3964;&#3908;&#3851;&#3905;</option>
+                  <option value="bo">Tibetan / &#3926;&#3964;&#3921;&#3851;&#3937;&#3954;&#3906;</option>
+                  <option value="mnw">Mon / &#4120;&#4140;&#4126;&#4140;&#4121;&#4116;&#4154;</option>
+                  <option value="my">Burmese / &#4121;&#4156;&#4116;&#4154;&#4121;&#4140;&#4120;&#4140;&#4126;&#4140;</option>
+                  <option value="shn">Shan / &#4112;&#4230;&#4152;</option>
+                  <option value="blk">Pa'O / &#4117;&#4129;&#4141;&#4143;&#4125;&#4154;&#4239;&#4120;&#4140;&#4239;&#4126;&#4140;&#4239;</option>
+                  <option value="ka">Georgian / &#4325;&#4304;&#4320;&#4311;&#4323;&#4314;&#4312;</option>
+                  <option value="xmf">Mingrelian / &#4315;&#4304;&#4320;&#4306;&#4304;&#4314;&#4323;&#4320;&#4312;</option>
+                  <option value="am">Amharic / &#4768;&#4635;&#4653;&#4763;</option>
+                  <option value="tig">Tigre / &#4725;&#4877;&#4652;</option>
+                  <option value="ti">Tigrinya / &#4725;&#4877;&#4653;&#4763;</option>
+                  <option value="chr">Cherokee / &#5091;&#5043;&#5033;</option>
+                  <option value="cr">Cree / N&#275;hiyaw&#275;win / &#5312;&#5158;&#5123;&#5421;&#5133;&#5135;&#5155;</option>
+                  <option value="iu">Inuktitut / &#5123;&#5316;&#5251;&#5198;&#5200;&#5222; / inuktitut</option>
+                  <option value="km">Khmer / &#6039;&#6070;&#6047;&#6070;&#6017;&#6098;&#6040;&#6082;&#6042;</option>
+                  <option value="tdd">Tai Nuea / &#6486;&#6509;&#6512; &#6486;&#6508;&#6514; &#6481;&#6504;&#6482;&#6512;</option>
+                  <option value="sat">Santali / &#7269;&#7263;&#7281;&#7259;&#7263;&#7282;&#7268;</option>
+                  <option value="gn">Guarani / Ava&#241;e&#x27;&#7869;</option>
+                  <option value="shi">Tachelhit / Tacl&#7717;it</option>
+                  <option value="vi">Vietnamese / Ti&#7871;ng Vi&#7879;t</option>
+                  <option value="vep">Veps / veps&#228;n kel&#8217;</option>
+                  <option value="cu">Church Slavic / &#1089;&#1083;&#1086;&#1074;&#1123;&#1085;&#1100;&#1089;&#1082;&#1098; / &#11284;&#11278;&#11281;&#11266;&#11297;&#11280;&#11296;&#11284;&#11277;&#11295;</option>
+                  <option value="zgh">Standard Moroccan Tamazight / &#11612;&#11568;&#11598;&#11568;&#11619;&#11593;&#11606;&#11612; &#11612;&#11568;&#11599;&#11568;&#11617;&#11568;&#11618;&#11612;</option>
+                  <option value="zh-yue">Cantonese / &#31925;&#35486;</option>
+                  <option value="zh">Chinese / &#20013;&#25991;</option>
+                  <option value="zh-classical">Literary Chinese / &#25991;&#35328;</option>
+                  <option value="gan">Gan / &#36123;&#35486;</option>
+                  <option value="hak">Hakka Chinese / &#23458;&#23478;&#35486; / Hak-k&#226;-ng&#238;</option>
+                  <option value="ja">Japanese / &#26085;&#26412;&#35486;</option>
+                  <option value="cdo">Mindong / &#38313;&#26481;&#35486; / M&#236;ng-d&#277;&#804;ng-ng&#7795;&#772;</option>
+                  <option value="zh-min-nan">Minnan / &#38313;&#21335;&#35486; / B&#226;n-l&#226;m-g&#250;</option>
+                  <option value="wuu">Wu / &#21556;&#35821;</option>
+                  <option value="syl">Sylheti / &#43021;&#43044;&#43039;&#43024;&#43044;</option>
+                  <option value="mni">Manipuri / &#43971;&#44004;&#43975;&#44009; &#43970;&#44003;&#43999;</option>
+                  <option value="ko">Korean / &#54620;&#44397;&#50612;</option>
+                  <option value="got">Gothic / &#66354;&#66367;&#66372;&#66361;&#66371;&#66362;</option>
                 </select>
                 <button id="load-wiki-button">Wiki summary</button>
               </label>
@@ -1118,12 +1432,7 @@
       colorList: [],
 
       previousText: null,
-      previousLetterShuffle: '',
-      previousLetterSkip: '',
-      previousWordShuffle: '',
-      previousWordSkip: '',
-      previousLetterElimination: '',
-      previousColorInput: '',
+      previousSettings: {},
       previousPosition: null,
 
       wasColorTaskEnabled: null,
@@ -1191,6 +1500,7 @@
       sentenceWordsmyth2Generator: null,
       sentenceWordsmyth3Generator: null,
       sentenceMerriamWebsterGenerator: null,
+      alphabets: [],
 
       settingsNames: {
         // texts
@@ -1214,6 +1524,9 @@
         shufflingWords: 'sle_shuffling_words',
         skippingWords: 'sle_skipping_words',
         eliminatingLetters: 'sle_eliminating_letters',
+        rotNToggle: 'sle_rot_n_toggle',
+        rotNNumber: 'sle_rot_n_number',
+        rotNLanguage: 'sle_rot_n_language',
         textSize: 'sle_text_size',
 
         // non-profile settings
@@ -1254,6 +1567,9 @@
         settings[this.settingsNames.shufflingWords] = 'no';
         settings[this.settingsNames.skippingWords] = 'no';
         settings[this.settingsNames.eliminatingLetters] = 'no';
+        settings[this.settingsNames.rotNToggle] = false;
+        settings[this.settingsNames.rotNNumber] = '1';
+        settings[this.settingsNames.rotNLanguage] = 'English';
         settings[this.settingsNames.textSize] = '42';
         return settings;
       },
@@ -1269,6 +1585,9 @@
         settings[this.settingsNames.shufflingWords] = this.elements.wordShuffleSelect.value;
         settings[this.settingsNames.skippingWords] = this.elements.wordSkipSelect.value;
         settings[this.settingsNames.eliminatingLetters] = this.elements.letterEliminationSelect.value;
+        settings[this.settingsNames.rotNToggle] = this.elements.rotNToggle.checked;
+        settings[this.settingsNames.rotNNumber] = this.elements.rotNNumber.value;
+        settings[this.settingsNames.rotNLanguage] = this.elements.rotNLanguageSelect.value;
         settings[this.settingsNames.textSize] = this.elements.fontSizeNumber.value;
         return settings;
       },
@@ -1303,6 +1622,15 @@
 
         currentKey = this.settingsNames.eliminatingLetters;
         this.elements.letterEliminationSelect.value = keys.includes(currentKey) ? settingsProfileData[currentKey] : defaultSettings[currentKey];
+
+        currentKey = this.settingsNames.rotNToggle;
+        this.elements.rotNToggle.checked = keys.includes(currentKey) ? settingsProfileData[currentKey] : defaultSettings[currentKey];
+
+        currentKey = this.settingsNames.rotNNumber;
+        this.elements.rotNNumber.value = keys.includes(currentKey) ? settingsProfileData[currentKey] : defaultSettings[currentKey];
+
+        currentKey = this.settingsNames.rotNLanguage;
+        this.elements.rotNLanguageSelect.value = keys.includes(currentKey) ? settingsProfileData[currentKey] : defaultSettings[currentKey];
 
         currentKey = this.settingsNames.textSize;
         this.elements.fontSizeNumber.value = keys.includes(currentKey) ? settingsProfileData[currentKey] : defaultSettings[currentKey];
@@ -1448,6 +1776,12 @@
         this.elements.cancelBookmarksButton = document.getElementById("cancel-bookmarks-button");
         this.elements.importReplaceToggle = document.getElementById("import-replace-toggle");
         this.elements.fasterTransitionsToggle = document.getElementById("faster-transitions-toggle");
+        this.elements.rotNToggle = document.getElementById('rot-n-toggle');
+        this.elements.rotNOptions = document.getElementById('rot-n-options');
+        this.elements.rotNDiv = document.getElementById('rot-n-div');
+        this.elements.rotNLanguageSelect = document.getElementById('rot-n-language-select');
+        this.elements.rotNLanguageInfo = document.getElementById('rot-n-language-info');
+        this.elements.rotNNumber = document.getElementById('rot-n-number');
 
         this.cachedContainerWidth = null;
         this.cachedTextWidth = null;
@@ -1600,6 +1934,9 @@
         this.elements.loadWikiLanguageSelect.addEventListener('input', () => this.saveWikiLang());
         this.elements.fasterTransitionsToggle.addEventListener('click', () => this.toggleFasterTransitions());
         this.elements.exportAllTextsWithBookmarksToggle.addEventListener('click', () => this.toggleExportTextsWithBookmarks());
+        this.elements.rotNToggle.addEventListener('click', () => this.toggleRotN());
+        this.elements.rotNLanguageSelect.addEventListener('click', () => this.toggleRotNLanguageInfo());
+        this.elements.rotNNumber.addEventListener('input', () => this.toggleRotNLanguageInfo());
 
         const textModified = () => { currentReader.textIsModified = true; };
         this.elements.textInput.addEventListener('input', textModified);
@@ -1614,6 +1951,7 @@
         this.elements.letterEliminationSelect.addEventListener('change', settingsProfileModified);
         this.elements.wordShuffleSelect.addEventListener('change', settingsProfileModified);
         this.elements.wordSkipSelect.addEventListener('change', settingsProfileModified);
+        this.elements.rotNToggle.addEventListener('click', settingsProfileModified);
         this.elements.colorEncoderToggle.addEventListener('click', settingsProfileModified);
         this.elements.colorLetterCount.addEventListener('change', settingsProfileModified);
         this.elements.dumpColors.addEventListener('click', settingsProfileModified);
@@ -1692,6 +2030,17 @@
             }
           }
         }();
+
+        try {
+          this.alphabets = getAlphabets();
+          this.elements.rotNLanguageSelect.innerHTML = this.alphabets.map(x => `<option value="${x[0]}">${x[0]} / ${x[1]}</option>`).join('');
+          if (this.alphabets['English']) this.elements.rotNLanguageSelect.value = "English";
+        }
+        catch (err) {
+          alert('[alphabets.js] Alphabets not found');
+          this.elements.rotNLanguageSelect.innerHTML = '';
+          this.elements.rotNDiv.style.display = 'none';
+        }
       },
 
       loadPreferences() {
@@ -1758,6 +2107,8 @@
         currentReader.switchSettingsProfile(function () {
           currentReader.switchText(function () {
             currentReader.toggleAppendText();
+            currentReader.toggleRotN();
+            currentReader.toggleRotNLanguageInfo();
             currentReader.toggleColorEncoder(false);
             currentReader.toggleColorDetails();
             currentReader.lastSavedPosition = localStorage.getItem(currentReader.settingsNames.lastPosition);
@@ -1829,6 +2180,7 @@
         }
 
         let palleteChanged = false;
+        let currentSettings = this.getCurrentSettingsProfile();
 
         if (!resume && this.elements.colorEncoderToggle.checked) {
           palleteChanged = true;
@@ -1910,13 +2262,20 @@
             .join('  ');
         }
 
-        const textNeedsUpdate = this.currentPosition == null || this.previousText !== cleanedText ||
-          this.previousLetterShuffle !== this.elements.letterShuffleSelect.value ||
-          this.previousLetterSkip !== this.elements.letterSkipSelect.value ||
-          this.previousLetterElimination !== this.elements.letterEliminationSelect.value ||
-          this.previousWordShuffle !== this.elements.wordShuffleSelect.value ||
-          this.previousWordSkip !== this.elements.wordSkipSelect.value
-        ;
+        const textNeedsUpdate = [
+          this.currentPosition == null,
+          this.previousText !== cleanedText,
+          ...[
+          this.settingsNames.shufflingLetters,
+          this.settingsNames.skippingLetters,
+          this.settingsNames.shufflingWords,
+          this.settingsNames.skippingWords,
+          this.settingsNames.eliminatingLetters,
+          this.settingsNames.rotNToggle,
+          this.settingsNames.rotNNumber,
+          this.settingsNames.rotNLanguage,
+          ].map(x => this.previousSettings[x] !== currentSettings[x])
+        ].some(b => b);
 
         const colorsNeedsUpdate = !this.wasColorTaskChecked || palleteChanged ||
           this.wasColorTaskEnabled !== this.elements.colorEncoderToggle.checked ||
@@ -1956,12 +2315,7 @@
         this.lastSavedPosition = this.currentPosition;
 
         this.previousText = cleanedText;
-        this.previousLetterShuffle = this.elements.letterShuffleSelect.value;
-        this.previousLetterSkip = this.elements.letterSkipSelect.value;
-        this.previousWordShuffle = this.elements.wordShuffleSelect.value;
-        this.previousWordSkip = this.elements.wordSkipSelect.value;
-        this.previousLetterElimination = this.elements.letterEliminationSelect.value;
-        this.previousColorInput = this.elements.colorInput.value;
+        this.previousSettings = currentSettings;
         this.previousPosition = this.currentPosition;
         this.wasColorTaskEnabled = this.elements.colorEncoderToggle.checked;
         this.wasColorTaskChecked = true;
@@ -2058,6 +2412,37 @@
       },
 
       processText(text, referenceText, shouldModify, colorize) {
+        let letterMap = new Map();
+        let letterMapItemMaxLength = 0;
+
+        const letterEliminationSelectValue = this.elements.letterEliminationSelect.value;
+        const letterSkipSelectValue = this.elements.letterSkipSelect.value;
+        const letterShuffleSelectValue = this.elements.letterShuffleSelect.value;
+        const wordSkipSelectValue = this.elements.wordSkipSelect.value;
+        const wordShuffleSelectValue = this.elements.wordShuffleSelect.value;
+        const rotNToggleChecked = this.elements.rotNToggle.checked;
+        const rotNNumberValue = parseInt(this.elements.rotNNumber.value);
+        const rotNLanguageValue = this.elements.rotNLanguageSelect.value;
+        const colorEncoderToggleChecked = this.elements.colorEncoderToggle.checked;
+
+        if (shouldModify && rotNNumberValue !== 0 && rotNLanguageValue) {
+          for (const x of this.alphabets) {
+            if (x[0] === rotNLanguageValue) {
+              const alphabetVariants = x[2];
+              for (const alphabetVariant of alphabetVariants) {
+                for (let i = 0; i < alphabetVariant.length; ++i) {
+                  const position = rotNNumberValue >= 0
+                    ? (i + rotNNumberValue) % alphabetVariant.length
+                    : (((i + rotNNumberValue) % alphabetVariant.length) + alphabetVariant.length) % alphabetVariant.length;
+                  letterMap.set(alphabetVariant[i], alphabetVariant[position]);
+                  letterMapItemMaxLength = Math.max(letterMapItemMaxLength, alphabetVariant[i].length);
+                }
+              }
+              break;
+            }
+          }
+        }
+
         const escapeString = str => str.replace(/\\/g, '').replace(/"/g, '').replace(/'/g, "\\'");
         const textLines = text.split('\n');
         const refLines = referenceText.split('\n');
@@ -2067,15 +2452,15 @@
           let processedWords = words;
           let processedRefWords = refWords;
 
-          if (shouldModify && this.elements.wordSkipSelect.value !== 'no') {
-            const match = /(\d+)%_words/.exec(this.elements.wordSkipSelect.value);
+          if (shouldModify && wordSkipSelectValue !== 'no') {
+            const match = /(\d+)%_words/.exec(wordSkipSelectValue);
             if (match) {
               processedWords = this.skipWords(processedWords, parseInt(match[1]) / 100);
             }
           }
 
-          if (shouldModify && this.elements.wordShuffleSelect.value !== 'no') {
-            const match = /(\d+)_words?/.exec(this.elements.wordShuffleSelect.value);
+          if (shouldModify && wordShuffleSelectValue !== 'no') {
+            const match = /(\d+)_words?/.exec(wordShuffleSelectValue);
             if (match) {
               const groupSize = parseInt(match[1]);
               const shuffledIndices = this.shuffleWordGroups(processedWords, groupSize);
@@ -2088,9 +2473,9 @@
             let modifiedWord = word;
             const skipShuffle = /^[A-Z\d']/.test(word) || /[\u2032\u2033\u2034\u2057\u2019\u0060\u00B4\uFF40\u02F4]/.test(word);
 
-            if (shouldModify && this.elements.letterEliminationSelect.value !== 'no' && word.length > 1) {
-              const vowelMatch = /(\d+)%_vowels/.exec(this.elements.letterEliminationSelect.value);
-              const randomMatch = /(\d+)%_random/.exec(this.elements.letterEliminationSelect.value);
+            if (shouldModify && letterEliminationSelectValue !== 'no' && word.length > 1) {
+              const vowelMatch = /(\d+)%_vowels/.exec(letterEliminationSelectValue);
+              const randomMatch = /(\d+)%_random/.exec(letterEliminationSelectValue);
               if (vowelMatch) {
                 modifiedWord = this.eliminateLetters(this.vowelPatternG, modifiedWord, parseInt(vowelMatch[1]) / 100);
               } else if (randomMatch) {
@@ -2098,19 +2483,19 @@
               }
             }
 
-            if (shouldModify && this.elements.letterSkipSelect.value !== 'no' && word.length > 1) {
-              const skipMatch = /(\d+)%_letters/.exec(this.elements.letterSkipSelect.value);
+            if (shouldModify && letterSkipSelectValue !== 'no' && word.length > 1) {
+              const skipMatch = /(\d+)%_letters/.exec(letterSkipSelectValue);
               if (skipMatch) {
                 modifiedWord = this.skipLetters(modifiedWord, parseInt(skipMatch[1]) / 100);
               }
             }
 
-            if (shouldModify && this.elements.letterShuffleSelect.value !== 'no' && (!skipShuffle || this.elements.letterShuffleSelect.value === 'very-hard')) {
+            if (shouldModify && letterShuffleSelectValue !== 'no' && (!skipShuffle || letterShuffleSelectValue === 'very-hard')) {
               const parts = modifiedWord.split('-');
               modifiedWord = parts.map(part => {
-                const threshold = this.elements.letterShuffleSelect.value === 'hard' || this.elements.letterShuffleSelect.value === 'very-hard' ? 0 :
-                  this.elements.letterShuffleSelect.value === 'medium' || this.elements.letterShuffleSelect.value === 'medium_plus' ? 1 : Math.floor(part.length / 3);
-                const suffixLength = this.elements.letterShuffleSelect.value === 'medium_plus' ? 0 : threshold;
+                const threshold = letterShuffleSelectValue === 'hard' || letterShuffleSelectValue === 'very-hard' ? 0 :
+                letterShuffleSelectValue === 'medium' || letterShuffleSelectValue === 'medium_plus' ? 1 : Math.floor(part.length / 3);
+                const suffixLength = letterShuffleSelectValue === 'medium_plus' ? 0 : threshold;
                 const letters = [];
                 for (const x of part) {
                   if (this.isLetter(x)) {
@@ -2137,14 +2522,38 @@
               }).join('-');
             }
 
+            if (letterMapItemMaxLength > 0) {
+              let charsList = [];
+              for (let i = 0; i < modifiedWord.length;) {
+                let currentLength = letterMapItemMaxLength;
+                while (currentLength > 0) {
+                  const part = modifiedWord.slice(i, i + currentLength);
+                  if (letterMap.get(part)) {
+                    break;
+                  }
+                  currentLength -= 1;
+                }
+                if (currentLength > 0) {
+                  charsList.push(letterMap.get(modifiedWord.slice(i, i + currentLength)));
+                  i += letterMapItemMaxLength;
+                }
+                else {
+                  charsList.push(modifiedWord[i]);
+                  i += 1;
+                }
+              }
+              modifiedWord = charsList.join('');
+            }
+
             const coloredWord = Array.from(modifiedWord).map(colorize).join('');
-            return this.elements.letterShuffleSelect.value !== 'no' ||
-              this.elements.letterEliminationSelect.value !== 'no' ||
-              this.elements.letterSkipSelect.value !== 'no' ||
-              this.elements.wordSkipSelect.value !== 'no'
+            return letterShuffleSelectValue !== 'no' ||
+              letterEliminationSelectValue !== 'no' ||
+              letterSkipSelectValue !== 'no' ||
+              wordSkipSelectValue !== 'no' ||
+              letterMapItemMaxLength > 0
               ? `<span class="marquee-word-span clickable" onclick="MarqueeReader.showWordHint('${escapeString(modifiedWord)}', '${escapeString(processedRefWords[i] || word)}')">${coloredWord}</span>`
               : (
-                this.elements.colorEncoderToggle.checked
+                colorEncoderToggleChecked
                 ? `<span class="marquee-word-span clickable" onclick="MarqueeReader.showWordHint('${escapeString(modifiedWord)}')">${coloredWord}</span>`
                 : `<span class="marquee-word-span">${coloredWord}</span>`);
           }).join(' ');
@@ -2533,6 +2942,55 @@
         navigator.clipboard.writeText(this.elements.textInput.value);
       },
 
+      toggleRotN() {
+        const isVisible = this.elements.rotNToggle.checked;
+        this.elements.rotNOptions.style.display = isVisible ? '' : 'none';
+        this.elements.rotNDiv.classList.remove('with-rounded-border');
+        if (isVisible) {
+          this.elements.rotNDiv.classList.add('with-rounded-border');
+        }
+      },
+
+      toggleRotNLanguageInfo() {
+        const rotNToggleChecked = this.elements.rotNToggle.checked;
+        const rotNNumberValue = parseInt(this.elements.rotNNumber.value || 0);
+        const rotNLanguageValue = this.elements.rotNLanguageSelect.value;
+        if (rotNNumberValue === rotNNumberValue && rotNLanguageValue) {
+          let infoValue = [], tmpValue = [];
+          for (const x of this.alphabets) {
+            if (x[0] === rotNLanguageValue) {
+              const alphabetVariants = x[2];
+              for (const alphabetVariant of alphabetVariants) {
+                if (infoValue.length > 0) {
+                  infoValue.push(tmpValue.join(' '));
+                  tmpValue = [];
+                  infoValue.push("<hr>");
+                }
+                for (let i = 0; i < alphabetVariant.length; ++i) {
+                  const position = rotNNumberValue >= 0
+                    ? (i + rotNNumberValue) % alphabetVariant.length
+                    : (((i + rotNNumberValue) % alphabetVariant.length) + alphabetVariant.length) % alphabetVariant.length;
+                  tmpValue.push(`<div class="translation">${alphabetVariant[i]} &#8594; ${alphabetVariant[position]}</div>`);
+                  if (tmpValue.length >= 5) {
+                    infoValue.push(tmpValue.join(' '));
+                    tmpValue = [];
+                  }
+                }
+              }
+              break;
+            }
+          }
+          if (tmpValue.length > 0) {
+            infoValue.push(tmpValue.join(' '));
+            tmpValue = [];
+          }
+          this.elements.rotNLanguageInfo.innerHTML = infoValue.join('');
+        }
+        else {
+          this.elements.rotNLanguageInfo.innerHTML = '';
+        }
+      },
+
       toggleColorEncoder(updateMarqueeTextBlock = true) {
         const isVisible = this.elements.colorEncoderToggle.checked;
         this.elements.colorEncoderOptions.style.display = isVisible ? '' : 'none';
@@ -2668,13 +3126,12 @@
             const text = data.extract.trim();
             currentReader.elements.textInput.value = currentReader.elements.appendTextToggle.checked ? `${currentReader.elements.textInput.value}${currentReader.elements.textInput.value ? '\n\n' : ''}${text}` : text;
             currentReader.textIsModified = true;
-            console.log(currentHash === currentReader.sentenceHash, currentReader.sentenceInitCount, currentReader.sentenceCounter);
             if (currentHash === currentReader.sentenceHash && currentReader.sentenceCounter > 0) {
               currentReader.sentenceCounter = Math.max(0, currentReader.sentenceCounter - 1);
               setTimeout(() => currentReader.fetchWikipedia(true), currentReader.sentenceDownloadDelay);
             }
             else if (currentHash === currentReader.sentenceHash && currentReader.sentenceInitCount >= 1 && currentReader.sentenceCounter <= 0) {
-              alert('Downloaded!');
+              setTimeout(() => alert('Downloaded!'), 1);
             }
           })
           .catch(() => alert('[Wiki] Data fetching error'));
@@ -2704,7 +3161,7 @@
               setTimeout(() => currentReader.fetchUnderthekey(true), currentReader.sentenceDownloadDelay);
             }
             else if (currentHash === currentReader.sentenceHash && currentReader.sentenceInitCount >= 1 && currentReader.sentenceCounter <= 0) {
-              alert('Downloaded!');
+              setTimeout(() => alert('Downloaded!'), 1);
             }
           })
           .catch(() => alert('[Underthekey] Data fetching error'));
@@ -2730,7 +3187,7 @@
               setTimeout(() => currentReader.fetchMetaphorpsum(true), currentReader.sentenceDownloadDelay);
             }
             else if (currentHash === currentReader.sentenceHash && currentReader.sentenceInitCount >= 1 && currentReader.sentenceCounter <= 0) {
-              alert('Downloaded!');
+              setTimeout(() => alert('Downloaded!'), 1);
             }
           })
           .catch(() => alert('[Metaphorpsum] Data fetching error'));
