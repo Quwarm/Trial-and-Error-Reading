@@ -100,6 +100,10 @@
       padding-left: 3px;
     }
 
+    .rotate-180 {
+      transform: rotate(180deg);
+    }
+
     /* Margin */
 
     .tab-content * {
@@ -869,6 +873,19 @@
             </select>
           </label>
         </div>
+        <div>
+          <label>
+            <span>Rotating:</span>
+            <select id="rotating-select">
+              <option value="no">-</option>
+              <option value="text_by_words_180">Text by words 180&deg;</option>
+              <option value="text_by_letters_180">Text by letters 180&deg;</option>
+              <option value="word_by_word_180">Random word by word 180&deg;</option>
+              <option value="word_by_letters_180">Random word by letters 180&deg;</option>
+              <option value="letters_180">Random letters 180&deg;</option>
+            </select>
+          </label>
+        </div>
         <div id="rot-n-div" class="mt-10 with-rounded-border">
           <label><input type="checkbox" id="rot-n-toggle" checked> ROT(n)</label>
           <div id="rot-n-options" class="mt-10">
@@ -1398,7 +1415,7 @@
             <button id="delete-all-texts" class="dark-button">Delete all texts</button>
           </div>
           <div>
-            <button id="delete-database" class="dark-button">Delete the entire database</button>
+            <button id="delete-all-data" class="dark-button">Delete all</button>
           </div>
         </div>
       </div>
@@ -1443,6 +1460,7 @@
       lastSavedPositionUpdateDelay: 500,
 
       elements: {},
+      controllerForUnload: null,
 
       databaseName: 'TrialAndErrorReadingDB',
       databaseVersion: 2,
@@ -1454,12 +1472,17 @@
       defaultSettingsProfileName: 'Default',
       currentSettingsProfileName: 'Default',
       settingsProfileIsModified: false,
-      deleteDatabaseViewCounter: 0,
-      deleteDatabaseViewMax: 3,
+      deleteAllDataViewCounter: 0,
+      deleteAllDataViewMax: 2,
 
       vowelPattern: null,
       letterPattern: null,
+      wordPattern: null,
       punctuationPattern: null,
+      spacePattern: null,
+      vowelPatternG: null,
+      letterPatternG: null,
+      wordPatternG: null,
 
       cachedContainerWidth: null,
       cachedTextWidth: null,
@@ -1519,11 +1542,12 @@
         colorTaskLetters: 'sle_color_task_letters',
         colorTaskColors: 'sle_color_task_colors',
         speed: 'sle_speed',
-        shufflingLetters: 'sle_shuffling_letters',
         skippingLetters: 'sle_skipping_letters',
-        shufflingWords: 'sle_shuffling_words',
-        skippingWords: 'sle_skipping_words',
+        shufflingLetters: 'sle_shuffling_letters',
         eliminatingLetters: 'sle_eliminating_letters',
+        skippingWords: 'sle_skipping_words',
+        shufflingWords: 'sle_shuffling_words',
+        rotating: 'sle_rotating',
         rotNToggle: 'sle_rot_n_toggle',
         rotNNumber: 'sle_rot_n_number',
         rotNLanguage: 'sle_rot_n_language',
@@ -1562,11 +1586,12 @@
         settings[this.settingsNames.colorTaskLetters] = '1';
         settings[this.settingsNames.colorTaskColors] = '';
         settings[this.settingsNames.speed] = '90';
-        settings[this.settingsNames.shufflingLetters] = 'no';
         settings[this.settingsNames.skippingLetters] = 'no';
-        settings[this.settingsNames.shufflingWords] = 'no';
-        settings[this.settingsNames.skippingWords] = 'no';
+        settings[this.settingsNames.shufflingLetters] = 'no';
         settings[this.settingsNames.eliminatingLetters] = 'no';
+        settings[this.settingsNames.skippingWords] = 'no';
+        settings[this.settingsNames.shufflingWords] = 'no';
+        settings[this.settingsNames.rotating] = 'no';
         settings[this.settingsNames.rotNToggle] = false;
         settings[this.settingsNames.rotNNumber] = '1';
         settings[this.settingsNames.rotNLanguage] = 'English';
@@ -1580,11 +1605,12 @@
         settings[this.settingsNames.colorTaskLetters] = this.elements.colorLetterCount.value;
         settings[this.settingsNames.colorTaskColors] = this.elements.colorInput.value;
         settings[this.settingsNames.speed] = this.elements.speedNumber.value;
-        settings[this.settingsNames.shufflingLetters] = this.elements.letterShuffleSelect.value;
         settings[this.settingsNames.skippingLetters] = this.elements.letterSkipSelect.value;
-        settings[this.settingsNames.shufflingWords] = this.elements.wordShuffleSelect.value;
-        settings[this.settingsNames.skippingWords] = this.elements.wordSkipSelect.value;
+        settings[this.settingsNames.shufflingLetters] = this.elements.letterShuffleSelect.value;
         settings[this.settingsNames.eliminatingLetters] = this.elements.letterEliminationSelect.value;
+        settings[this.settingsNames.skippingWords] = this.elements.wordSkipSelect.value;
+        settings[this.settingsNames.shufflingWords] = this.elements.wordShuffleSelect.value;
+        settings[this.settingsNames.rotating] = this.elements.rotatingSelect.value;
         settings[this.settingsNames.rotNToggle] = this.elements.rotNToggle.checked;
         settings[this.settingsNames.rotNNumber] = this.elements.rotNNumber.value;
         settings[this.settingsNames.rotNLanguage] = this.elements.rotNLanguageSelect.value;
@@ -1608,20 +1634,23 @@
         currentKey = this.settingsNames.speed;
         this.elements.speedNumber.value = keys.includes(currentKey) ? settingsProfileData[currentKey] : defaultSettings[currentKey];
 
-        currentKey = this.settingsNames.shufflingLetters;
-        this.elements.letterShuffleSelect.value = keys.includes(currentKey) ? settingsProfileData[currentKey] : defaultSettings[currentKey];
-
         currentKey = this.settingsNames.skippingLetters;
         this.elements.letterSkipSelect.value = keys.includes(currentKey) ? settingsProfileData[currentKey] : defaultSettings[currentKey];
 
-        currentKey = this.settingsNames.shufflingWords;
-        this.elements.wordShuffleSelect.value = keys.includes(currentKey) ? settingsProfileData[currentKey] : defaultSettings[currentKey];
+        currentKey = this.settingsNames.shufflingLetters;
+        this.elements.letterShuffleSelect.value = keys.includes(currentKey) ? settingsProfileData[currentKey] : defaultSettings[currentKey];
+
+        currentKey = this.settingsNames.eliminatingLetters;
+        this.elements.letterEliminationSelect.value = keys.includes(currentKey) ? settingsProfileData[currentKey] : defaultSettings[currentKey];
 
         currentKey = this.settingsNames.skippingWords;
         this.elements.wordSkipSelect.value = keys.includes(currentKey) ? settingsProfileData[currentKey] : defaultSettings[currentKey];
 
-        currentKey = this.settingsNames.eliminatingLetters;
-        this.elements.letterEliminationSelect.value = keys.includes(currentKey) ? settingsProfileData[currentKey] : defaultSettings[currentKey];
+        currentKey = this.settingsNames.shufflingWords;
+        this.elements.wordShuffleSelect.value = keys.includes(currentKey) ? settingsProfileData[currentKey] : defaultSettings[currentKey];
+
+        currentKey = this.settingsNames.rotating;
+        this.elements.rotatingSelect.value = keys.includes(currentKey) ? settingsProfileData[currentKey] : defaultSettings[currentKey];
 
         currentKey = this.settingsNames.rotNToggle;
         this.elements.rotNToggle.checked = keys.includes(currentKey) ? settingsProfileData[currentKey] : defaultSettings[currentKey];
@@ -1694,7 +1723,7 @@
         this.elements.fullSizeToggle = document.getElementById('full-size-toggle');
         this.elements.deleteAllSettingsProfiles = document.getElementById('delete-all-settings-profiles');
         this.elements.deleteAllTexts = document.getElementById('delete-all-texts');
-        this.elements.deleteDatabase = document.getElementById('delete-database');
+        this.elements.deleteAllData = document.getElementById('delete-all-data');
         this.elements.clearText = document.getElementById('clear-text');
         this.elements.sentenceCountInput = document.getElementById('sentence-count-input');
         this.elements.loadSentenceWordsmythBeginner = document.getElementById('load-sentence-wordsmyth-beginner');
@@ -1782,10 +1811,11 @@
         this.elements.rotNLanguageSelect = document.getElementById('rot-n-language-select');
         this.elements.rotNLanguageInfo = document.getElementById('rot-n-language-info');
         this.elements.rotNNumber = document.getElementById('rot-n-number');
+        this.elements.rotatingSelect = document.getElementById('rotating-select');
 
         this.cachedContainerWidth = null;
         this.cachedTextWidth = null;
-        this.elements.deleteDatabase.style.display = 'none';
+        this.elements.deleteAllData.style.display = 'none';
       },
 
       loadDb(callback) {
@@ -1847,6 +1877,7 @@
         this.letterPattern = new RegExp(/\p{L}/, 'ui');
         this.wordPattern = new RegExp(/\p{L}+/, 'ui');
         this.punctuationPattern = new RegExp(/\p{S}|\p{Ps}|\p{Pe}|\p{Pi}|\p{Pf}|[!"#%&*,./:;?@^]|^-$/, 'ui');
+        this.spacePattern = new RegExp(/\p{Z}/, 'ui');
         this.vowelPatternG = new RegExp(this.vowelPattern, 'uig');
         this.letterPatternG = new RegExp(this.letterPattern, 'uig');
         this.wordPatternG = new RegExp(this.wordPattern, 'uig');
@@ -1861,7 +1892,7 @@
         this.elements.fullSizeToggle.addEventListener('click', () => this.toggleFullSize());
         this.elements.deleteAllSettingsProfiles.addEventListener('click', () => this.deleteAllSettingsProfiles());
         this.elements.deleteAllTexts.addEventListener('click', () => this.deleteAllTexts());
-        this.elements.deleteDatabase.addEventListener('click', () => this.deleteDatabase());
+        this.elements.deleteAllData.addEventListener('click', () => this.deleteAllData());
         this.elements.clearText.addEventListener('click', () => this.clearInput());
         this.elements.loadSentenceWordsmythBeginner.addEventListener('click', () => this.fetchSentenceWordsmythBeginner());
         this.elements.loadSentenceWordsmythIntermediate.addEventListener('click', () => this.fetchSentenceWordsmythIntermediate());
@@ -1931,31 +1962,40 @@
         });
         this.elements.importReplaceToggle.addEventListener('click', () => this.toggleImportReplace());
         this.elements.sentenceCountInput.addEventListener('input', () => this.saveSentenceCountToGenerate());
-        this.elements.loadWikiLanguageSelect.addEventListener('input', () => this.saveWikiLang());
+        this.elements.loadWikiLanguageSelect.addEventListener('change', () => this.saveWikiLang());
         this.elements.fasterTransitionsToggle.addEventListener('click', () => this.toggleFasterTransitions());
         this.elements.exportAllTextsWithBookmarksToggle.addEventListener('click', () => this.toggleExportTextsWithBookmarks());
         this.elements.rotNToggle.addEventListener('click', () => this.toggleRotN());
-        this.elements.rotNLanguageSelect.addEventListener('click', () => this.toggleRotNLanguageInfo());
+        this.elements.rotNLanguageSelect.addEventListener('change', () => this.toggleRotNLanguageInfo());
         this.elements.rotNNumber.addEventListener('input', () => this.toggleRotNLanguageInfo());
 
-        const textModified = () => { currentReader.textIsModified = true; };
+        const textModified = () => {
+          currentReader.textIsModified = true;
+          currentReader.controlBeforeUnload();
+        };
         this.elements.textInput.addEventListener('input', textModified);
 
-        const settingsProfileModified = () => { currentReader.settingsProfileIsModified = true; };
+        const settingsProfileModified = function () {
+          currentReader.settingsProfileIsModified = true;
+          currentReader.controlBeforeUnload();
+        };
         this.elements.fontSizeSlider.addEventListener('change', settingsProfileModified);
         this.elements.fontSizeNumber.addEventListener('change', settingsProfileModified);
         this.elements.speedSlider.addEventListener('change', settingsProfileModified);
         this.elements.speedNumber.addEventListener('change', settingsProfileModified);
-        this.elements.letterShuffleSelect.addEventListener('change', settingsProfileModified);
-        this.elements.letterSkipSelect.addEventListener('change', settingsProfileModified);
-        this.elements.letterEliminationSelect.addEventListener('change', settingsProfileModified);
-        this.elements.wordShuffleSelect.addEventListener('change', settingsProfileModified);
-        this.elements.wordSkipSelect.addEventListener('change', settingsProfileModified);
-        this.elements.rotNToggle.addEventListener('click', settingsProfileModified);
         this.elements.colorEncoderToggle.addEventListener('click', settingsProfileModified);
         this.elements.colorLetterCount.addEventListener('change', settingsProfileModified);
         this.elements.dumpColors.addEventListener('click', settingsProfileModified);
         this.elements.colorInput.addEventListener('change', settingsProfileModified);
+        this.elements.letterSkipSelect.addEventListener('change', settingsProfileModified);
+        this.elements.letterShuffleSelect.addEventListener('change', settingsProfileModified);
+        this.elements.letterEliminationSelect.addEventListener('change', settingsProfileModified);
+        this.elements.wordSkipSelect.addEventListener('change', settingsProfileModified);
+        this.elements.wordShuffleSelect.addEventListener('change', settingsProfileModified);
+        this.elements.rotatingSelect.addEventListener('change', settingsProfileModified);
+        this.elements.rotNToggle.addEventListener('click', settingsProfileModified);
+        this.elements.rotNLanguageSelect.addEventListener('change', settingsProfileModified);
+        this.elements.rotNNumber.addEventListener('input', settingsProfileModified);
 
         document.addEventListener('keydown', e => this.handleKeyPress(e));
         window.addEventListener('resize', () => {
@@ -2092,6 +2132,7 @@
         }
         this.elements.textSelect.value = this.currentTextName;
         this.textIsModified = false;
+        this.unControlBeforeUnload();
 
         const currentSettingsProfileName = localStorage.getItem(this.settingsNames.currentSettingsProfile) || this.defaultSettingsProfileName;
         const settingsProfiles = JSON.parse(localStorage.getItem(this.settingsNames.settingsProfiles) || '[]');
@@ -2102,6 +2143,7 @@
         }
         this.elements.settingsProfileSelect.value = this.currentSettingsProfileName;
         this.settingsProfileIsModified = false;
+        this.unControlBeforeUnload();
 
         const currentReader = this;
         currentReader.switchSettingsProfile(function () {
@@ -2113,7 +2155,7 @@
             currentReader.toggleColorDetails();
             currentReader.lastSavedPosition = localStorage.getItem(currentReader.settingsNames.lastPosition);
             if (currentReader.lastSavedPosition && currentReader.elements.textInput.value) {
-              currentReader.currentPosition = parseInt(currentReader.lastSavedPosition);
+              currentReader.currentPosition = parseInt(currentReader.lastSavedPosition || 0);
               setTimeout(() => {
                 currentReader.startAnimation(false, false);
                 currentReader.elements.progressDisplay.style.display = 'none';
@@ -2124,6 +2166,31 @@
             setInterval(() => currentReader.savePosition(), currentReader.lastSavedPositionUpdateDelay);
           });
         });
+      },
+
+      controlBeforeUnload() {
+        try {
+          this.controllerForUnload = (event) => {
+            event.preventDefault();
+            event.returnValue = `You have unsaved changes! Are you sure you want to reload this page?`;
+          };
+          window.addEventListener('beforeunload', this.controllerForUnload);
+        }
+        catch (err) {
+          console.error(err);
+        }
+      },
+
+      unControlBeforeUnload() {
+        try {
+          if (this.controllerForUnload) {
+            window.removeEventListener('beforeunload', this.controllerForUnload);
+            this.controllerForUnload = null;
+          }
+        }
+        catch (err) {
+          console.error(err);
+        }
       },
 
       togglePlayback() {
@@ -2184,7 +2251,7 @@
 
         if (!resume && this.elements.colorEncoderToggle.checked) {
           palleteChanged = true;
-          const targetSize = parseInt(this.elements.colorLetterCount.value);
+          const targetSize = parseInt(this.elements.colorLetterCount.value || 0);
           const preservedColors = new Map();
           const preservedLetters = [];
           this.elements.colorInput.value.split('\n').forEach(line => {
@@ -2266,11 +2333,12 @@
           this.currentPosition == null,
           this.previousText !== cleanedText,
           ...[
-          this.settingsNames.shufflingLetters,
           this.settingsNames.skippingLetters,
-          this.settingsNames.shufflingWords,
-          this.settingsNames.skippingWords,
+          this.settingsNames.shufflingLetters,
           this.settingsNames.eliminatingLetters,
+          this.settingsNames.skippingWords,
+          this.settingsNames.shufflingWords,
+          this.settingsNames.rotating,
           this.settingsNames.rotNToggle,
           this.settingsNames.rotNNumber,
           this.settingsNames.rotNLanguage,
@@ -2283,10 +2351,10 @@
 
         if (textNeedsUpdate || colorsNeedsUpdate) {
           const colorize = this.elements.colorEncoderToggle.checked
-            ? char => this.colorMap.has(char.toLowerCase())
-              ? `<span style="background-color:${this.colorMap.get(char.toLowerCase())};color:${this.colorMap.get(char.toLowerCase())};" class="marquee-letter-span">${char}</span>`
-              : char
-            : char => char;
+            ? (char, formatted) => this.colorMap.has(char.toLowerCase())
+              ? `<span style="background-color:${this.colorMap.get(char.toLowerCase())};color:${this.colorMap.get(char.toLowerCase())};" class="marquee-letter-span">${formatted}</span>`
+              : formatted
+            : (char, formatted) => formatted;
           this.elements.marqueeDisplay.innerHTML = this.processText(
             textNeedsUpdate ? cleanedText : this.elements.marqueeDisplay.textContent,
             cleanedText,
@@ -2303,7 +2371,7 @@
         const textWidth = this.cachedTextWidth;
         const startPos = containerWidth;
         const endPos = -textWidth;
-        const speed = parseInt(this.elements.speedNumber.value);
+        const speed = parseInt(this.elements.speedNumber.value || 0);
 
         const stepSize = speed > 80 ? (1 + (speed - 80) / 15) : 1;
         const stepDelay = speed > 20 ? Math.max(10, 110 - speed) : (Math.max(10, 110 - speed) + 10 * (20 - speed));
@@ -2421,11 +2489,13 @@
         const wordSkipSelectValue = this.elements.wordSkipSelect.value;
         const wordShuffleSelectValue = this.elements.wordShuffleSelect.value;
         const rotNToggleChecked = this.elements.rotNToggle.checked;
-        const rotNNumberValue = parseInt(this.elements.rotNNumber.value);
+        const rotNNumberValue = parseInt(this.elements.rotNNumber.value || 0);
         const rotNLanguageValue = this.elements.rotNLanguageSelect.value;
         const colorEncoderToggleChecked = this.elements.colorEncoderToggle.checked;
+        const rotatingSelectValue = this.elements.rotatingSelect.value;
+        const rotateClass = 'rotate-180';
 
-        if (shouldModify && rotNNumberValue !== 0 && rotNLanguageValue) {
+        if (shouldModify && rotNToggleChecked && rotNNumberValue !== 0 && rotNLanguageValue) {
           for (const x of this.alphabets) {
             if (x[0] === rotNLanguageValue) {
               const alphabetVariants = x[2];
@@ -2545,17 +2615,47 @@
               modifiedWord = charsList.join('');
             }
 
-            const coloredWord = Array.from(modifiedWord).map(colorize).join('');
+            let wordRotate1 = false, wordRotate2 = false, wordRotate3 = false;
+            if (rotatingSelectValue === 'text_by_words_180' || rotatingSelectValue === 'word_by_word_180' && Math.random() < 0.5) {
+              wordRotate1 = true;
+            }
+            else if (rotatingSelectValue === 'text_by_letters_180' || rotatingSelectValue === 'word_by_letters_180' && Math.random() < 0.5) {
+              wordRotate2 = true;
+            }
+            else if (rotatingSelectValue === 'letters_180') {
+              wordRotate3 = true;
+            }
+
+            let finalWord = Array.from(modifiedWord).map((char) => {
+              let formatted = char;
+              if (wordRotate2) {
+                formatted = `<span class="marquee-letter-span ${rotateClass}">${formatted}</span>`;
+              }
+              else if (wordRotate3) {
+                let newFormatted = [];
+                for (const x of formatted) {
+                  newFormatted.push(
+                    Math.random() < 0.5
+                    ? `<span class="marquee-letter-span ${rotateClass}">${x}</span>`
+                    : x
+                  );
+                }
+                formatted = newFormatted.join('');
+              }
+              return colorize(char, formatted);
+            }).join('');
+
+            const wordRotate = wordRotate1 ? rotateClass : '';
             return letterShuffleSelectValue !== 'no' ||
               letterEliminationSelectValue !== 'no' ||
               letterSkipSelectValue !== 'no' ||
               wordSkipSelectValue !== 'no' ||
               letterMapItemMaxLength > 0
-              ? `<span class="marquee-word-span clickable" onclick="MarqueeReader.showWordHint('${escapeString(modifiedWord)}', '${escapeString(processedRefWords[i] || word)}')">${coloredWord}</span>`
+              ? `<span class="marquee-word-span clickable ${wordRotate}" onclick="MarqueeReader.showWordHint('${escapeString(modifiedWord)}', '${escapeString(processedRefWords[i] || word)}')">${finalWord}</span>`
               : (
-                colorEncoderToggleChecked
-                ? `<span class="marquee-word-span clickable" onclick="MarqueeReader.showWordHint('${escapeString(modifiedWord)}')">${coloredWord}</span>`
-                : `<span class="marquee-word-span">${coloredWord}</span>`);
+                colorEncoderToggleChecked || (wordRotate1 || wordRotate2 || wordRotate3)
+                ? `<span class="marquee-word-span clickable ${wordRotate}" onclick="MarqueeReader.showWordHint('${escapeString(modifiedWord)}')">${finalWord}</span>`
+                : `<span class="marquee-word-span ${wordRotate}">${finalWord}</span>`);
           }).join(' ');
         }).join('\n');
       },
@@ -3034,6 +3134,7 @@
       clearInput() {
         this.elements.textInput.value = '';
         this.textIsModified = true;
+        this.controlBeforeUnload();
       },
 
       fetchSentenceWordsmythBeginner() {
@@ -3049,6 +3150,7 @@
               const text = /[.!?]$/.test(sentence) ? sentence : `${sentence}.`;
               this.elements.textInput.value = this.elements.appendTextToggle.checked ? `${this.elements.textInput.value}${this.elements.textInput.value ? '\n\n' : ''}${text}` : text;
               this.textIsModified = true;
+              this.controlBeforeUnload();
             }
           }
         }
@@ -3067,6 +3169,7 @@
               const text = /[.!?]$/.test(sentence) ? sentence : `${sentence}.`;
               this.elements.textInput.value = this.elements.appendTextToggle.checked ? `${this.elements.textInput.value}${this.elements.textInput.value ? '\n\n' : ''}${text}` : text;
               this.textIsModified = true;
+              this.controlBeforeUnload();
             }
           }
         }
@@ -3085,6 +3188,7 @@
               const text = /[.!?]$/.test(sentence) ? sentence : `${sentence}.`;
               this.elements.textInput.value = this.elements.appendTextToggle.checked ? `${this.elements.textInput.value}${this.elements.textInput.value ? '\n\n' : ''}${text}` : text;
               this.textIsModified = true;
+              this.controlBeforeUnload();
             }
           }
         }
@@ -3103,6 +3207,7 @@
               const text = /[.!?]$/.test(sentence) ? sentence : `${sentence}.`;
               this.elements.textInput.value = this.elements.appendTextToggle.checked ? `${this.elements.textInput.value}${this.elements.textInput.value ? '\n\n' : ''}${text}` : text;
               this.textIsModified = true;
+              this.controlBeforeUnload();
             }
           }
         }
@@ -3126,6 +3231,7 @@
             const text = data.extract.trim();
             currentReader.elements.textInput.value = currentReader.elements.appendTextToggle.checked ? `${currentReader.elements.textInput.value}${currentReader.elements.textInput.value ? '\n\n' : ''}${text}` : text;
             currentReader.textIsModified = true;
+            currentReader.controlBeforeUnload();
             if (currentHash === currentReader.sentenceHash && currentReader.sentenceCounter > 0) {
               currentReader.sentenceCounter = Math.max(0, currentReader.sentenceCounter - 1);
               setTimeout(() => currentReader.fetchWikipedia(true), currentReader.sentenceDownloadDelay);
@@ -3155,6 +3261,7 @@
               const text = sentence['content'].trim();
               currentReader.elements.textInput.value = currentReader.elements.appendTextToggle.checked ? `${currentReader.elements.textInput.value}${currentReader.elements.textInput.value ? '\n\n' : ''}${text}` : text;
               currentReader.textIsModified = true;
+              currentReader.controlBeforeUnload();
             }
             if (currentHash === currentReader.sentenceHash && currentReader.sentenceCounter > 0) {
               currentReader.sentenceCounter = Math.max(0, currentReader.sentenceCounter - 1);
@@ -3182,6 +3289,7 @@
           .then(text => {
             currentReader.elements.textInput.value = currentReader.elements.appendTextToggle.checked ? `${currentReader.elements.textInput.value}${currentReader.elements.textInput.value ? '\n\n' : ''}${text.trim()}` : text.trim();
             currentReader.textIsModified = true;
+            currentReader.controlBeforeUnload();
             if (currentHash === currentReader.sentenceHash && currentReader.sentenceCounter > 0) {
               currentReader.sentenceCounter = Math.max(0, currentReader.sentenceCounter - 1);
               setTimeout(() => currentReader.fetchMetaphorpsum(true), currentReader.sentenceDownloadDelay);
@@ -3208,6 +3316,7 @@
               const text = event.target.result.trim();
               currentReader.elements.textInput.value = currentReader.elements.appendTextToggle.checked ? `${currentReader.elements.textInput.value}${currentReader.elements.textInput.value ? '\n\n' : ''}${text}` : text;
               currentReader.textIsModified = true;
+              currentReader.controlBeforeUnload();
             };
             reader.readAsText(file);
           }
@@ -3232,11 +3341,20 @@
         const splitIntoSentences = (paragraph) => {
           const sentences = [];
           let currentSentence = '';
+          let lastWordCapitalized = true;
           for (let i = 0; i < paragraph.length; i++) {
             const char = paragraph[i];
             currentSentence += char;
-            if (char === '.' || char === '!' || char === '?') {
-              if (i === paragraph.length - 1 || paragraph[i + 1] === ' ') {
+            if (this.spacePattern.test(char)) {
+              lastWordCapitalized = false;
+              continue;
+            }
+            else if (i > 0 && this.spacePattern.test(paragraph[i - 1]) && char === char.toUpperCase() && char !== char.toLowerCase()) {
+              lastWordCapitalized = true;
+              continue;
+            }
+            else if (char === '.' || char === '!' || char === '?') {
+              if (i === paragraph.length - 1 || this.spacePattern.test(paragraph[i + 1]) && (char !== '.' || !lastWordCapitalized)) {
                 sentences.push(currentSentence.trim());
                 currentSentence = '';
                 i++;
@@ -3395,6 +3513,7 @@
           currentReader.currentSettingsProfileName = selectedSettingsProfileName;
           localStorage.setItem(currentReader.settingsNames.currentSettingsProfile, currentReader.currentSettingsProfileName);
           currentReader.settingsProfileIsModified = false;
+          currentReader.unControlBeforeUnload();
           if (callback) {
             return callback();
           }
@@ -3408,6 +3527,7 @@
             currentReader.currentSettingsProfileName = selectedSettingsProfileName;
             localStorage.setItem(currentReader.settingsNames.currentSettingsProfile, currentReader.currentSettingsProfileName);
             currentReader.settingsProfileIsModified = false;
+            currentReader.unControlBeforeUnload();
             if (callback) {
               return callback();
             }
@@ -3441,6 +3561,7 @@
           currentReader.currentTextName = selectedTextName;
           localStorage.setItem(currentReader.settingsNames.currentTextName, currentReader.currentTextName);
           currentReader.textIsModified = false;
+          currentReader.unControlBeforeUnload();
           if (callback) {
             return callback();
           }
@@ -3455,6 +3576,7 @@
             currentReader.currentTextName = selectedTextName;
             localStorage.setItem(currentReader.settingsNames.currentTextName, currentReader.currentTextName);
             currentReader.textIsModified = false;
+            currentReader.unControlBeforeUnload();
             if (callback) {
               return callback();
             }
@@ -3504,6 +3626,7 @@
           currentReader.elements.settingsProfileSelect.appendChild(option);
           currentReader.elements.settingsProfileSelect.value = name;
           currentReader.settingsProfileIsModified = false;
+          currentReader.unControlBeforeUnload();
           currentReader.switchSettingsProfile();
         };
         transaction.onabort = () => {
@@ -3549,6 +3672,7 @@
           currentReader.elements.textSelect.appendChild(option);
           currentReader.elements.textSelect.value = name;
           currentReader.textIsModified = false;
+          currentReader.unControlBeforeUnload();
           currentReader.switchText();
         };
         transaction.onabort = () => {
@@ -3568,12 +3692,14 @@
           if (currentReader.currentSettingsProfileName === currentReader.defaultSettingsProfileName) {
             localStorage.setItem(currentReader.settingsNames.settingsProfile, currentSettings);
             currentReader.settingsProfileIsModified = false;
+            currentReader.unControlBeforeUnload();
           } else if (currentReader.database) {
             const transaction = currentReader.database.transaction([currentReader.settingsNames.settingsProfiles], 'readwrite');
             const objectStore = transaction.objectStore(currentReader.settingsNames.settingsProfiles);
             const request = objectStore.put({ name: currentReader.currentSettingsProfileName, settings: currentSettings });
             request.onsuccess = () => {
               currentReader.settingsProfileIsModified = false;
+              currentReader.unControlBeforeUnload();
             };
           }
           localStorage.setItem(currentReader.settingsNames.currentSettingsProfile, currentReader.currentSettingsProfileName);
@@ -3591,6 +3717,7 @@
             localStorage.setItem(currentReader.settingsNames.text, currentReader.elements.textInput.value);
             localStorage.setItem(currentReader.settingsNames.textBookmarks, JSON.stringify(currentReader.currentTextBookmarks));
             currentReader.textIsModified = false;
+            currentReader.unControlBeforeUnload();
           } else if (currentReader.database) {
             const transaction = currentReader.database.transaction([currentReader.settingsNames.texts], 'readwrite');
             const objectStore = transaction.objectStore(currentReader.settingsNames.texts);
@@ -3601,6 +3728,7 @@
             });
             request.onsuccess = () => {
               currentReader.textIsModified = false;
+              currentReader.unControlBeforeUnload();
             };
           }
           localStorage.setItem(currentReader.settingsNames.currentTextName, currentReader.currentTextName);
@@ -3630,6 +3758,7 @@
             if (option) option.remove();
             currentReader.elements.settingsProfileSelect.value = currentReader.defaultSettingsProfileName;
             currentReader.settingsProfileIsModified = false;
+            currentReader.unControlBeforeUnload();
             currentReader.switchSettingsProfile();
           };
           transaction.onabort = () => {
@@ -3658,6 +3787,7 @@
             if (option) option.remove();
             currentReader.elements.textSelect.value = currentReader.defaultTextName;
             currentReader.textIsModified = false;
+            currentReader.unControlBeforeUnload();
             currentReader.switchText();
           };
           transaction.onabort = () => {
@@ -3689,12 +3819,16 @@
           }
           else {
             localStorage.removeItem(currentReader.settingsNames.settingsProfile);
+            if (callback) {
+              return callback();
+            }
+            currentReader.locationReload();
           }
         }
         else {
-          currentReader.deleteDatabaseViewCounter += 1;
-          if (currentReader.deleteDatabaseViewCounter >= currentReader.deleteDatabaseViewMax) {
-            currentReader.elements.deleteDatabase.style.display = '';
+          currentReader.deleteAllDataViewCounter += 1;
+          if (currentReader.deleteAllDataViewCounter >= currentReader.deleteAllDataViewMax) {
+            currentReader.elements.deleteAllData.style.display = '';
           }
         }
       },
@@ -3727,30 +3861,31 @@
             localStorage.removeItem(currentReader.settingsNames.lastPosition);
             localStorage.removeItem(currentReader.settingsNames.text);
             localStorage.removeItem(currentReader.settingsNames.textBookmarks);
+            if (callback) {
+              return callback();
+            }
+            currentReader.locationReload();
           }
         }
         else {
-          currentReader.deleteDatabaseViewCounter += 1;
-          if (currentReader.deleteDatabaseViewCounter >= currentReader.deleteDatabaseViewMax) {
-            currentReader.elements.deleteDatabase.style.display = '';
+          currentReader.deleteAllDataViewCounter += 1;
+          if (currentReader.deleteAllDataViewCounter >= currentReader.deleteAllDataViewMax) {
+            currentReader.elements.deleteAllData.style.display = '';
           }
         }
       },
 
-      deleteDatabase(callback = null) {
+      deleteAllData(callback = null) {
         const currentReader = this;
-        if (confirm('Are you sure you want to delete the database? This action will also remove all bookmarks.')) {
+        if (confirm('Are you sure you want to delete all data? This action will also remove non-profile settings.')) {
           if (currentReader.database) {
             currentReader.database.close();
             const request = indexedDB.deleteDatabase(currentReader.databaseName);
             request.onsuccess = () => {
               currentReader.lastSavedPosition = null;
-              localStorage.removeItem(currentReader.settingsNames.lastPosition);
-              localStorage.removeItem(currentReader.settingsNames.settingsProfile);
-              localStorage.removeItem(currentReader.settingsNames.settingsProfiles);
-              localStorage.removeItem(currentReader.settingsNames.text);
-              localStorage.removeItem(currentReader.settingsNames.texts);
-              localStorage.removeItem(currentReader.settingsNames.textBookmarks);
+              for (let settingName of Object.values(currentReader.settingsNames)) {
+                localStorage.removeItem(settingName);
+              }
               if (callback) {
                 return callback();
               }
@@ -3767,12 +3902,13 @@
           }
           else {
             currentReader.lastSavedPosition = null;
-            localStorage.removeItem(currentReader.settingsNames.lastPosition);
-            localStorage.removeItem(currentReader.settingsNames.settingsProfile);
-            localStorage.removeItem(currentReader.settingsNames.settingsProfiles);
-            localStorage.removeItem(currentReader.settingsNames.text);
-            localStorage.removeItem(currentReader.settingsNames.texts);
-            localStorage.removeItem(currentReader.settingsNames.textBookmarks);
+            for (let settingName of Object.values(currentReader.settingsNames)) {
+              localStorage.removeItem(settingName);
+            }
+            if (callback) {
+              return callback();
+            }
+            currentReader.locationReload();
           }
         }
       },
