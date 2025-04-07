@@ -71,6 +71,7 @@
 
     h3 {
       font-size: 16px;
+      font-weight: 600;
       padding: 8px 0px;
     }
 
@@ -774,10 +775,15 @@
           <button id="save-settings-profile-button" class="blue-button">Save</button>
           <button id="delete-settings-profile-button" class="dark-button">Delete</button>
         </div>
+        <hr>
         <div>
           <button id="refresh-text" class="gray-button" disabled>↻ Text ↻ <kbd>T</kbd></button>
           <button id="refresh-colors" class="gray-button" disabled>↻ Colors ↻ <kbd>C</kbd></button>
           <button id="copy-marquee-text" class="gray-button" disabled>Copy text</button>
+        </div>
+        <hr>
+        <div>
+          <h3>Reading</h3>
         </div>
         <div>
           <label for="font-size-number"><span>Text size</span></label>
@@ -788,6 +794,10 @@
           <label for="speed-number"><span>Speed <kbd>+</kbd><kbd>-</kbd></span></label>
           <input type="range" id="speed-slider" min="1" max="200" value="100">
           <input type="number" id="speed-number" min="1" max="200" value="100">
+        </div>
+        <hr>
+        <div>
+          <h3>Letters</h3>
         </div>
         <div>
           <label>
@@ -838,6 +848,30 @@
             </select>
           </label>
         </div>
+        <div id="rot-n-div" class="mt-10 with-rounded-border">
+          <label><input type="checkbox" id="rot-n-toggle" checked> ROT(n)</label>
+          <div id="rot-n-options" class="mt-10">
+            <div>
+              <label>
+                <span>N:</span>
+                <input type="number" id="rot-n-number" min="-1000" max="1000" value="1">
+              </label>
+            </div>
+            <div class="mt-10">
+              <label>
+                <span class="select-label mt-10">Language:</span>
+                <select id="rot-n-language-select">
+                  <option value="no">-</option>
+                </select>
+              </label>
+              <div id="rot-n-language-info"></div>
+            </div>
+          </div>
+        </div>
+        <hr>
+        <div>
+          <h3>Words</h3>
+        </div>
         <div>
           <label>
             <span>Skipping words:</span>
@@ -878,6 +912,10 @@
             </select>
           </label>
         </div>
+        <hr>
+        <div>
+          <h3>Display</h3>
+        </div>
         <div>
           <label>
             <span>Rotating:</span>
@@ -896,7 +934,7 @@
           <div id="skewing-options" class="mt-10">
             <div>
               <label>
-                <span>Type:</span>
+                <span>Target:</span>
                 <select id="skewing-select">
                   <option value="text">Text</option>
                   <option value="word">Word</option>
@@ -915,26 +953,6 @@
                 <span>Max angle&deg;:</span>
                 <input type="number" id="skewing-number-max" min="-90" max="90" value="10">
               </label>
-            </div>
-          </div>
-        </div>
-        <div id="rot-n-div" class="mt-10 with-rounded-border">
-          <label><input type="checkbox" id="rot-n-toggle" checked> ROT(n)</label>
-          <div id="rot-n-options" class="mt-10">
-            <div>
-              <label>
-                <span>N:</span>
-                <input type="number" id="rot-n-number" min="-1000" max="1000" value="1">
-              </label>
-            </div>
-            <div class="mt-10">
-              <label>
-                <span class="select-label mt-10">Language:</span>
-                <select id="rot-n-language-select">
-                  <option value="no">-</option>
-                </select>
-              </label>
-              <div id="rot-n-language-info"></div>
             </div>
           </div>
         </div>
@@ -962,11 +980,12 @@
           <button id="new-text-button" class="green-button">New</button>
           <button id="duplicate-text-button" class="dark-cyan-button">Duplicate</button>
           <button id="save-text-button" class="blue-button">Save</button>
+          <button id="clear-text-button" class="dark-button">Clear</button>
           <button id="delete-text-button" class="dark-button">Delete</button>
         </div>
         <div>
           <label>
-            <span>Text</span>
+            <h3>Text</h3>
             <textarea id="text-input" placeholder="Enter text here"></textarea>
           </label>
         </div>
@@ -974,6 +993,12 @@
           <div>
             <button id="load-file">Load text file</button>
             <button id="copy-current-text">Copy text</button>
+          </div>
+          <div>
+            <label>
+              <input type="checkbox" id="append-text-toggle" checked>
+              <span>Append text after loading/fetching</span>
+            </label>
           </div>
           <div>
             <button id="randomize-paragraphs" class="dark-button">Randomize paragraphs</button>
@@ -1357,13 +1382,6 @@
               </div>
             </div>
           </div>
-          <label>
-            <input type="checkbox" id="append-text-toggle" checked>
-            <span>Append text after loading/fetching</span>
-          </label>
-        </div>
-        <div>
-          <button id="clear-text" class="dark-button">Clear</button>
         </div>
       </div>
       <div id="settings-tab" class="tab-content container-items-in-center with-rounded-border">
@@ -1780,7 +1798,7 @@
         this.elements.deleteAllSettingsProfiles = document.getElementById('delete-all-settings-profiles');
         this.elements.deleteAllTexts = document.getElementById('delete-all-texts');
         this.elements.deleteAllData = document.getElementById('delete-all-data');
-        this.elements.clearText = document.getElementById('clear-text');
+        this.elements.clearTextButton = document.getElementById('clear-text-button');
         this.elements.sentenceCountInput = document.getElementById('sentence-count-input');
         this.elements.loadSentenceWordsmythBeginner = document.getElementById('load-sentence-wordsmyth-beginner');
         this.elements.loadSentenceWordsmythIntermediate = document.getElementById('load-sentence-wordsmyth-intermediate');
@@ -1955,7 +1973,7 @@
         this.elements.deleteAllSettingsProfiles.addEventListener('click', () => this.deleteAllSettingsProfiles());
         this.elements.deleteAllTexts.addEventListener('click', () => this.deleteAllTexts());
         this.elements.deleteAllData.addEventListener('click', () => this.deleteAllData());
-        this.elements.clearText.addEventListener('click', () => this.clearInput());
+        this.elements.clearTextButton.addEventListener('click', () => this.clearInput());
         this.elements.loadSentenceWordsmythBeginner.addEventListener('click', () => this.fetchSentenceWordsmythBeginner());
         this.elements.loadSentenceWordsmythIntermediate.addEventListener('click', () => this.fetchSentenceWordsmythIntermediate());
         this.elements.loadSentenceWordsmythAdvanced.addEventListener('click', () => this.fetchSentenceWordsmythAdvanced());
@@ -2479,7 +2497,7 @@
           const secondsRemaining = Math.floor(actualStepDelay * (newPosition - endPos) / 1000);
           this.elements.progressDisplay.innerHTML = this.formatTime(secondsRemaining);
           const totalSeconds = actualStepDelay * (startPos - endPos) / 1000;
-          const wpm = totalSeconds ? Math.max(1, Math.floor(this.wordCount / (totalSeconds / 60))) : this.wordCount;
+          const wpm = totalSeconds > 0 ? Math.max(1, Math.floor(this.wordCount / (totalSeconds / 60))) : this.wordCount;
           this.elements.progressDisplay.innerHTML += `<br>WPM: ${wpm}`;
           const progress = Math.max(0, Math.min(100, Math.floor((newPosition - startPos) * 100 / (endPos - startPos))));
           this.elements.progressDisplay.innerHTML += `<br>Progress: ${progress}%`;
@@ -2750,7 +2768,7 @@
               }
 
               const newClassesString = newClasses.join(' ');
-              const newStyleString = newStyles ? `style="${newStyles.join(';')}"` : '';
+              const newStyleString = newStyles.length ? `style="${newStyles.join(';')}"` : '';
               if (newClasses.length > 0 || newStyles.length > 0) {
                 formatted = `<span class="marquee-letter-span ${newClassesString}" ${newStyleString}>${formatted}</span>`;
               }
@@ -2767,7 +2785,7 @@
             }
 
             const newClassesString = newClasses.join(' ');
-            const newStyleString = newStyles ? `style="${newStyles.join(';')}"` : '';
+            const newStyleString = newStyles.length ? `style="${newStyles.join(';')}"` : '';
             return letterShuffleSelectValue !== 'no' ||
               letterEliminationSelectValue !== 'no' ||
               letterSkipSelectValue !== 'no' ||
@@ -4645,7 +4663,7 @@
             const elapsedTime = (newLastUpdateTime - currentReader.animationStartTime) / 1000;
             const wordsPerSecond = wordIndex / elapsedTime;
             const remainingWords = wordCount - wordIndex;
-            const secondsRemaining = wordsPerSecond ? (remainingWords / wordsPerSecond) : 0;
+            const secondsRemaining = wordsPerSecond > 0 ? (remainingWords / wordsPerSecond) : 0;
 
             currentReader.elements.progressDisplay.innerHTML = currentReader.formatTime(secondsRemaining);
             const wpm = elapsedTime > 0 ? Math.floor(wordIndex / (elapsedTime / 60)) : wordCount;
@@ -4672,7 +4690,7 @@
           const elapsedTime = (newLastUpdateTime - currentReader.animationStartTime) / 1000;
           const wordsPerSecond = (wordCount - 1) / elapsedTime;
           const remainingWords = wordCount - (wordCount - 1);
-          const secondsRemaining = wordsPerSecond ? (remainingWords / wordsPerSecond) : 0;
+          const secondsRemaining = wordsPerSecond > 0 ? (remainingWords / wordsPerSecond) : 0;
 
           currentReader.elements.progressDisplay.innerHTML = currentReader.formatTime(secondsRemaining);
           const wpm = elapsedTime > 0 ? Math.floor((wordCount - 1) / (elapsedTime / 60)) : wordCount;
