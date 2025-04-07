@@ -429,7 +429,15 @@
     }
 
     #color-input {
-      min-height: 100px;
+      min-height: 150px;
+    }
+
+    #main-container.max-size #text-input {
+      min-height: 600px;
+    }
+
+    #main-container.max-size #color-input {
+      min-height: 300px;
     }
 
     /* kbd tags */
@@ -552,11 +560,6 @@
     .marquee-letter-span {
       box-sizing: border-box;
       display: inline-block;
-    }
-
-    body.marquee-theme-1 .marquee-letter-span {
-      border-left: 1px dashed var(--border-color-inv);
-      border-right: 1px dashed var(--border-color-inv);
     }
 
     body.marquee-theme-2 .marquee-letter-span,
@@ -707,6 +710,9 @@
       #rot-n-language-info {
         width: 100%;
       }
+      #color-input {
+        min-height: 250px;
+      }
     }
   </style>
 </head>
@@ -849,7 +855,7 @@
           </label>
         </div>
         <div id="rot-n-div" class="mt-10 with-rounded-border">
-          <label><input type="checkbox" id="rot-n-toggle" checked> ROT(n)</label>
+          <label><input type="checkbox" id="rot-n-toggle"> ROT(n)</label>
           <div id="rot-n-options" class="mt-10">
             <div>
               <label>
@@ -930,7 +936,7 @@
           </label>
         </div>
         <div id="skewing-div" class="mt-10 with-rounded-border">
-          <label><input type="checkbox" id="skewing-toggle" checked> Skewing</label>
+          <label><input type="checkbox" id="skewing-toggle"> Skewing</label>
           <div id="skewing-options" class="mt-10">
             <div>
               <label>
@@ -957,19 +963,24 @@
           </div>
         </div>
         <div id="color-encoder-div">
-          <label>
-            <input type="checkbox" id="color-encoder-toggle" checked>
-            <span>Color encoder task <kbd>E</kbd></span>
-          </label>
+          <div>
+            <label>
+              <input type="checkbox" id="color-encoder-toggle">
+              <span>Coloring <kbd>E</kbd></span>
+            </label>
+          </div>
           <div id="color-encoder-options">
             <div>
+              <label><input type="checkbox" id="only-text-coloring-toggle"> Only text coloring</label>
+            </div>
+            <div>
               <label>
-                <span>Number of letters:</span>
+                <span>Number of mappings:</span>
                 <input type="number" id="color-letter-count" min="0" max="32" value="1">
               </label>
             </div>
             <button id="dump-colors" class="gray-button">Dump colors</button>
-            <textarea id="color-input" placeholder="&lt;letter&gt; &lt;color&gt;&#13;&#10;a rgb(0, 0, 0)&#13;&#10;b red&#13;&#10;..."></textarea>
+            <textarea id="color-input" placeholder="(&lt;letters&gt; OR &quot;&lt;consecutive words&gt;&quot; OR &quot;***&quot;)&#13;&#10;(&lt;color&gt; OR default OR transparent OR font &lt;color&gt; OR bg &lt;color&gt; OR font-bg &lt;color-1&gt; &lt;color-2&gt;)&#13;&#10;&#13;&#10;abcde green&#13;&#10;&quot;these four consecutive words&quot; rgb(120, 120, 120)&#13;&#10;&quot;***&quot; font-bg red blue"></textarea>
           </div>
         </div>
       </div>
@@ -996,7 +1007,7 @@
           </div>
           <div>
             <label>
-              <input type="checkbox" id="append-text-toggle" checked>
+              <input type="checkbox" id="append-text-toggle">
               <span>Append text after loading/fetching</span>
             </label>
           </div>
@@ -1388,19 +1399,19 @@
         <div class="with-rounded-border">
           <h3>Appearance</h3>
           <label>
-            <input type="checkbox" id="show-color-info-toggle" checked>
-            <span>Show Letters-Colors <kbd>ESC</kbd></span>
+            <input type="checkbox" id="show-color-info-toggle">
+            <span>Show Letters-Colors Info <kbd>ESC</kbd></span>
           </label>
           <label>
-            <input type="checkbox" id="show-speak-button-toggle" checked>
+            <input type="checkbox" id="show-speak-button-toggle">
             <span>Show Speak button</span>
           </label>
           <label>
-            <input type="checkbox" id="show-bookmarks-button-toggle" checked>
+            <input type="checkbox" id="show-bookmarks-button-toggle">
             <span>Show Bookmarks button</span>
           </label>
           <label>
-            <input type="checkbox" id="show-search-button-toggle" checked>
+            <input type="checkbox" id="show-search-button-toggle">
             <span>Show Search button</span>
           </label>
           <div>
@@ -1419,7 +1430,7 @@
           <input type="number" id="speech-rate-number" min="1" max="300" step="1" value="100">
           <div>
             <label>
-              <input type="checkbox" id="faster-transitions-toggle" checked>
+              <input type="checkbox" id="faster-transitions-toggle">
               <span>Faster transitions between sentences</span>
             </label>
           </div>
@@ -1428,7 +1439,7 @@
           <h3>Import</h3>
           <div>
             <label>
-              <input type="checkbox" id="import-replace-toggle" checked>
+              <input type="checkbox" id="import-replace-toggle">
               <span>Replace current data when provided</span>
             </label>
           </div>
@@ -1445,7 +1456,7 @@
           <h3>Export</h3>
           <div>
             <label>
-              <input type="checkbox" id="export-all-texts-with-bookmarks-toggle" checked>
+              <input type="checkbox" id="export-all-texts-with-bookmarks-toggle">
               <span>Export texts with bookmarks</span>
             </label>
           </div>
@@ -1463,8 +1474,6 @@
           <div>
             <button id="delete-all-settings-profiles" class="dark-button">Delete all settings profiles</button>
             <button id="delete-all-texts" class="dark-button">Delete all texts</button>
-          </div>
-          <div>
             <button id="delete-all-data" class="dark-button">Delete all</button>
           </div>
         </div>
@@ -1498,6 +1507,7 @@
       colorMap: new Map(),
       colorList: [],
 
+      textNeedsUpdate: true,
       previousText: null,
       previousSettings: {},
       previousPosition: null,
@@ -1591,6 +1601,7 @@
         colorTaskToggle: 'sle_color_task_toggle',
         colorTaskLetters: 'sle_color_task_letters',
         colorTaskColors: 'sle_color_task_colors',
+        colorTaskOnlyColoring: 'sle_color_task_only_coloring',
         speed: 'sle_speed',
         skippingLetters: 'sle_skipping_letters',
         shufflingLetters: 'sle_shuffling_letters',
@@ -1639,6 +1650,7 @@
         settings[this.settingsNames.colorTaskToggle] = false;
         settings[this.settingsNames.colorTaskLetters] = '1';
         settings[this.settingsNames.colorTaskColors] = '';
+        settings[this.settingsNames.colorTaskOnlyColoring] = false;
         settings[this.settingsNames.speed] = '90';
         settings[this.settingsNames.skippingLetters] = 'no';
         settings[this.settingsNames.shufflingLetters] = 'no';
@@ -1662,6 +1674,7 @@
         settings[this.settingsNames.colorTaskToggle] = this.elements.colorEncoderToggle.checked;
         settings[this.settingsNames.colorTaskLetters] = this.elements.colorLetterCount.value;
         settings[this.settingsNames.colorTaskColors] = this.elements.colorInput.value;
+        settings[this.settingsNames.colorTaskOnlyColoring] = this.elements.onlyTextColoringToggle.checked;
         settings[this.settingsNames.speed] = this.elements.speedNumber.value;
         settings[this.settingsNames.skippingLetters] = this.elements.letterSkipSelect.value;
         settings[this.settingsNames.shufflingLetters] = this.elements.letterShuffleSelect.value;
@@ -1692,6 +1705,9 @@
 
         currentKey = this.settingsNames.colorTaskColors;
         this.elements.colorInput.value = keys.includes(currentKey) ? settingsProfileData[currentKey] : defaultSettings[currentKey];
+
+        currentKey = this.settingsNames.colorTaskOnlyColoring;
+        this.elements.onlyTextColoringToggle.checked = keys.includes(currentKey) ? settingsProfileData[currentKey] : defaultSettings[currentKey];
 
         currentKey = this.settingsNames.speed;
         this.elements.speedNumber.value = keys.includes(currentKey) ? settingsProfileData[currentKey] : defaultSettings[currentKey];
@@ -1892,10 +1908,11 @@
         this.elements.skewingSelect = document.getElementById('skewing-select');
         this.elements.skewingNumberMin = document.getElementById('skewing-number-min');
         this.elements.skewingNumberMax = document.getElementById('skewing-number-max');
+        this.elements.onlyTextColoringToggle = document.getElementById('only-text-coloring-toggle');
 
         this.cachedContainerWidth = null;
         this.cachedTextWidth = null;
-        this.elements.deleteAllData.style.display = 'none';
+        // this.elements.deleteAllData.style.display = 'none';
       },
 
       loadDb(callback) {
@@ -1995,18 +2012,18 @@
         this.elements.loopToggle.addEventListener('click', () => this.toggleLoop());
         this.elements.rewindButton.addEventListener('click', () => this.rewind());
         this.elements.fastForwardButton.addEventListener('click', () => this.fastForward());
-        this.elements.fontSizeSlider.addEventListener('change', () => this.adjustFontSize(this.elements.fontSizeSlider.value));
-        this.elements.fontSizeNumber.addEventListener('change', () => this.adjustFontSize(this.elements.fontSizeNumber.value));
-        this.elements.speedSlider.addEventListener('change', () => this.adjustSpeed(this.elements.speedSlider.value));
-        this.elements.speedNumber.addEventListener('change', () => this.adjustSpeed(this.elements.speedNumber.value));
+        this.elements.fontSizeSlider.addEventListener('input', () => this.adjustFontSize(this.elements.fontSizeSlider.value));
+        this.elements.fontSizeNumber.addEventListener('input', () => this.adjustFontSize(this.elements.fontSizeNumber.value));
+        this.elements.speedSlider.addEventListener('input', () => this.adjustSpeed(this.elements.speedSlider.value));
+        this.elements.speedNumber.addEventListener('input', () => this.adjustSpeed(this.elements.speedNumber.value));
         this.elements.tabButtons.forEach(button => button.addEventListener('click', () => this.switchTab(button)));
         this.elements.progressBarContainer.addEventListener('click', (e) => this.handleProgressBarClick(e));
-        this.elements.textSelect.addEventListener('change', () => this.switchText());
+        this.elements.textSelect.addEventListener('input', () => this.switchText());
         this.elements.newTextButton.addEventListener('click', () => this.createNewText());
         this.elements.duplicateTextButton.addEventListener('click', () => this.duplicateText());
         this.elements.deleteTextButton.addEventListener('click', () => this.deleteCurrentText());
         this.elements.saveTextButton.addEventListener('click', () => this.saveCurrentText());
-        this.elements.settingsProfileSelect.addEventListener('change', () => this.switchSettingsProfile());
+        this.elements.settingsProfileSelect.addEventListener('input', () => this.switchSettingsProfile());
         this.elements.newSettingsProfileButton.addEventListener('click', () => this.createNewSettingsProfile());
         this.elements.duplicateSettingsProfileButton.addEventListener('click', () => this.duplicateSettingsProfile());
         this.elements.deleteSettingsProfileButton.addEventListener('click', () => this.deleteCurrentSettingsProfile());
@@ -2015,9 +2032,9 @@
         this.elements.showBookmarksButtonToggle.addEventListener('click', () => this.toggleBookmarksButton());
         this.elements.showSearchButtonToggle.addEventListener('click', () => this.toggleSearchButton());
         this.elements.speakButton.addEventListener('click', () => this.toggleSpeech());
-        this.elements.voiceSelect.addEventListener('change', () => this.updateVoice());
-        this.elements.speechRateSlider.addEventListener('change', () => this.adjustSpeechRate(this.elements.speechRateSlider.value));
-        this.elements.speechRateNumber.addEventListener('change', () => this.adjustSpeechRate(this.elements.speechRateNumber.value));
+        this.elements.voiceSelect.addEventListener('input', () => this.updateVoice());
+        this.elements.speechRateSlider.addEventListener('input', () => this.adjustSpeechRate(this.elements.speechRateSlider.value));
+        this.elements.speechRateNumber.addEventListener('input', () => this.adjustSpeechRate(this.elements.speechRateNumber.value));
         this.elements.importAllSettingsProfiles.addEventListener('click', () => this.importAllSettingsProfiles());
         this.elements.importAllTexts.addEventListener('click', () => this.importAllTexts());
         this.elements.importAllSettingsProfilesAndTexts.addEventListener('click', () => this.importAllSettingsProfilesAndTexts());
@@ -2027,7 +2044,7 @@
         this.elements.exportAllSettingsProfilesAndTexts.addEventListener('click', () => this.exportAllSettingsProfilesAndTexts());
         this.elements.exportAll.addEventListener('click', () => this.exportAll());
         this.elements.searchButton.addEventListener('click', () => this.toggleSearch());
-        this.elements.searchInput.addEventListener('change', (e) => this.handleSearchInput(e.target.value));
+        this.elements.searchInput.addEventListener('input', (e) => this.handleSearchInput(e.target.value));
         this.elements.searchNextButton.addEventListener('click', () => this.goToNextMatch());
         this.elements.searchPrevButton.addEventListener('click', () => this.goToPreviousMatch());
         this.elements.bookmarksButton.addEventListener("click", () => this.toggleBookmarks());
@@ -2041,46 +2058,47 @@
           currentReader.toggleBookmarks();
         });
         this.elements.importReplaceToggle.addEventListener('click', () => this.toggleImportReplace());
-        this.elements.sentenceCountInput.addEventListener('change', () => this.saveSentenceCountToGenerate());
-        this.elements.loadWikiLanguageSelect.addEventListener('change', () => this.saveWikiLang());
+        this.elements.sentenceCountInput.addEventListener('input', () => this.saveSentenceCountToGenerate());
+        this.elements.loadWikiLanguageSelect.addEventListener('input', () => this.saveWikiLang());
         this.elements.fasterTransitionsToggle.addEventListener('click', () => this.toggleFasterTransitions());
         this.elements.exportAllTextsWithBookmarksToggle.addEventListener('click', () => this.toggleExportTextsWithBookmarks());
         this.elements.rotNToggle.addEventListener('click', () => this.toggleRotN());
-        this.elements.rotNLanguageSelect.addEventListener('change', () => this.toggleRotNLanguageInfo());
-        this.elements.rotNNumber.addEventListener('change', () => this.toggleRotNLanguageInfo());
+        this.elements.rotNLanguageSelect.addEventListener('input', () => this.toggleRotNLanguageInfo());
+        this.elements.rotNNumber.addEventListener('input', () => this.toggleRotNLanguageInfo());
         this.elements.skewingToggle.addEventListener('click', () => this.toggleSkewing());
+
+        this.controlBeforeUnload();
 
         const textModified = () => {
           currentReader.textIsModified = true;
-          currentReader.controlBeforeUnload();
         };
-        this.elements.textInput.addEventListener('change', textModified);
+        this.elements.textInput.addEventListener('input', textModified);
 
         const settingsProfileModified = function () {
           currentReader.settingsProfileIsModified = true;
-          currentReader.controlBeforeUnload();
         };
-        this.elements.fontSizeSlider.addEventListener('change', settingsProfileModified);
-        this.elements.fontSizeNumber.addEventListener('change', settingsProfileModified);
-        this.elements.speedSlider.addEventListener('change', settingsProfileModified);
-        this.elements.speedNumber.addEventListener('change', settingsProfileModified);
+        this.elements.fontSizeSlider.addEventListener('input', settingsProfileModified);
+        this.elements.fontSizeNumber.addEventListener('input', settingsProfileModified);
+        this.elements.speedSlider.addEventListener('input', settingsProfileModified);
+        this.elements.speedNumber.addEventListener('input', settingsProfileModified);
         this.elements.colorEncoderToggle.addEventListener('click', settingsProfileModified);
-        this.elements.colorLetterCount.addEventListener('change', settingsProfileModified);
+        this.elements.colorLetterCount.addEventListener('input', settingsProfileModified);
         this.elements.dumpColors.addEventListener('click', settingsProfileModified);
-        this.elements.colorInput.addEventListener('change', settingsProfileModified);
-        this.elements.letterSkipSelect.addEventListener('change', settingsProfileModified);
-        this.elements.letterShuffleSelect.addEventListener('change', settingsProfileModified);
-        this.elements.letterEliminationSelect.addEventListener('change', settingsProfileModified);
-        this.elements.wordSkipSelect.addEventListener('change', settingsProfileModified);
-        this.elements.wordShuffleSelect.addEventListener('change', settingsProfileModified);
-        this.elements.rotatingSelect.addEventListener('change', settingsProfileModified);
+        this.elements.colorInput.addEventListener('input', settingsProfileModified);
+        this.elements.letterSkipSelect.addEventListener('input', settingsProfileModified);
+        this.elements.letterShuffleSelect.addEventListener('input', settingsProfileModified);
+        this.elements.letterEliminationSelect.addEventListener('input', settingsProfileModified);
+        this.elements.wordSkipSelect.addEventListener('input', settingsProfileModified);
+        this.elements.wordShuffleSelect.addEventListener('chinputange', settingsProfileModified);
+        this.elements.rotatingSelect.addEventListener('input', settingsProfileModified);
         this.elements.rotNToggle.addEventListener('click', settingsProfileModified);
-        this.elements.rotNLanguageSelect.addEventListener('change', settingsProfileModified);
-        this.elements.rotNNumber.addEventListener('change', settingsProfileModified);
+        this.elements.rotNLanguageSelect.addEventListener('input', settingsProfileModified);
+        this.elements.rotNNumber.addEventListener('input', settingsProfileModified);
         this.elements.skewingToggle.addEventListener('click', settingsProfileModified);
-        this.elements.skewingSelect.addEventListener('change', settingsProfileModified);
-        this.elements.skewingNumberMin.addEventListener('change', settingsProfileModified);
-        this.elements.skewingNumberMax.addEventListener('change', settingsProfileModified);
+        this.elements.skewingSelect.addEventListener('input', settingsProfileModified);
+        this.elements.skewingNumberMin.addEventListener('input', settingsProfileModified);
+        this.elements.skewingNumberMax.addEventListener('input', settingsProfileModified);
+        this.elements.onlyTextColoringToggle.addEventListener('click', settingsProfileModified);
 
         document.addEventListener('keydown', e => this.handleKeyPress(e));
         window.addEventListener('resize', () => {
@@ -2217,7 +2235,6 @@
         }
         this.elements.textSelect.value = this.currentTextName;
         this.textIsModified = false;
-        this.unControlBeforeUnload();
 
         const currentSettingsProfileName = localStorage.getItem(this.settingsNames.currentSettingsProfile) || this.defaultSettingsProfileName;
         const settingsProfiles = JSON.parse(localStorage.getItem(this.settingsNames.settingsProfiles) || '[]');
@@ -2228,7 +2245,6 @@
         }
         this.elements.settingsProfileSelect.value = this.currentSettingsProfileName;
         this.settingsProfileIsModified = false;
-        this.unControlBeforeUnload();
 
         const currentReader = this;
         currentReader.switchSettingsProfile(function () {
@@ -2265,24 +2281,23 @@
 
       controlBeforeUnload() {
         try {
-          this.unControlBeforeUnload();
-          this.controllerForUnload = (event) => {
-            event.preventDefault();
-            event.returnValue = `You have unsaved changes! Are you sure you want to reload this page?`;
-          };
-          window.addEventListener('beforeunload', this.controllerForUnload);
-        }
-        catch (err) {
-          console.error(err);
-        }
-      },
-
-      unControlBeforeUnload() {
-        try {
-          if (this.controllerForUnload) {
-            window.removeEventListener('beforeunload', this.controllerForUnload);
-            this.controllerForUnload = null;
+          const currentReader = this;
+          if (currentReader.controllerForUnload) {
+            return;
           }
+          currentReader.controllerForUnload = (event) => {
+            console.log(currentReader.animationTimer);
+            if (currentReader.settingsProfileIsModified ||
+                currentReader.textIsModified ||
+                currentReader.animationTimer > 0 ||
+                currentReader.isSpeaking ||
+                currentReader.isSearchActive ||
+                currentReader.isBookmarksActive) {
+              event.preventDefault();
+              event.returnValue = `You have unsaved changes! Are you sure you want to reload this page?`;
+            }
+          };
+          window.addEventListener('beforeunload', currentReader.controllerForUnload);
         }
         catch (err) {
           console.error(err);
@@ -2298,7 +2313,7 @@
           clearTimeout(this.animationTimer);
           this.animationTimer = null;
         }
-        this.elements.playPauseButton.textContent = 'Start';
+        this.elements.playPauseButton.innerHTML = 'Start <kbd>Space</kbd>';
         this.elements.playPauseButton.classList.remove('pause');
         this.currentPosition = this.cachedContainerWidth;
         this.elements.marqueeDisplay.style.left = `${this.currentPosition}px`;
@@ -2344,40 +2359,78 @@
 
         let palleteChanged = false;
         let currentSettings = this.getCurrentSettingsProfile();
+        const onlyColoring = currentSettings[this.settingsNames.colorTaskOnlyColoring];
 
         if (!resume && this.elements.colorEncoderToggle.checked) {
           palleteChanged = true;
+          const currentReader = this;
           const targetSize = parseInt(this.elements.colorLetterCount.value || 0);
           const preservedColors = new Map();
           const preservedLetters = [];
           this.elements.colorInput.value.split('\n').forEach(line => {
-            const [letter, ...colorParts] = line.split(/\s+/);
-            if (letter && colorParts.length) {
-              const color = colorParts.join(' ');
-              Array.from(letter.toLowerCase()).forEach(char => {
-                preservedLetters.push(char);
-                preservedColors.set(char, color);
+            const onlyOr = (line.match(/\"/g) || []).length % 2 === 1;
+            const words = [], colorParts = [];
+            let quote = false, leftPartIsDone = false, tmp = [];
+            for (const x of line.trim()) {
+              if (leftPartIsDone) {
+                colorParts.push(x);
+                continue;
+              }
+              if (onlyOr) {
+                if (currentReader.spacePattern.test(x)) {
+                  leftPartIsDone = true;
+                }
+                else {
+                  words.push(x);
+                }
+                continue;
+              }
+              if (x === '"') {
+                if (quote && tmp.length) {
+                  words.push(tmp.join(''));
+                  tmp = [];
+                }
+                quote = !quote;
+                continue;
+              }
+              if (!quote && currentReader.spacePattern.test(x)) {
+                leftPartIsDone = true;
+                continue;
+              }
+              if (quote) {
+                tmp.push(x);
+                continue;
+              }
+              words.push(x);
+            }
+            if (words.length && colorParts.length) {
+              const color = colorParts.join('');
+              words.forEach(word => {
+                if (word.length > 0) {
+                  preservedLetters.push(word);
+                  preservedColors.set(word, color);
+                }
               });
             }
           });
 
-          if (this.colorMap.size < targetSize || this.previousColorInput !== this.elements.colorInput.value) {
+          if (this.colorMap.size < targetSize || currentSettings[this.settingsNames.colorTaskColors] !== this.previousSettings[this.settingsNames.colorTaskColors]) {
             const newColors = this.generateColors(targetSize);
             const letters = Array.from(this.colorList);
             preservedLetters.forEach(char => {
-              if (letters.length < targetSize && cleanedText.includes(char) && !letters.includes(char)) {
+              if (letters.length < targetSize && (cleanedText.includes(char) || char === '***') && !letters.includes(char)) {
                 letters.push(char);
               }
             });
             let index = 0;
             for (let i = 0; i < cleanedText.length && letters.length < targetSize; i++) {
-              const char = cleanedText[i].toLowerCase();
-              if (this.isLetter(char) && !letters.includes(char)) {
+              const char = cleanedText[i];
+              if (this.isLetter(char) && !letters.includes(char.toLowerCase()) && !letters.includes(char.toUpperCase())) {
                 letters.push(char);
                 index++;
               }
             }
-            letters.sort();
+            letters.sort((a, b) => a.toLowerCase().localeCompare(b.toLowerCase()));
             index = 0;
             letters.forEach(char => {
               if (!this.colorMap.has(char)) {
@@ -2409,7 +2462,7 @@
               break;
             }
           }
-          this.colorList.sort();
+          this.colorList.sort((a, b) => a.toLowerCase().localeCompare(b.toLowerCase()));
         }
 
         if (!resume) {
@@ -2420,12 +2473,17 @@
                 postElem = '<br><br>'
               }
               const color = this.colorMap.get(char);
-              return `${postElem}${char.toUpperCase()}<span style="background-color:${color};color:${color};" class="marquee-letter-span clickable" onclick="MarqueeReader.updateColor(this)">${char.toUpperCase()}</span>`;
+              if (char === '***' || color === 'default' || color === 'transparent' || color.startsWith('font ') || color.startsWith('bg ') || color.startsWith('font-bg ')) {
+                return;
+              }
+              const charV = ((!this.colorMap.get(char.toLowerCase())) ^ (!this.colorMap.get(char.toUpperCase()))) ? char.toUpperCase().concat(char.toLowerCase()) : char;
+              return `${postElem}${charV}<span style="background-color:${color};color:${color};" class="marquee-letter-span clickable" onclick="MarqueeReader.updateColor(this)">${charV[0]}</span>`;
             })
             .join('  ');
         }
 
         const textNeedsUpdate = [
+          this.textNeedsUpdate === true,
           this.currentPosition == null,
           this.previousText !== cleanedText,
           ...[
@@ -2450,11 +2508,46 @@
           (this.elements.colorEncoderToggle.checked && this.previousColorInput !== this.elements.colorInput.value);
 
         if (textNeedsUpdate || colorsNeedsUpdate) {
-          const colorize = this.elements.colorEncoderToggle.checked
-            ? (char, formatted) => this.colorMap.has(char.toLowerCase())
-              ? `<span style="background-color:${this.colorMap.get(char.toLowerCase())};color:${this.colorMap.get(char.toLowerCase())};" class="marquee-letter-span">${formatted}</span>`
-              : formatted
-            : (char, formatted) => formatted;
+          const currentReader = this;
+          const splitByBrackets = (data) => {
+            let result = [], tmpList = [], bracket = 0;
+            for (const x of data) {
+              tmpList.push(x);
+              if (x === '(') {
+                bracket += 1;
+                continue;
+              }
+              else if (x === ')') {
+                bracket = Math.max(0, bracket - 1);
+                continue;
+              }
+              if (bracket === 0 && currentReader.spacePattern.test(x)) {
+                result.push(tmpList.join(''));
+                tmpList = [];
+              }
+            }
+            if (tmpList.length) {
+              result.push(tmpList.join(''));
+            }
+            return result;
+          };
+          const colorize = (char, formatted, word) => {
+            if (currentReader.elements.colorEncoderToggle.checked) {
+              const color = currentReader.colorMap.get(word)
+                || currentReader.colorMap.get(word.toLowerCase())
+                || currentReader.colorMap.get(word.toUpperCase())
+                || currentReader.colorMap.get(char)
+                || currentReader.colorMap.get(char.toLowerCase())
+                || currentReader.colorMap.get(char.toUpperCase())
+                || currentReader.colorMap.get('***');
+              if (color) {
+                const bgColorStyle = color.startsWith('font-bg ') ? `background-color:${splitByBrackets(color)[2]};` : (color.startsWith('bg ') ? `background-color:${color.slice(2)};` : (onlyColoring || color === 'default' || color.startsWith('font ') ? '' : `background-color:${color};`));
+                const fgColorStyle = color.startsWith('font-bg ') ? `color:${splitByBrackets(color)[1]};` : (color === 'default' ? '' : (color.startsWith('font ') ? `color:${color.slice(4)};` : (color.startsWith('bg ') ? `color:${color.slice(2)};` : `color:${color};`)));
+                return `<span style="${bgColorStyle}${fgColorStyle}" class="marquee-letter-span">${formatted}</span>`;
+              }
+            }
+            return formatted;
+          };
           this.elements.marqueeDisplay.innerHTML = this.processText(
             textNeedsUpdate ? cleanedText : this.elements.marqueeDisplay.textContent,
             cleanedText,
@@ -2482,6 +2575,7 @@
         this.elements.marqueeDisplay.style.left = `${this.currentPosition}px`;
         this.lastSavedPosition = this.currentPosition;
 
+        this.textNeedsUpdate = false;
         this.previousText = cleanedText;
         this.previousSettings = currentSettings;
         this.previousPosition = this.currentPosition;
@@ -2772,7 +2866,7 @@
               if (newClasses.length > 0 || newStyles.length > 0) {
                 formatted = `<span class="marquee-letter-span ${newClassesString}" ${newStyleString}>${formatted}</span>`;
               }
-              return colorize(char, formatted);
+              return colorize(char, formatted, modifiedWord);
             }).join('');
 
             let newClasses = [];
@@ -2963,7 +3057,7 @@
       },
 
       isLetter(char) {
-        return /^[a-zA-Z]$/.test(char) || char.toLowerCase() !== char.toUpperCase() || (this.letterPattern && this.letterPattern.test(char));
+        return char.toLowerCase() !== char.toUpperCase() || (this.wordPattern && this.wordPattern.test(char));
       },
 
       shuffleArray(array) {
@@ -3151,7 +3245,7 @@
         if (this.currentPosition !== null) {
           const wasPlaying = this.animationTimer !== null;
           if (wasPlaying) this.pauseAnimation();
-          this.previousLetterShuffle = '';
+          this.textNeedsUpdate = true;
           this.startAnimation(false, false);
           this.updateProgressBar();
           if (wasPlaying) this.startAnimation(true);
@@ -3262,7 +3356,7 @@
       toggleColorDetails() {
         const isVisible = this.elements.showColorInfoToggle.checked && this.elements.colorEncoderToggle.checked;
         this.elements.colorDetails.style.display = isVisible ? '' : 'none';
-        localStorage.setItem(this.settingsNames.showColorInfoToggle, isVisible);
+        localStorage.setItem(this.settingsNames.showColorInfoToggle, this.elements.showColorInfoToggle.checked);
       },
 
       toggleAppendText() {
@@ -3273,7 +3367,7 @@
         const currentReader = this;
         currentReader.colorList.forEach(char => {
           const color = currentReader.hexToRgb(currentReader.colorMap.get(char));
-          const entry = `${char.toUpperCase()} ${color}`;
+          const entry = `${char} ${color}`;
           if (!currentReader.elements.colorInput.value.includes(entry)) {
             currentReader.elements.colorInput.value += (currentReader.elements.colorInput.value && !currentReader.elements.colorInput.value.endsWith('\n') ? '\n' : '') + entry + '\n';
           }
@@ -3283,7 +3377,6 @@
       clearInput() {
         this.elements.textInput.value = '';
         this.textIsModified = true;
-        this.controlBeforeUnload();
       },
 
       fetchSentenceWordsmythBeginner() {
@@ -3299,7 +3392,6 @@
               const text = /[.!?]$/.test(sentence) ? sentence : `${sentence}.`;
               this.elements.textInput.value = this.elements.appendTextToggle.checked ? `${this.elements.textInput.value}${this.elements.textInput.value ? '\n\n' : ''}${text}` : text;
               this.textIsModified = true;
-              this.controlBeforeUnload();
             }
           }
         }
@@ -3318,7 +3410,6 @@
               const text = /[.!?]$/.test(sentence) ? sentence : `${sentence}.`;
               this.elements.textInput.value = this.elements.appendTextToggle.checked ? `${this.elements.textInput.value}${this.elements.textInput.value ? '\n\n' : ''}${text}` : text;
               this.textIsModified = true;
-              this.controlBeforeUnload();
             }
           }
         }
@@ -3337,7 +3428,6 @@
               const text = /[.!?]$/.test(sentence) ? sentence : `${sentence}.`;
               this.elements.textInput.value = this.elements.appendTextToggle.checked ? `${this.elements.textInput.value}${this.elements.textInput.value ? '\n\n' : ''}${text}` : text;
               this.textIsModified = true;
-              this.controlBeforeUnload();
             }
           }
         }
@@ -3356,7 +3446,6 @@
               const text = /[.!?]$/.test(sentence) ? sentence : `${sentence}.`;
               this.elements.textInput.value = this.elements.appendTextToggle.checked ? `${this.elements.textInput.value}${this.elements.textInput.value ? '\n\n' : ''}${text}` : text;
               this.textIsModified = true;
-              this.controlBeforeUnload();
             }
           }
         }
@@ -3380,7 +3469,6 @@
             const text = data.extract.trim();
             currentReader.elements.textInput.value = currentReader.elements.appendTextToggle.checked ? `${currentReader.elements.textInput.value}${currentReader.elements.textInput.value ? '\n\n' : ''}${text}` : text;
             currentReader.textIsModified = true;
-            currentReader.controlBeforeUnload();
             if (currentHash === currentReader.sentenceHash && currentReader.sentenceCounter > 0) {
               currentReader.sentenceCounter = Math.max(0, currentReader.sentenceCounter - 1);
               setTimeout(() => currentReader.fetchWikipedia(true), currentReader.sentenceDownloadDelay);
@@ -3410,7 +3498,6 @@
               const text = sentence['content'].trim();
               currentReader.elements.textInput.value = currentReader.elements.appendTextToggle.checked ? `${currentReader.elements.textInput.value}${currentReader.elements.textInput.value ? '\n\n' : ''}${text}` : text;
               currentReader.textIsModified = true;
-              currentReader.controlBeforeUnload();
             }
             if (currentHash === currentReader.sentenceHash && currentReader.sentenceCounter > 0) {
               currentReader.sentenceCounter = Math.max(0, currentReader.sentenceCounter - 1);
@@ -3438,7 +3525,6 @@
           .then(text => {
             currentReader.elements.textInput.value = currentReader.elements.appendTextToggle.checked ? `${currentReader.elements.textInput.value}${currentReader.elements.textInput.value ? '\n\n' : ''}${text.trim()}` : text.trim();
             currentReader.textIsModified = true;
-            currentReader.controlBeforeUnload();
             if (currentHash === currentReader.sentenceHash && currentReader.sentenceCounter > 0) {
               currentReader.sentenceCounter = Math.max(0, currentReader.sentenceCounter - 1);
               setTimeout(() => currentReader.fetchMetaphorpsum(true), currentReader.sentenceDownloadDelay);
@@ -3465,7 +3551,6 @@
               const text = event.target.result.trim();
               currentReader.elements.textInput.value = currentReader.elements.appendTextToggle.checked ? `${currentReader.elements.textInput.value}${currentReader.elements.textInput.value ? '\n\n' : ''}${text}` : text;
               currentReader.textIsModified = true;
-              currentReader.controlBeforeUnload();
             };
             reader.readAsText(file);
           }
@@ -3539,7 +3624,7 @@
       updateColor(element) {
         const newColor = prompt('Enter color:', element.style.color);
         if (newColor) {
-          this.colorMap.set(element.textContent.toLowerCase(), newColor);
+          this.colorMap.set(element.textContent, newColor);
           element.style.color = newColor;
           element.style.backgroundColor = newColor;
         }
@@ -3662,7 +3747,6 @@
           currentReader.currentSettingsProfileName = selectedSettingsProfileName;
           localStorage.setItem(currentReader.settingsNames.currentSettingsProfile, currentReader.currentSettingsProfileName);
           currentReader.settingsProfileIsModified = false;
-          currentReader.unControlBeforeUnload();
           if (callback) {
             return callback();
           }
@@ -3676,7 +3760,6 @@
             currentReader.currentSettingsProfileName = selectedSettingsProfileName;
             localStorage.setItem(currentReader.settingsNames.currentSettingsProfile, currentReader.currentSettingsProfileName);
             currentReader.settingsProfileIsModified = false;
-            currentReader.unControlBeforeUnload();
             if (callback) {
               return callback();
             }
@@ -3710,7 +3793,6 @@
           currentReader.currentTextName = selectedTextName;
           localStorage.setItem(currentReader.settingsNames.currentTextName, currentReader.currentTextName);
           currentReader.textIsModified = false;
-          currentReader.unControlBeforeUnload();
           if (callback) {
             return callback();
           }
@@ -3725,7 +3807,6 @@
             currentReader.currentTextName = selectedTextName;
             localStorage.setItem(currentReader.settingsNames.currentTextName, currentReader.currentTextName);
             currentReader.textIsModified = false;
-            currentReader.unControlBeforeUnload();
             if (callback) {
               return callback();
             }
@@ -3775,7 +3856,6 @@
           currentReader.elements.settingsProfileSelect.appendChild(option);
           currentReader.elements.settingsProfileSelect.value = name;
           currentReader.settingsProfileIsModified = false;
-          currentReader.unControlBeforeUnload();
           currentReader.switchSettingsProfile();
         };
         transaction.onabort = () => {
@@ -3821,7 +3901,6 @@
           currentReader.elements.textSelect.appendChild(option);
           currentReader.elements.textSelect.value = name;
           currentReader.textIsModified = false;
-          currentReader.unControlBeforeUnload();
           currentReader.switchText();
         };
         transaction.onabort = () => {
@@ -3841,14 +3920,12 @@
           if (currentReader.currentSettingsProfileName === currentReader.defaultSettingsProfileName) {
             localStorage.setItem(currentReader.settingsNames.settingsProfile, currentSettings);
             currentReader.settingsProfileIsModified = false;
-            currentReader.unControlBeforeUnload();
           } else if (currentReader.database) {
             const transaction = currentReader.database.transaction([currentReader.settingsNames.settingsProfiles], 'readwrite');
             const objectStore = transaction.objectStore(currentReader.settingsNames.settingsProfiles);
             const request = objectStore.put({ name: currentReader.currentSettingsProfileName, settings: currentSettings });
             request.onsuccess = () => {
               currentReader.settingsProfileIsModified = false;
-              currentReader.unControlBeforeUnload();
             };
           }
           localStorage.setItem(currentReader.settingsNames.currentSettingsProfile, currentReader.currentSettingsProfileName);
@@ -3866,7 +3943,6 @@
             localStorage.setItem(currentReader.settingsNames.text, currentReader.elements.textInput.value);
             localStorage.setItem(currentReader.settingsNames.textBookmarks, JSON.stringify(currentReader.currentTextBookmarks));
             currentReader.textIsModified = false;
-            currentReader.unControlBeforeUnload();
           } else if (currentReader.database) {
             const transaction = currentReader.database.transaction([currentReader.settingsNames.texts], 'readwrite');
             const objectStore = transaction.objectStore(currentReader.settingsNames.texts);
@@ -3877,7 +3953,6 @@
             });
             request.onsuccess = () => {
               currentReader.textIsModified = false;
-              currentReader.unControlBeforeUnload();
             };
           }
           localStorage.setItem(currentReader.settingsNames.currentTextName, currentReader.currentTextName);
@@ -3907,7 +3982,6 @@
             if (option) option.remove();
             currentReader.elements.settingsProfileSelect.value = currentReader.defaultSettingsProfileName;
             currentReader.settingsProfileIsModified = false;
-            currentReader.unControlBeforeUnload();
             currentReader.switchSettingsProfile();
           };
           transaction.onabort = () => {
@@ -3936,7 +4010,6 @@
             if (option) option.remove();
             currentReader.elements.textSelect.value = currentReader.defaultTextName;
             currentReader.textIsModified = false;
-            currentReader.unControlBeforeUnload();
             currentReader.switchText();
           };
           transaction.onabort = () => {
@@ -5042,6 +5115,7 @@
     };
 
     document.addEventListener('DOMContentLoaded', () => {
+      window.speechSynthesis.cancel();
       MarqueeReader.initialize();
     });
   </script>
