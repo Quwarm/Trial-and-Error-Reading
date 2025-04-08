@@ -1016,7 +1016,7 @@
             <button id="randomize-sentences" class="dark-button">Randomize sentences</button>
           </div>
           <div class="with-rounded-border">
-            <h3>Random paragraphs</h3>
+            <h3 id="random-paragraphs-caption">Random paragraphs</h3>
             <div>
               <label>
                 <span>Number of paragraphs:</span>
@@ -1384,12 +1384,11 @@
               <button id="load-sentence-merriam-webster">[En] Merriam-Webster [10668]</button>
             </div>
             <div id="hidden-content-1" style="display: none;">
-              <hr>
               <div>
-                <button id="load-underthekey">[En] Underthekey random sentence</button>
+                <button id="load-underthekey">[En] Underthekey random sentence [E]</button>
               </div>
               <div>
-                <button id="load-metaphorpsum">[En] Metaphorpsum random sentence</button>
+                <button id="load-metaphorpsum">[En] Metaphorpsum random sentence [E]</button>
               </div>
             </div>
           </div>
@@ -1425,9 +1424,16 @@
           <div>
             <select id="voice-select"></select>
           </div>
-          <label for="speech-rate-number"><span>Speed</span></label>
-          <input type="range" id="speech-rate-slider" min="1" max="300" step="1" value="100">
-          <input type="number" id="speech-rate-number" min="1" max="300" step="1" value="100">
+          <div>
+            <label for="speech-rate-number"><span>Speed</span></label>
+            <input type="range" id="speech-rate-slider" min="1" max="300" step="1" value="100">
+            <input type="number" id="speech-rate-number" min="1" max="300" step="1" value="100">
+          </div>
+          <div>
+            <label for="speech-pitch-number"><span>Pitch</span></label>
+            <input type="range" id="speech-pitch-slider" min="0" max="300" step="1" value="100">
+            <input type="number" id="speech-pitch-number" min="0" max="300" step="1" value="100">
+          </div>
           <div>
             <label>
               <input type="checkbox" id="faster-transitions-toggle">
@@ -1552,6 +1558,7 @@
       currentVoice: null,
       voices: [],
       speechRate: 100,
+      speechPitch: 100,
 
       isSearchActive: false,
       searchQuery: '',
@@ -1637,6 +1644,7 @@
         voiceButton: 'sle_voice_button',
         voice: 'sle_voice',
         voiceSpeechRate: 'sle_voice_speech_rate',
+        voiceSpeechPitch: 'sle_voice_speech_pitch',
 
         // search
         searchButton: 'sle_search_button',
@@ -1869,6 +1877,8 @@
         this.elements.voiceSelect = document.getElementById('voice-select');
         this.elements.speechRateSlider = document.getElementById('speech-rate-slider');
         this.elements.speechRateNumber = document.getElementById('speech-rate-number');
+        this.elements.speechPitchSlider = document.getElementById('speech-pitch-slider');
+        this.elements.speechPitchNumber = document.getElementById('speech-pitch-number');
         this.elements.importAllSettingsProfiles = document.getElementById('import-all-settings-profiles');
         this.elements.importAllTexts = document.getElementById('import-all-texts');
         this.elements.importAllSettingsProfilesAndTexts = document.getElementById('import-all-settings-profiles-and-texts');
@@ -1909,6 +1919,8 @@
         this.elements.skewingNumberMin = document.getElementById('skewing-number-min');
         this.elements.skewingNumberMax = document.getElementById('skewing-number-max');
         this.elements.onlyTextColoringToggle = document.getElementById('only-text-coloring-toggle');
+        this.elements.hiddenContent1 = document.getElementById('hidden-content-1');
+        this.elements.randomParagraphsCaption = document.getElementById('random-paragraphs-caption');
 
         this.cachedContainerWidth = null;
         this.cachedTextWidth = null;
@@ -2035,6 +2047,8 @@
         this.elements.voiceSelect.addEventListener('input', () => this.updateVoice());
         this.elements.speechRateSlider.addEventListener('input', () => this.adjustSpeechRate(this.elements.speechRateSlider.value));
         this.elements.speechRateNumber.addEventListener('input', () => this.adjustSpeechRate(this.elements.speechRateNumber.value));
+        this.elements.speechPitchSlider.addEventListener('input', () => this.adjustSpeechPitch(this.elements.speechPitchSlider.value));
+        this.elements.speechPitchNumber.addEventListener('input', () => this.adjustSpeechPitch(this.elements.speechPitchNumber.value));
         this.elements.importAllSettingsProfiles.addEventListener('click', () => this.importAllSettingsProfiles());
         this.elements.importAllTexts.addEventListener('click', () => this.importAllTexts());
         this.elements.importAllSettingsProfilesAndTexts.addEventListener('click', () => this.importAllSettingsProfilesAndTexts());
@@ -2066,6 +2080,7 @@
         this.elements.rotNLanguageSelect.addEventListener('input', () => this.toggleRotNLanguageInfo());
         this.elements.rotNNumber.addEventListener('input', () => this.toggleRotNLanguageInfo());
         this.elements.skewingToggle.addEventListener('click', () => this.toggleSkewing());
+        this.elements.randomParagraphsCaption.addEventListener('click', () => this.showHiddenContent1());
 
         this.controlBeforeUnload();
 
@@ -2224,6 +2239,10 @@
         const voiceSpeechRate = localStorage.getItem(this.settingsNames.voiceSpeechRate) || null;
         if (voiceSpeechRate != null) {
           this.adjustSpeechRate(voiceSpeechRate);
+        }
+        const voiceSpeechPitch = localStorage.getItem(this.settingsNames.voiceSpeechPitch) || null;
+        if (voiceSpeechPitch != null) {
+          this.adjustSpeechPitch(voiceSpeechPitch);
         }
 
         const currentTextName = localStorage.getItem(this.settingsNames.currentTextName) || this.defaultTextName;
@@ -3274,6 +3293,10 @@
 
       copyCurrentText() {
         navigator.clipboard.writeText(this.elements.textInput.value);
+      },
+
+      showHiddenContent1() {
+        this.elements.hiddenContent1.style.display = this.elements.hiddenContent1.style.display ? '' : 'none';
       },
 
       toggleSkewing() {
@@ -4569,10 +4592,20 @@
       },
 
       adjustSpeechRate(value) {
-        this.speechRate = parseFloat(value);
+        this.speechRate = parseFloat(value || 100);
         this.elements.speechRateSlider.value = value;
         this.elements.speechRateNumber.value = value;
         localStorage.setItem(this.settingsNames.voiceSpeechRate, this.speechRate);
+        if (this.isSpeaking) {
+          this.toggleSpeech();
+        }
+      },
+
+      adjustSpeechPitch(value) {
+        this.speechPitch = parseFloat(value || 100);
+        this.elements.speechPitchSlider.value = value;
+        this.elements.speechPitchNumber.value = value;
+        localStorage.setItem(this.settingsNames.voiceSpeechPitch, this.speechPitch);
         if (this.isSpeaking) {
           this.toggleSpeech();
         }
@@ -4700,11 +4733,12 @@
 
         const wordCount = words.length;
         const utterance = new SpeechSynthesisUtterance(realTextFromIndex);
-        const selectedVoiceIndex = parseInt(this.elements.voiceSelect.value);
+        const selectedVoiceIndex = parseInt(this.elements.voiceSelect.value || 0);
         if (this.voices[selectedVoiceIndex]) {
           utterance.voice = this.voices[selectedVoiceIndex];
         }
         utterance.rate = this.speechRate / 100;
+        utterance.pitch = this.speechPitch / 100;
 
         const spanPositions = spans.slice(startSpanIndex).map(span => {
           const spanRect = span.getBoundingClientRect();
