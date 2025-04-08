@@ -174,10 +174,6 @@
       color: var(--gray-button-disabled-text);
     }
 
-    .clickable {
-      cursor: pointer;
-    }
-    
     .green-button {
       background-color: var(--green-button-background);
     }
@@ -552,7 +548,11 @@
     }
 
     /* Marquee themes */
-    
+
+    .marquee-letter-span[onclick], .marquee-word-span[onclick] {
+      cursor: pointer;
+    }
+
     .marquee-word-span {
       display: inline-block;
     }
@@ -838,6 +838,24 @@
         </div>
         <div>
           <label>
+            <span>False letters:</span>
+            <select id="letter-false-select">
+              <option value="no">-</option>
+              <option value="10%_letters">10%</option>
+              <option value="20%_letters">20%</option>
+              <option value="30%_letters">30%</option>
+              <option value="40%_letters">40%</option>
+              <option value="50%_letters">50%</option>
+              <option value="60%_letters">60%</option>
+              <option value="70%_letters">70%</option>
+              <option value="80%_letters">80%</option>
+              <option value="90%_letters">90%</option>
+              <option value="100%_letters">100%</option>
+            </select>
+          </label>
+        </div>
+        <div>
+          <label>
             <span>Eliminating letters:</span>
             <select id="letter-elimination-select">
               <option value="no">-</option>
@@ -911,10 +929,43 @@
             <span>Shuffling words:</span>
             <select id="word-shuffle-select">
               <option value="no">-</option>
-              <option value="2_words">Two words</option>
-              <option value="3_words">Three words</option>
-              <option value="4_words">Four words</option>
-              <option value="5_words">Five words</option>
+              <option value="2_words">2 words</option>
+              <option value="3_words">3 words</option>
+              <option value="4_words">4 words</option>
+              <option value="5_words">5 words</option>
+              <option value="6_words">6 words</option>
+              <option value="7_words">7 words</option>
+              <option value="8_words">8 words</option>
+              <option value="9_words">9 words</option>
+              <option value="10_words">10 words</option>
+            </select>
+          </label>
+        </div>
+        <div>
+          <label>
+            <span>False words:</span>
+            <select id="word-false-select">
+              <option value="no">-</option>
+              <option value="5%_words">5%</option>
+              <option value="10%_words">10%</option>
+              <option value="15%_words">15%</option>
+              <option value="20%_words">20%</option>
+              <option value="25%_words">25%</option>
+              <option value="30%_words">30%</option>
+              <option value="35%_words">35%</option>
+              <option value="40%_words">40%</option>
+              <option value="45%_words">45%</option>
+              <option value="50%_words">50%</option>
+              <option value="55%_words">55%</option>
+              <option value="60%_words">60%</option>
+              <option value="65%_words">65%</option>
+              <option value="70%_words">70%</option>
+              <option value="75%_words">75%</option>
+              <option value="80%_words">80%</option>
+              <option value="85%_words">85%</option>
+              <option value="90%_words">90%</option>
+              <option value="95%_words">95%</option>
+              <option value="100%_words">100%</option>
             </select>
           </label>
         </div>
@@ -1425,14 +1476,19 @@
             <select id="voice-select"></select>
           </div>
           <div>
-            <label for="speech-rate-number"><span>Speed</span></label>
-            <input type="range" id="speech-rate-slider" min="1" max="300" step="1" value="100">
-            <input type="number" id="speech-rate-number" min="1" max="300" step="1" value="100">
+            <label for="speech-rate-number"><span>Rate</span></label>
+            <input type="range" id="speech-rate-slider" min="1" max="1000" step="1" value="100">
+            <input type="number" id="speech-rate-number" min="1" max="1000" step="1" value="100">
           </div>
           <div>
             <label for="speech-pitch-number"><span>Pitch</span></label>
-            <input type="range" id="speech-pitch-slider" min="0" max="300" step="1" value="100">
-            <input type="number" id="speech-pitch-number" min="0" max="300" step="1" value="100">
+            <input type="range" id="speech-pitch-slider" min="0" max="200" step="1" value="100">
+            <input type="number" id="speech-pitch-number" min="0" max="200" step="1" value="100">
+          </div>
+          <div>
+            <label for="speech-volume-number"><span>Volume</span></label>
+            <input type="range" id="speech-volume-slider" min="0" max="100" step="1" value="100">
+            <input type="number" id="speech-volume-number" min="0" max="100" step="1" value="100">
           </div>
           <div>
             <label>
@@ -1559,6 +1615,7 @@
       voices: [],
       speechRate: 100,
       speechPitch: 100,
+      speechVolume: 100,
 
       isSearchActive: false,
       searchQuery: '',
@@ -1593,18 +1650,18 @@
       alphabets: [],
 
       settingsNames: {
-        // texts
+        /* texts */
         currentTextName: 'sle_current_text_name',
         text: 'sle_text',
         textBookmarks: 'sle_text_bookmarks',
         texts: 'sle_texts',
 
-        // settings profiles
+        /* settings profiles */
         currentSettingsProfile: 'sle_current_settings_profile',
         settingsProfile: 'sle_settings_profile',
         settingsProfiles: 'sle_settings_profiles',
 
-        // profile settings
+        /* profile settings */
         colorTaskToggle: 'sle_color_task_toggle',
         colorTaskLetters: 'sle_color_task_letters',
         colorTaskColors: 'sle_color_task_colors',
@@ -1612,9 +1669,11 @@
         speed: 'sle_speed',
         skippingLetters: 'sle_skipping_letters',
         shufflingLetters: 'sle_shuffling_letters',
+        falseLetters: 'sle_false_letters',
         eliminatingLetters: 'sle_eliminating_letters',
         skippingWords: 'sle_skipping_words',
         shufflingWords: 'sle_shuffling_words',
+        falseWords: 'sle_false_words',
         rotating: 'sle_rotating',
         rotNToggle: 'sle_rot_n_toggle',
         rotNNumber: 'sle_rot_n_number',
@@ -1625,7 +1684,7 @@
         skewingNumberMax: 'sle_skewing_number_max',
         textSize: 'sle_text_size',
 
-        // non-profile settings
+        /* non-profile settings */
         showColorInfoToggle: 'sle_show_color_info_toggle',
         appendTextToggle: 'sle_append_text_toggle',
         importReplaceToggle: 'sle_import_replace_toggle',
@@ -1640,16 +1699,16 @@
         activeTab: 'sle_active_tab',
         lastPosition: 'sle_last_position',
 
-        // text-to-speech
+        /* text-to-speech */
         voiceButton: 'sle_voice_button',
         voice: 'sle_voice',
         voiceSpeechRate: 'sle_voice_speech_rate',
         voiceSpeechPitch: 'sle_voice_speech_pitch',
 
-        // search
+        /* search */
         searchButton: 'sle_search_button',
 
-        // bookmarks
+        /* bookmarks */
         bookmarksButton: 'sle_bookmarks_button',
       },
 
@@ -1662,9 +1721,11 @@
         settings[this.settingsNames.speed] = '90';
         settings[this.settingsNames.skippingLetters] = 'no';
         settings[this.settingsNames.shufflingLetters] = 'no';
+        settings[this.settingsNames.falseLetters] = 'no';
         settings[this.settingsNames.eliminatingLetters] = 'no';
         settings[this.settingsNames.skippingWords] = 'no';
         settings[this.settingsNames.shufflingWords] = 'no';
+        settings[this.settingsNames.falseWords] = 'no';
         settings[this.settingsNames.rotating] = 'no';
         settings[this.settingsNames.rotNToggle] = false;
         settings[this.settingsNames.rotNNumber] = '1';
@@ -1686,9 +1747,11 @@
         settings[this.settingsNames.speed] = this.elements.speedNumber.value;
         settings[this.settingsNames.skippingLetters] = this.elements.letterSkipSelect.value;
         settings[this.settingsNames.shufflingLetters] = this.elements.letterShuffleSelect.value;
+        settings[this.settingsNames.falseLetters] = this.elements.letterFalseSelect.value;
         settings[this.settingsNames.eliminatingLetters] = this.elements.letterEliminationSelect.value;
         settings[this.settingsNames.skippingWords] = this.elements.wordSkipSelect.value;
         settings[this.settingsNames.shufflingWords] = this.elements.wordShuffleSelect.value;
+        settings[this.settingsNames.falseWords] = this.elements.wordFalseSelect.value;
         settings[this.settingsNames.rotating] = this.elements.rotatingSelect.value;
         settings[this.settingsNames.rotNToggle] = this.elements.rotNToggle.checked;
         settings[this.settingsNames.rotNNumber] = this.elements.rotNNumber.value;
@@ -1726,6 +1789,9 @@
         currentKey = this.settingsNames.shufflingLetters;
         this.elements.letterShuffleSelect.value = keys.includes(currentKey) ? settingsProfileData[currentKey] : defaultSettings[currentKey];
 
+        currentKey = this.settingsNames.falseLetters;
+        this.elements.letterFalseSelect.value = keys.includes(currentKey) ? settingsProfileData[currentKey] : defaultSettings[currentKey];
+
         currentKey = this.settingsNames.eliminatingLetters;
         this.elements.letterEliminationSelect.value = keys.includes(currentKey) ? settingsProfileData[currentKey] : defaultSettings[currentKey];
 
@@ -1734,6 +1800,9 @@
 
         currentKey = this.settingsNames.shufflingWords;
         this.elements.wordShuffleSelect.value = keys.includes(currentKey) ? settingsProfileData[currentKey] : defaultSettings[currentKey];
+
+        currentKey = this.settingsNames.falseWords;
+        this.elements.wordFalseSelect.value = keys.includes(currentKey) ? settingsProfileData[currentKey] : defaultSettings[currentKey];
 
         currentKey = this.settingsNames.rotating;
         this.elements.rotatingSelect.value = keys.includes(currentKey) ? settingsProfileData[currentKey] : defaultSettings[currentKey];
@@ -1809,9 +1878,11 @@
         this.elements.colorDetails = document.getElementById('color-details');
         this.elements.appendTextToggle = document.getElementById('append-text-toggle');
         this.elements.letterShuffleSelect = document.getElementById('letter-shuffle-select');
+        this.elements.letterFalseSelect = document.getElementById('letter-false-select');
         this.elements.letterEliminationSelect = document.getElementById('letter-elimination-select');
         this.elements.letterSkipSelect = document.getElementById('letter-skip-select');
         this.elements.wordShuffleSelect = document.getElementById('word-shuffle-select');
+        this.elements.wordFalseSelect = document.getElementById('word-false-select');
         this.elements.wordSkipSelect = document.getElementById('word-skip-select');
         this.elements.marqueeDisplay = document.getElementById('marquee-display');
         this.elements.marqueeContainer = document.getElementById('marquee-container');
@@ -1879,6 +1950,8 @@
         this.elements.speechRateNumber = document.getElementById('speech-rate-number');
         this.elements.speechPitchSlider = document.getElementById('speech-pitch-slider');
         this.elements.speechPitchNumber = document.getElementById('speech-pitch-number');
+        this.elements.speechVolumeSlider = document.getElementById('speech-volume-slider');
+        this.elements.speechVolumeNumber = document.getElementById('speech-volume-number');
         this.elements.importAllSettingsProfiles = document.getElementById('import-all-settings-profiles');
         this.elements.importAllTexts = document.getElementById('import-all-texts');
         this.elements.importAllSettingsProfilesAndTexts = document.getElementById('import-all-settings-profiles-and-texts');
@@ -1924,7 +1997,7 @@
 
         this.cachedContainerWidth = null;
         this.cachedTextWidth = null;
-        // this.elements.deleteAllData.style.display = 'none';
+        /* this.elements.deleteAllData.style.display = 'none'; */
       },
 
       loadDb(callback) {
@@ -2049,6 +2122,8 @@
         this.elements.speechRateNumber.addEventListener('input', () => this.adjustSpeechRate(this.elements.speechRateNumber.value));
         this.elements.speechPitchSlider.addEventListener('input', () => this.adjustSpeechPitch(this.elements.speechPitchSlider.value));
         this.elements.speechPitchNumber.addEventListener('input', () => this.adjustSpeechPitch(this.elements.speechPitchNumber.value));
+        this.elements.speechVolumeSlider.addEventListener('input', () => this.adjustSpeechVolume(this.elements.speechVolumeSlider.value));
+        this.elements.speechVolumeNumber.addEventListener('input', () => this.adjustSpeechVolume(this.elements.speechVolumeNumber.value));
         this.elements.importAllSettingsProfiles.addEventListener('click', () => this.importAllSettingsProfiles());
         this.elements.importAllTexts.addEventListener('click', () => this.importAllTexts());
         this.elements.importAllSettingsProfilesAndTexts.addEventListener('click', () => this.importAllSettingsProfilesAndTexts());
@@ -2102,9 +2177,11 @@
         this.elements.colorInput.addEventListener('input', settingsProfileModified);
         this.elements.letterSkipSelect.addEventListener('input', settingsProfileModified);
         this.elements.letterShuffleSelect.addEventListener('input', settingsProfileModified);
+        this.elements.letterFalseSelect.addEventListener('input', settingsProfileModified);
         this.elements.letterEliminationSelect.addEventListener('input', settingsProfileModified);
         this.elements.wordSkipSelect.addEventListener('input', settingsProfileModified);
         this.elements.wordShuffleSelect.addEventListener('chinputange', settingsProfileModified);
+        this.elements.wordFalseSelect.addEventListener('chinputange', settingsProfileModified);
         this.elements.rotatingSelect.addEventListener('input', settingsProfileModified);
         this.elements.rotNToggle.addEventListener('click', settingsProfileModified);
         this.elements.rotNLanguageSelect.addEventListener('input', settingsProfileModified);
@@ -2124,7 +2201,7 @@
         });
         currentReader.restoreActiveTab();
 
-        // sentences generators
+        /* sentences generators */
         currentReader.sentenceWordsmyth1Generator = function* () {
           let sentences = [];
           try {
@@ -2305,7 +2382,6 @@
             return;
           }
           currentReader.controllerForUnload = (event) => {
-            console.log(currentReader.animationTimer);
             if (currentReader.settingsProfileIsModified ||
                 currentReader.textIsModified ||
                 currentReader.animationTimer > 0 ||
@@ -2369,15 +2445,15 @@
         }
 
         this.elements.textHelper.innerHTML = htmlValue;
-        const cleanedText = this.elements.textHelper.textContent || this.elements.textHelper.innerText || "";
+        const cleanedText = this.elements.textHelper.textContent || "";
         this.elements.textHelper.innerHTML = '';
 
         if (this.previousText !== cleanedText) {
-          this.wordCount = cleanedText.split(/\s+/).filter(word => word.length > 0).length;
+          this.wordCount = cleanedText.split(/[^\p{L}]+/ug).filter(w => w).length;
         }
 
         let palleteChanged = false;
-        let currentSettings = this.getCurrentSettingsProfile();
+        const currentSettings = this.getCurrentSettingsProfile();
         const onlyColoring = currentSettings[this.settingsNames.colorTaskOnlyColoring];
 
         if (!resume && this.elements.colorEncoderToggle.checked) {
@@ -2487,16 +2563,13 @@
         if (!resume) {
           this.elements.colorDetails.innerHTML = this.colorList
             .map((char, index) => {
-              let postElem = '';
-              if (index !== 0 && index % 5 === 0) {
-                postElem = '<br><br>'
-              }
+              const postElem = (index !== 0 && index % 5 === 0) ? '<br><br>' : '';
               const color = this.colorMap.get(char);
               if (char === '***' || color === 'default' || color === 'transparent' || color.startsWith('font ') || color.startsWith('bg ') || color.startsWith('font-bg ')) {
                 return;
               }
               const charV = ((!this.colorMap.get(char.toLowerCase())) ^ (!this.colorMap.get(char.toUpperCase()))) ? char.toUpperCase().concat(char.toLowerCase()) : char;
-              return `${postElem}${charV}<span style="background-color:${color};color:${color};" class="marquee-letter-span clickable" onclick="MarqueeReader.updateColor(this)">${charV[0]}</span>`;
+              return `${postElem}${charV}<span style="background-color:${color};color:${color};" class="marquee-letter-span" onclick="MarqueeReader.updateColor(this)">${charV[0]}</span>`;
             })
             .join('  ');
         }
@@ -2508,17 +2581,14 @@
           ...[
           this.settingsNames.skippingLetters,
           this.settingsNames.shufflingLetters,
+          this.settingsNames.falseLetters,
           this.settingsNames.eliminatingLetters,
           this.settingsNames.skippingWords,
           this.settingsNames.shufflingWords,
-          this.settingsNames.rotating,
+          this.settingsNames.falseWords,
           this.settingsNames.rotNToggle,
           this.settingsNames.rotNNumber,
           this.settingsNames.rotNLanguage,
-          this.settingsNames.skewingToggle,
-          this.settingsNames.skewingType,
-          this.settingsNames.skewingNumberMin,
-          this.settingsNames.skewingNumberMax,
           ].map(x => this.previousSettings[x] !== currentSettings[x])
         ].some(b => b);
 
@@ -2529,7 +2599,8 @@
         if (textNeedsUpdate || colorsNeedsUpdate) {
           const currentReader = this;
           const splitByBrackets = (data) => {
-            let result = [], tmpList = [], bracket = 0;
+            const result = [];
+            let tmpList = [], bracket = 0;
             for (const x of data) {
               tmpList.push(x);
               if (x === '(') {
@@ -2693,55 +2764,54 @@
       },
 
       processText(text, referenceText, shouldModify, colorize) {
-        let letterMap = new Map();
-        let letterMapItemMaxLength = 0;
-
-        const letterEliminationSelectValue = this.elements.letterEliminationSelect.value;
-        const letterSkipSelectValue = this.elements.letterSkipSelect.value;
-        const letterShuffleSelectValue = this.elements.letterShuffleSelect.value;
-        const wordSkipSelectValue = this.elements.wordSkipSelect.value;
-        const wordShuffleSelectValue = this.elements.wordShuffleSelect.value;
-        const rotNToggleChecked = this.elements.rotNToggle.checked;
-        const rotNNumberValue = parseInt(this.elements.rotNNumber.value || 0);
-        const rotNLanguageValue = this.elements.rotNLanguageSelect.value;
-        const colorEncoderToggleChecked = this.elements.colorEncoderToggle.checked;
-        const rotatingSelectValue = this.elements.rotatingSelect.value;
-        const rotateClass = 'rotate-180';
-        const skewingToggleChecked = this.elements.skewingToggle.checked;
-        const skewingTypeValue = this.elements.skewingSelect.value;
-        const skewingNumberMinValue = parseInt(this.elements.skewingNumberMin.value || 0);
-        const skewingNumberMaxValue = parseInt(this.elements.skewingNumberMax.value || 0);
-
         const currentReader = this;
         const getRandomSkewStyle = () => {
           return `transform: skewX(${currentReader.randomInt(skewingNumberMinValue, skewingNumberMaxValue)}deg)`;
         };
 
-        const settingRotate1 = rotatingSelectValue === 'text_by_words_180';
-        const settingRotate2 = rotatingSelectValue === 'text_by_letters_180';
-        const settingRotate3 = rotatingSelectValue === 'random_word_by_word_180';
-        const settingRotate4 = rotatingSelectValue === 'random_word_by_letters_180';
-        const settingRotate5 = rotatingSelectValue === 'random_letters_180';
-        const settingRotate = (
-          settingRotate1 ||
-          settingRotate2 ||
-          settingRotate3 ||
-          settingRotate4 ||
-          settingRotate5
-        );
+        const letterEliminationSelectValue = this.elements.letterEliminationSelect.value;
+        const letterEliminationVowelMatch = shouldModify && letterEliminationSelectValue !== 'no' ? /(\d+)%_vowels/.exec(letterEliminationSelectValue) : null;
+        const letterEliminationVowelPercent = letterEliminationVowelMatch ? parseInt(letterEliminationVowelMatch[1]) / 100 : 0;
+        const letterEliminationRandomMatch = shouldModify && letterEliminationSelectValue !== 'no' ? /(\d+)%_random/.exec(letterEliminationSelectValue) : null;
+        const letterEliminationRandomPercent = letterEliminationRandomMatch ? parseInt(letterEliminationRandomMatch[1]) / 100 : 0;
 
-        const settingSkew1 = skewingToggleChecked && skewingTypeValue == 'text';
-        const settingSkew2 = skewingToggleChecked && skewingTypeValue == 'word';
-        const settingSkew3 = skewingToggleChecked && skewingTypeValue == 'letter';
-        const settingSkew = skewingToggleChecked && (
-          settingSkew1 ||
-          settingSkew2 ||
-          settingSkew3
-        );
+        const letterSkipSelectValue = this.elements.letterSkipSelect.value;
+        const letterSkipMatch = shouldModify && letterSkipSelectValue !== 'no' ? /(\d+)%_letters/.exec(letterSkipSelectValue) : null;
+        const letterSkipPercent = letterSkipMatch ? parseInt(letterSkipMatch[1]) / 100 : 0;
 
-        const textRotateSetting = settingRotate1 ? rotateClass : '';
-        const textSkewSetting = settingSkew1 ? getRandomSkewStyle() : '';
+        const letterFalseSelectValue = this.elements.letterFalseSelect.value;
+        const textChars = [];
+        if (shouldModify && letterFalseSelectValue !== 'no') {
+          textChars.push(...(new Set(Array.from(referenceText).filter(w => this.letterPattern.test(w)))));
+        }
+        const letterFalseMatch = textChars.length ? /(\d+)%_letters?/.exec(letterFalseSelectValue) : null;
+        const letterFalsePercent = letterFalseMatch ? parseInt(letterFalseMatch[1]) / 100 : 0;
 
+        const wordFalseSelectValue = this.elements.wordFalseSelect.value;
+        const textWords = [];
+        if (shouldModify && wordFalseSelectValue !== 'no') {
+          textWords.push(...(new Set(referenceText.split(/[^\p{L}]+/ug).filter(w => w))));
+        }
+        const wordFalseMatch = textWords.length ? /(\d+)%_words?/.exec(wordFalseSelectValue) : null;
+        const wordFalsePercent = wordFalseMatch ? parseInt(wordFalseMatch[1]) / 100 : 0;
+
+        const wordSkipSelectValue = this.elements.wordSkipSelect.value;
+        const wordSkipMatch = shouldModify && wordSkipSelectValue !== 'no' ? /(\d+)%_words/.exec(wordSkipSelectValue) : null;
+        const wordSkipMatchPercent = wordSkipMatch ? parseInt(wordSkipMatch[1]) / 100 : 0;
+
+        const letterShuffleSelectValue = this.elements.letterShuffleSelect.value;
+        const letterShuffleCheck = shouldModify && letterShuffleSelectValue !== 'no';
+
+        const wordShuffleSelectValue = this.elements.wordShuffleSelect.value;
+        const wordShuffleMatch = shouldModify && wordShuffleSelectValue !== 'no' ? /(\d+)_words?/.exec(wordShuffleSelectValue) : null;
+        const wordShuffleNumber = wordShuffleMatch ? parseInt(wordShuffleMatch[1]) : 0;
+        const skipShuffleRegex = /^[A-Z\d'\u2032\u2033\u2034\u2057\u2019\u0060\u00B4\uFF40\u02F4]/;
+
+        const rotNToggleChecked = this.elements.rotNToggle.checked;
+        const rotNNumberValue = parseInt(this.elements.rotNNumber.value || 0);
+        const rotNLanguageValue = this.elements.rotNLanguageSelect.value;
+        const letterMap = new Map();
+        let letterMapItemMaxLength = 0;
         if (shouldModify && rotNToggleChecked && rotNNumberValue !== 0 && rotNLanguageValue) {
           for (const x of this.alphabets) {
             if (x[0] === rotNLanguageValue) {
@@ -2760,6 +2830,49 @@
           }
         }
 
+        const colorEncoderToggleChecked = this.elements.colorEncoderToggle.checked;
+
+        const rotatingSelectValue = this.elements.rotatingSelect.value;
+        const settingRotate1 = rotatingSelectValue === 'text_by_words_180';
+        const settingRotate2 = rotatingSelectValue === 'text_by_letters_180';
+        const settingRotate3 = rotatingSelectValue === 'random_word_by_word_180';
+        const settingRotate4 = rotatingSelectValue === 'random_word_by_letters_180';
+        const settingRotate5 = rotatingSelectValue === 'random_letters_180';
+        const settingRotate = (
+          settingRotate1 ||
+          settingRotate2 ||
+          settingRotate3 ||
+          settingRotate4 ||
+          settingRotate5
+        );
+        const rotateClass = 'rotate-180';
+        const textRotateSetting = settingRotate1 ? rotateClass : '';
+
+        const skewingToggleChecked = this.elements.skewingToggle.checked;
+        const skewingTypeValue = this.elements.skewingSelect.value;
+        const skewingNumberMinValue = parseInt(this.elements.skewingNumberMin.value || 0);
+        const skewingNumberMaxValue = parseInt(this.elements.skewingNumberMax.value || 0);
+        const settingSkew1 = skewingToggleChecked && skewingTypeValue == 'text';
+        const settingSkew2 = skewingToggleChecked && skewingTypeValue == 'word';
+        const settingSkew3 = skewingToggleChecked && skewingTypeValue == 'letter';
+        const settingSkew = skewingToggleChecked && (
+          settingSkew1 ||
+          settingSkew2 ||
+          settingSkew3
+        );
+        const textSkewSetting = settingSkew1 ? getRandomSkewStyle() : '';
+
+        const wordHint1 = wordSkipMatch != null || colorEncoderToggleChecked || settingRotate || settingSkew;
+        const wordHint2 = letterShuffleCheck ||
+                          letterEliminationVowelMatch != null ||
+                          letterEliminationRandomMatch != null ||
+                          letterSkipMatch != null ||
+                          letterMapItemMaxLength > 0 ||
+                          letterFalseMatch != null ||
+                          wordFalseMatch != null ||
+                          wordShuffleMatch != null;
+
+        /* Algorithm */
         const escapeString = str => str.replace(/\\/g, '').replace(/"/g, '').replace(/'/g, "\\'");
         const textLines = text.split('\n');
         const refLines = referenceText.split('\n');
@@ -2769,49 +2882,61 @@
           let processedWords = words;
           let processedRefWords = refWords;
 
-          if (shouldModify && wordSkipSelectValue !== 'no') {
-            const match = /(\d+)%_words/.exec(wordSkipSelectValue);
-            if (match) {
-              processedWords = this.skipWords(processedWords, parseInt(match[1]) / 100);
-            }
+          if (wordSkipMatch) {
+            processedWords = this.skipWords(processedWords, wordSkipMatchPercent);
           }
 
-          if (shouldModify && wordShuffleSelectValue !== 'no') {
-            const match = /(\d+)_words?/.exec(wordShuffleSelectValue);
-            if (match) {
-              const groupSize = parseInt(match[1]);
-              const shuffledIndices = this.shuffleWordGroups(processedWords, groupSize);
-              processedWords = shuffledIndices.map(i => processedWords[i]);
-              processedRefWords = shuffledIndices.map(i => processedRefWords[i]);
+          if (wordShuffleMatch) {
+            const shuffledIndices = this.shuffleWordGroups(processedWords, wordShuffleNumber);
+            const newWords = [];
+            const newRefWords = [];
+            for (let i = 0; i < shuffledIndices.length; ++i) {
+              const nextWord = processedWords[shuffledIndices[i]];
+              const nextRefWord = processedRefWords[shuffledIndices[i]];
+              const origWord = processedRefWords[i];
+              newWords.push(nextWord);
+              newRefWords.push(`${origWord} [${nextRefWord}]`);
             }
+            processedWords = newWords;
+            processedRefWords = newRefWords;
+          }
+
+          if (wordFalseMatch) {
+            const newWords = Array.from(processedWords);
+            const newRefWords = Array.from(processedRefWords);
+            for (let i = 0; i < Math.floor(wordFalsePercent * processedWords.length); ++i) {
+              const nextWord = textWords[this.randomInt(0, textWords.length - 1)];
+              const randomPosition = this.randomInt(0, newWords.length);
+              newWords.splice(randomPosition, 0, nextWord);
+              newRefWords.splice(randomPosition, 0, `- [${nextWord}]`);
+            }
+            processedWords = newWords;
+            processedRefWords = newRefWords;
           }
 
           return processedWords.map((word, i) => {
             let modifiedWord = word;
-            const skipShuffle = /^[A-Z\d']/.test(word) || /[\u2032\u2033\u2034\u2057\u2019\u0060\u00B4\uFF40\u02F4]/.test(word);
 
-            if (shouldModify && letterEliminationSelectValue !== 'no' && word.length > 1) {
-              const vowelMatch = /(\d+)%_vowels/.exec(letterEliminationSelectValue);
-              const randomMatch = /(\d+)%_random/.exec(letterEliminationSelectValue);
-              if (vowelMatch) {
-                modifiedWord = this.eliminateLetters(this.vowelPatternG, modifiedWord, parseInt(vowelMatch[1]) / 100);
-              } else if (randomMatch) {
-                modifiedWord = this.eliminateLetters(this.letterPatternG, modifiedWord, parseInt(randomMatch[1]) / 100);
+            if (word.length > 1) {
+              if (letterEliminationVowelMatch) {
+                modifiedWord = this.eliminateLetters(this.vowelPatternG, modifiedWord, letterEliminationVowelPercent);
+              }
+              else if (letterEliminationRandomMatch) {
+                modifiedWord = this.eliminateLetters(this.letterPatternG, modifiedWord, letterEliminationRandomPercent);
+              }
+              if (letterSkipMatch) {
+                modifiedWord = this.skipLetters(modifiedWord, letterSkipPercent);
               }
             }
 
-            if (shouldModify && letterSkipSelectValue !== 'no' && word.length > 1) {
-              const skipMatch = /(\d+)%_letters/.exec(letterSkipSelectValue);
-              if (skipMatch) {
-                modifiedWord = this.skipLetters(modifiedWord, parseInt(skipMatch[1]) / 100);
-              }
-            }
-
-            if (shouldModify && letterShuffleSelectValue !== 'no' && (!skipShuffle || letterShuffleSelectValue === 'very-hard')) {
+            if (letterShuffleCheck && (!skipShuffleRegex.test(word) || letterShuffleSelectValue === 'very-hard')) {
               const parts = modifiedWord.split('-');
               modifiedWord = parts.map(part => {
-                const threshold = letterShuffleSelectValue === 'hard' || letterShuffleSelectValue === 'very-hard' ? 0 :
-                letterShuffleSelectValue === 'medium' || letterShuffleSelectValue === 'medium_plus' ? 1 : Math.floor(part.length / 3);
+                const threshold = letterShuffleSelectValue === 'hard' || letterShuffleSelectValue === 'very-hard'
+                  ? 0
+                  : letterShuffleSelectValue === 'medium' || letterShuffleSelectValue === 'medium_plus'
+                    ? 1
+                    : Math.floor(part.length / 3);
                 const suffixLength = letterShuffleSelectValue === 'medium_plus' ? 0 : threshold;
                 const letters = [];
                 for (const x of part) {
@@ -2830,17 +2955,17 @@
                   }
                 }
                 const reordered = [...firstLetters, ...midLetters, ...lastLetters];
-                let result = '';
+                const result = [];
                 let j = 0;
                 for (const char of part) {
-                  result += this.isLetter(char) ? reordered[j++] : char;
+                  result.push(this.isLetter(char) ? reordered[j++] : char);
                 }
-                return result;
+                return result.join('');
               }).join('-');
             }
 
             if (letterMapItemMaxLength > 0) {
-              let charsList = [];
+              const charsList = [];
               for (let i = 0; i < modifiedWord.length;) {
                 let currentLength = letterMapItemMaxLength;
                 while (currentLength > 0) {
@@ -2862,17 +2987,26 @@
               modifiedWord = charsList.join('');
             }
 
+            if (letterFalseMatch) {
+              const newWordChars = Array.from(modifiedWord);
+              for (let i = 0; i < Math.floor(letterFalsePercent * modifiedWord.length); ++i) {
+                const nextChar = textChars[this.randomInt(0, textChars.length - 1)];
+                const randomPosition = this.randomInt(0, newWordChars.length);
+                newWordChars.splice(randomPosition, 0, nextChar);
+              }
+              modifiedWord = newWordChars.join('');
+            }
+
             const wordRotateSetting4Bool = settingRotate4 && Math.random() < 0.5;
             const wordRotateSetting = textRotateSetting ? textRotateSetting : (settingRotate3 && Math.random() < 0.5 ? rotateClass : '');
             const wordSkewSetting = textSkewSetting ? textSkewSetting : (settingSkew2 ? getRandomSkewStyle() : '');
 
-            let finalWord = Array.from(modifiedWord).map((char) => {
+            const finalWord = Array.from(modifiedWord).map((char) => {
               const letterRotateSetting = wordRotateSetting ? '' : (settingRotate2 || wordRotateSetting4Bool || settingRotate5 && Math.random() < 0.5 ? rotateClass : '');
               const letterSkewSetting = settingSkew3 ? getRandomSkewStyle() : '';
 
               let formatted = char;
-              let newClasses = [];
-              let newStyles = [];
+              const newClasses = [], newStyles = [];
               if (letterRotateSetting) {
                 newClasses.push(letterRotateSetting);
               }
@@ -2888,8 +3022,7 @@
               return colorize(char, formatted, modifiedWord);
             }).join('');
 
-            let newClasses = [];
-            let newStyles = [];
+            const newClasses = [''], newStyles = [];
             if (wordRotateSetting) {
               newClasses.push(wordRotateSetting);
             }
@@ -2898,17 +3031,15 @@
             }
 
             const newClassesString = newClasses.join(' ');
-            const newStyleString = newStyles.length ? `style="${newStyles.join(';')}"` : '';
-            return letterShuffleSelectValue !== 'no' ||
-              letterEliminationSelectValue !== 'no' ||
-              letterSkipSelectValue !== 'no' ||
-              wordSkipSelectValue !== 'no' ||
-              letterMapItemMaxLength > 0
-              ? `<span class="marquee-word-span clickable ${newClassesString}" ${newStyleString} onclick="MarqueeReader.showWordHint('${escapeString(modifiedWord)}', '${escapeString(processedRefWords[i] || word)}')">${finalWord}</span>`
-              : (
-                colorEncoderToggleChecked || settingRotate || settingSkew
-                ? `<span class="marquee-word-span clickable ${newClassesString}" ${newStyleString} onclick="MarqueeReader.showWordHint('${escapeString(modifiedWord)}')">${finalWord}</span>`
-                : `<span class="marquee-word-span ${newClassesString}" ${newStyleString}>${finalWord}</span>`);
+            const newStyleString = newStyles.length ? ` style="${newStyles.join(';')}"` : '';
+            return (wordHint2 && modifiedWord !== (processedRefWords[i] || word))
+              ? (finalWord !== modifiedWord
+                ? `<span class="marquee-word-span${newClassesString}"${newStyleString} onclick="MarqueeReader.showWordHint('${escapeString(modifiedWord)}', '${escapeString(processedRefWords[i] || word)}')">${finalWord}</span>`
+                : `<span class="marquee-word-span${newClassesString}"${newStyleString} onclick="MarqueeReader.showWordHint(this, '${escapeString(processedRefWords[i] || word)}')">${finalWord}</span>`
+              )
+              : ((wordHint1 && finalWord !== (processedRefWords[i] || word))
+                 ? `<span class="marquee-word-span${newClassesString}"${newStyleString} onclick="MarqueeReader.showWordHint('${escapeString(processedRefWords[i] || word)}')">${finalWord}</span>`
+                 : `<span class="marquee-word-span${newClassesString}"${newStyleString}>${finalWord}</span>`);
           }).join(' ');
         }).join('\n');
       },
@@ -3322,7 +3453,8 @@
         const rotNNumberValue = parseInt(this.elements.rotNNumber.value || 0);
         const rotNLanguageValue = this.elements.rotNLanguageSelect.value;
         if (rotNNumberValue === rotNNumberValue && rotNLanguageValue) {
-          let infoValue = [], tmpValue = [];
+          const infoValue = [];
+          let tmpValue = [];
           for (const x of this.alphabets) {
             if (x[0] === rotNLanguageValue) {
               const alphabetVariants = x[2];
@@ -3654,6 +3786,17 @@
       },
 
       showWordHint(shuffled, original = null) {
+        if (!(typeof shuffled === 'string')) {
+          shuffled = shuffled.textContent;
+        }
+        if (!(typeof original === 'string')) {
+          original = original.textContent;
+        }
+        const r = /\s\[[^\]]*?\]$/.exec(original);
+        if (r) {
+          shuffled += original.slice(original.length - r[0].length);
+          original = original.slice(0, original.length - r[0].length);
+        }
         if (original) {
           alert(`${shuffled} -> ${original}`);
         }
@@ -4128,7 +4271,7 @@
             const request = indexedDB.deleteDatabase(currentReader.databaseName);
             request.onsuccess = () => {
               currentReader.lastSavedPosition = null;
-              for (let settingName of Object.values(currentReader.settingsNames)) {
+              for (const settingName of Object.values(currentReader.settingsNames)) {
                 localStorage.removeItem(settingName);
               }
               if (callback) {
@@ -4147,7 +4290,7 @@
           }
           else {
             currentReader.lastSavedPosition = null;
-            for (let settingName of Object.values(currentReader.settingsNames)) {
+            for (const settingName of Object.values(currentReader.settingsNames)) {
               localStorage.removeItem(settingName);
             }
             if (callback) {
@@ -4611,6 +4754,16 @@
         }
       },
 
+      adjustSpeechVolume(value) {
+        this.speechVolume = parseFloat(value || 100);
+        this.elements.speechVolumeSlider.value = value;
+        this.elements.speechVolumeNumber.value = value;
+        localStorage.setItem(this.settingsNames.voiceSpeechVolume, this.speechVolume);
+        if (this.isSpeaking) {
+          this.toggleSpeech();
+        }
+      },
+
       loadVoices() {
         const updateVoices = () => {
           this.voices = this.speechSynthesis.getVoices();
@@ -4739,6 +4892,7 @@
         }
         utterance.rate = this.speechRate / 100;
         utterance.pitch = this.speechPitch / 100;
+        utterance.volume = this.speechVolume / 100;
 
         const spanPositions = spans.slice(startSpanIndex).map(span => {
           const spanRect = span.getBoundingClientRect();
