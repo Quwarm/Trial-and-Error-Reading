@@ -6,7 +6,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Trial and Error Reading</title>
   <link rel="icon" type="image/png" href="favicon.png" />
-  <link rel="stylesheet" href="styles/minireset.min.css" />
   <script src="js/alphabets.js" type="text/javascript"></script>
   <script src="sentences/merriam_webster.js" type="text/javascript"></script>
   <script src="sentences/wordsmyth1.js" type="text/javascript"></script>
@@ -653,6 +652,7 @@
       display: inline-block;
       word-wrap: break-word;
       vertical-align: middle;
+      cursor: pointer;
     }
     
     .bookmark-remove-button {
@@ -798,8 +798,9 @@
         </div>
         <div>
           <label for="speed-number"><span>Speed <kbd>+</kbd><kbd>-</kbd></span></label>
-          <input type="range" id="speed-slider" min="1" max="200" value="100">
-          <input type="number" id="speed-number" min="1" max="200" value="100">
+          <input type="range" id="speed-slider" min="1" max="300" value="100">
+          <input type="number" id="speed-number" min="1" max="300" value="100">
+          <label><input type="checkbox" id="speed-smooth-toggle"> Smooth (but slower & not portable)</label>
         </div>
         <hr>
         <div>
@@ -1581,6 +1582,11 @@
       lastSavedPosition: null,
       lastSavedPositionUpdateDelay: 500,
 
+      animationInfoUpdateDelay: 200,
+      infoSecondsRemaining: '',
+      infoWPM: '',
+      infoProgress: '',
+
       elements: {},
       controllerForUnload: null,
 
@@ -1667,6 +1673,7 @@
         colorTaskColors: 'sle_color_task_colors',
         colorTaskOnlyColoring: 'sle_color_task_only_coloring',
         speed: 'sle_speed',
+        speedSmooth: 'sle_speed_smooth',
         skippingLetters: 'sle_skipping_letters',
         shufflingLetters: 'sle_shuffling_letters',
         falseLetters: 'sle_false_letters',
@@ -1718,7 +1725,8 @@
         settings[this.settingsNames.colorTaskLetters] = '1';
         settings[this.settingsNames.colorTaskColors] = '';
         settings[this.settingsNames.colorTaskOnlyColoring] = false;
-        settings[this.settingsNames.speed] = '90';
+        settings[this.settingsNames.speed] = '200';
+        settings[this.settingsNames.speedSmooth] = false;
         settings[this.settingsNames.skippingLetters] = 'no';
         settings[this.settingsNames.shufflingLetters] = 'no';
         settings[this.settingsNames.falseLetters] = 'no';
@@ -1745,6 +1753,7 @@
         settings[this.settingsNames.colorTaskColors] = this.elements.colorInput.value;
         settings[this.settingsNames.colorTaskOnlyColoring] = this.elements.onlyTextColoringToggle.checked;
         settings[this.settingsNames.speed] = this.elements.speedNumber.value;
+        settings[this.settingsNames.speedSmooth] = this.elements.speedSmoothToggle.checked;
         settings[this.settingsNames.skippingLetters] = this.elements.letterSkipSelect.value;
         settings[this.settingsNames.shufflingLetters] = this.elements.letterShuffleSelect.value;
         settings[this.settingsNames.falseLetters] = this.elements.letterFalseSelect.value;
@@ -1782,6 +1791,9 @@
 
         currentKey = this.settingsNames.speed;
         this.elements.speedNumber.value = keys.includes(currentKey) ? settingsProfileData[currentKey] : defaultSettings[currentKey];
+
+        currentKey = this.settingsNames.speedSmooth;
+        this.elements.speedSmoothToggle.checked = keys.includes(currentKey) ? settingsProfileData[currentKey] : defaultSettings[currentKey];
 
         currentKey = this.settingsNames.skippingLetters;
         this.elements.letterSkipSelect.value = keys.includes(currentKey) ? settingsProfileData[currentKey] : defaultSettings[currentKey];
@@ -1874,6 +1886,7 @@
         this.elements.textInput = document.getElementById('text-input');
         this.elements.speedSlider = document.getElementById('speed-slider');
         this.elements.speedNumber = document.getElementById('speed-number');
+        this.elements.speedSmoothToggle = document.getElementById('speed-smooth-toggle');
         this.elements.progressDisplay = document.getElementById('progress-display');
         this.elements.colorDetails = document.getElementById('color-details');
         this.elements.appendTextToggle = document.getElementById('append-text-toggle');
@@ -2171,6 +2184,7 @@
         this.elements.fontSizeNumber.addEventListener('input', settingsProfileModified);
         this.elements.speedSlider.addEventListener('input', settingsProfileModified);
         this.elements.speedNumber.addEventListener('input', settingsProfileModified);
+        this.elements.speedSmoothToggle.addEventListener('click', settingsProfileModified);
         this.elements.colorEncoderToggle.addEventListener('click', settingsProfileModified);
         this.elements.colorLetterCount.addEventListener('input', settingsProfileModified);
         this.elements.dumpColors.addEventListener('click', settingsProfileModified);
@@ -2180,8 +2194,8 @@
         this.elements.letterFalseSelect.addEventListener('input', settingsProfileModified);
         this.elements.letterEliminationSelect.addEventListener('input', settingsProfileModified);
         this.elements.wordSkipSelect.addEventListener('input', settingsProfileModified);
-        this.elements.wordShuffleSelect.addEventListener('chinputange', settingsProfileModified);
-        this.elements.wordFalseSelect.addEventListener('chinputange', settingsProfileModified);
+        this.elements.wordShuffleSelect.addEventListener('input', settingsProfileModified);
+        this.elements.wordFalseSelect.addEventListener('input', settingsProfileModified);
         this.elements.rotatingSelect.addEventListener('input', settingsProfileModified);
         this.elements.rotNToggle.addEventListener('click', settingsProfileModified);
         this.elements.rotNLanguageSelect.addEventListener('input', settingsProfileModified);
@@ -2361,7 +2375,8 @@
             } else {
               currentReader.lastSavedPosition = null;
             }
-            setInterval(() => currentReader.savePosition(), currentReader.lastSavedPositionUpdateDelay);
+            setTimeout(() => currentReader.savePosition(), currentReader.lastSavedPositionUpdateDelay);
+            setTimeout(() => currentReader.updateAnimationInfo(), currentReader.animationInfoUpdateDelay);
           });
         });
       },
@@ -2655,9 +2670,10 @@
         const startPos = containerWidth;
         const endPos = -textWidth;
         const speed = parseInt(this.elements.speedNumber.value || 0);
+        const speedSmooth = this.elements.speedSmoothToggle.checked;
 
-        const stepSize = speed > 80 ? (1 + (speed - 80) / 15) : 1;
-        const stepDelay = speed > 20 ? Math.max(10, 110 - speed) : (Math.max(10, 110 - speed) + 10 * (20 - speed));
+        const stepSize = 1 + (speed > 200 ? (speed - 200) / (speedSmooth ? 20 : 100) : 0);
+        const stepDelay = Math.max(1, 202 - Math.min(200, speed) - (speedSmooth)) + (speed < 20 ? 10 * (20 - speed) : 0);
 
         this.animationStartTime = Date.now();
         this.lastUpdateTime = this.animationStartTime;
@@ -2674,17 +2690,14 @@
 
         const animate = () => {
           const newLastUpdateTime = Date.now();
-          const step = Math.max(stepSize, (newLastUpdateTime - this.lastUpdateTime) / (stepDelay / stepSize));
+          const step = speedSmooth ? stepSize : Math.max(stepSize, (newLastUpdateTime - this.lastUpdateTime) / (stepDelay / stepSize));
           const newPosition = this.currentPosition - step;
           this.lastSavedPosition = newPosition;
           const actualStepDelay = Math.floor((this.lastUpdateTime - this.animationStartTime) / Math.max(1e-9, this.previousPosition - newPosition) * 10) / 10;
-          const secondsRemaining = Math.floor(actualStepDelay * (newPosition - endPos) / 1000);
-          this.elements.progressDisplay.innerHTML = this.formatTime(secondsRemaining);
           const totalSeconds = actualStepDelay * (startPos - endPos) / 1000;
-          const wpm = totalSeconds > 0 ? Math.max(1, Math.floor(this.wordCount / (totalSeconds / 60))) : this.wordCount;
-          this.elements.progressDisplay.innerHTML += `<br>WPM: ${wpm}`;
-          const progress = Math.max(0, Math.min(100, Math.floor((newPosition - startPos) * 100 / (endPos - startPos))));
-          this.elements.progressDisplay.innerHTML += `<br>Progress: ${progress}%`;
+          this.infoSecondsRemaining = Math.floor(actualStepDelay * (newPosition - endPos) / 1000);
+          this.infoWPM = totalSeconds > 0 ? Math.max(1, Math.floor(this.wordCount / (totalSeconds / 60))) : this.wordCount;
+          this.infoProgress = Math.max(0, Math.min(100, Math.floor((newPosition - startPos) * 100 / (endPos - startPos))));
           this.lastUpdateTime = newLastUpdateTime;
 
           if (newPosition <= endPos) {
@@ -3774,6 +3787,14 @@
         } else {
           localStorage.removeItem(this.settingsNames.lastPosition);
         }
+        setTimeout(() => this.savePosition(), this.lastSavedPositionUpdateDelay);
+      },
+
+      updateAnimationInfo() {
+        this.elements.progressDisplay.innerHTML = this.formatTime(this.infoSecondsRemaining);
+        this.elements.progressDisplay.innerHTML += `<br>WPM: ${this.infoWPM}`;
+        this.elements.progressDisplay.innerHTML += `<br>Progress: ${this.infoProgress}%`;
+        setTimeout(() => this.updateAnimationInfo(), this.animationInfoUpdateDelay);
       },
 
       updateColor(element) {
@@ -4926,11 +4947,9 @@
             const remainingWords = wordCount - wordIndex;
             const secondsRemaining = wordsPerSecond > 0 ? (remainingWords / wordsPerSecond) : 0;
 
-            currentReader.elements.progressDisplay.innerHTML = currentReader.formatTime(secondsRemaining);
-            const wpm = elapsedTime > 0 ? Math.floor(wordIndex / (elapsedTime / 60)) : wordCount;
-            currentReader.elements.progressDisplay.innerHTML += `<br>WPM: ${wpm}`;
-            const progress = Math.max(0, Math.min(100, Math.floor((currentReader.currentPosition - startPos) * 100 / (endPos - startPos))));
-            currentReader.elements.progressDisplay.innerHTML += `<br>Progress: ${progress}%`;
+            currentReader.infoSecondsRemaining = secondsRemaining;
+            currentReader.infoWPM = elapsedTime > 0 ? Math.floor(wordIndex / (elapsedTime / 60)) : wordCount;
+            currentReader.infoProgress = Math.max(0, Math.min(100, Math.floor((currentReader.currentPosition - startPos) * 100 / (endPos - startPos))));
 
             if (!markAdded) {
               currentReader.elements.progressBarContainer.appendChild(mark);
@@ -4953,11 +4972,9 @@
           const remainingWords = wordCount - (wordCount - 1);
           const secondsRemaining = wordsPerSecond > 0 ? (remainingWords / wordsPerSecond) : 0;
 
-          currentReader.elements.progressDisplay.innerHTML = currentReader.formatTime(secondsRemaining);
-          const wpm = elapsedTime > 0 ? Math.floor((wordCount - 1) / (elapsedTime / 60)) : wordCount;
-          currentReader.elements.progressDisplay.innerHTML += `<br>WPM: ${wpm}`;
-          const progress = Math.max(0, Math.min(100, Math.floor((currentReader.currentPosition - startPos) * 100 / (endPos - startPos))));
-          currentReader.elements.progressDisplay.innerHTML += `<br>Progress: ${progress}%`;
+          currentReader.infoSecondsRemaining = secondsRemaining;
+          currentReader.infoWPM = elapsedTime > 0 ? Math.floor((wordCount - 1) / (elapsedTime / 60)) : wordCount;
+          currentReader.infoProgress = Math.max(0, Math.min(100, Math.floor((currentReader.currentPosition - startPos) * 100 / (endPos - startPos))));
 
           if (markAdded) {
             mark.remove();
