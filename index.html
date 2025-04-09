@@ -34,9 +34,9 @@
       --red-button-hover: rgb(180, 25, 46);
       --cyan-button-background: rgb(11, 166, 197);
       --cyan-button-hover: rgb(9, 130, 153);
-      --gray-button-background: rgb(200, 200, 200);
+      --gray-button-background: rgb(190, 190, 190);
       --gray-button-text: rgb(0, 0, 0);
-      --gray-button-hover: rgb(210, 210, 210);
+      --gray-button-hover: rgb(200, 200, 200);
       --gray-button-disabled-background: rgb(230, 230, 230);
       --gray-button-disabled-text: rgb(173, 173, 173);
       --blue-button-background: rgb(13, 110, 253);
@@ -84,9 +84,16 @@
     }
 
     hr {
-      background-color: var(--border-color-inv);
       height: 1px;
       border: 0;
+    }
+
+    body.light hr {
+      background-color: rgb(200, 200, 200);
+    }
+
+    body.dark hr {
+      background-color: rgb(90, 90, 90);
     }
 
     select,
@@ -95,7 +102,7 @@
       text-align: center;
     }
 
-    input[type="checkbox"] {
+    input[type="checkbox"], input[type="radio"] {
       transform: scale(1.3);
       padding-left: 3px;
     }
@@ -245,11 +252,19 @@
       background-color: var(--blue-button-hover);
     }
 
-    .dark-button {
+    body.light .dark-button {
+      background-color: var(--gray-button-background);
+    }
+
+    body.light .dark-button:hover {
+      background-color: var(--gray-button-hover);
+    }
+
+    body.dark .dark-button {
       background-color: var(--dark-button-background);
     }
 
-    .dark-button:hover {
+    body.dark .dark-button:hover {
       background-color: var(--dark-button-hover);
     }
 
@@ -372,7 +387,7 @@
     }
 
     body.light .with-rounded-border {
-      border-color: rgb(230, 230, 230);
+      border-color: rgb(200, 200, 200);
     }
 
     body.light .with-rounded-border.active {
@@ -522,6 +537,7 @@
       box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
       direction: ltr;
       background-color: var(--container-background);
+      overflow: clip;
     }
 
     #marquee-display {
@@ -529,6 +545,7 @@
       white-space: nowrap;
       line-height: 60px;
       text-align: right;
+      overflow: clip;
     }
 
     #settings-profile-select, #text-select {
@@ -550,6 +567,7 @@
 
     .marquee-letter-span[onclick], .marquee-word-span[onclick] {
       cursor: pointer;
+      overflow: clip;
     }
 
     .marquee-word-span {
@@ -779,6 +797,7 @@
           <button id="new-settings-profile-button" class="green-button">New</button>
           <button id="duplicate-settings-profile-button" class="dark-cyan-button">Duplicate</button>
           <button id="save-settings-profile-button" class="blue-button">Save</button>
+          <button id="reset-settings-profile-button" class="dark-button">Reset</button>
           <button id="delete-settings-profile-button" class="dark-button">Delete</button>
         </div>
         <hr>
@@ -799,8 +818,8 @@
         <div>
           <label for="speed-number"><span>Speed <kbd>+</kbd><kbd>-</kbd></span></label>
           <input type="range" id="speed-slider" min="1" max="300" value="100">
-          <input type="number" id="speed-number" min="1" max="300" value="100">
-          <label><input type="checkbox" id="speed-smooth-toggle"> Smooth (but slower & not portable)</label>
+          <input type="number" id="speed-number" min="1" max="500" value="100">
+          <label><input type="checkbox" id="speed-smooth-toggle"> Smooth (platform-dependent)</label>
         </div>
         <hr>
         <div>
@@ -874,7 +893,7 @@
           </label>
         </div>
         <div id="rot-n-div" class="mt-10 with-rounded-border">
-          <label><input type="checkbox" id="rot-n-toggle"> ROT(n)</label>
+          <label><input type="checkbox" id="rot-n-toggle"> ROT-N</label>
           <div id="rot-n-options" class="mt-10">
             <div>
               <label>
@@ -976,6 +995,17 @@
         </div>
         <div>
           <label>
+            <span>Marquee theme:</span>
+            <select id="marquee-theme-select">
+              <option value="marquee-theme-1">Theme 1</option>
+              <option value="marquee-theme-2">Theme 2</option>
+              <option value="marquee-theme-3">Theme 3</option>
+              <option value="marquee-theme-4">Theme 4</option>
+            </select>
+          </label>
+        </div>
+        <div>
+          <label>
             <span>Rotating:</span>
             <select id="rotating-select">
               <option value="no">-</option>
@@ -1028,7 +1058,7 @@
             <div>
               <label>
                 <span>Number of mappings:</span>
-                <input type="number" id="color-letter-count" min="0" max="32" value="1">
+                <input type="number" id="color-letter-count" min="0" max="100" value="1">
               </label>
             </div>
             <button id="dump-colors" class="gray-button">Dump colors</button>
@@ -1072,7 +1102,7 @@
             <div>
               <label>
                 <span>Number of paragraphs:</span>
-                <input type="number" id="sentence-count-input" min="1" max="10000" value="1">
+                <input type="number" id="sentence-count-input" min="1" max="1000" value="1">
               </label>
             </div>
             <div>
@@ -1451,22 +1481,21 @@
           <h3>Appearance</h3>
           <label>
             <input type="checkbox" id="show-color-info-toggle">
-            <span>Show Letters-Colors Info <kbd>ESC</kbd></span>
+            <span>Show Letters-Colors info <kbd>ESC</kbd></span>
           </label>
           <label>
             <input type="checkbox" id="show-speak-button-toggle">
             <span>Show Speak button</span>
           </label>
           <label>
-            <input type="checkbox" id="show-bookmarks-button-toggle">
-            <span>Show Bookmarks button</span>
-          </label>
-          <label>
             <input type="checkbox" id="show-search-button-toggle">
             <span>Show Search button</span>
           </label>
+          <label>
+            <input type="checkbox" id="show-bookmarks-button-toggle">
+            <span>Show Bookmarks button</span>
+          </label>
           <div>
-            <button id="marquee-theme-toggle" class="cyan-button">Toggle Marquee Text Block Theme</button>
             <button id="theme-toggle" class="cyan-button">Toggle Theme</button>
             <button id="full-size-toggle" class="cyan-button">Toggle Full Size</button>
           </div>
@@ -1501,10 +1530,24 @@
         <div class="with-rounded-border">
           <h3>Import</h3>
           <div>
-            <label>
-              <input type="checkbox" id="import-replace-toggle">
-              <span>Replace current data when provided</span>
-            </label>
+            <div>
+              <label>
+                <input type="radio" name="import-data-replacement" value="add-as-new">
+                <span>Add as new always (no replacement)</span>
+              </label>
+            </div>
+            <div>
+              <label>
+                <input type="radio" name="import-data-replacement" value="append-only">
+                <span>Add only if missing (no replacement)</span>
+              </label>
+            </div>
+            <div>
+              <label>
+                <input type="radio" name="import-data-replacement" value="replace-if-provided">
+                <span>Add and replace existing</span>
+              </label>
+            </div>
           </div>
           <div>
             <button id="import-all-settings-profiles" class="dark-button">Import all settings profiles</button>
@@ -1586,6 +1629,10 @@
       infoSecondsRemaining: '',
       infoWPM: '',
       infoProgress: '',
+      stepSize: 0,
+      stepDelay: 0,
+      newStepSize: null,
+      newStepDelay: null,
 
       elements: {},
       controllerForUnload: null,
@@ -1593,6 +1640,7 @@
       databaseName: 'TrialAndErrorReadingDB',
       databaseVersion: 2,
       database: null,
+      defaultTextUpperLimit: 2000000,
       defaultTextName: 'Default',
       currentTextName: 'Default',
       currentTextBookmarks: [],
@@ -1636,6 +1684,12 @@
       sentenceCounter: 0,
       sentenceHash: 0,
       sentenceDownloadDelay: 1050,
+
+      importDataReplacementVariants: {
+        addAsNew: 'add-as-new',
+        appendOnly: 'append-only',
+        replaceIfProvided: 'replace-if-provided',
+      },
 
       themes: [
         'dark',
@@ -1690,18 +1744,18 @@
         skewingNumberMin: 'sle_skewing_number_min',
         skewingNumberMax: 'sle_skewing_number_max',
         textSize: 'sle_text_size',
+        marqueeTheme: 'sle_marquee_theme',
 
         /* non-profile settings */
         showColorInfoToggle: 'sle_show_color_info_toggle',
         appendTextToggle: 'sle_append_text_toggle',
-        importReplaceToggle: 'sle_import_replace_toggle',
+        importDataReplacement: 'sle_import_data_replacement',
         fasterTransitionsToggle: 'sle_faster_transitions_toggle',
         exportTextsWithBookmarksToggle: 'sle_export_texts_with_bookmarks_toggle',
         sentenceCountToGenerate: 'sle_sentence_count_to_generate',
         wikiLang: 'sle_wiki_lang',
         loop: 'sle_loop',
         theme: 'sle_theme',
-        marqueeThemeToggle: 'sle_marquee_theme_toggle',
         appSizeToggle: 'sle_app_size_toggle',
         activeTab: 'sle_active_tab',
         lastPosition: 'sle_last_position',
@@ -1711,6 +1765,7 @@
         voice: 'sle_voice',
         voiceSpeechRate: 'sle_voice_speech_rate',
         voiceSpeechPitch: 'sle_voice_speech_pitch',
+        voiceSpeechVolume: 'sle_voice_speech_volume',
 
         /* search */
         searchButton: 'sle_search_button',
@@ -1743,6 +1798,7 @@
         settings[this.settingsNames.skewingNumberMin] = '1';
         settings[this.settingsNames.skewingNumberMax] = '10';
         settings[this.settingsNames.textSize] = '42';
+        settings[this.settingsNames.marqueeTheme] = 'marquee-theme-1';
         return settings;
       },
 
@@ -1770,6 +1826,7 @@
         settings[this.settingsNames.skewingNumberMin] = this.elements.skewingNumberMin.value;
         settings[this.settingsNames.skewingNumberMax] = this.elements.skewingNumberMax.value;
         settings[this.settingsNames.textSize] = this.elements.fontSizeNumber.value;
+        settings[this.settingsNames.marqueeTheme] = this.elements.marqueeThemeSelect.value;
         return settings;
       },
 
@@ -1843,9 +1900,17 @@
         currentKey = this.settingsNames.textSize;
         this.elements.fontSizeNumber.value = keys.includes(currentKey) ? settingsProfileData[currentKey] : defaultSettings[currentKey];
 
+        currentKey = this.settingsNames.marqueeTheme;
+        this.elements.marqueeThemeSelect.value = keys.includes(currentKey) ? settingsProfileData[currentKey] : defaultSettings[currentKey];
+
         this.adjustSpeed(this.elements.speedNumber.value);
         this.adjustFontSize(this.elements.fontSizeNumber.value);
-        this.toggleColorEncoder();
+        this.toggleRotN();
+        this.toggleRotNLanguageInfo();
+        this.toggleSkewing();
+        this.toggleMarqueeTheme();
+        this.toggleColorEncoder(this.currentPosition != null);
+        this.toggleColorDetails();
       },
 
       initialize() {
@@ -1932,7 +1997,6 @@
         this.elements.copyMarqueeText = document.getElementById('copy-marquee-text');
         this.elements.copyCurrentText = document.getElementById('copy-current-text');
         this.elements.textHelper = document.getElementById('text-helper');
-        this.elements.marqueeThemeToggle = document.getElementById('marquee-theme-toggle');
         this.elements.loopToggle = document.getElementById('loop-toggle');
         this.elements.fontSizeSlider = document.getElementById('font-size-slider');
         this.elements.fontSizeNumber = document.getElementById('font-size-number');
@@ -1953,6 +2017,7 @@
         this.elements.duplicateSettingsProfileButton = document.getElementById('duplicate-settings-profile-button');
         this.elements.deleteSettingsProfileButton = document.getElementById('delete-settings-profile-button');
         this.elements.saveSettingsProfileButton = document.getElementById('save-settings-profile-button');
+        this.elements.resetSettingsProfileButton = document.getElementById('reset-settings-profile-button');
         this.elements.textToSpeechContainer = document.getElementById('text-to-speech-container');
         this.elements.showSpeakButtonToggle = document.getElementById('show-speak-button-toggle');
         this.elements.showBookmarksButtonToggle = document.getElementById('show-bookmarks-button-toggle');
@@ -1989,7 +2054,7 @@
         this.elements.bookmarksList = document.getElementById("bookmarks-list");
         this.elements.saveBookmarksButton = document.getElementById("save-bookmarks-button");
         this.elements.cancelBookmarksButton = document.getElementById("cancel-bookmarks-button");
-        this.elements.importReplaceToggle = document.getElementById("import-replace-toggle");
+        this.elements.importDataReplacement = Array.from(document.getElementsByName("import-data-replacement"));
         this.elements.fasterTransitionsToggle = document.getElementById("faster-transitions-toggle");
         this.elements.rotNToggle = document.getElementById('rot-n-toggle');
         this.elements.rotNOptions = document.getElementById('rot-n-options');
@@ -2007,6 +2072,7 @@
         this.elements.onlyTextColoringToggle = document.getElementById('only-text-coloring-toggle');
         this.elements.hiddenContent1 = document.getElementById('hidden-content-1');
         this.elements.randomParagraphsCaption = document.getElementById('random-paragraphs-caption');
+        this.elements.marqueeThemeSelect = document.getElementById('marquee-theme-select');
 
         this.cachedContainerWidth = null;
         this.cachedTextWidth = null;
@@ -2083,12 +2149,16 @@
         this.elements.playPauseButton.addEventListener('click', () => this.togglePlayback());
         this.elements.stopButton.addEventListener('click', () => this.stopPlayback());
         this.elements.themeToggle.addEventListener('click', () => this.switchTheme());
-        this.elements.marqueeThemeToggle.addEventListener('click', () => this.switchMarqueeTheme());
         this.elements.fullSizeToggle.addEventListener('click', () => this.toggleFullSize());
         this.elements.deleteAllSettingsProfiles.addEventListener('click', () => this.deleteAllSettingsProfiles());
         this.elements.deleteAllTexts.addEventListener('click', () => this.deleteAllTexts());
         this.elements.deleteAllData.addEventListener('click', () => this.deleteAllData());
-        this.elements.clearTextButton.addEventListener('click', () => this.clearInput());
+        this.elements.clearTextButton.addEventListener('click', () => {
+          if (!confirm('Are you sure you want to clear the current text?')) {
+            return;
+          }
+          currentReader.clearInput();
+        });
         this.elements.loadSentenceWordsmythBeginner.addEventListener('click', () => this.fetchSentenceWordsmythBeginner());
         this.elements.loadSentenceWordsmythIntermediate.addEventListener('click', () => this.fetchSentenceWordsmythIntermediate());
         this.elements.loadSentenceWordsmythAdvanced.addEventListener('click', () => this.fetchSentenceWordsmythAdvanced());
@@ -2099,7 +2169,7 @@
         this.elements.loadFile.addEventListener('click', () => this.loadFromFile());
         this.elements.randomizeParagraphs.addEventListener('click', () => this.randomizeParagraphs());
         this.elements.randomizeSentences.addEventListener('click', () => this.randomizeSentences());
-        this.elements.colorEncoderToggle.addEventListener('click', () => this.toggleColorEncoder());
+        this.elements.colorEncoderToggle.addEventListener('click', () => this.toggleColorEncoder(false));
         this.elements.dumpColors.addEventListener('click', () => this.dumpColorMap());
         this.elements.showColorInfoToggle.addEventListener('click', () => this.toggleColorDetails());
         this.elements.appendTextToggle.addEventListener('click', () => this.toggleAppendText());
@@ -2126,6 +2196,12 @@
         this.elements.duplicateSettingsProfileButton.addEventListener('click', () => this.duplicateSettingsProfile());
         this.elements.deleteSettingsProfileButton.addEventListener('click', () => this.deleteCurrentSettingsProfile());
         this.elements.saveSettingsProfileButton.addEventListener('click', () => this.saveCurrentSettingsProfile());
+        this.elements.resetSettingsProfileButton.addEventListener('click', () => {
+          if (!confirm('Are you sure you want to reset the current settings profile?')) {
+            return;
+          }
+          currentReader.resetCurrentSettingsProfile();
+        });
         this.elements.showSpeakButtonToggle.addEventListener('click', () => this.toggleSpeechButton());
         this.elements.showBookmarksButtonToggle.addEventListener('click', () => this.toggleBookmarksButton());
         this.elements.showSearchButtonToggle.addEventListener('click', () => this.toggleSearchButton());
@@ -2159,7 +2235,7 @@
           }
           currentReader.toggleBookmarks();
         });
-        this.elements.importReplaceToggle.addEventListener('click', () => this.toggleImportReplace());
+        this.elements.importDataReplacement.forEach((elem) => elem.addEventListener('click', () => this.toggleImportReplacement()));
         this.elements.sentenceCountInput.addEventListener('input', () => this.saveSentenceCountToGenerate());
         this.elements.loadWikiLanguageSelect.addEventListener('input', () => this.saveWikiLang());
         this.elements.fasterTransitionsToggle.addEventListener('click', () => this.toggleFasterTransitions());
@@ -2169,6 +2245,7 @@
         this.elements.rotNNumber.addEventListener('input', () => this.toggleRotNLanguageInfo());
         this.elements.skewingToggle.addEventListener('click', () => this.toggleSkewing());
         this.elements.randomParagraphsCaption.addEventListener('click', () => this.showHiddenContent1());
+        this.elements.marqueeThemeSelect.addEventListener('input', () => this.toggleMarqueeTheme());
 
         this.controlBeforeUnload();
 
@@ -2205,6 +2282,7 @@
         this.elements.skewingNumberMin.addEventListener('input', settingsProfileModified);
         this.elements.skewingNumberMax.addEventListener('input', settingsProfileModified);
         this.elements.onlyTextColoringToggle.addEventListener('click', settingsProfileModified);
+        this.elements.marqueeThemeSelect.addEventListener('input', settingsProfileModified);
 
         document.addEventListener('keydown', e => this.handleKeyPress(e));
         window.addEventListener('resize', () => {
@@ -2298,10 +2376,8 @@
         this.elements.refreshText.disabled = true;
         this.elements.refreshColors.disabled = true;
         this.elements.copyMarqueeText.disabled = true;
-        const marqueeThemeToggle = localStorage.getItem(this.settingsNames.marqueeThemeToggle) || this.marqueeThemes[0];
-        this.elements.body.classList.add(marqueeThemeToggle);
-        this.elements.marqueeThemeToggle.innerHTML += ` [${marqueeThemeToggle.slice(-1)}]`;
         this.elements.appendTextToggle.checked = localStorage.getItem(this.settingsNames.appendTextToggle) !== 'false';
+        this.toggleAppendText();
         this.elements.showColorInfoToggle.checked = localStorage.getItem(this.settingsNames.showColorInfoToggle) !== 'false';
         this.isLoopEnabled = localStorage.getItem(this.settingsNames.loop) === 'true';
         if (this.isLoopEnabled) this.elements.loopToggle.classList.add('active');
@@ -2312,8 +2388,13 @@
         this.toggleBookmarksButton();
         this.elements.showSearchButtonToggle.checked = localStorage.getItem(this.settingsNames.searchButton) === 'true';
         this.toggleSearchButton();
-        this.elements.importReplaceToggle.checked = localStorage.getItem(this.settingsNames.importReplaceToggle) !== 'false';
-        this.toggleImportReplace();
+        const importDataReplacementValue = localStorage.getItem(this.settingsNames.importDataReplacement) || this.importDataReplacementVariants.replaceIfProvided;
+        this.elements.importDataReplacement.forEach((elem) => {
+          if (elem.value === importDataReplacementValue) {
+            elem.checked = true;
+          }
+        })
+        this.toggleImportReplacement();
         this.elements.sentenceCountInput.value = localStorage.getItem(this.settingsNames.sentenceCountToGenerate) || '1';
         this.saveSentenceCountToGenerate();
         this.elements.loadWikiLanguageSelect.value = localStorage.getItem(this.settingsNames.wikiLang) || 'en';
@@ -2359,19 +2440,11 @@
         const currentReader = this;
         currentReader.switchSettingsProfile(function () {
           currentReader.switchText(function () {
-            currentReader.toggleAppendText();
-            currentReader.toggleRotN();
-            currentReader.toggleRotNLanguageInfo();
-            currentReader.toggleSkewing();
-            currentReader.toggleColorEncoder(false);
-            currentReader.toggleColorDetails();
             currentReader.lastSavedPosition = localStorage.getItem(currentReader.settingsNames.lastPosition);
             if (currentReader.lastSavedPosition && currentReader.elements.textInput.value) {
               currentReader.currentPosition = parseInt(currentReader.lastSavedPosition || 0);
-              setTimeout(() => {
-                currentReader.startAnimation(false, false);
-                currentReader.elements.progressDisplay.style.display = 'none';
-              }, 1);
+              currentReader.elements.playPauseButton.innerHTML = 'Continue <kbd>Space</kbd>';
+              currentReader.elements.playPauseButton.classList.add('pause');
             } else {
               currentReader.lastSavedPosition = null;
             }
@@ -2669,11 +2742,9 @@
         const textWidth = this.cachedTextWidth;
         const startPos = containerWidth;
         const endPos = -textWidth;
-        const speed = parseInt(this.elements.speedNumber.value || 0);
         const speedSmooth = this.elements.speedSmoothToggle.checked;
 
-        const stepSize = 1 + (speed > 200 ? (speed - 200) / (speedSmooth ? 20 : 100) : 0);
-        const stepDelay = Math.max(1, 202 - Math.min(200, speed) - (speedSmooth)) + (speed < 20 ? 10 * (20 - speed) : 0);
+        this.adjustSpeed(null);
 
         this.animationStartTime = Date.now();
         this.lastUpdateTime = this.animationStartTime;
@@ -2690,7 +2761,7 @@
 
         const animate = () => {
           const newLastUpdateTime = Date.now();
-          const step = speedSmooth ? stepSize : Math.max(stepSize, (newLastUpdateTime - this.lastUpdateTime) / (stepDelay / stepSize));
+          const step = speedSmooth ? this.stepSize : Math.max(this.stepSize, (newLastUpdateTime - this.lastUpdateTime) / (this.stepDelay / this.stepSize));
           const newPosition = this.currentPosition - step;
           this.lastSavedPosition = newPosition;
           const actualStepDelay = Math.floor((this.lastUpdateTime - this.animationStartTime) / Math.max(1e-9, this.previousPosition - newPosition) * 10) / 10;
@@ -2700,6 +2771,15 @@
           this.infoProgress = Math.max(0, Math.min(100, Math.floor((newPosition - startPos) * 100 / (endPos - startPos))));
           this.lastUpdateTime = newLastUpdateTime;
 
+          if (this.newStepSize != null) {
+            this.stepSize = this.newStepSize;
+            this.newStepSize = null;
+          }
+          if (this.newStepDelay != null) {
+            this.stepDelay = this.newStepDelay;
+            this.newStepDelay = null;
+          }
+
           if (newPosition <= endPos) {
             if (this.isLoopEnabled) {
               this.animationStartTime = Date.now();
@@ -2708,7 +2788,7 @@
               this.updateProgressBar();
               this.elements.marqueeDisplay.style.left = `${startPos}px`;
               this.lastSavedPosition = null;
-              if (this.animationTimer) this.animationTimer = setTimeout(animate, stepDelay);
+              if (this.animationTimer) this.animationTimer = setTimeout(animate, this.stepDelay);
             } else {
               this.currentPosition = endPos;
               this.previousPosition = this.currentPosition;
@@ -2732,7 +2812,7 @@
             this.elements.marqueeDisplay.style.left = `${newPosition}px`;
             this.currentPosition = newPosition;
             this.updateProgressBar();
-            if (this.animationTimer) this.animationTimer = setTimeout(animate, stepDelay);
+            if (this.animationTimer) this.animationTimer = setTimeout(animate, this.stepDelay);
           }
         };
 
@@ -2753,7 +2833,7 @@
           this.elements.progressDisplay.style.display = '';
           this.elements.tabNavigation.style.display = 'none';
           this.elements.tabContent.style.display = 'none';
-          this.animationTimer = setTimeout(animate, stepDelay);
+          this.animationTimer = setTimeout(animate, this.stepDelay);
         }
         return true;
       },
@@ -3264,13 +3344,14 @@
         localStorage.setItem(this.settingsNames.theme, next);
       },
 
-      switchMarqueeTheme() {
-        const current = this.marqueeThemes.find(theme => this.elements.body.classList.contains(theme));
-        const next = this.marqueeThemes[(this.marqueeThemes.indexOf(current) + 1) % this.marqueeThemes.length] || this.marqueeThemes[0];
+      toggleMarqueeTheme() {
+        const newTheme = this.elements.marqueeThemeSelect.value;
         this.marqueeThemes.forEach(theme => this.elements.body.classList.remove(theme));
-        this.elements.body.classList.add(next);
-        localStorage.setItem(this.settingsNames.marqueeThemeToggle, next);
-        this.elements.marqueeThemeToggle.innerHTML = [...this.elements.marqueeThemeToggle.innerHTML.split(' ').slice(0, -1), `[${next.slice(-1)}]`].join(' ');
+        this.elements.body.classList.add(newTheme);
+        if (this.currentPosition !== null) {
+          this.updateCachedSizes();
+          this.updateProgressBar();
+        }
       },
 
       toggleFullSize() {
@@ -3293,8 +3374,37 @@
         localStorage.setItem(this.settingsNames.loop, this.isLoopEnabled);
       },
 
-      toggleImportReplace() {
-        localStorage.setItem(this.settingsNames.importReplaceToggle, this.elements.importReplaceToggle.checked);
+      toggleImportReplacement() {
+        const importDataReplacementElem = this.elements.importDataReplacement.find((elem) => elem.checked);
+        if (importDataReplacementElem) {
+          localStorage.setItem(this.settingsNames.importDataReplacement, importDataReplacementElem.value);
+        }
+      },
+
+      getImportReplacement() {
+        const importDataReplacementElem = this.elements.importDataReplacement.find((elem) => elem.checked);
+        if (importDataReplacementElem) {
+          return importDataReplacementElem.value;
+        }
+        return this.importDataReplacementVariants.addAsNew;
+      },
+
+      getNextName(currentName, allNames) {
+        const regex = /(?<=[([{])\d+(?=[)\]}]?$)/;
+        let tmpName = currentName;
+        while (allNames.includes(tmpName)) {
+          const match = tmpName.match(regex);
+          if (match) {
+            const number = match ? parseInt(match[0]) : 0;
+            const nextNumber = (number === number) ? number + 1 : 1;
+            const newName = [...tmpName.slice(0, match.index), '' + nextNumber, ...tmpName.slice(match.index + match.length)];
+            tmpName = newName.join('');
+          }
+          else {
+            tmpName += ` (1)`;
+          }
+        }
+        return tmpName;
       },
 
       toggleFasterTransitions() {
@@ -3344,8 +3454,23 @@
       },
 
       adjustSpeed(value) {
-        this.elements.speedSlider.value = value;
-        this.elements.speedNumber.value = value;
+        if (value !== value) {
+          value = 0;
+        }
+        const speed = Math.max(1, parseInt(value || this.elements.speedNumber.value || 0));
+        this.elements.speedSlider.value = speed;
+        this.elements.speedNumber.value = speed;
+        const speedSmooth = this.elements.speedSmoothToggle.checked;
+        const newStepSize = 1 + (speed > 200 ? (speed - 200) / (speedSmooth ? 20 : 100) : 0);
+        const newStepDelay = Math.max(1, 202 - Math.min(200, speed) - (speedSmooth)) + (speed < 20 ? 10 * (20 - speed) : 0);
+        if (this.animationTimer) {
+          this.newStepSize = newStepSize;
+          this.newStepDelay = newStepDelay;
+        }
+        else {
+          this.stepSize = newStepSize;
+          this.stepDelay = newStepDelay;
+        }
       },
 
       rewind() {
@@ -3502,7 +3627,7 @@
         }
       },
 
-      toggleColorEncoder(updateMarqueeTextBlock = true) {
+      toggleColorEncoder(updateMarqueeTextBlock = false) {
         const isVisible = this.elements.colorEncoderToggle.checked;
         this.elements.colorEncoderOptions.style.display = isVisible ? '' : 'none';
         this.elements.colorDetails.style.display = this.elements.showColorInfoToggle.checked && isVisible ? '' : 'none';
@@ -3794,6 +3919,10 @@
         this.elements.progressDisplay.innerHTML = this.formatTime(this.infoSecondsRemaining);
         this.elements.progressDisplay.innerHTML += `<br>WPM: ${this.infoWPM}`;
         this.elements.progressDisplay.innerHTML += `<br>Progress: ${this.infoProgress}%`;
+        if (this.database && this.currentTextName === this.defaultTextName && this.elements.textInput.value.length > this.defaultTextUpperLimit) {
+          this.elements.textInput.value = this.elements.textInput.value.slice(0, this.defaultTextUpperLimit);
+          setTimeout(() => alert(`The Default text cannot contain more than ${this.defaultTextUpperLimit} characters (and is originally intended for fallback in case the database is unavailable). Create a new text for a larger available size.`));
+        }
         setTimeout(() => this.updateAnimationInfo(), this.animationInfoUpdateDelay);
       },
 
@@ -3819,7 +3948,7 @@
           original = original.slice(0, original.length - r[0].length);
         }
         if (original) {
-          alert(`${shuffled} -> ${original}`);
+          alert(`${shuffled} → ${original}`);
         }
         else {
           alert(`${shuffled}`);
@@ -3845,11 +3974,11 @@
           case 'l':
           case 'L': this.toggleLoop(); break;
           case 'e':
-          case 'E': this.elements.colorEncoderToggle.click(); break;
+          case 'E': this.elements.colorEncoderToggle.click(); this.toggleColorEncoder(true); break;
           case 's':
           case 'S': this.stopPlayback(); break;
-          case '+': if (!this.animationTimer) this.elements.speedNumber.value = parseInt(this.elements.speedNumber.value) + 1; this.adjustSpeed(this.elements.speedNumber.value); break;
-          case '-': if (!this.animationTimer) this.elements.speedNumber.value = parseInt(this.elements.speedNumber.value) - 1; this.adjustSpeed(this.elements.speedNumber.value); break;
+          case '+': this.adjustSpeed(parseInt(this.elements.speedNumber.value || 0) + 1); break;
+          case '-': this.adjustSpeed(parseInt(this.elements.speedNumber.value || 0) - 1); break;
           case 't':
           case 'T': this.refreshMarqueeText(); break;
           case 'c':
@@ -4127,6 +4256,7 @@
         const currentReader = this;
         try {
           if (currentReader.currentTextName === currentReader.defaultTextName) {
+            currentReader.elements.textInput.value = currentReader.elements.textInput.value.slice(0, currentReader.defaultTextUpperLimit);
             localStorage.setItem(currentReader.settingsNames.text, currentReader.elements.textInput.value);
             localStorage.setItem(currentReader.settingsNames.textBookmarks, JSON.stringify(currentReader.currentTextBookmarks));
             currentReader.textIsModified = false;
@@ -4148,6 +4278,11 @@
           console.error(err);
           alert(err);
         }
+      },
+
+      resetCurrentSettingsProfile() {
+        this.setSettingsProfile(this.getDefaultSettingsProfile());
+        this.settingsProfileIsModified = true;
       },
 
       deleteCurrentSettingsProfile() {
@@ -4338,13 +4473,23 @@
           const settingsProfiles = JSON.parse(localStorage.getItem(currentReader.settingsNames.settingsProfiles) || '[]');
           if (newSettingsProfiles.length > 0) {
             currentReader.pauseAnimation();
+            const currentReplacement = currentReader.getImportReplacement();
+            const addAsNew = currentReplacement === currentReader.importDataReplacementVariants.addAsNew;
+            const appendOnly = currentReplacement === currentReader.importDataReplacementVariants.appendOnly;
+            const replaceIfProvided = currentReplacement === currentReader.importDataReplacementVariants.replaceIfProvided;
             const transaction = currentReader.database ? currentReader.database.transaction([currentReader.settingsNames.settingsProfiles], 'readwrite') : null;
             const objectStore = currentReader.database ? transaction.objectStore(currentReader.settingsNames.settingsProfiles) : null;
             for (const newSettingsProfile of newSettingsProfiles) {
-              const name = newSettingsProfile['name'];
+              let name = newSettingsProfile['name'];
               const settings = newSettingsProfile['settings'];
+              if (addAsNew) {
+                name = currentReader.getNextName(name, [...settingsProfiles, currentReader.defaultSettingsProfileName]);
+              }
+              else if (!appendOnly && !replaceIfProvided) {
+                continue;
+              }
               if (name === currentReader.defaultSettingsProfileName) {
-                if (currentReader.elements.importReplaceToggle.checked) {
+                if (replaceIfProvided) {
                   localStorage.setItem(currentReader.settingsNames.settingsProfile, settings);
                 }
               }
@@ -4354,7 +4499,7 @@
                   settingsProfiles.push(name);
                 }
                 const data = { name: name, settings: settings };
-                if (currentReader.elements.importReplaceToggle.checked) {
+                if (replaceIfProvided) {
                   objectStore.put(data);
                 }
                 else if (!included) {
@@ -4441,14 +4586,24 @@
           const texts = JSON.parse(localStorage.getItem(currentReader.settingsNames.texts) || '[]');
           if (newTexts.length > 0) {
             currentReader.stopPlayback(true);
+            const currentReplacement = currentReader.getImportReplacement();
+            const addAsNew = currentReplacement === currentReader.importDataReplacementVariants.addAsNew;
+            const appendOnly = currentReplacement === currentReader.importDataReplacementVariants.appendOnly;
+            const replaceIfProvided = currentReplacement === currentReader.importDataReplacementVariants.replaceIfProvided;
             const transaction = currentReader.database ? currentReader.database.transaction([currentReader.settingsNames.texts], 'readwrite') : null;
             const objectStore = currentReader.database ? transaction.objectStore(currentReader.settingsNames.texts) : null;
             for (const newText of newTexts) {
-              const title = newText['title'];
+              let title = newText['title'];
               const content = newText['content'];
               const bookmarks = newText['bookmarks'];
+              if (addAsNew) {
+                title = currentReader.getNextName(title, [...texts, currentReader.defaultTextName]);
+              }
+              else if (!appendOnly && !replaceIfProvided) {
+                continue;
+              }
               if (title === currentReader.defaultTextName) {
-                if (currentReader.elements.importReplaceToggle.checked) {
+                if (replaceIfProvided) {
                   localStorage.setItem(currentReader.settingsNames.text, content);
                   localStorage.setItem(currentReader.settingsNames.textBookmarks, bookmarks);
                   if (currentReader.currentTextName === currentReader.defaultTextName) {
@@ -4468,7 +4623,7 @@
                   bookmarks: bookmarks,
                 };
                 let changed = false;
-                if (currentReader.elements.importReplaceToggle.checked) {
+                if (replaceIfProvided) {
                   objectStore.put(data);
                   changed = true;
                 }
@@ -4587,10 +4742,11 @@
 
       importAll() {
         const currentReader = this;
+        const currentReplacement = currentReader.getImportReplacement();
+        const addAsNew = currentReplacement === currentReader.importDataReplacementVariants.addAsNew;
+        const appendOnly = currentReplacement === currentReader.importDataReplacementVariants.appendOnly;
+        const replaceIfProvided = currentReplacement === currentReader.importDataReplacementVariants.replaceIfProvided;
         currentReader.importAllSettingsProfilesAndTexts((jsonParsed) => {
-          if (!currentReader.elements.importReplaceToggle.checked) {
-            return;
-          }
           for (const [k, v] of Object.entries(jsonParsed)) {
             if (k == null || v == null) {
               continue;
@@ -4602,7 +4758,10 @@
               k !== currentReader.settingsNames.settingsProfiles &&
               k !== currentReader.settingsNames.settingsProfile
             ) {
-              localStorage.setItem(k, v);
+              const included = (localStorage.getItem(k) || null) == null;
+              if (replaceIfProvided || !included && (addAsNew || appendOnly)) {
+                localStorage.setItem(k, v);
+              }
             }
           }
           currentReader.locationReload();
