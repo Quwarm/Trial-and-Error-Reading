@@ -1094,8 +1094,8 @@
             </label>
           </div>
           <div>
-            <button id="randomize-paragraphs" class="dark-button">Randomize paragraphs</button>
-            <button id="randomize-sentences" class="dark-button">Randomize sentences</button>
+            <button id="randomize-paragraphs" class="dark-button">Shuffle paragraphs</button>
+            <button id="randomize-sentences" class="dark-button">Shuffle sentences</button>
           </div>
           <div class="with-rounded-border">
             <h3 id="random-paragraphs-caption">Random paragraphs</h3>
@@ -1608,8 +1608,10 @@
     const MarqueeReader = {
       constructed: false,
 
+      fromContinue: false,
       animationTimer: null,
       currentPosition: null,
+      targetWordIndex: null,
       animationStartTime: null,
       lastUpdateTime: null,
       colorMap: new Map(),
@@ -1645,7 +1647,7 @@
       currentTextName: 'Default',
       currentTextBookmarks: [],
       textIsModified: false,
-      textsLastProgress: {},
+      textsLastPositions: {},
       defaultSettingsProfileName: 'Default',
       currentSettingsProfileName: 'Default',
       settingsProfileIsModified: false,
@@ -1686,6 +1688,8 @@
       sentenceHash: 0,
       sentenceDownloadDelay: 1050,
 
+      newWordMark: 'wmrk',
+
       importDataReplacementVariants: {
         addAsNew: 'add-as-new',
         appendOnly: 'append-only',
@@ -1716,7 +1720,7 @@
         text: 'sle_text',
         textBookmarks: 'sle_text_bookmarks',
         texts: 'sle_texts',
-        textsLastProgress: 'sle_texts_last_progress',
+        textsLastPositions: 'sle_texts_last_positions',
 
         /* settings profiles */
         currentSettingsProfile: 'sle_current_settings_profile',
@@ -2419,7 +2423,7 @@
           this.adjustSpeechPitch(voiceSpeechPitch);
         }
 
-        this.textsLastProgress = JSON.parse(localStorage.getItem(this.settingsNames.textsLastProgress) || '{}');
+        this.textsLastPositions = JSON.parse(localStorage.getItem(this.settingsNames.textsLastPositions) || '{}');
 
         const currentTextName = localStorage.getItem(this.settingsNames.currentTextName) || this.defaultTextName;
         const texts = JSON.parse(localStorage.getItem(this.settingsNames.texts) || '[]');
@@ -2507,7 +2511,7 @@
         this.elements.progressDisplay.style.display = 'none';
         this.elements.tabNavigation.style.display = '';
         this.elements.tabContent.style.display = '';
-        if (fully && this.previousText !== null) {
+        if (fully) {
           this.animationStartTime = null;
           this.currentPosition = null;
           this.previousText = '';
@@ -2518,10 +2522,16 @@
           this.elements.refreshColors.disabled = true;
           this.elements.copyMarqueeText.disabled = true;
         }
-        this.savePosition();
+        else {
+          this.savePosition();
+        }
       },
 
       startAnimation(resume = false, movement = true) {
+        if (this.fromContinue) {
+          movement = false;
+          this.fromContinue = false;
+        }
         let htmlValue = this.elements.textInput.value.replace(/\s+/g, ' ').trim();
         htmlValue = htmlValue.replace(/\p{Z}+/ug, ' ');
         htmlValue = htmlValue.replace(/\p{C}+/ug, '');
@@ -2541,6 +2551,7 @@
         let palleteChanged = false;
         const currentSettings = this.getCurrentSettingsProfile();
         const onlyColoring = currentSettings[this.settingsNames.colorTaskOnlyColoring];
+        const previousRect = this.getScreenRectByWordIndex(this.targetWordIndex);
 
         if (!resume && this.elements.colorEncoderToggle.checked) {
           palleteChanged = true;
@@ -2736,6 +2747,7 @@
           this.updateCachedSizes();
         }
 
+        const currentRect = this.getScreenRectByWordIndex(this.targetWordIndex);
         const containerWidth = this.cachedContainerWidth;
         const textWidth = this.cachedTextWidth;
         const startPos = containerWidth;
@@ -2746,6 +2758,9 @@
 
         this.animationStartTime = Date.now();
         this.lastUpdateTime = this.animationStartTime;
+        if (this.targetWordIndex != null && JSON.stringify(previousRect) !== JSON.stringify(currentRect)) {
+          this.currentPosition = this.getPositionByWordIndex(this.targetWordIndex);
+        }
         if (this.currentPosition == null || this.currentPosition <= endPos) this.currentPosition = startPos;
         this.elements.marqueeDisplay.style.left = `${this.currentPosition}px`;
 
@@ -2801,8 +2816,8 @@
               this.elements.tabContent.style.display = '';
             }
           } else {
-            this.elements.marqueeDisplay.style.left = `${newPosition}px`;
             this.currentPosition = newPosition;
+            this.elements.marqueeDisplay.style.left = `${this.currentPosition}px`;
             if (this.animationTimer) this.animationTimer = setTimeout(animate, this.stepDelay);
           }
         };
@@ -3110,16 +3125,17 @@
               newStyles.push(wordSkewSetting);
             }
 
+            const newWordMark = (processedRefWords[i] || word).startsWith('- ') ? ` ${this.newWordMark}` : '';
             const newClassesString = newClasses.join(' ');
             const newStyleString = newStyles.length ? ` style="${newStyles.join(';')}"` : '';
             return (wordHint2 && modifiedWord !== (processedRefWords[i] || word))
               ? (finalWord !== modifiedWord
-                ? `<span class="marquee-word-span${newClassesString}"${newStyleString} onclick="MarqueeReader.showWordHint('${escapeString(modifiedWord)}', '${escapeString(processedRefWords[i] || word)}')">${finalWord}</span>`
-                : `<span class="marquee-word-span${newClassesString}"${newStyleString} onclick="MarqueeReader.showWordHint(this, '${escapeString(processedRefWords[i] || word)}')">${finalWord}</span>`
+                ? `<span class="marquee-word-span${newWordMark}${newClassesString}"${newStyleString} onclick="MarqueeReader.showWordHint('${escapeString(modifiedWord)}', '${escapeString(processedRefWords[i] || word)}')">${finalWord}</span>`
+                : `<span class="marquee-word-span${newWordMark}${newClassesString}"${newStyleString} onclick="MarqueeReader.showWordHint(this, '${escapeString(processedRefWords[i] || word)}')">${finalWord}</span>`
               )
               : ((wordHint1 && finalWord !== (processedRefWords[i] || word))
-                 ? `<span class="marquee-word-span${newClassesString}"${newStyleString} onclick="MarqueeReader.showWordHint('${escapeString(processedRefWords[i] || word)}')">${finalWord}</span>`
-                 : `<span class="marquee-word-span${newClassesString}"${newStyleString}>${finalWord}</span>`);
+                 ? `<span class="marquee-word-span${newWordMark}${newClassesString}"${newStyleString} onclick="MarqueeReader.showWordHint('${escapeString(processedRefWords[i] || word)}')">${finalWord}</span>`
+                 : `<span class="marquee-word-span${newWordMark}${newClassesString}"${newStyleString}>${finalWord}</span>`);
           }).join(' ');
         }).join('\n');
       },
@@ -3332,12 +3348,16 @@
       },
 
       toggleMarqueeTheme() {
+        if (this.targetWordIndex == null) {
+          this.targetWordIndex = this.getFirstVisibleWordIndex();
+        }
         const newTheme = this.elements.marqueeThemeSelect.value;
         this.marqueeThemes.forEach(theme => this.elements.body.classList.remove(theme));
         this.elements.body.classList.add(newTheme);
-        if (this.currentPosition !== null) {
-          this.updateCachedSizes();
-          this.savePosition();
+        this.updateCachedSizes();
+        if (this.targetWordIndex != null) {
+          this.currentPosition = this.getPositionByWordIndex(this.targetWordIndex);
+          this.elements.marqueeDisplay.style.left = `${this.currentPosition}px`;
         }
       },
 
@@ -3435,9 +3455,17 @@
       },
 
       adjustFontSize(value) {
+        if (this.targetWordIndex == null) {
+          this.targetWordIndex = this.getFirstVisibleWordIndex();
+        }
         this.elements.fontSizeSlider.value = value;
         this.elements.fontSizeNumber.value = value;
         this.elements.marqueeDisplay.style.fontSize = `${value}px`;
+        this.updateCachedSizes();
+        if (this.targetWordIndex != null) {
+          this.currentPosition = this.getPositionByWordIndex(this.targetWordIndex);
+          this.elements.marqueeDisplay.style.left = `${this.currentPosition}px`;
+        }
       },
 
       adjustSpeed(value) {
@@ -3842,6 +3870,7 @@
         const paragraphs = text.split('\n').filter(p => p.trim());
         currentReader.shuffleArray(paragraphs);
         this.elements.textInput.value = paragraphs.join('\n\n');
+        this.textIsModified = true;
       },
 
       randomizeSentences() {
@@ -3887,6 +3916,7 @@
           return sentences.join(' ');
         });
         this.elements.textInput.value = processedParagraphs.join('\n\n');
+        this.textIsModified = true;
       },
 
       getProgressByPosition(position = null) {
@@ -3917,6 +3947,59 @@
         return Math.max(endPos, Math.min(startPos, positionPercent * (endPos - startPos) / 100 + startPos));
       },
 
+      getFirstVisibleWordIndex() {
+        const cachedContainerWidth = this.cachedContainerWidth;
+        if (cachedContainerWidth == null) {
+          return null;
+        }
+        let wordIndex = 0, targetWordIndex = -1;
+        for (const elem of document.querySelectorAll('.marquee-word-span')) {
+          if (elem.classList.contains(this.newWordMark)) {
+            continue;
+          }
+          const rect = elem.getBoundingClientRect();
+          const position = rect.x + rect.width / 2;
+          if (0 <= position && position < cachedContainerWidth) {
+            targetWordIndex = wordIndex;
+            break;
+          }
+          wordIndex += 1;
+        }
+        return targetWordIndex !== -1 ? targetWordIndex : null;
+      },
+
+      getScreenRectByWordIndex(targetWordIndex) {
+        let wordIndex = 0;
+        for (const elem of document.querySelectorAll('.marquee-word-span')) {
+          if (elem.classList.contains(this.newWordMark)) {
+            continue;
+          }
+          if (wordIndex === targetWordIndex) {
+            return elem.getBoundingClientRect();
+          }
+          wordIndex += 1;
+        }
+        return null;
+      },
+
+      getPositionByWordIndex(targetWordIndex) {
+        if (targetWordIndex == null) {
+          return null;
+        }
+        let wordIndex = 0;
+        for (const elem of document.querySelectorAll('.marquee-word-span')) {
+          if (elem.classList.contains(this.newWordMark)) {
+            continue;
+          }
+          const position = elem.offsetLeft;
+          if (wordIndex === targetWordIndex) {
+            return -position;
+          }
+          wordIndex += 1;
+        }
+        return null;
+      },
+
       savePosition() {
         if (!this.constructed) {
           return;
@@ -3937,7 +4020,11 @@
             this.elements.playPauseButton.innerHTML = 'Pause';
             this.elements.playPauseButton.classList.add('pause');
           }
-          // this.textsLastProgress[currentTextName] = this.getProgressByPosition();
+          this.targetWordIndex = this.getFirstVisibleWordIndex() || this.targetWordIndex;
+          this.textsLastPositions[currentTextName] = {
+            position: lastPosition,
+            wordIndex: this.targetWordIndex
+          };
         } else {
           if (animationTimer == null) {
             this.elements.playPauseButton.innerHTML = 'Play <kbd>Space</kbd>';
@@ -3948,8 +4035,21 @@
             this.elements.playPauseButton.classList.add('pause');
           }
           localStorage.removeItem(this.settingsNames.lastPosition);
+          delete this.textsLastPositions[currentTextName];
+          this.targetWordIndex = null;
         }
-        // localStorage.setItem(this.settingsNames.textsLastProgress, JSON.stringify(this.textsLastProgress));
+        localStorage.setItem(this.settingsNames.textsLastPositions, JSON.stringify(this.textsLastPositions));
+      },
+
+      reloadPosition() {
+        const currentTextName = this.currentTextName;
+        this.cachedContainerWidth = null;
+        this.currentPosition = (this.textsLastPositions[currentTextName] ?? {})['position'] || null;
+        this.targetWordIndex = (this.textsLastPositions[currentTextName] ?? {})['wordIndex'] || null;
+        if (this.currentPosition != null || this.targetWordIndex != null) {
+          this.fromContinue = true;
+        }
+        this.savePosition();
       },
 
       updateAnimationInfoCycle() {
@@ -3974,16 +4074,18 @@
       },
 
       showWordHint(shuffled, original = null) {
-        if (!(typeof shuffled === 'string')) {
+        if (shuffled != null && !(typeof shuffled === 'string')) {
           shuffled = shuffled.textContent;
         }
-        if (!(typeof original === 'string')) {
+        if (original != null && !(typeof original === 'string')) {
           original = original.textContent;
         }
-        const r = /\s\[[^\]]*?\]$/.exec(original);
-        if (r) {
-          shuffled += original.slice(original.length - r[0].length);
-          original = original.slice(0, original.length - r[0].length);
+        if (original) {
+          const r = /\s\[[^\]]*?\]$/.exec(original);
+          if (r) {
+            shuffled += original.slice(original.length - r[0].length);
+            original = original.slice(0, original.length - r[0].length);
+          }
         }
         if (original) {
           alert(`${shuffled} → ${original}`);
@@ -4032,7 +4134,7 @@
           const searchMarks = this.elements.progressBarContainer.querySelectorAll('.search-mark');
           searchMarks.forEach(mark => mark.remove());
         }
-        if (this.currentPosition !== null && containerWidth != null) {
+        if (this.currentPosition !== null && containerWidth != null && this.previousText) {
           const progress = this.getProgressByPosition();
           this.elements.progressBar.style.width = `${progress}%`;
           if (updateSearchMarks && this.searchMatches.length > 0) {
@@ -4054,7 +4156,8 @@
       },
 
       handleProgressBarClick(event) {
-        if (this.currentPosition !== null) {
+        const containerWidth = this.cachedContainerWidth;
+        if (this.currentPosition !== null && containerWidth != null && this.previousText) {
           const wasPlaying = this.animationTimer !== null;
           if (wasPlaying) this.pauseAnimation();
 
@@ -4142,6 +4245,7 @@
           currentReader.currentTextName = selectedTextName;
           localStorage.setItem(currentReader.settingsNames.currentTextName, currentReader.currentTextName);
           currentReader.textIsModified = false;
+          currentReader.reloadPosition();
           if (callback) {
             return callback();
           }
@@ -4156,6 +4260,7 @@
             currentReader.currentTextName = selectedTextName;
             localStorage.setItem(currentReader.settingsNames.currentTextName, currentReader.currentTextName);
             currentReader.textIsModified = false;
+            currentReader.reloadPosition();
             if (callback) {
               return callback();
             }
@@ -4363,8 +4468,11 @@
             localStorage.setItem(currentReader.settingsNames.texts, JSON.stringify(texts));
             const option = currentReader.elements.textSelect.querySelector(`option[value="${currentReader.currentTextName}"]`);
             if (option) option.remove();
-            currentReader.elements.textSelect.value = currentReader.defaultTextName;
+            delete currentReader.textsLastPositions[currentReader.currentTextName];
+            currentReader.currentTextName = currentReader.defaultTextName;
+            currentReader.elements.textSelect.value = currentReader.currentTextName;
             currentReader.textIsModified = false;
+            currentReader.reloadPosition();
             currentReader.switchText();
           };
           transaction.onabort = () => {
@@ -4420,6 +4528,8 @@
             transaction.oncomplete = () => {
               currentReader.currentPosition = null;
               localStorage.removeItem(currentReader.settingsNames.lastPosition);
+              currentReader.textsLastPositions = {};
+              currentReader.savePosition();
               localStorage.removeItem(currentReader.settingsNames.text);
               localStorage.removeItem(currentReader.settingsNames.texts);
               localStorage.removeItem(currentReader.settingsNames.textBookmarks);
@@ -4436,6 +4546,8 @@
           else {
             currentReader.currentPosition = null;
             localStorage.removeItem(currentReader.settingsNames.lastPosition);
+            currentReader.textsLastPositions = {};
+            currentReader.savePosition();
             localStorage.removeItem(currentReader.settingsNames.text);
             localStorage.removeItem(currentReader.settingsNames.textBookmarks);
             if (callback) {
@@ -4460,6 +4572,9 @@
             const request = indexedDB.deleteDatabase(currentReader.databaseName);
             request.onsuccess = () => {
               currentReader.currentPosition = null;
+              localStorage.removeItem(currentReader.settingsNames.lastPosition);
+              currentReader.textsLastPositions = {};
+              currentReader.savePosition();
               for (const settingName of Object.values(currentReader.settingsNames)) {
                 localStorage.removeItem(settingName);
               }
@@ -4479,6 +4594,9 @@
           }
           else {
             currentReader.currentPosition = null;
+            localStorage.removeItem(currentReader.settingsNames.lastPosition);
+            currentReader.textsLastPositions = {};
+            currentReader.savePosition();
             for (const settingName of Object.values(currentReader.settingsNames)) {
               localStorage.removeItem(settingName);
             }
@@ -4639,10 +4757,12 @@
                 if (replaceIfProvided) {
                   localStorage.setItem(currentReader.settingsNames.text, content);
                   localStorage.setItem(currentReader.settingsNames.textBookmarks, bookmarks);
+                  delete currentReader.textsLastPositions[currentReader.currentTextName];
                   if (currentReader.currentTextName === currentReader.defaultTextName) {
                     currentReader.currentPosition = null;
                     localStorage.removeItem(currentReader.settingsNames.lastPosition);
                   }
+                  currentReader.savePosition();
                 }
               }
               else if (currentReader.database) {
@@ -4664,10 +4784,14 @@
                   objectStore.add(data);
                   changed = true;
                 }
+                if (changed) {
+                  delete currentReader.textsLastPositions[title];
+                }
                 if (changed && currentReader.currentTextName === title) {
                   currentReader.currentPosition = null;
                   localStorage.removeItem(currentReader.settingsNames.lastPosition);
                 }
+                currentReader.savePosition();
               }
             }
             if (currentReader.database) {
