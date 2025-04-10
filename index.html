@@ -1606,6 +1606,8 @@
 
   <script>
     const MarqueeReader = {
+      constructed: false,
+
       animationTimer: null,
       currentPosition: null,
       animationStartTime: null,
@@ -1622,8 +1624,6 @@
       wasColorTaskChecked: true,
       isLoopEnabled: false,
       wordCount: 0,
-      lastSavedPosition: null,
-      lastSavedPositionUpdateDelay: 500,
 
       animationInfoUpdateDelay: 200,
       infoSecondsRemaining: '',
@@ -1645,6 +1645,7 @@
       currentTextName: 'Default',
       currentTextBookmarks: [],
       textIsModified: false,
+      textsLastProgress: {},
       defaultSettingsProfileName: 'Default',
       currentSettingsProfileName: 'Default',
       settingsProfileIsModified: false,
@@ -1715,6 +1716,7 @@
         text: 'sle_text',
         textBookmarks: 'sle_text_bookmarks',
         texts: 'sle_texts',
+        textsLastProgress: 'sle_texts_last_progress',
 
         /* settings profiles */
         currentSettingsProfile: 'sle_current_settings_profile',
@@ -2417,6 +2419,8 @@
           this.adjustSpeechPitch(voiceSpeechPitch);
         }
 
+        this.textsLastProgress = JSON.parse(localStorage.getItem(this.settingsNames.textsLastProgress) || '{}');
+
         const currentTextName = localStorage.getItem(this.settingsNames.currentTextName) || this.defaultTextName;
         const texts = JSON.parse(localStorage.getItem(this.settingsNames.texts) || '[]');
         this.elements.textSelect.innerHTML = `<option value="${this.defaultTextName}">${this.defaultTextName}</option>` + texts.map(text => `<option value="${text}">${text}</option>`).join('');
@@ -2440,16 +2444,13 @@
         const currentReader = this;
         currentReader.switchSettingsProfile(function () {
           currentReader.switchText(function () {
-            currentReader.lastSavedPosition = localStorage.getItem(currentReader.settingsNames.lastPosition);
-            if (currentReader.lastSavedPosition && currentReader.elements.textInput.value) {
-              currentReader.currentPosition = parseInt(currentReader.lastSavedPosition || 0);
-              currentReader.elements.playPauseButton.innerHTML = 'Continue <kbd>Space</kbd>';
-              currentReader.elements.playPauseButton.classList.add('pause');
-            } else {
-              currentReader.lastSavedPosition = null;
+            const lastPosition = localStorage.getItem(currentReader.settingsNames.lastPosition);
+            if (lastPosition != null && currentReader.elements.textInput.value) {
+              currentReader.currentPosition = parseInt(lastPosition || 0);
             }
-            setTimeout(() => currentReader.savePosition(), currentReader.lastSavedPositionUpdateDelay);
-            setTimeout(() => currentReader.updateAnimationInfo(), currentReader.animationInfoUpdateDelay);
+            currentReader.constructed = true;
+            currentReader.savePosition();
+            setTimeout(() => currentReader.updateAnimationInfoCycle(), currentReader.animationInfoUpdateDelay);
           });
         });
       },
@@ -2496,8 +2497,6 @@
           clearTimeout(this.animationTimer);
           this.animationTimer = null;
         }
-        this.elements.playPauseButton.innerHTML = 'Start <kbd>Space</kbd>';
-        this.elements.playPauseButton.classList.remove('pause');
         this.currentPosition = this.cachedContainerWidth;
         this.elements.marqueeDisplay.style.left = `${this.currentPosition}px`;
         this.elements.speakButton.style.display = '';
@@ -2508,8 +2507,6 @@
         this.elements.progressDisplay.style.display = 'none';
         this.elements.tabNavigation.style.display = '';
         this.elements.tabContent.style.display = '';
-        this.lastSavedPosition = null;
-        this.updateProgressBar();
         if (fully && this.previousText !== null) {
           this.animationStartTime = null;
           this.currentPosition = null;
@@ -2521,6 +2518,7 @@
           this.elements.refreshColors.disabled = true;
           this.elements.copyMarqueeText.disabled = true;
         }
+        this.savePosition();
       },
 
       startAnimation(resume = false, movement = true) {
@@ -2537,7 +2535,7 @@
         this.elements.textHelper.innerHTML = '';
 
         if (this.previousText !== cleanedText) {
-          this.wordCount = cleanedText.split(/[^\p{L}]+/ug).filter(w => w).length;
+          this.wordCount = cleanedText.split(/\s+/ug).filter(w => w).length;
         }
 
         let palleteChanged = false;
@@ -2750,7 +2748,6 @@
         this.lastUpdateTime = this.animationStartTime;
         if (this.currentPosition == null || this.currentPosition <= endPos) this.currentPosition = startPos;
         this.elements.marqueeDisplay.style.left = `${this.currentPosition}px`;
-        this.lastSavedPosition = this.currentPosition;
 
         this.textNeedsUpdate = false;
         this.previousText = cleanedText;
@@ -2763,12 +2760,11 @@
           const newLastUpdateTime = Date.now();
           const step = speedSmooth ? this.stepSize : Math.max(this.stepSize, (newLastUpdateTime - this.lastUpdateTime) / (this.stepDelay / this.stepSize));
           const newPosition = this.currentPosition - step;
-          this.lastSavedPosition = newPosition;
-          const actualStepDelay = Math.floor((this.lastUpdateTime - this.animationStartTime) / Math.max(1e-9, this.previousPosition - newPosition) * 10) / 10;
-          const totalSeconds = actualStepDelay * (startPos - endPos) / 1000;
-          this.infoSecondsRemaining = Math.floor(actualStepDelay * (newPosition - endPos) / 1000);
+          const actualPixelDelay = Math.floor((this.lastUpdateTime - this.animationStartTime) / Math.max(1e-9, this.previousPosition - newPosition) * 10) / 10;
+          const totalSeconds = actualPixelDelay * textWidth / 1000;
+          this.infoSecondsRemaining = Math.floor(actualPixelDelay * (newPosition - endPos) / 1000);
           this.infoWPM = totalSeconds > 0 ? Math.max(1, Math.floor(this.wordCount / (totalSeconds / 60))) : this.wordCount;
-          this.infoProgress = Math.max(0, Math.min(100, Math.floor((newPosition - startPos) * 100 / (endPos - startPos))));
+          this.infoProgress = this.getProgressByPosition();
           this.lastUpdateTime = newLastUpdateTime;
 
           if (this.newStepSize != null) {
@@ -2785,20 +2781,16 @@
               this.animationStartTime = Date.now();
               this.currentPosition = startPos;
               this.previousPosition = this.currentPosition;
-              this.updateProgressBar();
               this.elements.marqueeDisplay.style.left = `${startPos}px`;
-              this.lastSavedPosition = null;
               if (this.animationTimer) this.animationTimer = setTimeout(animate, this.stepDelay);
+              this.savePosition();
             } else {
               this.currentPosition = endPos;
               this.previousPosition = this.currentPosition;
-              this.updateProgressBar();
               this.elements.marqueeDisplay.style.left = `${endPos}px`;
               clearTimeout(this.animationTimer);
               this.animationTimer = null;
-              this.lastSavedPosition = null;
-              this.elements.playPauseButton.textContent = 'Start';
-              this.elements.playPauseButton.classList.remove('pause');
+              this.savePosition();
               this.elements.speakButton.style.display = '';
               this.elements.searchButton.style.display = '';
               this.elements.bookmarksButton.style.display = '';
@@ -2811,20 +2803,16 @@
           } else {
             this.elements.marqueeDisplay.style.left = `${newPosition}px`;
             this.currentPosition = newPosition;
-            this.updateProgressBar();
             if (this.animationTimer) this.animationTimer = setTimeout(animate, this.stepDelay);
           }
         };
 
-        this.updateProgressBar();
         this.elements.rewindButton.disabled = false;
         this.elements.fastForwardButton.disabled = false;
         this.elements.refreshText.disabled = false;
         this.elements.refreshColors.disabled = false;
         this.elements.copyMarqueeText.disabled = false;
         if (movement) {
-          this.elements.playPauseButton.textContent = 'Pause';
-          this.elements.playPauseButton.classList.add('pause');
           this.elements.speakButton.style.display = 'none';
           this.elements.searchButton.style.display = 'none';
           this.elements.bookmarksButton.style.display = 'none';
@@ -2835,6 +2823,7 @@
           this.elements.tabContent.style.display = 'none';
           this.animationTimer = setTimeout(animate, this.stepDelay);
         }
+        this.savePosition();
         return true;
       },
 
@@ -2842,8 +2831,6 @@
         if (this.animationTimer) {
           clearTimeout(this.animationTimer);
           this.animationTimer = null;
-          this.elements.playPauseButton.textContent = 'Start';
-          this.elements.playPauseButton.classList.remove('pause');
           this.elements.speakButton.style.display = '';
           this.elements.searchButton.style.display = '';
           this.elements.bookmarksButton.style.display = '';
@@ -2852,7 +2839,7 @@
           this.elements.progressDisplay.style.display = '';
           this.elements.tabNavigation.style.display = '';
           this.elements.tabContent.style.display = '';
-          this.updateProgressBar();
+          this.savePosition();
         }
       },
 
@@ -3350,7 +3337,7 @@
         this.elements.body.classList.add(newTheme);
         if (this.currentPosition !== null) {
           this.updateCachedSizes();
-          this.updateProgressBar();
+          this.savePosition();
         }
       },
 
@@ -3364,7 +3351,7 @@
         localStorage.setItem(this.settingsNames.appSizeToggle, next);
         if (this.currentPosition !== null) {
           this.updateCachedSizes();
-          this.updateProgressBar();
+          this.savePosition();
         }
       },
 
@@ -3481,8 +3468,7 @@
           const textWidth = this.cachedTextWidth;
           this.currentPosition = Math.max(-textWidth, Math.min(containerWidth, parseInt(this.elements.marqueeDisplay.style.left) + Math.floor(containerWidth / 4)));
           this.elements.marqueeDisplay.style.left = `${this.currentPosition}px`;
-          this.lastSavedPosition = this.currentPosition;
-          this.updateProgressBar();
+          this.savePosition();
           if (wasPlaying) this.startAnimation(true);
         }
       },
@@ -3495,8 +3481,7 @@
           const textWidth = this.cachedTextWidth;
           this.currentPosition = Math.max(-textWidth, Math.min(containerWidth, parseInt(this.elements.marqueeDisplay.style.left) - Math.floor(containerWidth / 4)));
           this.elements.marqueeDisplay.style.left = `${this.currentPosition}px`;
-          this.lastSavedPosition = this.currentPosition;
-          this.updateProgressBar();
+          this.savePosition();
           if (wasPlaying) this.startAnimation(true);
         }
       },
@@ -3509,8 +3494,7 @@
           const textWidth = this.cachedTextWidth;
           this.currentPosition = containerWidth;
           this.elements.marqueeDisplay.style.left = `${this.currentPosition}px`;
-          this.lastSavedPosition = this.currentPosition;
-          this.updateProgressBar();
+          this.savePosition();
           if (wasPlaying) this.startAnimation(true);
         }
       },
@@ -3523,8 +3507,7 @@
           const textWidth = this.cachedTextWidth;
           this.currentPosition = -textWidth;
           this.elements.marqueeDisplay.style.left = `${this.currentPosition}px`;
-          this.lastSavedPosition = this.currentPosition;
-          this.updateProgressBar();
+          this.savePosition();
           if (wasPlaying) this.startAnimation(true);
         }
       },
@@ -3535,7 +3518,7 @@
           if (wasPlaying) this.pauseAnimation();
           this.textNeedsUpdate = true;
           this.startAnimation(false, false);
-          this.updateProgressBar();
+          this.savePosition();
           if (wasPlaying) this.startAnimation(true);
         }
       },
@@ -3549,7 +3532,7 @@
             this.colorList = [];
           }
           this.startAnimation(false, false);
-          this.updateProgressBar();
+          this.savePosition();
           if (wasPlaying) this.startAnimation(true);
         }
       },
@@ -3906,24 +3889,79 @@
         this.elements.textInput.value = processedParagraphs.join('\n\n');
       },
 
-      savePosition() {
-        if (this.lastSavedPosition !== null && (this.cachedContainerWidth == null || this.lastSavedPosition < this.cachedContainerWidth)) {
-          localStorage.setItem(this.settingsNames.lastPosition, this.lastSavedPosition);
-        } else {
-          localStorage.removeItem(this.settingsNames.lastPosition);
+      getProgressByPosition(position = null) {
+        if (position == null) {
+          position = this.currentPosition;
         }
-        setTimeout(() => this.savePosition(), this.lastSavedPositionUpdateDelay);
+        const containerWidth = this.cachedContainerWidth;
+        const textWidth = this.cachedTextWidth;
+        if (position == null || containerWidth == null || textWidth == null) {
+          return null;
+        }
+        const startPos = containerWidth;
+        const endPos = -textWidth;
+        return Math.max(0, Math.min(100, (position - startPos) * 100 / (endPos - startPos)));
       },
 
-      updateAnimationInfo() {
+      getPositionByProgress(positionPercent = null) {
+        if (positionPercent == null) {
+          positionPercent = this.getProgressByPosition();
+        }
+        const containerWidth = this.cachedContainerWidth;
+        const textWidth = this.cachedTextWidth;
+        if (positionPercent == null || containerWidth == null || textWidth == null) {
+          return null;
+        }
+        const startPos = containerWidth;
+        const endPos = -textWidth;
+        return Math.max(endPos, Math.min(startPos, positionPercent * (endPos - startPos) / 100 + startPos));
+      },
+
+      savePosition() {
+        if (!this.constructed) {
+          return;
+        }
+        this.updateProgressBar();
+        const currentTextName = this.currentTextName;
+        const lastPosition = this.currentPosition;
+        const cachedContainerWidth = this.cachedContainerWidth;
+        const cachedTextWidth = this.cachedTextWidth;
+        const animationTimer = this.animationTimer;
+        if (lastPosition !== null && (cachedContainerWidth == null || -cachedTextWidth < lastPosition && lastPosition < cachedContainerWidth)) {
+          localStorage.setItem(this.settingsNames.lastPosition, lastPosition);
+          if (animationTimer == null) {
+            this.elements.playPauseButton.innerHTML = 'Continue';
+            this.elements.playPauseButton.classList.add('pause');
+          }
+          else {
+            this.elements.playPauseButton.innerHTML = 'Pause';
+            this.elements.playPauseButton.classList.add('pause');
+          }
+          // this.textsLastProgress[currentTextName] = this.getProgressByPosition();
+        } else {
+          if (animationTimer == null) {
+            this.elements.playPauseButton.innerHTML = 'Play <kbd>Space</kbd>';
+            this.elements.playPauseButton.classList.remove('pause');
+          }
+          else {
+            this.elements.playPauseButton.innerHTML = 'Pause';
+            this.elements.playPauseButton.classList.add('pause');
+          }
+          localStorage.removeItem(this.settingsNames.lastPosition);
+        }
+        // localStorage.setItem(this.settingsNames.textsLastProgress, JSON.stringify(this.textsLastProgress));
+      },
+
+      updateAnimationInfoCycle() {
+        this.updateProgressBar();
         this.elements.progressDisplay.innerHTML = this.formatTime(this.infoSecondsRemaining);
         this.elements.progressDisplay.innerHTML += `<br>WPM: ${this.infoWPM}`;
-        this.elements.progressDisplay.innerHTML += `<br>Progress: ${this.infoProgress}%`;
+        this.elements.progressDisplay.innerHTML += this.infoProgress ? `<br>Progress: ${(0.0 + this.infoProgress).toFixed(1)}%` : '';
         if (this.database && this.currentTextName === this.defaultTextName && this.elements.textInput.value.length > this.defaultTextUpperLimit) {
           this.elements.textInput.value = this.elements.textInput.value.slice(0, this.defaultTextUpperLimit);
           setTimeout(() => alert(`The Default text cannot contain more than ${this.defaultTextUpperLimit} characters (and is originally intended for fallback in case the database is unavailable). Create a new text for a larger available size.`));
         }
-        setTimeout(() => this.updateAnimationInfo(), this.animationInfoUpdateDelay);
+        setTimeout(() => this.updateAnimationInfoCycle(), this.animationInfoUpdateDelay);
       },
 
       updateColor(element) {
@@ -3987,22 +4025,19 @@
         }
       },
 
-      updateProgressBar() {
+      updateProgressBar(updateSearchMarks = false) {
         const currentReader = this;
-        if (this.currentPosition !== null) {
-          const containerWidth = this.cachedContainerWidth;
-          const textWidth = this.cachedTextWidth;
-          const startPos = containerWidth;
-          const endPos = -textWidth;
-          const progress = Math.max(0, Math.min(100, (this.currentPosition - startPos) * 100 / (endPos - startPos)));
-          this.elements.progressBar.style.width = `${progress}%`;
-          
+        const containerWidth = this.cachedContainerWidth;
+        if (updateSearchMarks) {
           const searchMarks = this.elements.progressBarContainer.querySelectorAll('.search-mark');
           searchMarks.forEach(mark => mark.remove());
-
-          if (this.searchMatches.length > 0) {
+        }
+        if (this.currentPosition !== null && containerWidth != null) {
+          const progress = this.getProgressByPosition();
+          this.elements.progressBar.style.width = `${progress}%`;
+          if (updateSearchMarks && this.searchMatches.length > 0) {
             this.searchMatches.forEach((match, index) => {
-              const matchProgress = Math.max(0, Math.min(100, (match.position - startPos) * 100 / (endPos - startPos)));
+              const matchProgress = this.getProgressByPosition(match.position);
               const mark = document.createElement('div');
               mark.className = `search-mark ${index === currentReader.currentMatchIndex ? 'active' : ''}`;
               mark.style.left = `${matchProgress}%`;
@@ -4033,11 +4068,9 @@
           const endPos = -textWidth;
 
           const progress = clickX / rect.width;
-          this.currentPosition = startPos - (startPos - endPos) * progress;
-          this.currentPosition = Math.max(endPos, Math.min(startPos, this.currentPosition));
+          this.currentPosition = this.getPositionByProgress(progress * 100);
           this.elements.marqueeDisplay.style.left = `${this.currentPosition}px`;
-          this.lastSavedPosition = this.currentPosition;
-          this.updateProgressBar();
+          this.savePosition();
 
           if (wasPlaying) this.startAnimation(true);
         }
@@ -4385,7 +4418,7 @@
             const objectStore = transaction.objectStore(currentReader.settingsNames.texts);
             const request = objectStore.clear();
             transaction.oncomplete = () => {
-              currentReader.lastSavedPosition = null;
+              currentReader.currentPosition = null;
               localStorage.removeItem(currentReader.settingsNames.lastPosition);
               localStorage.removeItem(currentReader.settingsNames.text);
               localStorage.removeItem(currentReader.settingsNames.texts);
@@ -4401,7 +4434,7 @@
             };
           }
           else {
-            currentReader.lastSavedPosition = null;
+            currentReader.currentPosition = null;
             localStorage.removeItem(currentReader.settingsNames.lastPosition);
             localStorage.removeItem(currentReader.settingsNames.text);
             localStorage.removeItem(currentReader.settingsNames.textBookmarks);
@@ -4426,7 +4459,7 @@
             currentReader.database.close();
             const request = indexedDB.deleteDatabase(currentReader.databaseName);
             request.onsuccess = () => {
-              currentReader.lastSavedPosition = null;
+              currentReader.currentPosition = null;
               for (const settingName of Object.values(currentReader.settingsNames)) {
                 localStorage.removeItem(settingName);
               }
@@ -4445,7 +4478,7 @@
             };
           }
           else {
-            currentReader.lastSavedPosition = null;
+            currentReader.currentPosition = null;
             for (const settingName of Object.values(currentReader.settingsNames)) {
               localStorage.removeItem(settingName);
             }
@@ -4607,7 +4640,7 @@
                   localStorage.setItem(currentReader.settingsNames.text, content);
                   localStorage.setItem(currentReader.settingsNames.textBookmarks, bookmarks);
                   if (currentReader.currentTextName === currentReader.defaultTextName) {
-                    currentReader.lastSavedPosition = null;
+                    currentReader.currentPosition = null;
                     localStorage.removeItem(currentReader.settingsNames.lastPosition);
                   }
                 }
@@ -4632,7 +4665,7 @@
                   changed = true;
                 }
                 if (changed && currentReader.currentTextName === title) {
-                  currentReader.lastSavedPosition = null;
+                  currentReader.currentPosition = null;
                   localStorage.removeItem(currentReader.settingsNames.lastPosition);
                 }
               }
@@ -5038,6 +5071,7 @@
           return;
         }
 
+        this.updateCachedSizes();
         let startSpanIndex = 0;
         const spans = Array.from(this.elements.marqueeDisplay.querySelectorAll('.marquee-word-span'));
         const words = realText.split(/\s+/).filter(w => w);
@@ -5047,8 +5081,7 @@
         if (this.currentPosition !== null) {
           const startPos = shift;
           const endPos = shift - textWidth;
-          const progress = (this.currentPosition - startPos) / (endPos - startPos);
-          const charIndex = Math.floor(progress * processedText.length);
+          const charIndex = Math.floor(this.getProgressByPosition() / 100 * processedText.length);
           let currentCharCount = 0;
           for (let i = 0; i < spans.length; i++) {
             currentCharCount += spans[i].textContent.length + 1;
@@ -5064,7 +5097,7 @@
         }
         const realTextFromIndex = words.slice(startSpanIndex).join(' ');
 
-        const wordCount = words.length;
+        const wordCount = realTextFromIndex.split(/\s+/).filter(w => w).length;
         const utterance = new SpeechSynthesisUtterance(realTextFromIndex);
         const selectedVoiceIndex = parseInt(this.elements.voiceSelect.value || 0);
         if (this.voices[selectedVoiceIndex]) {
@@ -5092,33 +5125,32 @@
           if (event.name === 'word') {
             const wordIndex = realTextFromIndex.substring(0, event.charIndex).split(/\s+/).filter(w => w).length;
             const spanIndex = Math.min(wordIndex, spanPositions.length - 1);
-
             const startPos = containerWidth;
             const endPos = -textWidth;
 
-            currentReader.currentPosition = spanPositions[spanIndex];
-            currentReader.currentPosition = Math.max(endPos, Math.min(startPos, currentReader.currentPosition + shift));
+            currentReader.currentPosition = Math.max(endPos, Math.min(startPos, spanPositions[spanIndex] + shift));
             currentReader.elements.marqueeDisplay.style.left = `${currentReader.currentPosition}px`;
 
             const newLastUpdateTime = Date.now();
             const elapsedTime = (newLastUpdateTime - currentReader.animationStartTime) / 1000;
-            const wordsPerSecond = wordIndex / elapsedTime;
+            const wordsPerSecond = elapsedTime ? wordIndex / elapsedTime : wordIndex;
             const remainingWords = wordCount - wordIndex;
             const secondsRemaining = wordsPerSecond > 0 ? (remainingWords / wordsPerSecond) : 0;
 
             currentReader.infoSecondsRemaining = secondsRemaining;
-            currentReader.infoWPM = elapsedTime > 0 ? Math.floor(wordIndex / (elapsedTime / 60)) : wordCount;
-            currentReader.infoProgress = Math.max(0, Math.min(100, Math.floor((currentReader.currentPosition - startPos) * 100 / (endPos - startPos))));
+            currentReader.infoWPM = Math.floor(wordsPerSecond * 60);
+            currentReader.infoProgress = currentReader.getProgressByPosition();
 
             if (!markAdded) {
               currentReader.elements.progressBarContainer.appendChild(mark);
               markAdded = true;
             }
-            currentReader.updateProgressBar();
+            currentReader.savePosition();
           }
         };
 
         utterance.onend = () => {
+          const wordIndex = wordCount;
           const startPos = containerWidth;
           const endPos = -textWidth;
 
@@ -5127,20 +5159,17 @@
 
           const newLastUpdateTime = Date.now();
           const elapsedTime = (newLastUpdateTime - currentReader.animationStartTime) / 1000;
-          const wordsPerSecond = (wordCount - 1) / elapsedTime;
-          const remainingWords = wordCount - (wordCount - 1);
-          const secondsRemaining = wordsPerSecond > 0 ? (remainingWords / wordsPerSecond) : 0;
+          const wordsPerSecond = elapsedTime ? wordIndex / elapsedTime : wordIndex;
 
-          currentReader.infoSecondsRemaining = secondsRemaining;
-          currentReader.infoWPM = elapsedTime > 0 ? Math.floor((wordCount - 1) / (elapsedTime / 60)) : wordCount;
-          currentReader.infoProgress = Math.max(0, Math.min(100, Math.floor((currentReader.currentPosition - startPos) * 100 / (endPos - startPos))));
+          currentReader.infoSecondsRemaining = 0;
+          currentReader.infoWPM = Math.floor(wordsPerSecond * 60);
+          currentReader.infoProgress = currentReader.getProgressByPosition();
 
           if (markAdded) {
             mark.remove();
           }
 
-          currentReader.lastSavedPosition = currentReader.currentPosition;
-          currentReader.updateProgressBar();
+          currentReader.savePosition();
           stopUpdate();
 
           if (currentReader.elements.loopToggle.classList.contains('active')) {
@@ -5214,7 +5243,7 @@
         const text = this.textToSearch;
 
         if (!this.searchQuery || !text) {
-          this.updateProgressBar();
+          this.updateProgressBar(true);
           return;
         }
 
@@ -5251,7 +5280,7 @@
           }
         }
 
-        this.updateProgressBar();
+        this.updateProgressBar(true);
         if (this.searchMatches.length > 0) {
             this.currentMatchIndex = 0;
             this.goToMatch(this.currentMatchIndex);
@@ -5270,7 +5299,7 @@
         const endPos = containerWidth - textWidth;
 
         this.elements.marqueeDisplay.style.left = `${this.currentPosition}px`;
-        this.updateProgressBar();
+        this.savePosition();
       },
 
       goToNextMatch() {
@@ -5291,7 +5320,7 @@
         this.currentMatchIndex = -1;
         this.textToSearch = '';
         this.elements.searchInput.value = '';
-        this.updateProgressBar();
+        this.updateProgressBar(true);
       },
 
       toggleBookmarks() {
@@ -5300,9 +5329,7 @@
           return;
         }
 
-        if (!this.previousText) {
-          this.startAnimation(false, false);
-        }
+        this.startAnimation(false, false);
         if (!this.previousText) {
           return;
         }
@@ -5348,7 +5375,7 @@
           this.elements.tabContent.style.display = '';
           const bookmarkMarks = this.elements.progressBarContainer.querySelectorAll(".bookmark-mark");
           bookmarkMarks.forEach(mark => mark.remove());
-          this.updateProgressBar();
+          this.updateProgressBar(true);
         }
       },
 
@@ -5390,7 +5417,7 @@
         const textWidth = this.cachedTextWidth;
         const startPos = containerWidth;
         const endPos = -textWidth;
-        const progress = Math.max(0, Math.min(100, (this.currentPosition - startPos) * 100 / (endPos - startPos)));
+        const progress = this.getProgressByPosition();
         this.tmpBookmarks.push({ name, progress });
         this.elements.bookmarkNameInput.value = "";
         this.loadBookmarks();
@@ -5402,15 +5429,9 @@
       },
 
       goToBookmark(progress) {
-        const containerWidth = this.cachedContainerWidth;
-        const textWidth = this.cachedTextWidth;
-        const startPos = containerWidth;
-        const endPos = -textWidth;
-        const position = progress * (endPos - startPos) / 100 + startPos;
-        this.currentPosition = position;
+        this.currentPosition = this.getPositionByProgress(progress);
         this.elements.marqueeDisplay.style.left = `${this.currentPosition}px`;
-        this.lastSavedPosition = this.currentPosition;
-        this.updateProgressBar();
+        this.savePosition();
       },
 
       saveBookmarksToDB() {
