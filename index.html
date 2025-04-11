@@ -857,14 +857,26 @@
         </div>
         <div>
           <label>
+            <span>Reversing letters:</span>
+            <select id="letter-reverse-select">
+              <option value="no">-</option>
+              <option value="except_first_last">Except first and last letters</option>
+              <option value="except_first">Except first letter</option>
+              <option value="except_capitalized">Except capitalized words</option>
+              <option value="all_letters">All letters</option>
+            </select>
+          </label>
+        </div>
+        <div>
+          <label>
             <span>Shuffling letters:</span>
             <select id="letter-shuffle-select">
               <option value="no">-</option>
-              <option value="easy">Easy</option>
-              <option value="medium">Medium</option>
-              <option value="medium_plus">Medium+</option>
-              <option value="hard">Hard</option>
-              <option value="very-hard">Very Hard</option>
+              <option value="middle">Middle of word</option>
+              <option value="except_first_last">Except first and last letters</option>
+              <option value="except_first">Except first letter</option>
+              <option value="except_capitalized">Except capitalized words</option>
+              <option value="all_letters">All letters</option>
             </select>
           </label>
         </div>
@@ -1772,6 +1784,7 @@
         speed: 'sle_speed',
         speedSmooth: 'sle_speed_smooth',
         skippingLetters: 'sle_skipping_letters',
+        reversingLetters: 'sle_reversing_letters',
         shufflingLetters: 'sle_shuffling_letters',
         falseLetters: 'sle_false_letters',
         eliminatingLetters: 'sle_eliminating_letters',
@@ -1832,6 +1845,7 @@
         settings[this.settingsNames.eliminatingLetters] = 'no';
         settings[this.settingsNames.skippingWords] = 'no';
         settings[this.settingsNames.shufflingWords] = 'no';
+        settings[this.settingsNames.reversingLetters] = 'no';
         settings[this.settingsNames.falseWords] = 'no';
         settings[this.settingsNames.rotating] = 'no';
         settings[this.settingsNames.mirroring] = 'no';
@@ -1856,6 +1870,7 @@
         settings[this.settingsNames.speed] = this.elements.speedNumber.value;
         settings[this.settingsNames.speedSmooth] = this.elements.speedSmoothToggle.checked;
         settings[this.settingsNames.skippingLetters] = this.elements.letterSkipSelect.value;
+        settings[this.settingsNames.reversingLetters] = this.elements.letterReverseSelect.value;
         settings[this.settingsNames.shufflingLetters] = this.elements.letterShuffleSelect.value;
         settings[this.settingsNames.falseLetters] = this.elements.letterFalseSelect.value;
         settings[this.settingsNames.eliminatingLetters] = this.elements.letterEliminationSelect.value;
@@ -1900,6 +1915,9 @@
 
         currentKey = this.settingsNames.skippingLetters;
         this.elements.letterSkipSelect.value = keys.includes(currentKey) ? settingsProfileData[currentKey] : defaultSettings[currentKey];
+
+        currentKey = this.settingsNames.reversingLetters;
+        this.elements.letterReverseSelect.value = keys.includes(currentKey) ? settingsProfileData[currentKey] : defaultSettings[currentKey];
 
         currentKey = this.settingsNames.shufflingLetters;
         this.elements.letterShuffleSelect.value = keys.includes(currentKey) ? settingsProfileData[currentKey] : defaultSettings[currentKey];
@@ -2004,6 +2022,7 @@
         this.elements.progressDisplay = document.getElementById('progress-display');
         this.elements.colorDetails = document.getElementById('color-details');
         this.elements.appendTextToggle = document.getElementById('append-text-toggle');
+        this.elements.letterReverseSelect = document.getElementById('letter-reverse-select');
         this.elements.letterShuffleSelect = document.getElementById('letter-shuffle-select');
         this.elements.letterFalseSelect = document.getElementById('letter-false-select');
         this.elements.letterEliminationSelect = document.getElementById('letter-elimination-select');
@@ -2317,6 +2336,7 @@
         this.elements.dumpColors.addEventListener('click', settingsProfileModified);
         this.elements.colorInput.addEventListener('input', settingsProfileModified);
         this.elements.letterSkipSelect.addEventListener('input', settingsProfileModified);
+        this.elements.letterReverseSelect.addEventListener('input', settingsProfileModified);
         this.elements.letterShuffleSelect.addEventListener('input', settingsProfileModified);
         this.elements.letterFalseSelect.addEventListener('input', settingsProfileModified);
         this.elements.letterEliminationSelect.addEventListener('input', settingsProfileModified);
@@ -2940,13 +2960,16 @@
         const wordSkipMatch = shouldModify && wordSkipSelectValue !== 'no' ? /(\d+)%_words/.exec(wordSkipSelectValue) : null;
         const wordSkipMatchPercent = wordSkipMatch ? parseInt(wordSkipMatch[1]) / 100 : 0;
 
+        const letterReverseSelectValue = this.elements.letterReverseSelect.value;
+        const letterReverseCheck = shouldModify && letterReverseSelectValue !== 'no';
+
         const letterShuffleSelectValue = this.elements.letterShuffleSelect.value;
         const letterShuffleCheck = shouldModify && letterShuffleSelectValue !== 'no';
 
         const wordShuffleSelectValue = this.elements.wordShuffleSelect.value;
         const wordShuffleMatch = shouldModify && wordShuffleSelectValue !== 'no' ? /(\d+)_words?/.exec(wordShuffleSelectValue) : null;
         const wordShuffleNumber = wordShuffleMatch ? parseInt(wordShuffleMatch[1]) : 0;
-        const skipShuffleRegex = /^[A-Z\d'\u2032\u2033\u2034\u2057\u2019\u0060\u00B4\uFF40\u02F4]/;
+        const skipShuffleReverseRegex = /^[\p{Lu}\d'\u2032\u2033\u2034\u2057\u2019\u0060\u00B4\uFF40\u02F4]/;
 
         const rotNToggleChecked = this.elements.rotNToggle.checked;
         const rotNNumberValue = parseInt(this.elements.rotNNumber.value || 0);
@@ -3056,6 +3079,7 @@
 
         const wordHint1 = wordSkipMatch != null || colorEncoderToggleChecked || settingRotate || settingMirror || settingSkew;
         const wordHint2 = letterShuffleCheck ||
+                          letterReverseCheck ||
                           letterEliminationVowelMatch != null ||
                           letterEliminationRandomMatch != null ||
                           letterSkipMatch != null ||
@@ -3121,15 +3145,46 @@
               }
             }
 
-            if (letterShuffleCheck && (!skipShuffleRegex.test(word) || letterShuffleSelectValue === 'very-hard')) {
+            if (letterReverseCheck && (!skipShuffleReverseRegex.test(word) || letterReverseSelectValue === 'all_letters')) {
               const parts = modifiedWord.split('-');
               modifiedWord = parts.map(part => {
-                const threshold = letterShuffleSelectValue === 'hard' || letterShuffleSelectValue === 'very-hard'
+                const threshold = letterReverseSelectValue === 'except_capitalized' || letterReverseSelectValue === 'all_letters'
                   ? 0
-                  : letterShuffleSelectValue === 'medium' || letterShuffleSelectValue === 'medium_plus'
+                  : letterReverseSelectValue === 'except_first' || letterReverseSelectValue === 'except_first_last'
                     ? 1
-                    : Math.floor(part.length / 3);
-                const suffixLength = letterShuffleSelectValue === 'medium_plus' ? 0 : threshold;
+                    : 1;
+                const suffixLength = letterReverseSelectValue === 'except_first_last' ? threshold : 0;
+                const letters = [];
+                for (const x of part) {
+                  if (this.isLetter(x)) {
+                    letters.push(x);
+                  }
+                }
+                const firstLetters = letters.slice(0, threshold);
+                const midLetters = letters.slice(threshold, letters.length - suffixLength);
+                const lastLetters = letters.slice(letters.length - suffixLength);
+                const originalMiddle = Array.from(midLetters);
+                const originalMiddleSize = new Set(originalMiddle).size;
+                midLetters.reverse();
+                const reordered = [...firstLetters, ...midLetters, ...lastLetters];
+                const result = [];
+                let j = 0;
+                for (const char of part) {
+                  result.push(this.isLetter(char) ? reordered[j++] : char);
+                }
+                return result.join('');
+              }).join('-');
+            }
+
+            if (letterShuffleCheck && (!skipShuffleReverseRegex.test(word) || letterShuffleSelectValue === 'all_letters')) {
+              const parts = modifiedWord.split('-');
+              modifiedWord = parts.map(part => {
+                const threshold = letterShuffleSelectValue === 'except_capitalized' || letterShuffleSelectValue === 'all_letters'
+                  ? 0
+                  : letterShuffleSelectValue === 'except_first_last' || letterShuffleSelectValue === 'except_first'
+                    ? 1
+                    : Math.floor(part.length / 3); /* middle */
+                const suffixLength = letterShuffleSelectValue === 'except_first' ? 0 : threshold;
                 const letters = [];
                 for (const x of part) {
                   if (this.isLetter(x)) {
