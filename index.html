@@ -107,8 +107,48 @@
       padding-left: 3px;
     }
 
+    .rotate-1 {
+      transform: rotate(1deg);
+    }
+
+    .rotate-2 {
+      transform: rotate(2deg);
+    }
+
+    .rotate-181 {
+      transform: rotate(181deg);
+    }
+
+    .rotate-182 {
+      transform: rotate(182deg);
+    }
+
+    .rotate--1 {
+      transform: rotate(-1deg);
+    }
+
+    .rotate--2 {
+      transform: rotate(-2deg);
+    }
+
+    .rotate--181 {
+      transform: rotate(-181deg);
+    }
+
+    .rotate--182 {
+      transform: rotate(-182deg);
+    }
+
     .rotate-180 {
       transform: rotate(180deg);
+    }
+
+    .rotate-90 {
+      transform: rotate(90deg);
+    }
+
+    .rotate-270 {
+      transform: rotate(270deg);
     }
 
     .mirror-x {
@@ -608,24 +648,36 @@
       border-right: 2px solid var(--border-color);
     }
 
-    body.marquee-theme-1 #marquee-display {
-      letter-spacing: 1px;
-      word-spacing: 1px;
+    body.marquee-theme-1 .marquee-word-span {
+      margin: 0px 1px;
     }
 
-    body.marquee-theme-2 #marquee-display {
-      letter-spacing: 3px;
-      word-spacing: 20px;
+    body.marquee-theme-2 .marquee-word-span {
+      margin: 0px 4px;
     }
 
-    body.marquee-theme-3 #marquee-display {
-      letter-spacing: 5px;
-      word-spacing: 25px;
+    body.marquee-theme-3 .marquee-word-span {
+      margin: 0px 10px;
     }
 
-    body.marquee-theme-4 #marquee-display {
-      letter-spacing: 5px;
-      word-spacing: 30px;
+    body.marquee-theme-4 .marquee-word-span {
+      margin: 0px 26px;
+    }
+
+    body.marquee-theme-1 .marquee-letter-span {
+      padding: 0px 1px;
+    }
+
+    body.marquee-theme-2 .marquee-letter-span {
+      padding: 0px 2px;
+    }
+
+    body.marquee-theme-3 .marquee-letter-span {
+      padding: 0px 5px;
+    }
+
+    body.marquee-theme-4 .marquee-letter-span {
+      padding: 0px 14px;
     }
 
     /* Speak function */
@@ -815,7 +867,7 @@
         <hr>
         <div>
           <button id="refresh-text" class="gray-button" disabled>↻ Text ↻ <kbd>T</kbd></button>
-          <button id="refresh-colors" class="gray-button" disabled>↻ Colors ↻ <kbd>C</kbd></button>
+          <button id="refresh-view" class="gray-button" disabled>↻ View ↻ <kbd>V</kbd></button>
           <button id="copy-marquee-text" class="gray-button" disabled>Copy text</button>
         </div>
         <hr>
@@ -839,7 +891,7 @@
         </div>
         <div>
           <label>
-            <span>Skipping letters:</span>
+            <span>Skip letters:</span>
             <select id="letter-skip-select">
               <option value="no">-</option>
               <option value="10%_letters">10%</option>
@@ -857,7 +909,7 @@
         </div>
         <div>
           <label>
-            <span>Reversing letters:</span>
+            <span>Reverse letters:</span>
             <select id="letter-reverse-select">
               <option value="no">-</option>
               <option value="except_first_last">Except first and last letters</option>
@@ -869,7 +921,7 @@
         </div>
         <div>
           <label>
-            <span>Shuffling letters:</span>
+            <span>Shuffle letters:</span>
             <select id="letter-shuffle-select">
               <option value="no">-</option>
               <option value="middle">Middle of word</option>
@@ -900,7 +952,7 @@
         </div>
         <div>
           <label>
-            <span>Eliminating letters:</span>
+            <span>Eliminate letters:</span>
             <select id="letter-elimination-select">
               <option value="no">-</option>
               <option value="20%_vowels">20% vowels</option>
@@ -916,18 +968,18 @@
             </select>
           </label>
         </div>
-        <div id="rot-n-div" class="mt-10 with-rounded-border">
+        <div id="rot-n-div" class="with-rounded-border">
           <label><input type="checkbox" id="rot-n-toggle"> ROT-N</label>
-          <div id="rot-n-options" class="mt-10">
+          <div id="rot-n-options">
             <div>
               <label>
                 <span>N:</span>
                 <input type="number" id="rot-n-number" min="-1000" max="1000" value="1">
               </label>
             </div>
-            <div class="mt-10">
+            <div>
               <label>
-                <span class="select-label mt-10">Language:</span>
+                <span class="select-label">Language:</span>
                 <select id="rot-n-language-select">
                   <option value="no">-</option>
                 </select>
@@ -942,7 +994,7 @@
         </div>
         <div>
           <label>
-            <span>Skipping words:</span>
+            <span>Skip words:</span>
             <select id="word-skip-select">
               <option value="no">-</option>
               <option value="5%_words">5%</option>
@@ -970,7 +1022,7 @@
         </div>
         <div>
           <label>
-            <span>Shuffling words:</span>
+            <span>Shuffle words:</span>
             <select id="word-shuffle-select">
               <option value="no">-</option>
               <option value="2_words">2 words</option>
@@ -1015,7 +1067,7 @@
         </div>
         <hr>
         <div>
-          <h3>Display</h3>
+          <h3>View</h3>
         </div>
         <div>
           <label>
@@ -1030,45 +1082,79 @@
         </div>
         <div>
           <label>
-            <span>Rotating:</span>
-            <select id="rotating-select">
+            <span>Rotate words:</span>
+            <select id="rotating-words-select">
               <option value="no">-</option>
-              <option value="text_by_words_180">Text by words 180&deg;</option>
-              <option value="text_by_letters_180">Text by letters 180&deg;</option>
-              <option value="random_word_by_word_180">Random word by word 180&deg;</option>
-              <option value="random_word_by_letters_180">Random word by letters 180&deg;</option>
-              <option value="random_letters_180">Random letters 180&deg;</option>
+              <option value="words_180">Words 180&deg;</option>
+              <option value="words_1_-1">Words 1&deg;, -1&deg;</option>
+              <option value="words_181_-181">Words 181&deg;, -181&deg;</option>
+              <option value="words_1_-1_181_-181">Words 1&deg;, -1&deg; 181&deg;, -181&deg;</option>
+              <option value="random_words_180">Random words 180&deg;</option>
+              <option value="random_words_1_-1">Random words 1&deg;, -1&deg;</option>
+              <option value="random_words_181_-181">Random words 181&deg;, -181&deg;</option>
+              <option value="random_words_1_-1_181_-181">Random words 1&deg;, -1&deg; 181&deg;, -181&deg;</option>
             </select>
           </label>
         </div>
         <div>
           <label>
-            <span>Mirroring:</span>
-            <select id="mirroring-select">
+            <span>Rotate letters:</span>
+            <select id="rotating-letters-select">
               <option value="no">-</option>
-              <option value="text_x">Text X (horizontally)</option>
-              <option value="text_y">Text Y (vertically)</option>
-              <option value="text_xy">Text XY</option>
-              <option value="words_x_xor_y">Text words X xor Y</option>
-              <option value="words_x_or_y_or_xy">Text words X or Y or XY</option>
+              <option value="letters_180">Letters 180&deg;</option>
+              <option value="letters_90">Letters 90&deg;</option>
+              <option value="letters_270">Letters 270&deg;</option>
+              <option value="letters_90_270">Letters 90&deg;, 270&deg;</option>
+              <option value="letters_180_90_270">Letters 180&deg;, 90&deg;, 270&deg;</option>
+              <option value="letters_random">Letters random&deg;</option>
+              <option value="random_letters_180">Random letters 180&deg;</option>
+              <option value="random_letters_90">Random letters 90&deg;</option>
+              <option value="random_letters_270">Random letters 270&deg;</option>
+              <option value="random_letters_90_270">Random letters 90&deg;, 270&deg;</option>
+              <option value="random_letters_180_90_270">Random letters 180&deg;, 90&deg;, 270&deg;</option>
+              <option value="random_letters_random">Random letters random&deg;</option>
+            </select>
+          </label>
+        </div>
+        <div>
+          <label>
+            <span>Mirror words:</span>
+            <select id="mirroring-words-select">
+              <option value="no">-</option>
+              <option value="words_x">Words X (horizontally)</option>
+              <option value="words_y">Words Y (vertically)</option>
+              <option value="words_xy">Words XY</option>
+              <option value="words_x_xor_y">Words X or Y</option>
+              <option value="words_x_or_y_or_xy">Words X or Y or XY</option>
               <option value="random_words_x">Random words X</option>
               <option value="random_words_y">Random words Y</option>
               <option value="random_words_xy">Random words XY</option>
-              <option value="random_words_x_xor_y">Random words X xor Y</option>
+              <option value="random_words_x_xor_y">Random words X or Y</option>
               <option value="random_words_x_or_y_or_xy">Random words X or Y or XY</option>
-              <option value="letters_x_xor_y">Letters X xor Y</option>
+            </select>
+          </label>
+        </div>
+        <div>
+          <label>
+            <span>Mirror letters:</span>
+            <select id="mirroring-letters-select">
+              <option value="no">-</option>
+              <option value="letters_x">Letters X</option>
+              <option value="letters_y">Letters Y</option>
+              <option value="letters_xy">Letters XY</option>
+              <option value="letters_x_xor_y">Letters X or Y</option>
               <option value="letters_x_or_y_or_xy">Letters X or Y or XY</option>
               <option value="random_letters_x">Random letters X</option>
               <option value="random_letters_y">Random letters Y</option>
               <option value="random_letters_xy">Random letters XY</option>
-              <option value="random_letters_x_xor_y">Random letters X xor Y</option>
+              <option value="random_letters_x_xor_y">Random letters X or Y</option>
               <option value="random_letters_x_or_y_or_xy">Random letters X or Y or XY</option>
             </select>
           </label>
         </div>
-        <div id="skewing-div" class="mt-10 with-rounded-border">
-          <label><input type="checkbox" id="skewing-toggle"> Skewing</label>
-          <div id="skewing-options" class="mt-10">
+        <div id="skewing-div" class="with-rounded-border">
+          <label><input type="checkbox" id="skewing-toggle"> Skew</label>
+          <div id="skewing-options">
             <div>
               <label>
                 <span>Target:</span>
@@ -1097,12 +1183,12 @@
           <div>
             <label>
               <input type="checkbox" id="color-encoder-toggle">
-              <span>Coloring <kbd>E</kbd></span>
+              <span>Color <kbd>E</kbd></span>
             </label>
           </div>
           <div id="color-encoder-options">
             <div>
-              <label><input type="checkbox" id="only-text-coloring-toggle"> Only text coloring</label>
+              <label><input type="checkbox" id="text-background-coloring-toggle"> Background coloring</label>
             </div>
             <div>
               <label>
@@ -1143,8 +1229,8 @@
             </label>
           </div>
           <div>
-            <button id="randomize-paragraphs" class="dark-button">Shuffle paragraphs</button>
-            <button id="randomize-sentences" class="dark-button">Shuffle sentences</button>
+            <button id="shuffle-paragraphs" class="dark-button">Shuffle paragraphs</button>
+            <button id="shuffle-sentences" class="dark-button">Shuffle sentences</button>
           </div>
           <div class="with-rounded-border">
             <h3 id="random-paragraphs-caption">Random paragraphs</h3>
@@ -1156,6 +1242,7 @@
             </div>
             <div>
               <label>
+                <div>Random wiki summaries by language:</div>
                 <select id="load-wiki-language-select">
                   <option value="af">Afrikaans / Afrikaans</option>
                   <option value="sq">Albanian / shqip</option>
@@ -1499,9 +1586,10 @@
                   <option value="ko">Korean / &#54620;&#44397;&#50612;</option>
                   <option value="got">Gothic / &#66354;&#66367;&#66372;&#66361;&#66371;&#66362;</option>
                 </select>
-                <button id="load-wiki-button">Wiki summary</button>
+                <button id="load-wiki-button">Download</button>
               </label>
             </div>
+            <br>
             <div>
               <button id="load-sentence-wordsmyth-beginner">[En] Wordsmyth Beginner's [6153]</button>
             </div>
@@ -1572,7 +1660,7 @@
           <div>
             <label>
               <input type="checkbox" id="faster-transitions-toggle">
-              <span>Faster transitions between sentences</span>
+              <span>Reduced pause between sentences</span>
             </label>
           </div>
         </div>
@@ -1655,6 +1743,7 @@
 
   <script>
     const MarqueeReader = {
+      version: '2.00',
       constructed: false,
 
       fromContinue: false,
@@ -1764,6 +1853,8 @@
       alphabets: [],
 
       settingsNames: {
+        version: 'sle_version',
+
         /* texts */
         currentTextName: 'sle_current_text_name',
         text: 'sle_text',
@@ -1780,7 +1871,7 @@
         colorTaskToggle: 'sle_color_task_toggle',
         colorTaskLetters: 'sle_color_task_letters',
         colorTaskColors: 'sle_color_task_colors',
-        colorTaskOnlyColoring: 'sle_color_task_only_coloring',
+        colorTaskBackgroundColoring: 'sle_color_task_background_coloring',
         speed: 'sle_speed',
         speedSmooth: 'sle_speed_smooth',
         skippingLetters: 'sle_skipping_letters',
@@ -1792,7 +1883,10 @@
         shufflingWords: 'sle_shuffling_words',
         falseWords: 'sle_false_words',
         rotating: 'sle_rotating',
-        mirroring: 'sle_mirroring',
+        rotatingWords: 'sle_rotating_words',
+        rotatingLetters: 'sle_rotating_letters',
+        mirroringWords: 'sle_mirroring_words',
+        mirroringLetters: 'sle_mirroring_letters',
         rotNToggle: 'sle_rot_n_toggle',
         rotNNumber: 'sle_rot_n_number',
         rotNLanguage: 'sle_rot_n_language',
@@ -1836,7 +1930,7 @@
         settings[this.settingsNames.colorTaskToggle] = false;
         settings[this.settingsNames.colorTaskLetters] = '1';
         settings[this.settingsNames.colorTaskColors] = '';
-        settings[this.settingsNames.colorTaskOnlyColoring] = false;
+        settings[this.settingsNames.colorTaskBackgroundColoring] = true;
         settings[this.settingsNames.speed] = '200';
         settings[this.settingsNames.speedSmooth] = false;
         settings[this.settingsNames.skippingLetters] = 'no';
@@ -1847,8 +1941,10 @@
         settings[this.settingsNames.shufflingWords] = 'no';
         settings[this.settingsNames.reversingLetters] = 'no';
         settings[this.settingsNames.falseWords] = 'no';
-        settings[this.settingsNames.rotating] = 'no';
-        settings[this.settingsNames.mirroring] = 'no';
+        settings[this.settingsNames.rotatingWords] = 'no';
+        settings[this.settingsNames.rotatingLetters] = 'no';
+        settings[this.settingsNames.mirroringWords] = 'no';
+        settings[this.settingsNames.mirroringLetters] = 'no';
         settings[this.settingsNames.rotNToggle] = false;
         settings[this.settingsNames.rotNNumber] = '1';
         settings[this.settingsNames.rotNLanguage] = 'English';
@@ -1866,7 +1962,7 @@
         settings[this.settingsNames.colorTaskToggle] = this.elements.colorEncoderToggle.checked;
         settings[this.settingsNames.colorTaskLetters] = this.elements.colorLetterCount.value;
         settings[this.settingsNames.colorTaskColors] = this.elements.colorInput.value;
-        settings[this.settingsNames.colorTaskOnlyColoring] = this.elements.onlyTextColoringToggle.checked;
+        settings[this.settingsNames.colorTaskBackgroundColoring] = this.elements.textBackgroundColoringToggle.checked;
         settings[this.settingsNames.speed] = this.elements.speedNumber.value;
         settings[this.settingsNames.speedSmooth] = this.elements.speedSmoothToggle.checked;
         settings[this.settingsNames.skippingLetters] = this.elements.letterSkipSelect.value;
@@ -1877,8 +1973,10 @@
         settings[this.settingsNames.skippingWords] = this.elements.wordSkipSelect.value;
         settings[this.settingsNames.shufflingWords] = this.elements.wordShuffleSelect.value;
         settings[this.settingsNames.falseWords] = this.elements.wordFalseSelect.value;
-        settings[this.settingsNames.rotating] = this.elements.rotatingSelect.value;
-        settings[this.settingsNames.mirroring] = this.elements.mirroringSelect.value;
+        settings[this.settingsNames.rotatingWords] = this.elements.rotatingWordsSelect.value;
+        settings[this.settingsNames.rotatingLetters] = this.elements.rotatingLettersSelect.value;
+        settings[this.settingsNames.mirroringWords] = this.elements.mirroringWordsSelect.value;
+        settings[this.settingsNames.mirroringLetters] = this.elements.mirroringLettersSelect.value;
         settings[this.settingsNames.rotNToggle] = this.elements.rotNToggle.checked;
         settings[this.settingsNames.rotNNumber] = this.elements.rotNNumber.value;
         settings[this.settingsNames.rotNLanguage] = this.elements.rotNLanguageSelect.value;
@@ -1904,8 +2002,8 @@
         currentKey = this.settingsNames.colorTaskColors;
         this.elements.colorInput.value = keys.includes(currentKey) ? settingsProfileData[currentKey] : defaultSettings[currentKey];
 
-        currentKey = this.settingsNames.colorTaskOnlyColoring;
-        this.elements.onlyTextColoringToggle.checked = keys.includes(currentKey) ? settingsProfileData[currentKey] : defaultSettings[currentKey];
+        currentKey = this.settingsNames.colorTaskBackgroundColoring;
+        this.elements.textBackgroundColoringToggle.checked = keys.includes(currentKey) ? settingsProfileData[currentKey] : defaultSettings[currentKey];
 
         currentKey = this.settingsNames.speed;
         this.elements.speedNumber.value = keys.includes(currentKey) ? settingsProfileData[currentKey] : defaultSettings[currentKey];
@@ -1937,11 +2035,17 @@
         currentKey = this.settingsNames.falseWords;
         this.elements.wordFalseSelect.value = keys.includes(currentKey) ? settingsProfileData[currentKey] : defaultSettings[currentKey];
 
-        currentKey = this.settingsNames.rotating;
-        this.elements.rotatingSelect.value = keys.includes(currentKey) ? settingsProfileData[currentKey] : defaultSettings[currentKey];
+        currentKey = this.settingsNames.rotatingWords;
+        this.elements.rotatingWordsSelect.value = keys.includes(currentKey) ? settingsProfileData[currentKey] : defaultSettings[currentKey];
 
-        currentKey = this.settingsNames.mirroring;
-        this.elements.mirroringSelect.value = keys.includes(currentKey) ? settingsProfileData[currentKey] : defaultSettings[currentKey];
+        currentKey = this.settingsNames.rotatingLetters;
+        this.elements.rotatingLettersSelect.value = keys.includes(currentKey) ? settingsProfileData[currentKey] : defaultSettings[currentKey];
+
+        currentKey = this.settingsNames.mirroringWords;
+        this.elements.mirroringWordsSelect.value = keys.includes(currentKey) ? settingsProfileData[currentKey] : defaultSettings[currentKey];
+
+        currentKey = this.settingsNames.mirroringLetters;
+        this.elements.mirroringLettersSelect.value = keys.includes(currentKey) ? settingsProfileData[currentKey] : defaultSettings[currentKey];
 
         currentKey = this.settingsNames.rotNToggle;
         this.elements.rotNToggle.checked = keys.includes(currentKey) ? settingsProfileData[currentKey] : defaultSettings[currentKey];
@@ -1983,6 +2087,7 @@
       initialize() {
         const currentReader = this;
         console.info(currentReader);
+        currentReader.loadLastVersion();
         currentReader.loadBackground();
         currentReader.cacheElements();
         try {
@@ -2003,6 +2108,27 @@
         catch (err) {
           console.error(err);
           currentReader.elements.mainContainer.innerHTML = `Not supported:<br>${err}`;
+        }
+      },
+
+      loadLastVersion() {
+        let changed = false;
+        const lastVersion = localStorage.getItem(this.settingsNames.version);
+        if (lastVersion == null) {
+          for (let key of Object.values(this.settingsNames)) {
+            if (key !== this.settingsNames.text && key !== this.settingsNames.colorTaskColors) {
+              const value = localStorage.getItem(key);
+              if (value != null) {
+                localStorage.removeItem(key);
+                changed = true;
+              }
+            }
+          }
+        }
+        localStorage.setItem(this.settingsNames.version, this.version);
+        if (changed) {
+          this.locationReload();
+          throw null;
         }
       },
 
@@ -2050,8 +2176,8 @@
         this.elements.loadUnderthekey = document.getElementById('load-underthekey');
         this.elements.loadMetaphorpsum = document.getElementById('load-metaphorpsum');
         this.elements.loadFile = document.getElementById('load-file');
-        this.elements.randomizeParagraphs = document.getElementById('randomize-paragraphs');
-        this.elements.randomizeSentences = document.getElementById('randomize-sentences');
+        this.elements.shuffleParagraphs = document.getElementById('shuffle-paragraphs');
+        this.elements.shuffleSentences = document.getElementById('shuffle-sentences');
         this.elements.colorEncoderToggle = document.getElementById('color-encoder-toggle');
         this.elements.colorEncoderOptions = document.getElementById('color-encoder-options');
         this.elements.colorLetterCount = document.getElementById('color-letter-count');
@@ -2061,7 +2187,7 @@
         this.elements.dumpColors = document.getElementById('dump-colors');
         this.elements.showColorInfoToggle = document.getElementById('show-color-info-toggle');
         this.elements.refreshText = document.getElementById('refresh-text');
-        this.elements.refreshColors = document.getElementById('refresh-colors');
+        this.elements.refreshView = document.getElementById('refresh-view');
         this.elements.copyMarqueeText = document.getElementById('copy-marquee-text');
         this.elements.copyCurrentText = document.getElementById('copy-current-text');
         this.elements.textHelper = document.getElementById('text-helper');
@@ -2130,15 +2256,17 @@
         this.elements.rotNLanguageSelect = document.getElementById('rot-n-language-select');
         this.elements.rotNLanguageInfo = document.getElementById('rot-n-language-info');
         this.elements.rotNNumber = document.getElementById('rot-n-number');
-        this.elements.rotatingSelect = document.getElementById('rotating-select');
-        this.elements.mirroringSelect = document.getElementById('mirroring-select');
+        this.elements.rotatingWordsSelect = document.getElementById('rotating-words-select');
+        this.elements.rotatingLettersSelect = document.getElementById('rotating-letters-select');
+        this.elements.mirroringWordsSelect = document.getElementById('mirroring-words-select');
+        this.elements.mirroringLettersSelect = document.getElementById('mirroring-letters-select');
         this.elements.skewingToggle = document.getElementById('skewing-toggle');
         this.elements.skewingOptions = document.getElementById('skewing-options');
         this.elements.skewingDiv = document.getElementById('skewing-div');
         this.elements.skewingSelect = document.getElementById('skewing-select');
         this.elements.skewingNumberMin = document.getElementById('skewing-number-min');
         this.elements.skewingNumberMax = document.getElementById('skewing-number-max');
-        this.elements.onlyTextColoringToggle = document.getElementById('only-text-coloring-toggle');
+        this.elements.textBackgroundColoringToggle = document.getElementById('text-background-coloring-toggle');
         this.elements.hiddenContent1 = document.getElementById('hidden-content-1');
         this.elements.randomParagraphsCaption = document.getElementById('random-paragraphs-caption');
         this.elements.marqueeThemeSelect = document.getElementById('marquee-theme-select');
@@ -2236,14 +2364,24 @@
         this.elements.loadUnderthekey.addEventListener('click', () => this.fetchUnderthekey());
         this.elements.loadMetaphorpsum.addEventListener('click', () => this.fetchMetaphorpsum());
         this.elements.loadFile.addEventListener('click', () => this.loadFromFile());
-        this.elements.randomizeParagraphs.addEventListener('click', () => this.randomizeParagraphs());
-        this.elements.randomizeSentences.addEventListener('click', () => this.randomizeSentences());
+        this.elements.shuffleParagraphs.addEventListener('click', () => {
+          if (!confirm('Are you sure you want to shuffle the paragraphs?')) {
+            return;
+          }
+          this.shuffleParagraphs();
+        });
+        this.elements.shuffleSentences.addEventListener('click', () => {
+          if (!confirm('Are you sure you want to shuffle the sentences in the paragraphs?')) {
+            return;
+          }
+          this.shuffleSentences();
+        });
         this.elements.colorEncoderToggle.addEventListener('click', () => this.toggleColorEncoder(false));
         this.elements.dumpColors.addEventListener('click', () => this.dumpColorMap());
         this.elements.showColorInfoToggle.addEventListener('click', () => this.toggleColorDetails());
         this.elements.appendTextToggle.addEventListener('click', () => this.toggleAppendText());
         this.elements.refreshText.addEventListener('click', () => this.refreshMarqueeText());
-        this.elements.refreshColors.addEventListener('click', () => this.refreshMarqueeColors());
+        this.elements.refreshView.addEventListener('click', () => this.refreshMarqueeView());
         this.elements.copyMarqueeText.addEventListener('click', () => this.copyMarqueeText());
         this.elements.copyCurrentText.addEventListener('click', () => this.copyCurrentText());
         this.elements.loopToggle.addEventListener('click', () => this.toggleLoop());
@@ -2299,7 +2437,7 @@
         this.elements.saveBookmarksButton.addEventListener("click", () => this.saveBookmarksToDB());
         this.elements.cancelBookmarksButton.addEventListener("click", () => {
           if (JSON.stringify(currentReader.currentTextBookmarks) !== JSON.stringify(currentReader.tmpBookmarks) &&
-              !confirm('Are you sure you want to close bookmarks block without saving changes?')) {
+              !confirm('Are you sure you want to close the bookmarks block without saving changes?')) {
             return;
           }
           currentReader.toggleBookmarks();
@@ -2343,8 +2481,10 @@
         this.elements.wordSkipSelect.addEventListener('input', settingsProfileModified);
         this.elements.wordShuffleSelect.addEventListener('input', settingsProfileModified);
         this.elements.wordFalseSelect.addEventListener('input', settingsProfileModified);
-        this.elements.rotatingSelect.addEventListener('input', settingsProfileModified);
-        this.elements.mirroringSelect.addEventListener('input', settingsProfileModified);
+        this.elements.rotatingWordsSelect.addEventListener('input', settingsProfileModified);
+        this.elements.rotatingLettersSelect.addEventListener('input', settingsProfileModified);
+        this.elements.mirroringWordsSelect.addEventListener('input', settingsProfileModified);
+        this.elements.mirroringLettersSelect.addEventListener('input', settingsProfileModified);
         this.elements.rotNToggle.addEventListener('click', settingsProfileModified);
         this.elements.rotNLanguageSelect.addEventListener('input', settingsProfileModified);
         this.elements.rotNNumber.addEventListener('input', settingsProfileModified);
@@ -2352,7 +2492,7 @@
         this.elements.skewingSelect.addEventListener('input', settingsProfileModified);
         this.elements.skewingNumberMin.addEventListener('input', settingsProfileModified);
         this.elements.skewingNumberMax.addEventListener('input', settingsProfileModified);
-        this.elements.onlyTextColoringToggle.addEventListener('click', settingsProfileModified);
+        this.elements.textBackgroundColoringToggle.addEventListener('click', settingsProfileModified);
         this.elements.marqueeThemeSelect.addEventListener('input', settingsProfileModified);
 
         document.addEventListener('keydown', e => this.handleKeyPress(e));
@@ -2445,7 +2585,7 @@
         this.elements.rewindButton.disabled = true;
         this.elements.fastForwardButton.disabled = true;
         this.elements.refreshText.disabled = true;
-        this.elements.refreshColors.disabled = true;
+        this.elements.refreshView.disabled = true;
         this.elements.copyMarqueeText.disabled = true;
         this.elements.appendTextToggle.checked = localStorage.getItem(this.settingsNames.appendTextToggle) !== 'false';
         this.toggleAppendText();
@@ -2468,7 +2608,7 @@
         this.toggleImportReplacement();
         this.elements.sentenceCountInput.value = localStorage.getItem(this.settingsNames.sentenceCountToGenerate) || '1';
         this.saveSentenceCountToGenerate();
-        this.elements.loadWikiLanguageSelect.value = localStorage.getItem(this.settingsNames.wikiLang) || 'en';
+        this.elements.loadWikiLanguageSelect.value = localStorage.getItem(this.settingsNames.wikiLang) || 'simple';
         this.saveWikiLang();
         this.elements.fasterTransitionsToggle.checked = localStorage.getItem(this.settingsNames.fasterTransitionsToggle) === 'true';
         this.toggleFasterTransitions();
@@ -2570,6 +2710,7 @@
           clearTimeout(this.animationTimer);
           this.animationTimer = null;
         }
+        this.fromContinue = false;
         this.currentPosition = this.cachedContainerWidth;
         this.elements.marqueeDisplay.style.left = `${this.currentPosition}px`;
         this.elements.speakButton.style.display = '';
@@ -2588,7 +2729,7 @@
           this.elements.rewindButton.disabled = true;
           this.elements.fastForwardButton.disabled = true;
           this.elements.refreshText.disabled = true;
-          this.elements.refreshColors.disabled = true;
+          this.elements.refreshView.disabled = true;
           this.elements.copyMarqueeText.disabled = true;
         }
         else {
@@ -2619,7 +2760,7 @@
 
         let palleteChanged = false;
         const currentSettings = this.getCurrentSettingsProfile();
-        const onlyColoring = currentSettings[this.settingsNames.colorTaskOnlyColoring];
+        const backgroundColoring = currentSettings[this.settingsNames.colorTaskBackgroundColoring];
         const previousRect = this.getScreenRectByWordIndex(this.targetWordIndex);
 
         if (!resume && this.elements.colorEncoderToggle.checked) {
@@ -2746,6 +2887,7 @@
           this.previousText !== cleanedText,
           ...[
           this.settingsNames.skippingLetters,
+          this.settingsNames.reversingLetters,
           this.settingsNames.shufflingLetters,
           this.settingsNames.falseLetters,
           this.settingsNames.eliminatingLetters,
@@ -2797,12 +2939,12 @@
                 || currentReader.colorMap.get(char.toUpperCase())
                 || currentReader.colorMap.get('***');
               if (color) {
-                const bgColorStyle = color.startsWith('font-bg ') ? `background-color:${splitByBrackets(color)[2]};` : (color.startsWith('bg ') ? `background-color:${color.slice(2)};` : (onlyColoring || color === 'default' || color.startsWith('font ') ? '' : `background-color:${color};`));
+                const bgColorStyle = color.startsWith('font-bg ') ? `background-color:${splitByBrackets(color)[2]};` : (color.startsWith('bg ') ? `background-color:${color.slice(2)};` : (!backgroundColoring || color === 'default' || color.startsWith('font ') ? '' : `background-color:${color};`));
                 const fgColorStyle = color.startsWith('font-bg ') ? `color:${splitByBrackets(color)[1]};` : (color === 'default' ? '' : (color.startsWith('font ') ? `color:${color.slice(4)};` : (color.startsWith('bg ') ? `color:${color.slice(2)};` : `color:${color};`)));
-                return `<span style="${bgColorStyle}${fgColorStyle}" class="marquee-letter-span">${formatted}</span>`;
+                return {'style': `${bgColorStyle}${fgColorStyle}`};
               }
             }
-            return formatted;
+            return {};
           };
           this.elements.marqueeDisplay.innerHTML = this.processText(
             textNeedsUpdate ? cleanedText : this.elements.marqueeDisplay.textContent,
@@ -2894,7 +3036,7 @@
         this.elements.rewindButton.disabled = false;
         this.elements.fastForwardButton.disabled = false;
         this.elements.refreshText.disabled = false;
-        this.elements.refreshColors.disabled = false;
+        this.elements.refreshView.disabled = false;
         this.elements.copyMarqueeText.disabled = false;
         if (movement) {
           this.elements.speakButton.style.display = 'none';
@@ -2996,40 +3138,110 @@
 
         const colorEncoderToggleChecked = this.elements.colorEncoderToggle.checked;
 
-        const rotatingSelectValue = this.elements.rotatingSelect.value;
-        const settingRotate1 = rotatingSelectValue === 'text_by_words_180';
-        const settingRotate2 = rotatingSelectValue === 'text_by_letters_180';
-        const settingRotate3 = rotatingSelectValue === 'random_word_by_word_180';
-        const settingRotate4 = rotatingSelectValue === 'random_word_by_letters_180';
-        const settingRotate5 = rotatingSelectValue === 'random_letters_180';
+        const rotatingWordsSelectValue = this.elements.rotatingWordsSelect.value;
+        const settingRotate1 = rotatingWordsSelectValue === 'words_180';
+        const settingRotate2 = rotatingWordsSelectValue === 'words_1_-1';
+        const settingRotate3 = rotatingWordsSelectValue === 'words_181_-181';
+        const settingRotate4 = rotatingWordsSelectValue === 'words_2_-2';
+        const settingRotate5 = rotatingWordsSelectValue === 'words_182_-182';
+        const settingRotate6 = rotatingWordsSelectValue === 'words_1_-1_181_-181';
+        const settingRotate7 = rotatingWordsSelectValue === 'random_words_180';
+        const settingRotate8 = rotatingWordsSelectValue === 'random_words_1_-1';
+        const settingRotate9 = rotatingWordsSelectValue === 'random_words_181_-181';
+        const settingRotate10 = rotatingWordsSelectValue === 'random_words_2_-2';
+        const settingRotate11 = rotatingWordsSelectValue === 'random_words_182_-182';
+        const settingRotate12 = rotatingWordsSelectValue === 'random_words_1_-1_181_-181';
+
+        const rotatingLettersSelectValue = this.elements.rotatingLettersSelect.value;
+        const settingRotate13 = rotatingLettersSelectValue === 'letters_180';
+        const settingRotate14 = rotatingLettersSelectValue === 'letters_90';
+        const settingRotate15 = rotatingLettersSelectValue === 'letters_270';
+        const settingRotate16 = rotatingLettersSelectValue === 'letters_90_270';
+        const settingRotate17 = rotatingLettersSelectValue === 'letters_180_90_270';
+        const settingRotate18 = rotatingLettersSelectValue === 'letters_random';
+        const settingRotate19 = rotatingLettersSelectValue === 'random_letters_180';
+        const settingRotate20 = rotatingLettersSelectValue === 'random_letters_90';
+        const settingRotate21 = rotatingLettersSelectValue === 'random_letters_270';
+        const settingRotate22 = rotatingLettersSelectValue === 'random_letters_90_270';
+        const settingRotate23 = rotatingLettersSelectValue === 'random_letters_180_90_270';
+        const settingRotate24 = rotatingLettersSelectValue === 'random_letters_random';
+
         const settingRotate = (
           settingRotate1 ||
           settingRotate2 ||
           settingRotate3 ||
           settingRotate4 ||
-          settingRotate5
+          settingRotate5 ||
+          settingRotate6 ||
+          settingRotate7 ||
+          settingRotate8 ||
+          settingRotate9 ||
+          settingRotate10 ||
+          settingRotate11 ||
+          settingRotate12 ||
+          settingRotate13 ||
+          settingRotate14 ||
+          settingRotate15 ||
+          settingRotate16 ||
+          settingRotate17 ||
+          settingRotate18 ||
+          settingRotate19 ||
+          settingRotate20 ||
+          settingRotate21 ||
+          settingRotate22 ||
+          settingRotate23 ||
+          settingRotate24
         );
-        const rotateClass = 'rotate-180';
-        const textRotateSetting = settingRotate1 ? rotateClass : '';
+        const isRotateClass = (x) => x.startsWith('rotate-');
+        const rotate1Class = 'rotate-1';
+        const rotate2Class = 'rotate-2';
+        const rotate181Class = 'rotate-181';
+        const rotate182Class = 'rotate-182';
+        const rotateN1Class = 'rotate--1';
+        const rotateN2Class = 'rotate--2';
+        const rotateN181Class = 'rotate--181';
+        const rotateN182Class = 'rotate--182';
+        const rotate180Class = 'rotate-180';
+        const rotate90Class = 'rotate-90';
+        const rotate270Class = 'rotate-270';
+        const rotateRandom = () => {
+          return `rotate(${this.randomInt(0, 360)}deg)`;
+        };
+        const textWordsRotateSetting = settingRotate1
+          ? rotate180Class
+          : '';
+        const textLettersRotateSetting = settingRotate13
+          ? rotate180Class
+          : (settingRotate14
+              ? rotate90Class
+              : (settingRotate15
+                  ? rotate270Class
+                  : ''));
 
-        const mirroringSelectValue = this.elements.mirroringSelect.value;
-        const settingMirror1 = mirroringSelectValue === 'text_x';
-        const settingMirror2 = mirroringSelectValue === 'text_y';
-        const settingMirror3 = mirroringSelectValue === 'text_xy';
-        const settingMirror4 = mirroringSelectValue === 'words_x_xor_y';
-        const settingMirror5 = mirroringSelectValue === 'words_x_or_y_or_xy';
-        const settingMirror6 = mirroringSelectValue === 'random_words_x';
-        const settingMirror7 = mirroringSelectValue === 'random_words_y';
-        const settingMirror8 = mirroringSelectValue === 'random_words_xy';
-        const settingMirror9 = mirroringSelectValue === 'random_words_x_xor_y';
-        const settingMirror10 = mirroringSelectValue === 'random_words_x_or_y_or_xy';
-        const settingMirror11 = mirroringSelectValue === 'letters_x_xor_y';
-        const settingMirror12 = mirroringSelectValue === 'letters_x_or_y_or_xy';
-        const settingMirror13 = mirroringSelectValue === 'random_letters_x';
-        const settingMirror14 = mirroringSelectValue === 'random_letters_y';
-        const settingMirror15 = mirroringSelectValue === 'random_letters_xy';
-        const settingMirror16 = mirroringSelectValue === 'random_letters_x_xor_y';
-        const settingMirror17 = mirroringSelectValue === 'random_letters_x_or_y_or_xy';
+        const mirroringWordsSelectValue = this.elements.mirroringWordsSelect.value;
+        const settingMirror1 = mirroringWordsSelectValue === 'words_x';
+        const settingMirror2 = mirroringWordsSelectValue === 'words_y';
+        const settingMirror3 = mirroringWordsSelectValue === 'words_xy';
+        const settingMirror4 = mirroringWordsSelectValue === 'words_x_xor_y';
+        const settingMirror5 = mirroringWordsSelectValue === 'words_x_or_y_or_xy';
+        const settingMirror6 = mirroringWordsSelectValue === 'random_words_x';
+        const settingMirror7 = mirroringWordsSelectValue === 'random_words_y';
+        const settingMirror8 = mirroringWordsSelectValue === 'random_words_xy';
+        const settingMirror9 = mirroringWordsSelectValue === 'random_words_x_xor_y';
+        const settingMirror10 = mirroringWordsSelectValue === 'random_words_x_or_y_or_xy';
+
+        const mirroringLettersSelectValue = this.elements.mirroringLettersSelect.value;
+        const settingMirror11 = mirroringLettersSelectValue === 'letters_x';
+        const settingMirror12 = mirroringLettersSelectValue === 'letters_y';
+        const settingMirror13 = mirroringLettersSelectValue === 'letters_xy';
+        const settingMirror14 = mirroringLettersSelectValue === 'letters_x_xor_y';
+        const settingMirror15 = mirroringLettersSelectValue === 'letters_x_or_y_or_xy';
+        const settingMirror16 = mirroringLettersSelectValue === 'random_letters_x';
+        const settingMirror17 = mirroringLettersSelectValue === 'random_letters_y';
+        const settingMirror18 = mirroringLettersSelectValue === 'random_letters_xy';
+        const settingMirror19 = mirroringLettersSelectValue === 'random_letters_x_xor_y';
+        const settingMirror20 = mirroringLettersSelectValue === 'random_letters_x_or_y_or_xy';
+
         const settingMirror = (
           settingMirror1 ||
           settingMirror2 ||
@@ -3047,7 +3259,10 @@
           settingMirror14 ||
           settingMirror15 ||
           settingMirror16 ||
-          settingMirror17
+          settingMirror17 ||
+          settingMirror18 ||
+          settingMirror19 ||
+          settingMirror20
         );
         const mirrorXClass = 'mirror-x';
         const mirrorYClass = 'mirror-y';
@@ -3244,12 +3459,31 @@
               modifiedWord = newWordChars.join('');
             }
 
-            const wordRotateSetting4Bool = settingRotate4 && this.randomBool();
-            const wordRotateSetting = textRotateSetting
-              ? textRotateSetting
-              : (settingRotate3
-                  ? [rotateClass, ''][this.randomInt(0, 1)]
-                  : '');
+            const wordRotateSetting = textWordsRotateSetting
+              ? textWordsRotateSetting
+              : (settingRotate2
+                  ? ([rotate1Class, rotateN1Class][this.randomInt(0, 1)])
+                  : (settingRotate3
+                      ? ([rotate181Class, rotateN181Class][this.randomInt(0, 1)])
+                      : (settingRotate4
+                          ? ([rotate2Class, rotateN2Class][this.randomInt(0, 1)])
+                          : (settingRotate5
+                              ? ([rotate182Class, rotateN182Class][this.randomInt(0, 1)])
+                              : (settingRotate6
+                                  ? ([rotate1Class, rotateN1Class, rotate181Class, rotateN181Class][this.randomInt(0, 3)])
+                                  : (settingRotate7
+                                      ? ([rotate180Class, ''][this.randomInt(0, 1)])
+                                      : (settingRotate8
+                                          ? ([([rotate1Class, rotateN1Class][this.randomInt(0, 1)]), ''][this.randomInt(0, 1)])
+                                          : (settingRotate9
+                                              ? ([([rotate181Class, rotateN181Class][this.randomInt(0, 1)]), ''][this.randomInt(0, 1)])
+                                              : (settingRotate10
+                                                  ? ([([rotate2Class, rotateN2Class][this.randomInt(0, 1)]), ''][this.randomInt(0, 1)])
+                                                  : (settingRotate11
+                                                      ? ([([rotate182Class, rotateN182Class][this.randomInt(0, 1)]), ''][this.randomInt(0, 1)])
+                                                      : (settingRotate12
+                                                          ? ([([rotate1Class, rotateN1Class, rotate181Class, rotateN181Class][this.randomInt(0, 3)]), ''][this.randomInt(0, 1)])
+                                                          : '')))))))))))
 
             const wordMirrorSetting = textMirrorSetting
               ? textMirrorSetting
@@ -3276,36 +3510,62 @@
                   : '');
 
             const finalWord = Array.from(modifiedWord).map((char) => {
-              const letterRotateSetting = wordRotateSetting
-                ? ''
-                : (settingRotate2 || wordRotateSetting4Bool || settingRotate5 && this.randomBool()
-                    ? rotateClass
-                    : '');
 
-              const letterMirrorSetting = wordMirrorSetting
-                ? ''
-                : (settingMirror11
-                    ? ([mirrorXClass, mirrorYClass][this.randomInt(0, 1)])
-                    : (settingMirror12
-                        ? ([mirrorXClass, mirrorYClass, mirrorXYClass][this.randomInt(0, 2)])
-                        : (settingMirror13
-                            ? ([mirrorXClass, ''][this.randomInt(0, 1)])
-                            : (settingMirror14
-                                ? ([mirrorYClass, ''][this.randomInt(0, 1)])
-                                : (settingMirror15
-                                    ? ([mirrorXYClass, ''][this.randomInt(0, 1)])
-                                    : (settingMirror16
-                                        ? ([([mirrorXClass, mirrorYClass][this.randomInt(0, 1)]), ''][this.randomInt(0, 1)])
-                                        : (settingMirror17
-                                            ? ([([mirrorXClass, mirrorYClass, mirrorXYClass][this.randomInt(0, 2)]), ''][this.randomInt(0, 1)])
-                                            : '')))))));
+              const letterRotateSetting = textLettersRotateSetting
+              ? textLettersRotateSetting
+              : (settingRotate16
+                  ? ([rotate90Class, rotate270Class][this.randomInt(0, 1)])
+                  : (settingRotate17
+                      ? ([rotate180Class, rotate90Class, rotate270Class][this.randomInt(0, 2)])
+                      : (settingRotate18
+                          ? rotateRandom()
+                          : (settingRotate19
+                              ? ([rotate180Class, ''][this.randomInt(0, 1)])
+                              : (settingRotate20
+                                  ? ([rotate90Class, ''][this.randomInt(0, 1)])
+                                  : (settingRotate21
+                                      ? ([rotate270Class, ''][this.randomInt(0, 1)])
+                                      : (settingRotate22
+                                          ? ([([rotate90Class, rotate270Class][this.randomInt(0, 1)]), ''][this.randomInt(0, 1)])
+                                          : (settingRotate23
+                                              ? ([([rotate180Class, rotate90Class, rotate270Class][this.randomInt(0, 2)]), ''][this.randomInt(0, 1)])
+                                              : (settingRotate24
+                                                  ? ([rotateRandom(), ''][this.randomInt(0, 1)])
+                                                  : '')))))))));
+
+              const letterMirrorSetting = settingMirror11
+                ? mirrorXClass
+                : (settingMirror12
+                    ? mirrorYClass
+                    : (settingMirror13
+                        ? mirrorXYClass
+                        : (settingMirror14
+                            ? ([mirrorXClass, mirrorYClass][this.randomInt(0, 1)])
+                            : (settingMirror15
+                                ? ([mirrorXClass, mirrorYClass, mirrorXYClass][this.randomInt(0, 2)])
+                                : (settingMirror16
+                                    ? ([mirrorXClass, ''][this.randomInt(0, 1)])
+                                    : (settingMirror17
+                                        ? ([mirrorYClass, ''][this.randomInt(0, 1)])
+                                        : (settingMirror18
+                                            ? ([mirrorXYClass, ''][this.randomInt(0, 1)])
+                                            : (settingMirror19
+                                                ? ([([mirrorXClass, mirrorYClass][this.randomInt(0, 1)]), ''][this.randomInt(0, 1)])
+                                                : (settingMirror20
+                                                    ? ([([mirrorXClass, mirrorYClass, mirrorXYClass][this.randomInt(0, 2)]), ''][this.randomInt(0, 1)])
+                                                    : '')))))))));
 
               const letterSkewSetting = settingSkew3 ? getRandomSkewStyle() : '';
 
               let formatted = char;
               const newClasses = [''], newStyles = [], newTransforms = [];
               if (letterRotateSetting) {
-                newClasses.push(letterRotateSetting);
+                if (isRotateClass(letterRotateSetting)) {
+                  newClasses.push(letterRotateSetting);
+                }
+                else {
+                  newTransforms.push(letterRotateSetting);
+                }
               }
               if (letterMirrorSetting) {
                 newClasses.push(letterMirrorSetting);
@@ -3316,18 +3576,30 @@
               if (newTransforms.length) {
                 newStyles.push('transform: ' + newTransforms.join(' '));
               }
-
+              for (const [k, v] of Object.entries(colorize(char, formatted, modifiedWord))) {
+                if (k === 'style') {
+                  newStyles.push(v);
+                }
+                else if (k === 'class') {
+                  newClasses.push(v);
+                }
+              }
               const newClassesString = newClasses.join(' ');
               const newStyleString = newStyles.length ? ` style="${newStyles.join(';')}"` : '';
               if (newClasses.length > 0 || newStyles.length > 0) {
                 formatted = `<span class="marquee-letter-span${newClassesString}"${newStyleString}>${formatted}</span>`;
               }
-              return colorize(char, formatted, modifiedWord);
+              return formatted;
             }).join('');
 
             const newClasses = [''], newStyles = [], newTransforms = [];
             if (wordRotateSetting) {
-              newClasses.push(wordRotateSetting);
+              if (isRotateClass(wordRotateSetting)) {
+                newClasses.push(wordRotateSetting);
+              }
+              else {
+                newTransforms.push(wordRotateSetting);
+              }
             }
             if (wordMirrorSetting) {
               newClasses.push(wordMirrorSetting);
@@ -3402,8 +3674,6 @@
           }
         }
         const cmp = (a, b) => b - a;
-        duplicateIndices.sort(cmp);
-        vowelIndices.sort(cmp);
         otherIndices.sort(cmp);
         const indicesToRemove = [...duplicateIndices, ...vowelIndices, ...otherIndices].slice(0, numToRemove).sort((a, b) => a - b);
         if (onlyReturnIndices) {
@@ -3765,7 +4035,7 @@
         }
       },
 
-      refreshMarqueeColors() {
+      refreshMarqueeView() {
         if (this.currentPosition !== null) {
           const wasPlaying = this.animationTimer !== null;
           if (wasPlaying) this.pauseAnimation();
@@ -3773,6 +4043,7 @@
             this.colorMap.clear();
             this.colorList = [];
           }
+          this.wasColorTaskChecked = false;
           this.startAnimation(false, false);
           this.savePosition();
           if (wasPlaying) this.startAnimation(true);
@@ -3992,7 +4263,7 @@
               setTimeout(() => currentReader.fetchWikipedia(true), currentReader.sentenceDownloadDelay);
             }
             else if (currentHash === currentReader.sentenceHash && currentReader.sentenceInitCount >= 1 && currentReader.sentenceCounter <= 0) {
-              setTimeout(() => alert('Downloaded!'), 1);
+              setTimeout(() => alert('Download completed!'), 1);
             }
           })
           .catch(() => alert('[Wiki] Data fetching error'));
@@ -4022,7 +4293,7 @@
               setTimeout(() => currentReader.fetchUnderthekey(true), currentReader.sentenceDownloadDelay);
             }
             else if (currentHash === currentReader.sentenceHash && currentReader.sentenceInitCount >= 1 && currentReader.sentenceCounter <= 0) {
-              setTimeout(() => alert('Downloaded!'), 1);
+              setTimeout(() => alert('Download completed!'), 1);
             }
           })
           .catch(() => alert('[Underthekey] Data fetching error'));
@@ -4048,7 +4319,7 @@
               setTimeout(() => currentReader.fetchMetaphorpsum(true), currentReader.sentenceDownloadDelay);
             }
             else if (currentHash === currentReader.sentenceHash && currentReader.sentenceInitCount >= 1 && currentReader.sentenceCounter <= 0) {
-              setTimeout(() => alert('Downloaded!'), 1);
+              setTimeout(() => alert('Download completed!'), 1);
             }
           })
           .catch(() => alert('[Metaphorpsum] Data fetching error'));
@@ -4078,7 +4349,7 @@
         this.elements.body.removeChild(input);
       },
 
-      randomizeParagraphs() {
+      shuffleParagraphs() {
         const currentReader = this;
         const text = this.elements.textInput.value;
         const paragraphs = text.split('\n').filter(p => p.trim());
@@ -4087,7 +4358,7 @@
         this.textIsModified = true;
       },
 
-      randomizeSentences() {
+      shuffleSentences() {
         const currentReader = this;
         const text = this.elements.textInput.value;
         const paragraphs = text.split('\n').filter(p => p.trim());
@@ -4164,7 +4435,7 @@
       getFirstVisibleWordIndex() {
         const containerRect = this.elements.marqueeContainer.getBoundingClientRect();
         let wordIndex = 0, targetWordIndex = -1;
-        for (const elem of document.querySelectorAll('.marquee-word-span')) {
+        for (const elem of this.elements.marqueeDisplay.querySelectorAll('.marquee-word-span')) {
           if (elem.classList.contains(this.newWordMark)) {
             continue;
           }
@@ -4180,7 +4451,7 @@
 
       getScreenRectByWordIndex(targetWordIndex) {
         let wordIndex = 0;
-        for (const elem of document.querySelectorAll('.marquee-word-span')) {
+        for (const elem of this.elements.marqueeDisplay.querySelectorAll('.marquee-word-span')) {
           if (elem.classList.contains(this.newWordMark)) {
             continue;
           }
@@ -4197,7 +4468,7 @@
           return null;
         }
         let wordIndex = 0;
-        for (const elem of document.querySelectorAll('.marquee-word-span')) {
+        for (const elem of this.elements.marqueeDisplay.querySelectorAll('.marquee-word-span')) {
           if (elem.classList.contains(this.newWordMark)) {
             continue;
           }
@@ -4331,8 +4602,8 @@
           case '-': this.adjustSpeed(parseInt(this.elements.speedNumber.value || 0) - 1); break;
           case 't':
           case 'T': this.refreshMarqueeText(); break;
-          case 'c':
-          case 'C': this.refreshMarqueeColors(); break;
+          case 'v':
+          case 'V': this.refreshMarqueeView(); break;
           case 'Escape': this.elements.showColorInfoToggle.click(); break;
         }
       },
@@ -4442,7 +4713,7 @@
           return;
         }
         if (currentReader.textIsModified) {
-          if (!confirm('You have unsaved changes. Are you sure you want to discard the changes and switch text?')) {
+          if (!confirm('You have unsaved changes. Are you sure you want to discard the changes and switch the text?')) {
             currentReader.elements.textSelect.value = currentTextName;
             return;
           }
@@ -4776,7 +5047,7 @@
 
       deleteAllData(callback = null) {
         const currentReader = this;
-        if (confirm('Are you sure you want to delete all data? This action will also remove non-profile settings.')) {
+        if (confirm('Are you sure you want to delete all data? This action will also remove all texts and non-profile settings.')) {
           if (currentReader.database) {
             currentReader.database.close();
             const request = indexedDB.deleteDatabase(currentReader.databaseName);
@@ -5357,7 +5628,7 @@
           currentReader.elements.rewindButton.disabled = true;
           currentReader.elements.fastForwardButton.disabled = true;
           currentReader.elements.refreshText.disabled = true;
-          currentReader.elements.refreshColors.disabled = true;
+          currentReader.elements.refreshView.disabled = true;
           currentReader.elements.copyMarqueeText.disabled = true;
           currentReader.elements.searchButton.style.display = 'none';
           currentReader.elements.bookmarksButton.style.display = 'none';
@@ -5379,7 +5650,7 @@
           currentReader.elements.rewindButton.disabled = false;
           currentReader.elements.fastForwardButton.disabled = false;
           currentReader.elements.refreshText.disabled = false;
-          currentReader.elements.refreshColors.disabled = false;
+          currentReader.elements.refreshView.disabled = false;
           currentReader.elements.copyMarqueeText.disabled = false;
           currentReader.elements.searchButton.style.display = '';
           currentReader.elements.bookmarksButton.style.display = '';
@@ -5406,20 +5677,18 @@
         }
 
         this.updateCachedSizes();
-        let startSpanIndex = 0;
-        const spans = Array.from(this.elements.marqueeDisplay.querySelectorAll('.marquee-word-span'));
         const words = realText.split(/\s+/).filter(w => w);
         const containerWidth = this.cachedContainerWidth;
         const textWidth = this.cachedTextWidth;
         const shift = containerWidth * Math.max(0, Math.min(0.5, containerWidth / 100 - 5));
+        const containerRect = this.elements.marqueeContainer.getBoundingClientRect();
+
+        let startSpanIndex = 0;
+        const spans = Array.from(this.elements.marqueeDisplay.querySelectorAll('.marquee-word-span'));
         if (this.currentPosition !== null) {
-          const startPos = shift;
-          const endPos = shift - textWidth;
-          const charIndex = Math.floor(this.getProgressByPosition() / 100 * processedText.length);
-          let currentCharCount = 0;
           for (let i = 0; i < spans.length; i++) {
-            currentCharCount += spans[i].textContent.length + 1;
-            if (currentCharCount > charIndex) {
+            const currentSpanRect = spans[i].getBoundingClientRect();
+            if (shift <= currentSpanRect.x + currentSpanRect.width - containerRect.x) {
               startSpanIndex = i;
               break;
             }
@@ -5540,7 +5809,7 @@
           currentReader.elements.rewindButton.disabled = false;
           currentReader.elements.fastForwardButton.disabled = false;
           currentReader.elements.refreshText.disabled = true;
-          currentReader.elements.refreshColors.disabled = true;
+          currentReader.elements.refreshView.disabled = true;
           currentReader.elements.copyMarqueeText.disabled = true;
           currentReader.elements.speakButton.style.display = 'none';
           currentReader.elements.bookmarksButton.style.display = 'none';
@@ -5557,7 +5826,7 @@
           currentReader.elements.rewindButton.disabled = false;
           currentReader.elements.fastForwardButton.disabled = false;
           currentReader.elements.refreshText.disabled = false;
-          currentReader.elements.refreshColors.disabled = false;
+          currentReader.elements.refreshView.disabled = false;
           currentReader.elements.copyMarqueeText.disabled = false;
           currentReader.elements.speakButton.style.display = '';
           currentReader.elements.bookmarksButton.style.display = '';
@@ -5608,9 +5877,7 @@
             const firstSpanRect = matchSpans[0].getBoundingClientRect();
             const marqueeRect = this.elements.marqueeDisplay.getBoundingClientRect();
             const position = -(firstSpanRect.left - marqueeRect.left);
-            const matchLength = matchSpans.reduce((sum, span) => sum + span.getBoundingClientRect().width, 0) +
-              (matchSpans.length - 1) * parseFloat(getComputedStyle(matchSpans[0]).marginRight || 0);
-            this.searchMatches.push({ spanElements: matchSpans, position, matchLength });
+            this.searchMatches.push({ spanElements: matchSpans, position });
           }
         }
 
@@ -5628,9 +5895,6 @@
         const match = this.searchMatches[this.currentMatchIndex];
 
         this.currentPosition = match.position;
-        const containerWidth = this.cachedContainerWidth;
-        const textWidth = this.cachedTextWidth;
-        const endPos = containerWidth - textWidth;
 
         this.elements.marqueeDisplay.style.left = `${this.currentPosition}px`;
         this.savePosition();
@@ -5679,7 +5943,7 @@
           this.elements.rewindButton.disabled = false;
           this.elements.fastForwardButton.disabled = false;
           this.elements.refreshText.disabled = true;
-          this.elements.refreshColors.disabled = true;
+          this.elements.refreshView.disabled = true;
           this.elements.copyMarqueeText.disabled = true;
           this.elements.speakButton.style.display = 'none';
           this.elements.searchButton.style.display = 'none';
@@ -5698,7 +5962,7 @@
           this.elements.rewindButton.disabled = false;
           this.elements.fastForwardButton.disabled = false;
           this.elements.refreshText.disabled = false;
-          this.elements.refreshColors.disabled = false;
+          this.elements.refreshView.disabled = false;
           this.elements.copyMarqueeText.disabled = false;
           this.elements.speakButton.style.display = '';
           this.elements.searchButton.style.display = '';
@@ -5721,11 +5985,12 @@
           const bookmarkDiv = document.createElement("div");
           bookmarkDiv.className = "bookmark-item with-rounded-border";
 
+          const progress = currentReader.getProgressByPosition(currentReader.getPositionByWordIndex(bookmark.wordIndex)) || bookmark.progress;
           const nameElem = document.createElement("div");
           nameElem.textContent = bookmark.name;
-          nameElem.innerHTML += '<br>' + bookmark.progress.toFixed(2) + '%';
+          nameElem.innerHTML += '<br>' + progress.toFixed(2) + '%';
           nameElem.className = "bookmark-name";
-          nameElem.onclick = () => currentReader.goToBookmark(bookmark.progress);
+          nameElem.onclick = () => currentReader.goToBookmark(progress, bookmark.wordIndex);
 
           const removeButton = document.createElement("button");
           removeButton.textContent = "Remove";
@@ -5752,7 +6017,8 @@
         const startPos = containerWidth;
         const endPos = -textWidth;
         const progress = this.getProgressByPosition();
-        this.tmpBookmarks.push({ name, progress });
+        const wordIndex = this.getFirstVisibleWordIndex();
+        this.tmpBookmarks.push({ name, progress, wordIndex });
         this.elements.bookmarkNameInput.value = "";
         this.loadBookmarks();
       },
@@ -5762,8 +6028,8 @@
         this.loadBookmarks();
       },
 
-      goToBookmark(progress) {
-        this.currentPosition = this.getPositionByProgress(progress);
+      goToBookmark(progress, wordIndex) {
+        this.currentPosition = this.getPositionByWordIndex(wordIndex) || this.getPositionByProgress(progress);
         this.elements.marqueeDisplay.style.left = `${this.currentPosition}px`;
         this.savePosition();
       },
@@ -5819,13 +6085,14 @@
           const textWidth = currentReader.cachedTextWidth;
           const startPos = containerWidth;
           const endPos = -textWidth;
+          const progress = currentReader.getProgressByPosition(currentReader.getPositionByWordIndex(bookmark.wordIndex)) || bookmark.progress;
           const mark = document.createElement("div");
           mark.className = "bookmark-mark";
-          mark.style.left = `${bookmark.progress}%`;
+          mark.style.left = `${progress}%`;
           mark.title = bookmark.name;
           mark.addEventListener("click", (event) => {
             event.stopPropagation();
-            currentReader.goToBookmark(bookmark.progress);
+            currentReader.goToBookmark(bookmark.progress, bookmark.wordIndex);
           });
           currentReader.elements.progressBarContainer.appendChild(mark);
         });
