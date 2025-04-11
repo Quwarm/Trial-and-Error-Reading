@@ -111,6 +111,18 @@
       transform: rotate(180deg);
     }
 
+    .mirror-x {
+      transform: scaleX(-1);
+    }
+
+    .mirror-y {
+      transform: scaleY(-1);
+    }
+
+    .mirror-xy {
+      transform: scaleX(-1) scaleY(-1);
+    }
+
     /* Margin */
 
     .tab-content * {
@@ -1017,6 +1029,31 @@
             </select>
           </label>
         </div>
+        <div>
+          <label>
+            <span>Mirroring:</span>
+            <select id="mirroring-select">
+              <option value="no">-</option>
+              <option value="text_x">Text X (horizontally)</option>
+              <option value="text_y">Text Y (vertically)</option>
+              <option value="text_xy">Text XY</option>
+              <option value="words_x_xor_y">Text words X xor Y</option>
+              <option value="words_x_or_y_or_xy">Text words X or Y or XY</option>
+              <option value="random_words_x">Random words X</option>
+              <option value="random_words_y">Random words Y</option>
+              <option value="random_words_xy">Random words XY</option>
+              <option value="random_words_x_xor_y">Random words X xor Y</option>
+              <option value="random_words_x_or_y_or_xy">Random words X or Y or XY</option>
+              <option value="letters_x_xor_y">Letters X xor Y</option>
+              <option value="letters_x_or_y_or_xy">Letters X or Y or XY</option>
+              <option value="random_letters_x">Random letters X</option>
+              <option value="random_letters_y">Random letters Y</option>
+              <option value="random_letters_xy">Random letters XY</option>
+              <option value="random_letters_x_xor_y">Random letters X xor Y</option>
+              <option value="random_letters_x_or_y_or_xy">Random letters X or Y or XY</option>
+            </select>
+          </label>
+        </div>
         <div id="skewing-div" class="mt-10 with-rounded-border">
           <label><input type="checkbox" id="skewing-toggle"> Skewing</label>
           <div id="skewing-options" class="mt-10">
@@ -1742,6 +1779,7 @@
         shufflingWords: 'sle_shuffling_words',
         falseWords: 'sle_false_words',
         rotating: 'sle_rotating',
+        mirroring: 'sle_mirroring',
         rotNToggle: 'sle_rot_n_toggle',
         rotNNumber: 'sle_rot_n_number',
         rotNLanguage: 'sle_rot_n_language',
@@ -1796,13 +1834,14 @@
         settings[this.settingsNames.shufflingWords] = 'no';
         settings[this.settingsNames.falseWords] = 'no';
         settings[this.settingsNames.rotating] = 'no';
+        settings[this.settingsNames.mirroring] = 'no';
         settings[this.settingsNames.rotNToggle] = false;
         settings[this.settingsNames.rotNNumber] = '1';
         settings[this.settingsNames.rotNLanguage] = 'English';
         settings[this.settingsNames.skewingToggle] = false;
         settings[this.settingsNames.skewingType] = 'text';
-        settings[this.settingsNames.skewingNumberMin] = '1';
-        settings[this.settingsNames.skewingNumberMax] = '10';
+        settings[this.settingsNames.skewingNumberMin] = '-30';
+        settings[this.settingsNames.skewingNumberMax] = '30';
         settings[this.settingsNames.textSize] = '42';
         settings[this.settingsNames.marqueeTheme] = 'marquee-theme-1';
         return settings;
@@ -1824,6 +1863,7 @@
         settings[this.settingsNames.shufflingWords] = this.elements.wordShuffleSelect.value;
         settings[this.settingsNames.falseWords] = this.elements.wordFalseSelect.value;
         settings[this.settingsNames.rotating] = this.elements.rotatingSelect.value;
+        settings[this.settingsNames.mirroring] = this.elements.mirroringSelect.value;
         settings[this.settingsNames.rotNToggle] = this.elements.rotNToggle.checked;
         settings[this.settingsNames.rotNNumber] = this.elements.rotNNumber.value;
         settings[this.settingsNames.rotNLanguage] = this.elements.rotNLanguageSelect.value;
@@ -1881,6 +1921,9 @@
 
         currentKey = this.settingsNames.rotating;
         this.elements.rotatingSelect.value = keys.includes(currentKey) ? settingsProfileData[currentKey] : defaultSettings[currentKey];
+
+        currentKey = this.settingsNames.mirroring;
+        this.elements.mirroringSelect.value = keys.includes(currentKey) ? settingsProfileData[currentKey] : defaultSettings[currentKey];
 
         currentKey = this.settingsNames.rotNToggle;
         this.elements.rotNToggle.checked = keys.includes(currentKey) ? settingsProfileData[currentKey] : defaultSettings[currentKey];
@@ -2069,6 +2112,7 @@
         this.elements.rotNLanguageInfo = document.getElementById('rot-n-language-info');
         this.elements.rotNNumber = document.getElementById('rot-n-number');
         this.elements.rotatingSelect = document.getElementById('rotating-select');
+        this.elements.mirroringSelect = document.getElementById('mirroring-select');
         this.elements.skewingToggle = document.getElementById('skewing-toggle');
         this.elements.skewingOptions = document.getElementById('skewing-options');
         this.elements.skewingDiv = document.getElementById('skewing-div');
@@ -2280,6 +2324,7 @@
         this.elements.wordShuffleSelect.addEventListener('input', settingsProfileModified);
         this.elements.wordFalseSelect.addEventListener('input', settingsProfileModified);
         this.elements.rotatingSelect.addEventListener('input', settingsProfileModified);
+        this.elements.mirroringSelect.addEventListener('input', settingsProfileModified);
         this.elements.rotNToggle.addEventListener('click', settingsProfileModified);
         this.elements.rotNLanguageSelect.addEventListener('input', settingsProfileModified);
         this.elements.rotNNumber.addEventListener('input', settingsProfileModified);
@@ -2466,6 +2511,10 @@
         else {
           return 0;
         }
+      },
+
+      randomBool() {
+        return Math.random() < 0.5;
       },
 
       controlBeforeUnload() {
@@ -2860,9 +2909,6 @@
 
       processText(text, referenceText, shouldModify, colorize) {
         const currentReader = this;
-        const getRandomSkewStyle = () => {
-          return `transform: skewX(${currentReader.randomInt(skewingNumberMinValue, skewingNumberMaxValue)}deg)`;
-        };
 
         const letterEliminationSelectValue = this.elements.letterEliminationSelect.value;
         const letterEliminationVowelMatch = shouldModify && letterEliminationSelectValue !== 'no' ? /(\d+)%_vowels/.exec(letterEliminationSelectValue) : null;
@@ -2943,6 +2989,54 @@
         const rotateClass = 'rotate-180';
         const textRotateSetting = settingRotate1 ? rotateClass : '';
 
+        const mirroringSelectValue = this.elements.mirroringSelect.value;
+        const settingMirror1 = mirroringSelectValue === 'text_x';
+        const settingMirror2 = mirroringSelectValue === 'text_y';
+        const settingMirror3 = mirroringSelectValue === 'text_xy';
+        const settingMirror4 = mirroringSelectValue === 'words_x_xor_y';
+        const settingMirror5 = mirroringSelectValue === 'words_x_or_y_or_xy';
+        const settingMirror6 = mirroringSelectValue === 'random_words_x';
+        const settingMirror7 = mirroringSelectValue === 'random_words_y';
+        const settingMirror8 = mirroringSelectValue === 'random_words_xy';
+        const settingMirror9 = mirroringSelectValue === 'random_words_x_xor_y';
+        const settingMirror10 = mirroringSelectValue === 'random_words_x_or_y_or_xy';
+        const settingMirror11 = mirroringSelectValue === 'letters_x_xor_y';
+        const settingMirror12 = mirroringSelectValue === 'letters_x_or_y_or_xy';
+        const settingMirror13 = mirroringSelectValue === 'random_letters_x';
+        const settingMirror14 = mirroringSelectValue === 'random_letters_y';
+        const settingMirror15 = mirroringSelectValue === 'random_letters_xy';
+        const settingMirror16 = mirroringSelectValue === 'random_letters_x_xor_y';
+        const settingMirror17 = mirroringSelectValue === 'random_letters_x_or_y_or_xy';
+        const settingMirror = (
+          settingMirror1 ||
+          settingMirror2 ||
+          settingMirror3 ||
+          settingMirror4 ||
+          settingMirror5 ||
+          settingMirror6 ||
+          settingMirror7 ||
+          settingMirror8 ||
+          settingMirror9 ||
+          settingMirror10 ||
+          settingMirror11 ||
+          settingMirror12 ||
+          settingMirror13 ||
+          settingMirror14 ||
+          settingMirror15 ||
+          settingMirror16 ||
+          settingMirror17
+        );
+        const mirrorXClass = 'mirror-x';
+        const mirrorYClass = 'mirror-y';
+        const mirrorXYClass = 'mirror-xy';
+        const textMirrorSetting = settingMirror1
+          ? mirrorXClass
+          : (settingMirror2
+              ? mirrorYClass
+              : (settingMirror3
+                  ? mirrorXYClass
+                  : ''));
+
         const skewingToggleChecked = this.elements.skewingToggle.checked;
         const skewingTypeValue = this.elements.skewingSelect.value;
         const skewingNumberMinValue = parseInt(this.elements.skewingNumberMin.value || 0);
@@ -2955,9 +3049,12 @@
           settingSkew2 ||
           settingSkew3
         );
+        const getRandomSkewStyle = () => {
+          return `skewX(${currentReader.randomInt(skewingNumberMinValue, skewingNumberMaxValue)}deg)`;
+        };
         const textSkewSetting = settingSkew1 ? getRandomSkewStyle() : '';
 
-        const wordHint1 = wordSkipMatch != null || colorEncoderToggleChecked || settingRotate || settingSkew;
+        const wordHint1 = wordSkipMatch != null || colorEncoderToggleChecked || settingRotate || settingMirror || settingSkew;
         const wordHint2 = letterShuffleCheck ||
                           letterEliminationVowelMatch != null ||
                           letterEliminationRandomMatch != null ||
@@ -3092,37 +3189,99 @@
               modifiedWord = newWordChars.join('');
             }
 
-            const wordRotateSetting4Bool = settingRotate4 && Math.random() < 0.5;
-            const wordRotateSetting = textRotateSetting ? textRotateSetting : (settingRotate3 && Math.random() < 0.5 ? rotateClass : '');
-            const wordSkewSetting = textSkewSetting ? textSkewSetting : (settingSkew2 ? getRandomSkewStyle() : '');
+            const wordRotateSetting4Bool = settingRotate4 && this.randomBool();
+            const wordRotateSetting = textRotateSetting
+              ? textRotateSetting
+              : (settingRotate3
+                  ? [rotateClass, ''][this.randomInt(0, 1)]
+                  : '');
+
+            const wordMirrorSetting = textMirrorSetting
+              ? textMirrorSetting
+              : (settingMirror4
+                  ? ([mirrorXClass, mirrorYClass][this.randomInt(0, 1)])
+                  : (settingMirror5
+                      ? ([mirrorXClass, mirrorYClass, mirrorXYClass][this.randomInt(0, 2)])
+                      : (settingMirror6
+                          ? ([mirrorXClass, ''][this.randomInt(0, 1)])
+                          : (settingMirror7
+                              ? ([mirrorYClass, ''][this.randomInt(0, 1)])
+                              : (settingMirror8
+                                  ? ([mirrorXYClass, ''][this.randomInt(0, 1)])
+                                  : (settingMirror9
+                                      ? ([([mirrorXClass, mirrorYClass][this.randomInt(0, 1)]), ''][this.randomInt(0, 1)])
+                                      : (settingMirror10
+                                          ? ([([mirrorXClass, mirrorYClass, mirrorXYClass][this.randomInt(0, 2)]), ''][this.randomInt(0, 1)])
+                                          : '')))))));
+
+            const wordSkewSetting = textSkewSetting
+              ? textSkewSetting
+              : (settingSkew2
+                  ? getRandomSkewStyle()
+                  : '');
 
             const finalWord = Array.from(modifiedWord).map((char) => {
-              const letterRotateSetting = wordRotateSetting ? '' : (settingRotate2 || wordRotateSetting4Bool || settingRotate5 && Math.random() < 0.5 ? rotateClass : '');
+              const letterRotateSetting = wordRotateSetting
+                ? ''
+                : (settingRotate2 || wordRotateSetting4Bool || settingRotate5 && this.randomBool()
+                    ? rotateClass
+                    : '');
+
+              const letterMirrorSetting = wordMirrorSetting
+                ? ''
+                : (settingMirror11
+                    ? ([mirrorXClass, mirrorYClass][this.randomInt(0, 1)])
+                    : (settingMirror12
+                        ? ([mirrorXClass, mirrorYClass, mirrorXYClass][this.randomInt(0, 2)])
+                        : (settingMirror13
+                            ? ([mirrorXClass, ''][this.randomInt(0, 1)])
+                            : (settingMirror14
+                                ? ([mirrorYClass, ''][this.randomInt(0, 1)])
+                                : (settingMirror15
+                                    ? ([mirrorXYClass, ''][this.randomInt(0, 1)])
+                                    : (settingMirror16
+                                        ? ([([mirrorXClass, mirrorYClass][this.randomInt(0, 1)]), ''][this.randomInt(0, 1)])
+                                        : (settingMirror17
+                                            ? ([([mirrorXClass, mirrorYClass, mirrorXYClass][this.randomInt(0, 2)]), ''][this.randomInt(0, 1)])
+                                            : '')))))));
+
               const letterSkewSetting = settingSkew3 ? getRandomSkewStyle() : '';
 
               let formatted = char;
-              const newClasses = [], newStyles = [];
+              const newClasses = [''], newStyles = [], newTransforms = [];
               if (letterRotateSetting) {
                 newClasses.push(letterRotateSetting);
               }
+              if (letterMirrorSetting) {
+                newClasses.push(letterMirrorSetting);
+              }
               if (letterSkewSetting) {
-                newStyles.push(letterSkewSetting);
+                newTransforms.push(letterSkewSetting);
+              }
+              if (newTransforms.length) {
+                newStyles.push('transform: ' + newTransforms.join(' '));
               }
 
               const newClassesString = newClasses.join(' ');
-              const newStyleString = newStyles.length ? `style="${newStyles.join(';')}"` : '';
+              const newStyleString = newStyles.length ? ` style="${newStyles.join(';')}"` : '';
               if (newClasses.length > 0 || newStyles.length > 0) {
-                formatted = `<span class="marquee-letter-span ${newClassesString}" ${newStyleString}>${formatted}</span>`;
+                formatted = `<span class="marquee-letter-span${newClassesString}"${newStyleString}>${formatted}</span>`;
               }
               return colorize(char, formatted, modifiedWord);
             }).join('');
 
-            const newClasses = [''], newStyles = [];
+            const newClasses = [''], newStyles = [], newTransforms = [];
             if (wordRotateSetting) {
               newClasses.push(wordRotateSetting);
             }
+            if (wordMirrorSetting) {
+              newClasses.push(wordMirrorSetting);
+            }
             if (wordSkewSetting) {
-              newStyles.push(wordSkewSetting);
+              newTransforms.push(wordSkewSetting);
+            }
+            if (newTransforms.length) {
+              newStyles.push('transform: ' + newTransforms.join(' '));
             }
 
             const newWordMark = (processedRefWords[i] || word).startsWith('- ') ? ` ${this.newWordMark}` : '';
@@ -3278,7 +3437,7 @@
         for (let i = 0; i < words.length; ++i) {
           (i % 2 ? indices1 : indices2).push(i)
         }
-        if (Math.random() < 0.5) {
+        if (this.randomBool()) {
           [indices1, indices2] = [indices2, indices1];
         }
         const newIndices1 = this.maxDistanceIndexes(indices1.length);
@@ -3948,18 +4107,14 @@
       },
 
       getFirstVisibleWordIndex() {
-        const cachedContainerWidth = this.cachedContainerWidth;
-        if (cachedContainerWidth == null) {
-          return null;
-        }
+        const containerRect = this.elements.marqueeContainer.getBoundingClientRect();
         let wordIndex = 0, targetWordIndex = -1;
         for (const elem of document.querySelectorAll('.marquee-word-span')) {
           if (elem.classList.contains(this.newWordMark)) {
             continue;
           }
           const rect = elem.getBoundingClientRect();
-          const position = rect.x + rect.width / 2;
-          if (0 <= position && position < cachedContainerWidth) {
+          if (0 <= rect.x + rect.width - containerRect.x) {
             targetWordIndex = wordIndex;
             break;
           }
