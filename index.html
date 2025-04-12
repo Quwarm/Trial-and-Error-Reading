@@ -1795,7 +1795,9 @@
       vowelPattern: null,
       letterPattern: null,
       wordPattern: null,
-      punctuationPattern: null,
+      notLetterPattern: null,
+      notWordPattern: null,
+      upperCaseWordStartPattern: null,
       spacePattern: null,
       vowelPatternG: null,
       letterPatternG: null,
@@ -2331,14 +2333,16 @@
       },
 
       setupPatterns() {
-        this.vowelPattern = new RegExp('[\u0041\u0045\u0049\u004f\u0055\u0410\u0415\u0401\u0418\u041e\u0423\u042b\u042d\u042e\u042f\u0391\u0395\u0397\u0399\u039f\u03a5\u03a9\u0101\u012b\u016b\u0113\u014d]', 'ui');
-        this.letterPattern = new RegExp(/\p{L}/, 'ui');
-        this.wordPattern = new RegExp(/\p{L}+/, 'ui');
-        this.punctuationPattern = new RegExp(/\p{S}|\p{Ps}|\p{Pe}|\p{Pi}|\p{Pf}|[!"#%&*,./:;?@^]|^-$/, 'ui');
-        this.spacePattern = new RegExp(/\p{Z}/, 'ui');
-        this.vowelPatternG = new RegExp(this.vowelPattern, 'uig');
-        this.letterPatternG = new RegExp(this.letterPattern, 'uig');
-        this.wordPatternG = new RegExp(this.wordPattern, 'uig');
+        this.vowelPattern = new RegExp(/[AEIOUYaeiouy\xc0\xc1\xc2\xc3\xc4\xc5\xc6\xc8\xc9\xca\xcb\xcc\xcd\xce\xcf\xd2\xd3\xd4\xd5\xd6\xd8\xd9\xda\xdb\xdc\xdd\xe0\xe1\xe2\xe3\xe4\xe5\xe6\xe8\xe9\xea\xeb\xec\xed\xee\xef\xf2\xf3\xf4\xf5\xf6\xf8\xf9\xfa\xfb\xfc\xfd\xff\u0100\u0101\u0102\u0103\u0104\u0105\u0112\u0113\u0114\u0115\u0116\u0117\u0118\u0119\u011a\u011b\u0128\u0129\u012a\u012b\u012c\u012d\u012e\u012f\u0130\u0131\u014c\u014d\u014e\u014f\u0150\u0151\u0152\u0153\u0168\u0169\u016a\u016b\u016c\u016d\u016e\u016f\u0170\u0171\u0172\u0173\u0176\u0177\u0178\u0186\u018f\u0190\u0196\u0197\u019c\u019f\u01a0\u01a1\u01af\u01b0\u01b1\u01b2\u01e2\u01e3\u01ea\u01eb\u0226\u0227\u022e\u022f\u0232\u0233\u0244\u0245\u0250\u0251\u0252\u0254\u0258\u0259\u025b\u025c\u025d\u025e\u0268\u0269\u026a\u026f\u0275\u0276\u0277\u0289\u028a\u028b\u028c\u028e\u029a\u0391\u0395\u0399\u039f\u03a9\u03b1\u03b5\u03b9\u03bf\u03c9\u0401\u0410\u0415\u0418\u041e\u0423\u042b\u042d\u042e\u042f\u0430\u0435\u0438\u043e\u0443\u044b\u044d\u044e\u044f\u0451\u04d8\u04d9\u0510\u0511\u0591\u0592\u0593\u0594\u0595\u0596\u0597\u0598\u0599\u059a\u059b\u059c\u059d\u059e\u059f\u05a0\u05a1\u05a2\u05a3\u05a4\u05a5\u05a6\u05a7\u05a8\u05a9\u05aa\u05ab\u05ac\u05ad\u05ae\u05af\u05b0\u05b1\u05b2\u05b3\u05b4\u05b5\u05b6\u05b7\u05b8\u05b9\u05ba\u05bb\u05bc\u05bd\u05bf\u05c0\u05c1\u05c2\u05c4\u05c5\u05c6\u05c7\u1d6b\u1e8e\u1e8f\u1ea0\u1ea1\u1eb8\u1eb9\u1eca\u1ecb\u1ecc\u1ecd\u1ee4\u1ee5\u1ef4\u1ef5\u2c6d\u2c6f\u2c70\ua7ab\ua7ae]/, 'u');
+        this.letterPattern = new RegExp(/\p{L}/, 'u');
+        this.wordPattern = new RegExp(/\p{L}+/, 'u');
+        this.notLetterPattern = new RegExp(/[^\p{L}\p{M}\p{Pc}\p{Pd}\p{Sk}\u0027\u055a\u05f3\u2018\u2019\u201b\u2032\u2033\u2034\u2035\u2057\u25cc\uff07]/, 'u');
+        this.notWordPattern = new RegExp(/[^\p{L}\p{M}\p{Pc}\p{Pd}\p{Sk}\u0027\u055a\u05f3\u2018\u2019\u201b\u2032\u2033\u2034\u2035\u2057\u25cc\uff07]+/, 'u');
+        this.upperCaseWordStartPattern = new RegExp(/^[^\p{L}]*?[\p{Lu}\p{Lt}]/, 'u');
+        this.spacePattern = new RegExp(/\p{Z}/, 'u');
+        this.vowelPatternG = new RegExp(this.vowelPattern, 'ug');
+        this.letterPatternG = new RegExp(this.letterPattern, 'ug');
+        this.wordPatternG = new RegExp(this.wordPattern, 'ug');
       },
 
       bindEvents() {
@@ -2742,9 +2746,7 @@
           movement = false;
           this.fromContinue = false;
         }
-        let htmlValue = this.elements.textInput.value.replace(/\s+/g, ' ').trim();
-        htmlValue = htmlValue.replace(/\p{Z}+/ug, ' ');
-        htmlValue = htmlValue.replace(/\p{C}+/ug, '');
+        let htmlValue = this.elements.textInput.value.replace(/\s+/g, ' ').replace(/\p{C}+/ug, '').replace(/\p{Z}+/ug, ' ').trim();
         if (!htmlValue) {
           alert(`The text "${this.currentTextName}" is empty`);
           return false;
@@ -2755,7 +2757,7 @@
         this.elements.textHelper.innerHTML = '';
 
         if (this.previousText !== cleanedText) {
-          this.wordCount = cleanedText.split(/\s+/ug).filter(w => w).length;
+          this.wordCount = cleanedText.split(/\s+/).filter(w => w).length;
         }
 
         let palleteChanged = false;
@@ -2949,6 +2951,7 @@
           this.elements.marqueeDisplay.innerHTML = this.processText(
             textNeedsUpdate ? cleanedText : this.elements.marqueeDisplay.textContent,
             cleanedText,
+            Array.from(this.elements.marqueeDisplay.querySelectorAll('.marquee-word-span')),
             textNeedsUpdate,
             colorize
           );
@@ -3069,17 +3072,22 @@
         }
       },
 
-      processText(text, referenceText, shouldModify, colorize) {
+      processText(text, referenceText, wordsSpans, shouldModify, colorize) {
         const currentReader = this;
+        const vowelsPercentPattern = /(\d+)%_vowels/;
+        const randomPercentPattern = /(\d+)%_random/;
+        const lettersPercentPattern = /(\d+)%_letters?/;
+        const wordsPercentPattern = /(\d+)%_words?/;
+        const wordsNPattern = /(\d+)_words?/;
 
         const letterEliminationSelectValue = this.elements.letterEliminationSelect.value;
-        const letterEliminationVowelMatch = shouldModify && letterEliminationSelectValue !== 'no' ? /(\d+)%_vowels/.exec(letterEliminationSelectValue) : null;
+        const letterEliminationVowelMatch = shouldModify && letterEliminationSelectValue !== 'no' ? vowelsPercentPattern.exec(letterEliminationSelectValue) : null;
         const letterEliminationVowelPercent = letterEliminationVowelMatch ? parseInt(letterEliminationVowelMatch[1]) / 100 : 0;
-        const letterEliminationRandomMatch = shouldModify && letterEliminationSelectValue !== 'no' ? /(\d+)%_random/.exec(letterEliminationSelectValue) : null;
+        const letterEliminationRandomMatch = shouldModify && letterEliminationSelectValue !== 'no' ? randomPercentPattern.exec(letterEliminationSelectValue) : null;
         const letterEliminationRandomPercent = letterEliminationRandomMatch ? parseInt(letterEliminationRandomMatch[1]) / 100 : 0;
 
         const letterSkipSelectValue = this.elements.letterSkipSelect.value;
-        const letterSkipMatch = shouldModify && letterSkipSelectValue !== 'no' ? /(\d+)%_letters/.exec(letterSkipSelectValue) : null;
+        const letterSkipMatch = shouldModify && letterSkipSelectValue !== 'no' ? lettersPercentPattern.exec(letterSkipSelectValue) : null;
         const letterSkipPercent = letterSkipMatch ? parseInt(letterSkipMatch[1]) / 100 : 0;
 
         const letterFalseSelectValue = this.elements.letterFalseSelect.value;
@@ -3087,19 +3095,19 @@
         if (shouldModify && letterFalseSelectValue !== 'no') {
           textChars.push(...(new Set(Array.from(referenceText).filter(w => this.letterPattern.test(w)))));
         }
-        const letterFalseMatch = textChars.length ? /(\d+)%_letters?/.exec(letterFalseSelectValue) : null;
+        const letterFalseMatch = textChars.length ? lettersPercentPattern.exec(letterFalseSelectValue) : null;
         const letterFalsePercent = letterFalseMatch ? parseInt(letterFalseMatch[1]) / 100 : 0;
 
         const wordFalseSelectValue = this.elements.wordFalseSelect.value;
         const textWords = [];
         if (shouldModify && wordFalseSelectValue !== 'no') {
-          textWords.push(...(new Set(referenceText.split(/[^\p{L}]+/ug).filter(w => w))));
+          textWords.push(...(new Set(referenceText.split(this.notWordPattern).filter(w => w))));
         }
-        const wordFalseMatch = textWords.length ? /(\d+)%_words?/.exec(wordFalseSelectValue) : null;
+        const wordFalseMatch = textWords.length ? wordsPercentPattern.exec(wordFalseSelectValue) : null;
         const wordFalsePercent = wordFalseMatch ? parseInt(wordFalseMatch[1]) / 100 : 0;
 
         const wordSkipSelectValue = this.elements.wordSkipSelect.value;
-        const wordSkipMatch = shouldModify && wordSkipSelectValue !== 'no' ? /(\d+)%_words/.exec(wordSkipSelectValue) : null;
+        const wordSkipMatch = shouldModify && wordSkipSelectValue !== 'no' ? wordsPercentPattern.exec(wordSkipSelectValue) : null;
         const wordSkipMatchPercent = wordSkipMatch ? parseInt(wordSkipMatch[1]) / 100 : 0;
 
         const letterReverseSelectValue = this.elements.letterReverseSelect.value;
@@ -3109,9 +3117,9 @@
         const letterShuffleCheck = shouldModify && letterShuffleSelectValue !== 'no';
 
         const wordShuffleSelectValue = this.elements.wordShuffleSelect.value;
-        const wordShuffleMatch = shouldModify && wordShuffleSelectValue !== 'no' ? /(\d+)_words?/.exec(wordShuffleSelectValue) : null;
+        const wordShuffleMatch = shouldModify && wordShuffleSelectValue !== 'no' ? wordsNPattern.exec(wordShuffleSelectValue) : null;
         const wordShuffleNumber = wordShuffleMatch ? parseInt(wordShuffleMatch[1]) : 0;
-        const skipShuffleReverseRegex = /^[\p{Lu}\d'\u2032\u2033\u2034\u2057\u2019\u0060\u00B4\uFF40\u02F4]/;
+        const skipShuffleReverseRegex = this.upperCaseWordStartPattern;
 
         const rotNToggleChecked = this.elements.rotNToggle.checked;
         const rotNNumberValue = parseInt(this.elements.rotNNumber.value || 0);
@@ -3304,12 +3312,12 @@
                           wordShuffleMatch != null;
 
         /* Algorithm */
-        const escapeString = str => str.replace(/\\/g, '').replace(/"/g, '').replace(/'/g, "\\'");
+        const escapeString = str => str.replace(/[\\"]/g, '').replaceAll('\'', '\\\'');
         const textLines = text.split('\n');
         const refLines = referenceText.split('\n');
-        return textLines.map((line, index) => {
+        return textLines.map((line, lineIndex) => {
           const words = line.split(/\s+/).filter(word => word);
-          const refWords = refLines[index] ? refLines[index].split(/\s+/) : words;
+          const refWords = refLines[lineIndex] ? refLines[lineIndex].split(/\s+/) : words;
           let processedWords = words;
           let processedRefWords = refWords;
 
@@ -3345,7 +3353,7 @@
             processedRefWords = newRefWords;
           }
 
-          return processedWords.map((word, i) => {
+          return processedWords.map((word, processedWordIndex) => {
             let modifiedWord = word;
 
             if (word.length > 1) {
@@ -3611,17 +3619,35 @@
               newStyles.push('transform: ' + newTransforms.join(' '));
             }
 
-            const newWordMark = (processedRefWords[i] || word).startsWith('- ') ? ` ${this.newWordMark}` : '';
+            const currentRefWord = (processedRefWords[processedWordIndex] || word);
+            const hasSpan = !shouldModify && processedWordIndex < wordsSpans.length;
+            const hadNewWordMark = hasSpan && wordsSpans[processedWordIndex].classList.contains(this.newWordMark);
+            const newWordMark = hadNewWordMark || currentRefWord.startsWith('- ') ? ` ${this.newWordMark}` : '';
             const newClassesString = newClasses.join(' ');
             const newStyleString = newStyles.length ? ` style="${newStyles.join(';')}"` : '';
-            return (wordHint2 && modifiedWord !== (processedRefWords[i] || word))
-              ? (finalWord !== modifiedWord
-                ? `<span class="marquee-word-span${newWordMark}${newClassesString}"${newStyleString} onclick="MarqueeReader.showWordHint('${escapeString(modifiedWord)}', '${escapeString(processedRefWords[i] || word)}')">${finalWord}</span>`
-                : `<span class="marquee-word-span${newWordMark}${newClassesString}"${newStyleString} onclick="MarqueeReader.showWordHint(this, '${escapeString(processedRefWords[i] || word)}')">${finalWord}</span>`
-              )
-              : ((wordHint1 && finalWord !== (processedRefWords[i] || word))
-                 ? `<span class="marquee-word-span${newWordMark}${newClassesString}"${newStyleString} onclick="MarqueeReader.showWordHint('${escapeString(processedRefWords[i] || word)}')">${finalWord}</span>`
-                 : `<span class="marquee-word-span${newWordMark}${newClassesString}"${newStyleString}>${finalWord}</span>`);
+
+            let onclickParam = '';
+            if (hasSpan) {
+              onclickParam = ' onclick="' + wordsSpans[processedWordIndex].getAttribute('onclick') + '"';
+            }
+            else if (wordHint2 && modifiedWord !== currentRefWord) {
+              if (finalWord !== modifiedWord) {
+                onclickParam = ` onclick="MarqueeReader.showWordHint('${escapeString(modifiedWord)}', '${escapeString(currentRefWord)}')"`;
+              }
+              else {
+                onclickParam = ` onclick="MarqueeReader.showWordHint(this, '${escapeString(currentRefWord)}')"`;
+              }
+            }
+            else {
+              if (wordHint1 && finalWord !== currentRefWord) {
+                onclickParam = ` onclick="MarqueeReader.showWordHint('${escapeString(currentRefWord)}')"`;
+              }
+              else {
+                onclickParam = '';
+              }
+            }
+
+            return `<span class="marquee-word-span${newWordMark}${newClassesString}"${newStyleString}${onclickParam}>${finalWord}</span>`;
           }).join(' ');
         }).join('\n');
       },
@@ -3698,9 +3724,9 @@
         for (let start = 0; start < words.length;) {
           let groupWords = words.slice(start, start + groupSize);
           const subGroupWords = [groupWords[0]];
-          const hasPunctuation = this.punctuationPattern.test(groupWords[0]);
+          const notLetter = this.notLetterPattern.test(groupWords[0]);
           for (let j = 1; j < groupWords.length; j++) {
-            if (hasPunctuation || this.punctuationPattern.test(groupWords[j])) {
+            if (notLetter || this.notLetterPattern.test(groupWords[j])) {
               break;
             }
             subGroupWords.push(groupWords[j]);
@@ -3710,7 +3736,7 @@
           const shuffleableIndices = [];
           const fixedIndices = new Set();
           for (let j = 0; j < groupLength; j++) {
-            if (!this.punctuationPattern.test(groupWords[j]) && this.wordPattern.test(groupWords[j])) {
+            if (!this.notLetterPattern.test(groupWords[j]) && this.wordPattern.test(groupWords[j])) {
               shuffleableIndices.push(j);
             }
             else {
@@ -3790,9 +3816,9 @@
         return char.toLowerCase() !== char.toUpperCase() || (this.wordPattern && this.wordPattern.test(char));
       },
 
-      shuffleArray(array) {
+      shuffleArray(array, notOriginal = true) {
         for (let i = array.length - 1; i > 0; i--) {
-          const j = Math.floor(Math.random() * (i + 1));
+          const j = Math.floor(Math.random() * (i + (1 - notOriginal)));
           [array[i], array[j]] = [array[j], array[i]];
         }
       },
@@ -5684,7 +5710,7 @@
         const containerRect = this.elements.marqueeContainer.getBoundingClientRect();
 
         let startSpanIndex = 0;
-        const spans = Array.from(this.elements.marqueeDisplay.querySelectorAll('.marquee-word-span'));
+        const spans = Array.from(this.elements.marqueeDisplay.querySelectorAll('.marquee-word-span')).filter(x => !x.classList.contains(this.newWordMark));
         if (this.currentPosition !== null) {
           for (let i = 0; i < spans.length; i++) {
             const currentSpanRect = spans[i].getBoundingClientRect();
@@ -5857,7 +5883,7 @@
         const endPos = containerWidth - textWidth;
         const caseInsensitive = this.searchQuery === this.searchQuery.toLowerCase();
 
-        const spans = Array.from(this.elements.marqueeDisplay.querySelectorAll('.marquee-word-span'));
+        const spans = Array.from(this.elements.marqueeDisplay.querySelectorAll('.marquee-word-span')).filter(x => !x.classList.contains(this.newWordMark));
         const queryWords = this.searchQuery.split(/\s+/).filter(word => word);
         for (let i = 0; i <= spans.length - queryWords.length; i++) {
           const matchSpans = [];
