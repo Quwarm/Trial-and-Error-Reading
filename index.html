@@ -1091,6 +1091,34 @@
             </select>
           </label>
         </div>
+        <div>
+          <label>
+            <span>Concatenate words:</span>
+            <select id="word-concat-select">
+              <option value="no">-</option>
+              <option value="5%_words">5%</option>
+              <option value="10%_words">10%</option>
+              <option value="15%_words">15%</option>
+              <option value="20%_words">20%</option>
+              <option value="25%_words">25%</option>
+              <option value="30%_words">30%</option>
+              <option value="35%_words">35%</option>
+              <option value="40%_words">40%</option>
+              <option value="45%_words">45%</option>
+              <option value="50%_words">50%</option>
+              <option value="55%_words">55%</option>
+              <option value="60%_words">60%</option>
+              <option value="65%_words">65%</option>
+              <option value="70%_words">70%</option>
+              <option value="75%_words">75%</option>
+              <option value="80%_words">80%</option>
+              <option value="85%_words">85%</option>
+              <option value="90%_words">90%</option>
+              <option value="95%_words">95%</option>
+              <option value="100%_words">100%</option>
+            </select>
+          </label>
+        </div>
         <hr>
         <div>
           <h3>View</h3>
@@ -1912,6 +1940,7 @@
         skippingWords: 'sle_skipping_words',
         shufflingWords: 'sle_shuffling_words',
         falseWords: 'sle_false_words',
+        concatWords: 'sle_concat_words',
         rotating: 'sle_rotating',
         rotatingWords: 'sle_rotating_words',
         rotatingLetters: 'sle_rotating_letters',
@@ -1977,6 +2006,7 @@
         settings[this.settingsNames.shufflingWords] = 'no';
         settings[this.settingsNames.reversingLetters] = 'no';
         settings[this.settingsNames.falseWords] = 'no';
+        settings[this.settingsNames.concatWords] = 'no';
         settings[this.settingsNames.rotatingWords] = 'no';
         settings[this.settingsNames.rotatingLetters] = 'no';
         settings[this.settingsNames.mirroringWords] = 'no';
@@ -2015,6 +2045,7 @@
         settings[this.settingsNames.skippingWords] = this.elements.wordSkipSelect.value;
         settings[this.settingsNames.shufflingWords] = this.elements.wordShuffleSelect.value;
         settings[this.settingsNames.falseWords] = this.elements.wordFalseSelect.value;
+        settings[this.settingsNames.concatWords] = this.elements.wordConcatSelect.value;
         settings[this.settingsNames.rotatingWords] = this.elements.rotatingWordsSelect.value;
         settings[this.settingsNames.rotatingLetters] = this.elements.rotatingLettersSelect.value;
         settings[this.settingsNames.mirroringWords] = this.elements.mirroringWordsSelect.value;
@@ -2082,6 +2113,9 @@
 
         currentKey = this.settingsNames.falseWords;
         this.elements.wordFalseSelect.value = keys.includes(currentKey) ? settingsProfileData[currentKey] : defaultSettings[currentKey];
+
+        currentKey = this.settingsNames.concatWords;
+        this.elements.wordConcatSelect.value = keys.includes(currentKey) ? settingsProfileData[currentKey] : defaultSettings[currentKey];
 
         currentKey = this.settingsNames.rotatingWords;
         this.elements.rotatingWordsSelect.value = keys.includes(currentKey) ? settingsProfileData[currentKey] : defaultSettings[currentKey];
@@ -2221,6 +2255,7 @@
         this.elements.letterSkipSelect = document.getElementById('letter-skip-select');
         this.elements.wordShuffleSelect = document.getElementById('word-shuffle-select');
         this.elements.wordFalseSelect = document.getElementById('word-false-select');
+        this.elements.wordConcatSelect = document.getElementById('word-concat-select');
         this.elements.wordSkipSelect = document.getElementById('word-skip-select');
         this.elements.marqueeDisplay = document.getElementById('marquee-display');
         this.elements.marqueeContainer = document.getElementById('marquee-container');
@@ -2561,6 +2596,7 @@
         this.elements.wordSkipSelect.addEventListener('input', settingsProfileModified);
         this.elements.wordShuffleSelect.addEventListener('input', settingsProfileModified);
         this.elements.wordFalseSelect.addEventListener('input', settingsProfileModified);
+        this.elements.wordConcatSelect.addEventListener('input', settingsProfileModified);
         this.elements.rotatingWordsSelect.addEventListener('input', settingsProfileModified);
         this.elements.rotatingLettersSelect.addEventListener('input', settingsProfileModified);
         this.elements.mirroringWordsSelect.addEventListener('input', settingsProfileModified);
@@ -3186,6 +3222,10 @@
         const wordFalseMatch = textWords.length ? wordsPercentPattern.exec(wordFalseSelectValue) : null;
         const wordFalsePercent = wordFalseMatch ? parseInt(wordFalseMatch[1]) / 100 : 0;
 
+        const wordConcatSelectValue = this.elements.wordConcatSelect.value;
+        const wordConcatMatch = shouldModify && wordConcatSelectValue !== 'no' ? wordsPercentPattern.exec(wordConcatSelectValue) : null;
+        const wordConcatPercent = wordConcatMatch ? parseInt(wordConcatMatch[1]) / 100 : 0;
+
         const wordSkipSelectValue = this.elements.wordSkipSelect.value;
         const wordSkipMatch = shouldModify && wordSkipSelectValue !== 'no' ? wordsPercentPattern.exec(wordSkipSelectValue) : null;
         const wordSkipMatchPercent = wordSkipMatch ? parseInt(wordSkipMatch[1]) / 100 : 0;
@@ -3359,16 +3399,21 @@
         };
         const textSkewSetting = settingSkew1 ? getRandomSkewStyle() : '';
 
-        const wordHint1 = wordSkipMatch != null || colorEncoderToggleChecked || settingRotate || settingMirror || settingSkew;
-        const wordHint2 = letterShuffleCheck ||
+        const wordHint1 = wordSkipMatch != null ||
+                          settingRotate ||
+                          settingMirror ||
+                          settingSkew ||
+                          colorEncoderToggleChecked;
+        const wordHint2 = letterSkipMatch != null ||
                           letterReverseCheck ||
+                          letterShuffleCheck ||
+                          letterFalseMatch != null ||
                           letterEliminationVowelMatch != null ||
                           letterEliminationRandomMatch != null ||
-                          letterSkipMatch != null ||
                           rotNToggleValue && this.letterMapItemMaxLength > 0 ||
-                          letterFalseMatch != null ||
+                          wordShuffleMatch != null ||
                           wordFalseMatch != null ||
-                          wordShuffleMatch != null;
+                          wordConcatMatch != null;
 
         /* Algorithm */
         const escapeString = str => str.replace(/[\\"]/g, '').replaceAll('\'', '\\\'');
@@ -3379,6 +3424,10 @@
           const refWords = refLines[lineIndex] ? refLines[lineIndex].split(/\s+/) : words;
           let processedWords = words;
           let processedRefWords = refWords;
+
+          if (wordConcatMatch) {
+            [processedWords, processedRefWords] = this.concatWords(processedWords, processedRefWords, wordConcatPercent);
+          }
 
           if (wordSkipMatch) {
             processedWords = this.skipWords(processedWords, wordSkipMatchPercent);
@@ -3400,16 +3449,7 @@
           }
 
           if (wordFalseMatch) {
-            const newWords = Array.from(processedWords);
-            const newRefWords = Array.from(processedRefWords);
-            for (let i = 0; i < Math.floor(wordFalsePercent * processedWords.length); ++i) {
-              const nextWord = textWords[this.randomInt(0, textWords.length - 1)];
-              const randomPosition = this.randomInt(0, newWords.length);
-              newWords.splice(randomPosition, 0, nextWord);
-              newRefWords.splice(randomPosition, 0, `- [${nextWord}]`);
-            }
-            processedWords = newWords;
-            processedRefWords = newRefWords;
+            [processedWords, processedRefWords] = this.falseWords(textWords, processedWords, processedRefWords, wordFalsePercent);
           }
 
           return processedWords.map((word, processedWordIndex) => {
@@ -3842,18 +3882,22 @@
         return result;
       },
 
-      skipWords(words, percent) {
-        const wordsToSkip = Math.floor(words.filter((v, i) => this.wordPattern.test(v)).length * percent);
+      makeDistantIndicesForWords(words) {
         let indices1 = [], indices2 = [];
         for (let i = 0; i < words.length; ++i) {
-          (i % 2 ? indices1 : indices2).push(i)
-        }
-        if (this.randomBool()) {
-          [indices1, indices2] = [indices2, indices1];
+          (i % 2 ? indices2 : indices1).push(i)
         }
         const newIndices1 = this.maxDistanceIndexes(indices1.length);
         const newIndices2 = this.maxDistanceIndexes(indices2.length);
-        const indices = [...newIndices1.map(i => indices1[i]), ...newIndices2.map(i => indices2[i])];
+        return [[...newIndices1.map(i => indices1[i])], [...newIndices2.map(i => indices2[i])]];
+      },
+
+      skipWords(words, percent) {
+        const wordsToSkip = Math.floor(words.filter((v, i) => this.wordPattern.test(v)).length * percent);
+        const indicesN1N2 = this.makeDistantIndicesForWords(words);
+        const indicesN1 = Math.random() < 0.5 ? indicesN1N2[0] : indicesN1N2[1];
+        const indicesN2 = indicesN1 === indicesN1N2[0] ? indicesN1N2[1] : indicesN1N2[0];
+        const indices = [...indicesN1, ...indicesN2].filter(value => this.wordPattern.test(words[value]));
         const newWords = words.slice();
         for (let i = 0, k = 0; i < indices.length && k < wordsToSkip; ++i) {
           const currentIndex = indices[i];
@@ -3865,6 +3909,65 @@
           }
         }
         return newWords;
+      },
+
+      concatWords(words, refWords, percent) {
+        const wordsToConcat = Math.floor(words.filter((v, i) => this.wordPattern.test(v)).length * percent);
+        const indicesN1N2 = this.makeDistantIndicesForWords(words);
+        const indicesN1 = indicesN1N2[0], indicesN2 = indicesN1N2[1];
+        const newWordsIndexes = [];
+        for (let i = 0, k = 0; i < indicesN1.length && i < indicesN2.length && k < wordsToConcat; ++i) {
+          const currentIndex = indicesN1[i];
+          const nextIndex = indicesN2[i];
+          if (currentIndex + 1 === nextIndex && nextIndex < words.length) {
+            const word = words[currentIndex];
+            const nextWord = words[nextIndex];
+            const refWord = refWords[currentIndex];
+            const refNextWord = refWords[nextIndex];
+            if (this.wordPattern.test(word) && this.wordPattern.test(nextWord)) {
+              newWordsIndexes.push([currentIndex, word.concat(nextWord), refWord.concat(' ').concat(refNextWord)]);
+              ++k;
+              ++k;
+            }
+          }
+        }
+        newWordsIndexes.sort((a, b) => b[0] - a[0]);
+        const newWords = words.slice(), newRefWords = refWords.slice();
+        for (const [newWordIndex, newWord2, newWord2Ref] of newWordsIndexes) {
+          newWords.splice(newWordIndex, 2, newWord2);
+          newRefWords.splice(newWordIndex, 2, newWord2Ref);
+        }
+        return [newWords, newRefWords];
+      },
+
+      falseWords(textWords, words, refWords, percent) {
+        if (textWords.length <= 0) {
+          return [words, refWords];
+        }
+        const wordsToFalse = Math.floor(words.filter((v, i) => this.wordPattern.test(v)).length * percent);
+        const indicesN1N2 = this.makeDistantIndicesForWords(words);
+        const indicesN1 = indicesN1N2[0], indicesN2 = indicesN1N2[1];
+        const newWordsIndexes = [];
+        for (let i = 0, k = 0; i < indicesN1.length && i < indicesN2.length && k < wordsToFalse; ++i) {
+          const currentIndex = indicesN1[i];
+          const nextIndex = indicesN2[i];
+          if (currentIndex + 1 === nextIndex && nextIndex < words.length) {
+            const word = words[currentIndex];
+            const nextWord = words[nextIndex];
+            if (this.wordPattern.test(word) && this.wordPattern.test(nextWord)) {
+              const textWord = textWords[this.randomInt(0, textWords.length - 1)];
+              newWordsIndexes.push([nextIndex, textWord, `- [${textWord}]`]);
+              ++k;
+            }
+          }
+        }
+        newWordsIndexes.sort((a, b) => b[0] - a[0]);
+        const newWords = words.slice(), newRefWords = refWords.slice();
+        for (const [newWordIndex, newWord, newWordRef] of newWordsIndexes) {
+          newWords.splice(newWordIndex, 0, newWord);
+          newRefWords.splice(newWordIndex, 0, newWordRef);
+        }
+        return [newWords, newRefWords];
       },
 
       skipLetters(word, percent) {
