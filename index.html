@@ -1122,6 +1122,24 @@
             </select>
           </label>
         </div>
+        <div>
+          <label>
+            <span>Shuffle sentences:</span>
+            <select id="sentence-shuffle-select">
+              <option value="no">-</option>
+              <option value="2_sentences">2 consecutive</option>
+              <option value="3_sentences">3 consecutive</option>
+              <option value="4_sentences">4 consecutive</option>
+              <option value="5_sentences">5 consecutive</option>
+              <option value="6_sentences">6 consecutive</option>
+              <option value="7_sentences">7 consecutive</option>
+              <option value="8_sentences">8 consecutive</option>
+              <option value="9_sentences">9 consecutive</option>
+              <option value="10_sentences">10 consecutive</option>
+              <option value="all_sentences">All</option>
+            </select>
+          </label>
+        </div>
         <hr>
         <div>
           <h3>View</h3>
@@ -1286,6 +1304,7 @@
             </label>
           </div>
           <div>
+            <button id="split-into-paragraphs" class="dark-button">Split into paragraphs</button>
             <button id="shuffle-paragraphs" class="dark-button">Shuffle paragraphs</button>
             <button id="shuffle-sentences" class="dark-button">Shuffle sentences</button>
           </div>
@@ -1945,6 +1964,7 @@
         shufflingWords: 'sle_shuffling_words',
         falseWords: 'sle_false_words',
         concatWords: 'sle_concat_words',
+        shuffleSentences: 'sle_shuffle_sentences',
         rotating: 'sle_rotating',
         rotatingWords: 'sle_rotating_words',
         rotatingLetters: 'sle_rotating_letters',
@@ -2012,6 +2032,7 @@
         settings[this.settingsNames.reversingLetters] = 'no';
         settings[this.settingsNames.falseWords] = 'no';
         settings[this.settingsNames.concatWords] = 'no';
+        settings[this.settingsNames.shuffleSentences] = 'no';
         settings[this.settingsNames.rotatingWords] = 'no';
         settings[this.settingsNames.rotatingLetters] = 'no';
         settings[this.settingsNames.mirroringWords] = 'no';
@@ -2052,6 +2073,7 @@
         settings[this.settingsNames.shufflingWords] = this.elements.wordShuffleSelect.value;
         settings[this.settingsNames.falseWords] = this.elements.wordFalseSelect.value;
         settings[this.settingsNames.concatWords] = this.elements.wordConcatSelect.value;
+        settings[this.settingsNames.shuffleSentences] = this.elements.sentenceShuffleSelect.value;
         settings[this.settingsNames.rotatingWords] = this.elements.rotatingWordsSelect.value;
         settings[this.settingsNames.rotatingLetters] = this.elements.rotatingLettersSelect.value;
         settings[this.settingsNames.mirroringWords] = this.elements.mirroringWordsSelect.value;
@@ -2122,6 +2144,9 @@
 
         currentKey = this.settingsNames.concatWords;
         this.elements.wordConcatSelect.value = keys.includes(currentKey) ? settingsProfileData[currentKey] : defaultSettings[currentKey];
+
+        currentKey = this.settingsNames.shuffleSentences;
+        this.elements.sentenceShuffleSelect.value = keys.includes(currentKey) ? settingsProfileData[currentKey] : defaultSettings[currentKey];
 
         currentKey = this.settingsNames.rotatingWords;
         this.elements.rotatingWordsSelect.value = keys.includes(currentKey) ? settingsProfileData[currentKey] : defaultSettings[currentKey];
@@ -2266,6 +2291,7 @@
         this.elements.wordShuffleSelect = document.getElementById('word-shuffle-select');
         this.elements.wordFalseSelect = document.getElementById('word-false-select');
         this.elements.wordConcatSelect = document.getElementById('word-concat-select');
+        this.elements.sentenceShuffleSelect = document.getElementById('sentence-shuffle-select');
         this.elements.wordSkipSelect = document.getElementById('word-skip-select');
         this.elements.marqueeDisplay = document.getElementById('marquee-display');
         this.elements.marqueeContainer = document.getElementById('marquee-container');
@@ -2289,6 +2315,7 @@
         this.elements.loadFile = document.getElementById('load-file');
         this.elements.shuffleParagraphs = document.getElementById('shuffle-paragraphs');
         this.elements.shuffleSentences = document.getElementById('shuffle-sentences');
+        this.elements.splitIntoParagraphs = document.getElementById('split-into-paragraphs');
         this.elements.colorEncoderToggle = document.getElementById('color-encoder-toggle');
         this.elements.colorEncoderOptions = document.getElementById('color-encoder-options');
         this.elements.colorLetterCount = document.getElementById('color-letter-count');
@@ -2488,13 +2515,19 @@
           if (!confirm('Are you sure you want to shuffle the paragraphs?')) {
             return;
           }
-          this.shuffleParagraphs();
+          this.shuffleParagraphsInText();
         });
         this.elements.shuffleSentences.addEventListener('click', () => {
           if (!confirm('Are you sure you want to shuffle the sentences in the paragraphs?')) {
             return;
           }
-          this.shuffleSentences();
+          this.shuffleSentencesInText();
+        });
+        this.elements.splitIntoParagraphs.addEventListener('click', () => {
+          if (!confirm('Are you sure you want to split the text into paragraphs?')) {
+            return;
+          }
+          this.splitIntoParagraphsInText();
         });
         this.elements.colorEncoderToggle.addEventListener('click', () => this.toggleColorEncoder(false));
         this.elements.dumpColors.addEventListener('click', () => this.dumpColorMap());
@@ -2502,7 +2535,12 @@
         this.elements.appendTextToggle.addEventListener('click', () => this.toggleAppendText());
         this.elements.refreshText.addEventListener('click', () => this.refreshMarqueeText());
         this.elements.refreshView.addEventListener('click', () => this.refreshMarqueeView());
-        this.elements.refreshColors.addEventListener('click', () => this.refreshMarqueeColors());
+        this.elements.refreshColors.addEventListener('click', () => {
+          if (currentReader.elements.textBackgroundColoringToggle.checked && !confirm('Are you sure you want to refresh the colors?')) {
+            return;
+          }
+          currentReader.refreshMarqueeColors();
+        });
         this.elements.copyMarqueeText.addEventListener('click', () => this.copyMarqueeText());
         this.elements.copyCurrentText.addEventListener('click', () => this.copyCurrentText());
         this.elements.loopToggle.addEventListener('click', () => this.toggleLoop());
@@ -2609,6 +2647,7 @@
         this.elements.wordShuffleSelect.addEventListener('input', settingsProfileModified);
         this.elements.wordFalseSelect.addEventListener('input', settingsProfileModified);
         this.elements.wordConcatSelect.addEventListener('input', settingsProfileModified);
+        this.elements.sentenceShuffleSelect.addEventListener('input', settingsProfileModified);
         this.elements.rotatingWordsSelect.addEventListener('input', settingsProfileModified);
         this.elements.rotatingLettersSelect.addEventListener('input', settingsProfileModified);
         this.elements.mirroringWordsSelect.addEventListener('input', settingsProfileModified);
@@ -3210,6 +3249,7 @@
         const lettersPercentPattern = /(\d+)%_letters?/;
         const wordsPercentPattern = /(\d+)%_words?/;
         const wordsNPattern = /(\d+)_words?/;
+        const sentencesNPattern = /(\d+)_sentences?/;
 
         const letterEliminationSelectValue = this.elements.letterEliminationSelect.value;
         const letterEliminationVowelMatch = shouldModify && letterEliminationSelectValue !== 'no' ? vowelsPercentPattern.exec(letterEliminationSelectValue) : null;
@@ -3240,6 +3280,10 @@
         const wordConcatSelectValue = this.elements.wordConcatSelect.value;
         const wordConcatMatch = shouldModify && wordConcatSelectValue !== 'no' ? wordsPercentPattern.exec(wordConcatSelectValue) : null;
         const wordConcatPercent = wordConcatMatch ? parseInt(wordConcatMatch[1]) / 100 : 0;
+
+        const sentenceShuffleSelectValue = this.elements.sentenceShuffleSelect.value;
+        const sentenceShuffleMatch = shouldModify && sentenceShuffleSelectValue !== 'no' ? (sentencesNPattern.exec(sentenceShuffleSelectValue) || sentenceShuffleSelectValue === 'all_sentences' && [null, -1]) : null;
+        const sentenceShuffleNumber = sentenceShuffleMatch ? parseInt(sentenceShuffleMatch[1]) : 0;
 
         const wordSkipSelectValue = this.elements.wordSkipSelect.value;
         const wordSkipMatch = shouldModify && wordSkipSelectValue !== 'no' ? wordsPercentPattern.exec(wordSkipSelectValue) : null;
@@ -3432,8 +3476,11 @@
 
         /* Algorithm */
         const escapeString = str => str.replace(/[\\"]/g, '').replaceAll('\'', '\\\'');
-        const textLines = text.split('\n');
-        const refLines = referenceText.split('\n');
+        if (sentenceShuffleNumber !== 0) {
+          [text, referenceText] = this.shuffleSentences(text, referenceText, sentenceShuffleNumber);
+        }
+        let textLines = text.split('\n');
+        let refLines = referenceText.split('\n');
         return textLines.map((line, lineIndex) => {
           const words = line.split(/\s+/).filter(word => word);
           const refWords = refLines[lineIndex] ? refLines[lineIndex].split(/\s+/) : words;
@@ -4710,7 +4757,7 @@
         this.elements.body.removeChild(input);
       },
 
-      shuffleParagraphs() {
+      shuffleParagraphsInText() {
         const currentReader = this;
         const text = this.elements.textInput.value;
         const paragraphs = text.split('\n').filter(p => p.trim());
@@ -4719,50 +4766,88 @@
         this.textIsModified = true;
       },
 
-      shuffleSentences() {
+      splitIntoSentences(paragraph) {
+        paragraph = paragraph.split('\n').filter(p => p.trim()).join(' ');
+        const sentences = [];
+        let currentSentence = '';
+        let lastWordCapitalized = true;
+        for (let i = 0; i < paragraph.length; i++) {
+          const char = paragraph[i];
+          currentSentence += char;
+          if (this.spacePattern.test(char)) {
+            lastWordCapitalized = false;
+            continue;
+          }
+          else if (i > 0 && this.spacePattern.test(paragraph[i - 1]) && char !== char.toLowerCase()) {
+            lastWordCapitalized = true;
+            continue;
+          }
+          else if (char === '.' || char === '!' || char === '?') {
+            if (i === paragraph.length - 1 || this.spacePattern.test(paragraph[i + 1]) && (char !== '.' || !lastWordCapitalized)) {
+              sentences.push(currentSentence.trim());
+              currentSentence = '';
+              i++;
+            }
+          }
+        }
+        currentSentence = currentSentence.trim();
+        if (currentSentence) {
+          const lastChar = currentSentence[currentSentence.length - 1];
+          if (!(lastChar === '.' || lastChar === '!' || lastChar === '?')) {
+            currentSentence = currentSentence.concat('.');
+          }
+          sentences.push(currentSentence);
+        }
+        return sentences;
+      },
+
+      shuffleSentencesInText() {
         const currentReader = this;
         const text = this.elements.textInput.value;
         const paragraphs = text.split('\n').filter(p => p.trim());
-        const splitIntoSentences = (paragraph) => {
-          const sentences = [];
-          let currentSentence = '';
-          let lastWordCapitalized = true;
-          for (let i = 0; i < paragraph.length; i++) {
-            const char = paragraph[i];
-            currentSentence += char;
-            if (this.spacePattern.test(char)) {
-              lastWordCapitalized = false;
-              continue;
-            }
-            else if (i > 0 && this.spacePattern.test(paragraph[i - 1]) && char === char.toUpperCase() && char !== char.toLowerCase()) {
-              lastWordCapitalized = true;
-              continue;
-            }
-            else if (char === '.' || char === '!' || char === '?') {
-              if (i === paragraph.length - 1 || this.spacePattern.test(paragraph[i + 1]) && (char !== '.' || !lastWordCapitalized)) {
-                sentences.push(currentSentence.trim());
-                currentSentence = '';
-                i++;
-              }
-            }
-          }
-          currentSentence = currentSentence.trim();
-          if (currentSentence) {
-            const lastChar = currentSentence[currentSentence.length - 1];
-            if (!(lastChar === '.' || lastChar === '!' || lastChar === '?')) {
-              currentSentence = currentSentence.concat('.');
-            }
-            sentences.push(currentSentence);
-          }
-          return sentences;
-        };
         const processedParagraphs = paragraphs.map(paragraph => {
-          const sentences = splitIntoSentences(paragraph);
+          const sentences = currentReader.splitIntoSentences(paragraph);
           currentReader.shuffleArray(sentences);
           return sentences.join(' ');
         });
         this.elements.textInput.value = processedParagraphs.join('\n\n');
         this.textIsModified = true;
+      },
+
+      splitIntoParagraphsInText() {
+        const currentReader = this;
+        const text = this.elements.textInput.value;
+        const sentences = this.splitIntoSentences(text);
+        this.elements.textInput.value = sentences.join('\n\n');
+        this.textIsModified = true;
+      },
+
+      shuffleSentences(text, referenceText, sentenceShuffleNumber) {
+        const textSentences = this.splitIntoSentences(text);
+        const referenceTextSentences = this.splitIntoSentences(referenceText);
+        if (textSentences.length === referenceTextSentences.length) {
+          if (sentenceShuffleNumber < 0) {
+            sentenceShuffleNumber = textSentences.length;
+          }
+          const newTextSentences = [], newReferenceTextSentences = [];
+          for (let i = 0; i < textSentences.length;) {
+            const textSentencesPart = textSentences.slice(i, i + sentenceShuffleNumber);
+            const referenceTextSentencesPart = referenceTextSentences.slice(i, i + sentenceShuffleNumber);
+            const sentencesParts = [];
+            for (let j = 0; j < textSentencesPart.length; ++j) {
+              sentencesParts.push([textSentencesPart[j], referenceTextSentencesPart[j]]);
+            }
+            this.shuffleArray(sentencesParts);
+            for (let j = 0; j < sentencesParts.length; ++j) {
+              newTextSentences.push(sentencesParts[j][0]);
+              newReferenceTextSentences.push(sentencesParts[j][1]);
+            }
+            i += sentenceShuffleNumber;
+          }
+          text = newTextSentences.join(' ');
+          referenceText = newReferenceTextSentences.join(' ');
+        }
+        return [text, referenceText];
       },
 
       getProgressByPosition(position = null) {
