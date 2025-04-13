@@ -2432,6 +2432,9 @@
           currentReader.elements.newSettingsProfileButton.style.display = 'none';
           currentReader.elements.duplicateSettingsProfileButton.style.display = 'none';
           currentReader.elements.deleteSettingsProfileButton.style.display = 'none';
+          currentReader.elements.showBookmarksButtonToggle.checked = false;
+          currentReader.elements.showBookmarksButtonToggle.style.display = 'none';
+          currentReader.elements.bookmarksButton.style.display = 'none';
         }
         currentReader.database = null;
         try {
@@ -3067,7 +3070,9 @@
           this.settingsNames.shufflingWords,
           this.settingsNames.falseWords,
           this.settingsNames.rotNToggle,
-          this.settingsNames.rotNMap
+          this.settingsNames.rotNMap,
+          this.settingsNames.concatWords,
+          this.settingsNames.shuffleSentences,
           ].map(x => JSON.stringify(this.previousSettings[x]) !== JSON.stringify(currentSettings[x]))
         ].some(b => b);
 
