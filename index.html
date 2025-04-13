@@ -5776,6 +5776,8 @@
       },
 
       locationReload() {
+        this.settingsProfileIsModified = false;
+        this.textIsModified = false;
         setTimeout(function () {
           location.reload();
         }, 1);
