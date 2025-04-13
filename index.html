@@ -973,8 +973,29 @@
           <div id="rot-n-options">
             <div>
               <label>
-                <span>N:</span>
-                <input type="number" id="rot-n-number" min="-1000" max="1000" value="1">
+                <span>Min N:</span>
+                <input type="number" id="rot-n-number-min" min="-1000" max="1000" value="1">
+              </label>
+            </div>
+            <div>
+              <label>
+                <span>Max N:</span>
+                <input type="number" id="rot-n-number-max" min="-1000" max="1000" value="1">
+              </label>
+            </div>
+            <div>
+              <label><input type="checkbox" id="rot-n-exclude-zero"> Exclude N=0</label>
+            </div>
+            <div>
+              <label><input type="checkbox" id="rot-n-each-mapping"> Random N for each mapping</label>
+            </div>
+            <div>
+              <label><input type="checkbox" id="rot-n-upper-case-lower-case"> Upper case = Lower case</label>
+            </div>
+            <div>
+              <label>
+                <span>Additional mappings:</span>
+                <input type="number" id="rot-n-complexity" min="0" max="1000" value="0">
               </label>
             </div>
             <div>
@@ -984,6 +1005,11 @@
                   <option value="no">-</option>
                 </select>
               </label>
+            </div>
+            <div>
+              <button id="rot-n-generate-button" class="gray-button">Regenerate</button>
+            </div>
+            <div>
               <div id="rot-n-language-info"></div>
             </div>
           </div>
@@ -1754,6 +1780,8 @@
       lastUpdateTime: null,
       colorMap: new Map(),
       colorList: [],
+      rotNLetterMap: new Map(),
+      letterMapItemMaxLength: 0,
 
       textNeedsUpdate: true,
       previousText: null,
@@ -1890,7 +1918,13 @@
         mirroringWords: 'sle_mirroring_words',
         mirroringLetters: 'sle_mirroring_letters',
         rotNToggle: 'sle_rot_n_toggle',
-        rotNNumber: 'sle_rot_n_number',
+        rotNNumberMin: 'sle_rot_n_number_min',
+        rotNNumberMax: 'sle_rot_n_number_max',
+        rotNExcludeZero: 'sle_rot_n_exclude_zero',
+        rotNEachMapping: 'sle_rot_n_each_mapping',
+        rotNUpperCaseLowerCase: 'sle_rot_n_upper_case_lower_case',
+        rotNComplexity: 'sle_rot_n_complexity',
+        rotNMap: 'sle_rot_n_map',
         rotNLanguage: 'sle_rot_n_language',
         skewingToggle: 'sle_skewing_toggle',
         skewingType: 'sle_skewing_type',
@@ -1948,7 +1982,13 @@
         settings[this.settingsNames.mirroringWords] = 'no';
         settings[this.settingsNames.mirroringLetters] = 'no';
         settings[this.settingsNames.rotNToggle] = false;
-        settings[this.settingsNames.rotNNumber] = '1';
+        settings[this.settingsNames.rotNNumberMin] = '1';
+        settings[this.settingsNames.rotNNumberMax] = '1';
+        settings[this.settingsNames.rotNExcludeZero] = false;
+        settings[this.settingsNames.rotNEachMapping] = false;
+        settings[this.settingsNames.rotNUpperCaseLowerCase] = true;
+        settings[this.settingsNames.rotNComplexity] = '0';
+        settings[this.settingsNames.rotNMap] = '{}';
         settings[this.settingsNames.rotNLanguage] = 'English';
         settings[this.settingsNames.skewingToggle] = false;
         settings[this.settingsNames.skewingType] = 'text';
@@ -1980,7 +2020,13 @@
         settings[this.settingsNames.mirroringWords] = this.elements.mirroringWordsSelect.value;
         settings[this.settingsNames.mirroringLetters] = this.elements.mirroringLettersSelect.value;
         settings[this.settingsNames.rotNToggle] = this.elements.rotNToggle.checked;
-        settings[this.settingsNames.rotNNumber] = this.elements.rotNNumber.value;
+        settings[this.settingsNames.rotNNumberMin] = this.elements.rotNNumberMin.value;
+        settings[this.settingsNames.rotNNumberMax] = this.elements.rotNNumberMax.value;
+        settings[this.settingsNames.rotNExcludeZero] = this.elements.rotNExcludeZero.checked;
+        settings[this.settingsNames.rotNEachMapping] = this.elements.rotNEachMapping.checked;
+        settings[this.settingsNames.rotNUpperCaseLowerCase] = this.elements.rotNUpperCaseLowerCase.checked;
+        settings[this.settingsNames.rotNComplexity] = this.elements.rotNComplexity.value;
+        settings[this.settingsNames.rotNMap] = JSON.stringify(Object.fromEntries(this.rotNLetterMap));
         settings[this.settingsNames.rotNLanguage] = this.elements.rotNLanguageSelect.value;
         settings[this.settingsNames.skewingToggle] = this.elements.skewingToggle.checked;
         settings[this.settingsNames.skewingType] = this.elements.skewingSelect.value;
@@ -2052,8 +2098,26 @@
         currentKey = this.settingsNames.rotNToggle;
         this.elements.rotNToggle.checked = keys.includes(currentKey) ? settingsProfileData[currentKey] : defaultSettings[currentKey];
 
-        currentKey = this.settingsNames.rotNNumber;
-        this.elements.rotNNumber.value = keys.includes(currentKey) ? settingsProfileData[currentKey] : defaultSettings[currentKey];
+        currentKey = this.settingsNames.rotNNumberMin;
+        this.elements.rotNNumberMin.value = keys.includes(currentKey) ? settingsProfileData[currentKey] : defaultSettings[currentKey];
+
+        currentKey = this.settingsNames.rotNNumberMax;
+        this.elements.rotNNumberMax.value = keys.includes(currentKey) ? settingsProfileData[currentKey] : defaultSettings[currentKey];
+
+        currentKey = this.settingsNames.rotNExcludeZero;
+        this.elements.rotNExcludeZero.checked = keys.includes(currentKey) ? settingsProfileData[currentKey] : defaultSettings[currentKey];
+
+        currentKey = this.settingsNames.rotNEachMapping;
+        this.elements.rotNEachMapping.checked = keys.includes(currentKey) ? settingsProfileData[currentKey] : defaultSettings[currentKey];
+
+        currentKey = this.settingsNames.rotNUpperCaseLowerCase;
+        this.elements.rotNUpperCaseLowerCase.checked = keys.includes(currentKey) ? settingsProfileData[currentKey] : defaultSettings[currentKey];
+
+        currentKey = this.settingsNames.rotNComplexity;
+        this.elements.rotNComplexity.value = keys.includes(currentKey) ? settingsProfileData[currentKey] : defaultSettings[currentKey];
+
+        currentKey = this.settingsNames.rotNMap;
+        this.rotNLetterMap = new Map(Object.entries(JSON.parse(keys.includes(currentKey) ? settingsProfileData[currentKey] : defaultSettings[currentKey])));
 
         currentKey = this.settingsNames.rotNLanguage;
         this.elements.rotNLanguageSelect.value = keys.includes(currentKey) ? settingsProfileData[currentKey] : defaultSettings[currentKey];
@@ -2079,7 +2143,7 @@
         this.adjustSpeed(this.elements.speedNumber.value);
         this.adjustFontSize(this.elements.fontSizeNumber.value);
         this.toggleRotN();
-        this.toggleRotNLanguageInfo();
+        this.toggleRotNGenerate(true);
         this.toggleSkewing();
         this.toggleMarqueeTheme();
         this.toggleColorEncoder(this.currentPosition != null);
@@ -2256,8 +2320,14 @@
         this.elements.rotNOptions = document.getElementById('rot-n-options');
         this.elements.rotNDiv = document.getElementById('rot-n-div');
         this.elements.rotNLanguageSelect = document.getElementById('rot-n-language-select');
+        this.elements.rotNGenerateButton = document.getElementById('rot-n-generate-button');
         this.elements.rotNLanguageInfo = document.getElementById('rot-n-language-info');
-        this.elements.rotNNumber = document.getElementById('rot-n-number');
+        this.elements.rotNNumberMin = document.getElementById('rot-n-number-min');
+        this.elements.rotNNumberMax = document.getElementById('rot-n-number-max');
+        this.elements.rotNExcludeZero = document.getElementById('rot-n-exclude-zero');
+        this.elements.rotNEachMapping = document.getElementById('rot-n-each-mapping');
+        this.elements.rotNUpperCaseLowerCase = document.getElementById('rot-n-upper-case-lower-case');
+        this.elements.rotNComplexity = document.getElementById('rot-n-complexity');
         this.elements.rotatingWordsSelect = document.getElementById('rotating-words-select');
         this.elements.rotatingLettersSelect = document.getElementById('rotating-letters-select');
         this.elements.mirroringWordsSelect = document.getElementById('mirroring-words-select');
@@ -2453,7 +2523,13 @@
         this.elements.exportAllTextsWithBookmarksToggle.addEventListener('click', () => this.toggleExportTextsWithBookmarks());
         this.elements.rotNToggle.addEventListener('click', () => this.toggleRotN());
         this.elements.rotNLanguageSelect.addEventListener('input', () => this.toggleRotNLanguageInfo());
-        this.elements.rotNNumber.addEventListener('input', () => this.toggleRotNLanguageInfo());
+        this.elements.rotNGenerateButton.addEventListener('click', () => this.toggleRotNGenerate());
+        this.elements.rotNNumberMin.addEventListener('input', () => {
+          this.elements.rotNNumberMax.value = this.elements.rotNNumberMin.value;
+          this.toggleRotNLanguageInfo();
+        });
+        this.elements.rotNNumberMax.addEventListener('input', () => this.toggleRotNLanguageInfo());
+        this.elements.rotNComplexity.addEventListener('input', () => this.toggleRotNLanguageInfo());
         this.elements.skewingToggle.addEventListener('click', () => this.toggleSkewing());
         this.elements.randomParagraphsCaption.addEventListener('click', () => this.showHiddenContent1());
         this.elements.marqueeThemeSelect.addEventListener('input', () => this.toggleMarqueeTheme());
@@ -2491,7 +2567,12 @@
         this.elements.mirroringLettersSelect.addEventListener('input', settingsProfileModified);
         this.elements.rotNToggle.addEventListener('click', settingsProfileModified);
         this.elements.rotNLanguageSelect.addEventListener('input', settingsProfileModified);
-        this.elements.rotNNumber.addEventListener('input', settingsProfileModified);
+        this.elements.rotNNumberMin.addEventListener('input', settingsProfileModified);
+        this.elements.rotNNumberMax.addEventListener('input', settingsProfileModified);
+        this.elements.rotNExcludeZero.addEventListener('click', settingsProfileModified);
+        this.elements.rotNEachMapping.addEventListener('click', settingsProfileModified);
+        this.elements.rotNUpperCaseLowerCase.addEventListener('click', settingsProfileModified);
+        this.elements.rotNComplexity.addEventListener('input', settingsProfileModified);
         this.elements.skewingToggle.addEventListener('click', settingsProfileModified);
         this.elements.skewingSelect.addEventListener('input', settingsProfileModified);
         this.elements.skewingNumberMin.addEventListener('input', settingsProfileModified);
@@ -2897,9 +2978,8 @@
           this.settingsNames.shufflingWords,
           this.settingsNames.falseWords,
           this.settingsNames.rotNToggle,
-          this.settingsNames.rotNNumber,
-          this.settingsNames.rotNLanguage,
-          ].map(x => this.previousSettings[x] !== currentSettings[x])
+          this.settingsNames.rotNMap
+          ].map(x => JSON.stringify(this.previousSettings[x]) !== JSON.stringify(currentSettings[x]))
         ].some(b => b);
 
         const colorsNeedsUpdate = !this.wasColorTaskChecked || palleteChanged ||
@@ -3121,28 +3201,7 @@
         const wordShuffleNumber = wordShuffleMatch ? parseInt(wordShuffleMatch[1]) : 0;
         const skipShuffleReverseRegex = this.upperCaseWordStartPattern;
 
-        const rotNToggleChecked = this.elements.rotNToggle.checked;
-        const rotNNumberValue = parseInt(this.elements.rotNNumber.value || 0);
-        const rotNLanguageValue = this.elements.rotNLanguageSelect.value;
-        const letterMap = new Map();
-        let letterMapItemMaxLength = 0;
-        if (shouldModify && rotNToggleChecked && rotNNumberValue !== 0 && rotNLanguageValue) {
-          for (const x of this.alphabets) {
-            if (x[0] === rotNLanguageValue) {
-              const alphabetVariants = x[2];
-              for (const alphabetVariant of alphabetVariants) {
-                for (let i = 0; i < alphabetVariant.length; ++i) {
-                  const position = rotNNumberValue >= 0
-                    ? (i + rotNNumberValue) % alphabetVariant.length
-                    : (((i + rotNNumberValue) % alphabetVariant.length) + alphabetVariant.length) % alphabetVariant.length;
-                  letterMap.set(alphabetVariant[i], alphabetVariant[position]);
-                  letterMapItemMaxLength = Math.max(letterMapItemMaxLength, alphabetVariant[i].length);
-                }
-              }
-              break;
-            }
-          }
-        }
+        const rotNToggleValue = this.elements.rotNToggle.checked;
 
         const colorEncoderToggleChecked = this.elements.colorEncoderToggle.checked;
 
@@ -3306,7 +3365,7 @@
                           letterEliminationVowelMatch != null ||
                           letterEliminationRandomMatch != null ||
                           letterSkipMatch != null ||
-                          letterMapItemMaxLength > 0 ||
+                          rotNToggleValue && this.letterMapItemMaxLength > 0 ||
                           letterFalseMatch != null ||
                           wordFalseMatch != null ||
                           wordShuffleMatch != null;
@@ -3434,20 +3493,21 @@
               }).join('-');
             }
 
-            if (letterMapItemMaxLength > 0) {
+            if (shouldModify && rotNToggleValue && this.letterMapItemMaxLength > 0) {
               const charsList = [];
               for (let i = 0; i < modifiedWord.length;) {
-                let currentLength = letterMapItemMaxLength;
+                let currentLength = this.letterMapItemMaxLength;
                 while (currentLength > 0) {
                   const part = modifiedWord.slice(i, i + currentLength);
-                  if (letterMap.get(part)) {
+                  if (this.rotNLetterMap.get(part)) {
                     break;
                   }
                   currentLength -= 1;
                 }
                 if (currentLength > 0) {
-                  charsList.push(letterMap.get(modifiedWord.slice(i, i + currentLength)));
-                  i += letterMapItemMaxLength;
+                  const variants = this.rotNLetterMap.get(modifiedWord.slice(i, i + currentLength));
+                  charsList.push(variants[this.randomInt(0, variants.length - 1)]);
+                  i += this.letterMapItemMaxLength;
                 }
                 else {
                   charsList.push(modifiedWord[i]);
@@ -4108,16 +4168,152 @@
         }
       },
 
-      toggleRotNLanguageInfo() {
+      toggleRotNGenerate(onlyLoad = false) {
         const rotNToggleChecked = this.elements.rotNToggle.checked;
-        const rotNNumberValue = parseInt(this.elements.rotNNumber.value || 0);
+        const rotNNumberMinValue = parseInt(this.elements.rotNNumberMin.value || 0);
+        const rotNNumberMaxValue = parseInt(this.elements.rotNNumberMax.value || 0);
+        const rotNComplexityValue = parseInt(this.elements.rotNComplexity.value || 0);
         const rotNLanguageValue = this.elements.rotNLanguageSelect.value;
-        if (rotNNumberValue === rotNNumberValue && rotNLanguageValue) {
+        const rotNExcludeZeroChecked = this.elements.rotNExcludeZero.checked;
+        const rotNEachMappingChecked = this.elements.rotNEachMapping.checked;
+        const rotNUpperCaseLowerCase = this.elements.rotNUpperCaseLowerCase.checked;
+        if (onlyLoad) {
+          this.letterMapItemMaxLength = 0;
+          for (const key of this.rotNLetterMap.keys()) {
+            this.letterMapItemMaxLength = Math.max(this.letterMapItemMaxLength, key.length);
+          }
+        }
+        else {
+          this.letterMapItemMaxLength = 0;
+          this.rotNLetterMap = new Map();
+          this.settingsProfileIsModified = true;
+        }
+        if (!onlyLoad && rotNToggleChecked && rotNNumberMinValue === rotNNumberMinValue &&
+            rotNNumberMaxValue === rotNNumberMaxValue && rotNNumberMinValue <= rotNNumberMaxValue &&
+            rotNComplexityValue === rotNComplexityValue &&
+            rotNLanguageValue) {
+          for (const alphabet of this.alphabets) {
+            if (alphabet[0] === rotNLanguageValue) {
+              const alphabetVariants = alphabet[2];
+              let rotNNumberGValue = this.randomInt(rotNNumberMinValue, rotNNumberMaxValue);
+              if (rotNExcludeZeroChecked && rotNNumberMinValue !== rotNNumberMaxValue) {
+                while (rotNNumberGValue === 0) {
+                  rotNNumberGValue = this.randomInt(rotNNumberMinValue, rotNNumberMaxValue);
+                }
+              }
+              let alphabetVariantIndex = 0;
+              for (const alphabetVariant of alphabetVariants) {
+                for (let i = 0; i < alphabetVariant.length; ++i) {
+                  let rotNNumberValue = rotNEachMappingChecked ? this.randomInt(rotNNumberMinValue, rotNNumberMaxValue) : rotNNumberGValue;
+                  if (rotNExcludeZeroChecked && rotNNumberMinValue !== rotNNumberMaxValue) {
+                    while (rotNNumberValue === 0) {
+                      rotNNumberValue = this.randomInt(rotNNumberMinValue, rotNNumberMaxValue);
+                    }
+                  }
+                  let stdIndex = i + rotNNumberValue;
+                  const position = (rotNNumberValue >= 0
+                    ? stdIndex % alphabetVariant.length
+                    : ((stdIndex % alphabetVariant.length) + alphabetVariant.length) % alphabetVariant.length);
+                  let previousLetter = alphabetVariantIndex > 0 && rotNUpperCaseLowerCase ? alphabetVariants[alphabetVariantIndex - 1][i] : '';
+                  this.rotNLetterMap.set(alphabetVariant[i], [alphabetVariant[position]]);
+                  if (previousLetter) {
+                    let previousLetterMapping = alphabetVariants[alphabetVariantIndex - 1][position];
+                    if (previousLetterMapping && previousLetter !== previousLetterMapping) {
+                      this.rotNLetterMap.set(previousLetter, [previousLetterMapping]);
+                    }
+                  }
+                  this.letterMapItemMaxLength = Math.max(this.letterMapItemMaxLength, alphabetVariant[i].length);
+                }
+                alphabetVariantIndex += 1;
+              }
+              break;
+            }
+          }
+          if (rotNComplexityValue > 0) {
+            const variants = [];
+            for (const alphabet of this.alphabets) {
+              if (alphabet[0] === rotNLanguageValue) {
+                const alphabetVariants = alphabet[2];
+                for (const alphabetVariant of alphabetVariants) {
+                  for (let i = 0; i < alphabetVariant.length; ++i) {
+                    let cnt = 0;
+                    for (let rotNNumberValue = rotNNumberMinValue; rotNNumberValue <= rotNNumberMaxValue; ++rotNNumberValue) {
+                      if (rotNExcludeZeroChecked && rotNNumberValue === 0) {
+                        continue;
+                      }
+                      const position = (rotNNumberValue >= 0
+                        ? (i + rotNNumberValue) % alphabetVariant.length
+                        : (((i + rotNNumberValue) % alphabetVariant.length) + alphabetVariant.length) % alphabetVariant.length);
+                      if (!(this.rotNLetterMap.get(alphabetVariant[i]) || []).includes(alphabetVariant[position])) {
+                        let alphabetVariantSi = [];
+                        let alphabetVariantPositionSi = [];
+                        if (rotNUpperCaseLowerCase) {
+                          for (const alphabetVariantS of alphabetVariants) {
+                            alphabetVariantSi.push(alphabetVariantS[i]);
+                            alphabetVariantPositionSi.push(alphabetVariantS[position]);
+                          }
+                        }
+                        else {
+                          alphabetVariantSi.push(alphabetVariant[i]);
+                          alphabetVariantPositionSi.push(alphabetVariant[position]);
+                        }
+                        variants.push([alphabetVariantSi, alphabetVariantPositionSi]);
+                        cnt += 1;
+                        if (variants.length > rotNComplexityValue && cnt > 5) {
+                          break;
+                        }
+                      }
+                    }
+                  }
+                  if (rotNUpperCaseLowerCase) {
+                    break;
+                  }
+                }
+                break;
+              }
+            }
+            this.shuffleArray(variants);
+            let n = rotNComplexityValue;
+            for (const [variantsKey, variantsValue] of variants) {
+              n -= 1;
+              if (n < 0) {
+                break;
+              }
+              for (const variantKey of variantsKey) {
+                let filteredVariantsValue = [];
+                for (const variantValue of variantsValue) {
+                  if (!rotNUpperCaseLowerCase || variantKey !== variantKey.toLowerCase() &&
+                      variantValue !== variantValue.toLowerCase() ||
+                      variantKey !== variantKey.toUpperCase() &&
+                      variantValue !== variantValue.toUpperCase()) {
+                    filteredVariantsValue.push(variantValue);
+                  }
+                }
+                const newMapping = [...(this.rotNLetterMap.get(variantKey) || []), ...filteredVariantsValue];
+                this.rotNLetterMap.set(variantKey, newMapping);
+              }
+            }
+          }
+        }
+        this.toggleRotNLanguageInfo(false);
+      },
+
+      toggleRotNLanguageInfo(elemUpdated = true) {
+        const rotNToggleChecked = this.elements.rotNToggle.checked;
+        const rotNNumberMinValue = parseInt(this.elements.rotNNumberMin.value || 0);
+        const rotNNumberMaxValue = parseInt(this.elements.rotNNumberMax.value || 0);
+        const rotNComplexityValue = parseInt(this.elements.rotNComplexity.value || 0);
+        const rotNLanguageValue = this.elements.rotNLanguageSelect.value;
+        if (!elemUpdated && rotNNumberMinValue === rotNNumberMinValue &&
+            rotNNumberMaxValue === rotNNumberMaxValue && rotNNumberMinValue <= rotNNumberMaxValue &&
+            rotNComplexityValue === rotNComplexityValue &&
+            rotNLanguageValue) {
           const infoValue = [];
+          let allEquals = true;
           let tmpValue = [];
-          for (const x of this.alphabets) {
-            if (x[0] === rotNLanguageValue) {
-              const alphabetVariants = x[2];
+          for (const alphabet of this.alphabets) {
+            if (alphabet[0] === rotNLanguageValue) {
+              const alphabetVariants = alphabet[2];
               for (const alphabetVariant of alphabetVariants) {
                 if (infoValue.length > 0) {
                   infoValue.push(tmpValue.join(' '));
@@ -4125,10 +4321,13 @@
                   infoValue.push("<hr>");
                 }
                 for (let i = 0; i < alphabetVariant.length; ++i) {
-                  const position = rotNNumberValue >= 0
-                    ? (i + rotNNumberValue) % alphabetVariant.length
-                    : (((i + rotNNumberValue) % alphabetVariant.length) + alphabetVariant.length) % alphabetVariant.length;
-                  tmpValue.push(`<div class="translation">${alphabetVariant[i]} &#8594; ${alphabetVariant[position]}</div>`);
+                  const variants = (this.rotNLetterMap.get(alphabetVariant[i]) || [alphabetVariant[i]]);
+                  const variantsString = variants.join('|');
+                  if (alphabetVariant[i] === variantsString) {
+                    continue;
+                  }
+                  allEquals = false;
+                  tmpValue.push(`<div class="translation">${alphabetVariant[i]} &#8594; ${variantsString}</div>`);
                   if (tmpValue.length >= 5) {
                     infoValue.push(tmpValue.join(' '));
                     tmpValue = [];
@@ -4141,6 +4340,10 @@
           if (tmpValue.length > 0) {
             infoValue.push(tmpValue.join(' '));
             tmpValue = [];
+          }
+          if (allEquals && infoValue.length === 0) {
+            const alphabetName = Array.from(this.elements.rotNLanguageSelect).find(v => v.value === rotNLanguageValue).textContent;
+            infoValue.push(`<div class="translation">${alphabetName}</div>`);
           }
           this.elements.rotNLanguageInfo.innerHTML = infoValue.join('');
         }
