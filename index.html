@@ -868,6 +868,9 @@
         <div>
           <button id="refresh-text" class="gray-button" disabled>↻ Text ↻ <kbd>T</kbd></button>
           <button id="refresh-view" class="gray-button" disabled>↻ View ↻ <kbd>V</kbd></button>
+          <button id="refresh-colors" class="gray-button" disabled>↻ Colors ↻</button>
+        </div>
+        <div>
           <button id="copy-marquee-text" class="gray-button" disabled>Copy text</button>
         </div>
         <hr>
@@ -1926,6 +1929,7 @@
         settingsProfiles: 'sle_settings_profiles',
 
         /* profile settings */
+        colorMap: 'sle_color_task_map',
         colorTaskToggle: 'sle_color_task_toggle',
         colorTaskLetters: 'sle_color_task_letters',
         colorTaskColors: 'sle_color_task_colors',
@@ -1992,6 +1996,7 @@
 
       getDefaultSettingsProfile() {
         const settings = {};
+        settings[this.settingsNames.colorMap] = '{}';
         settings[this.settingsNames.colorTaskToggle] = false;
         settings[this.settingsNames.colorTaskLetters] = '1';
         settings[this.settingsNames.colorTaskColors] = '';
@@ -2031,6 +2036,7 @@
 
       getCurrentSettingsProfile() {
         const settings = {};
+        settings[this.settingsNames.colorMap] = JSON.stringify(Object.fromEntries(this.colorMap));
         settings[this.settingsNames.colorTaskToggle] = this.elements.colorEncoderToggle.checked;
         settings[this.settingsNames.colorTaskLetters] = this.elements.colorLetterCount.value;
         settings[this.settingsNames.colorTaskColors] = this.elements.colorInput.value;
@@ -2152,6 +2158,10 @@
 
         currentKey = this.settingsNames.rotNMap;
         this.rotNLetterMap = new Map(Object.entries(JSON.parse(keys.includes(currentKey) ? settingsProfileData[currentKey] : defaultSettings[currentKey])));
+
+        currentKey = this.settingsNames.colorMap;
+        this.colorMap = new Map(Object.entries(JSON.parse(keys.includes(currentKey) ? settingsProfileData[currentKey] : defaultSettings[currentKey])));
+        this.colorList = [...this.colorMap.keys()];
 
         currentKey = this.settingsNames.rotNLanguage;
         this.elements.rotNLanguageSelect.value = keys.includes(currentKey) ? settingsProfileData[currentKey] : defaultSettings[currentKey];
@@ -2289,6 +2299,7 @@
         this.elements.showColorInfoToggle = document.getElementById('show-color-info-toggle');
         this.elements.refreshText = document.getElementById('refresh-text');
         this.elements.refreshView = document.getElementById('refresh-view');
+        this.elements.refreshColors = document.getElementById('refresh-colors');
         this.elements.copyMarqueeText = document.getElementById('copy-marquee-text');
         this.elements.copyCurrentText = document.getElementById('copy-current-text');
         this.elements.textHelper = document.getElementById('text-helper');
@@ -2491,6 +2502,7 @@
         this.elements.appendTextToggle.addEventListener('click', () => this.toggleAppendText());
         this.elements.refreshText.addEventListener('click', () => this.refreshMarqueeText());
         this.elements.refreshView.addEventListener('click', () => this.refreshMarqueeView());
+        this.elements.refreshColors.addEventListener('click', () => this.refreshMarqueeColors());
         this.elements.copyMarqueeText.addEventListener('click', () => this.copyMarqueeText());
         this.elements.copyCurrentText.addEventListener('click', () => this.copyCurrentText());
         this.elements.loopToggle.addEventListener('click', () => this.toggleLoop());
@@ -2707,6 +2719,7 @@
         this.elements.fastForwardButton.disabled = true;
         this.elements.refreshText.disabled = true;
         this.elements.refreshView.disabled = true;
+        this.elements.refreshColors.disabled = true;
         this.elements.copyMarqueeText.disabled = true;
         this.elements.appendTextToggle.checked = localStorage.getItem(this.settingsNames.appendTextToggle) !== 'false';
         this.toggleAppendText();
@@ -2851,6 +2864,7 @@
           this.elements.fastForwardButton.disabled = true;
           this.elements.refreshText.disabled = true;
           this.elements.refreshView.disabled = true;
+          this.elements.refreshColors.disabled = true;
           this.elements.copyMarqueeText.disabled = true;
         }
         else {
@@ -2995,7 +3009,7 @@
                 return;
               }
               const charV = ((!this.colorMap.get(char.toLowerCase())) ^ (!this.colorMap.get(char.toUpperCase()))) ? char.toUpperCase().concat(char.toLowerCase()) : char;
-              return `${postElem}${charV}<span style="background-color:${color};color:${color};" class="marquee-letter-span" onclick="MarqueeReader.updateColor(this)">${charV[0]}</span>`;
+              return `${postElem}${charV}<span style="background-color:${color};color:${color};" class="marquee-letter-span">${charV[0]}</span>`;
             })
             .join('  ');
         }
@@ -3156,6 +3170,7 @@
         this.elements.fastForwardButton.disabled = false;
         this.elements.refreshText.disabled = false;
         this.elements.refreshView.disabled = false;
+        this.elements.refreshColors.disabled = false;
         this.elements.copyMarqueeText.disabled = false;
         if (movement) {
           this.elements.speakButton.style.display = 'none';
@@ -3452,6 +3467,8 @@
             [processedWords, processedRefWords] = this.falseWords(textWords, processedWords, processedRefWords, wordFalsePercent);
           }
 
+          const processedWordsLength = processedWords.length;
+
           return processedWords.map((word, processedWordIndex) => {
             let modifiedWord = word;
 
@@ -3546,7 +3563,8 @@
                 }
                 if (currentLength > 0) {
                   const variants = this.rotNLetterMap.get(modifiedWord.slice(i, i + currentLength));
-                  charsList.push(variants[this.randomInt(0, variants.length - 1)]);
+                  const variantIndex = this.randomInt(0, Math.min(variants.length - 1, Math.floor((processedWordIndex + 1) / processedWordsLength * variants.length)));
+                  charsList.push(variants[variantIndex]);
                   i += this.letterMapItemMaxLength;
                 }
                 else {
@@ -4228,7 +4246,18 @@
         if (this.currentPosition !== null) {
           const wasPlaying = this.animationTimer !== null;
           if (wasPlaying) this.pauseAnimation();
-          if (this.elements.colorEncoderToggle.checked) {
+          this.wasColorTaskChecked = false;
+          this.startAnimation(false, false);
+          this.savePosition();
+          if (wasPlaying) this.startAnimation(true);
+        }
+      },
+
+      refreshMarqueeColors(fullUpdate = true) {
+        if (this.currentPosition !== null) {
+          const wasPlaying = this.animationTimer !== null;
+          if (wasPlaying) this.pauseAnimation();
+          if (fullUpdate && this.elements.colorEncoderToggle.checked) {
             this.colorMap.clear();
             this.colorList = [];
           }
@@ -4875,15 +4904,6 @@
           setTimeout(() => alert(`The Default text cannot contain more than ${this.defaultTextUpperLimit} characters (and is originally intended for fallback in case the database is unavailable). Create a new text for a larger available size.`));
         }
         setTimeout(() => this.updateAnimationInfoCycle(), this.animationInfoUpdateDelay);
-      },
-
-      updateColor(element) {
-        const newColor = prompt('Enter color:', element.style.color);
-        if (newColor) {
-          this.colorMap.set(element.textContent, newColor);
-          element.style.color = newColor;
-          element.style.backgroundColor = newColor;
-        }
       },
 
       showWordHint(shuffled, original = null) {
@@ -5963,6 +5983,7 @@
           currentReader.elements.fastForwardButton.disabled = true;
           currentReader.elements.refreshText.disabled = true;
           currentReader.elements.refreshView.disabled = true;
+          currentReader.elements.refreshColors.disabled = true;
           currentReader.elements.copyMarqueeText.disabled = true;
           currentReader.elements.searchButton.style.display = 'none';
           currentReader.elements.bookmarksButton.style.display = 'none';
@@ -5985,6 +6006,7 @@
           currentReader.elements.fastForwardButton.disabled = false;
           currentReader.elements.refreshText.disabled = false;
           currentReader.elements.refreshView.disabled = false;
+          currentReader.elements.refreshColors.disabled = false;
           currentReader.elements.copyMarqueeText.disabled = false;
           currentReader.elements.searchButton.style.display = '';
           currentReader.elements.bookmarksButton.style.display = '';
@@ -6144,6 +6166,7 @@
           currentReader.elements.fastForwardButton.disabled = false;
           currentReader.elements.refreshText.disabled = true;
           currentReader.elements.refreshView.disabled = true;
+          currentReader.elements.refreshColors.disabled = true;
           currentReader.elements.copyMarqueeText.disabled = true;
           currentReader.elements.speakButton.style.display = 'none';
           currentReader.elements.bookmarksButton.style.display = 'none';
@@ -6161,6 +6184,7 @@
           currentReader.elements.fastForwardButton.disabled = false;
           currentReader.elements.refreshText.disabled = false;
           currentReader.elements.refreshView.disabled = false;
+          currentReader.elements.refreshColors.disabled = false;
           currentReader.elements.copyMarqueeText.disabled = false;
           currentReader.elements.speakButton.style.display = '';
           currentReader.elements.bookmarksButton.style.display = '';
@@ -6278,6 +6302,7 @@
           this.elements.fastForwardButton.disabled = false;
           this.elements.refreshText.disabled = true;
           this.elements.refreshView.disabled = true;
+          this.elements.refreshColors.disabled = true;
           this.elements.copyMarqueeText.disabled = true;
           this.elements.speakButton.style.display = 'none';
           this.elements.searchButton.style.display = 'none';
@@ -6297,6 +6322,7 @@
           this.elements.fastForwardButton.disabled = false;
           this.elements.refreshText.disabled = false;
           this.elements.refreshView.disabled = false;
+          this.elements.refreshColors.disabled = false;
           this.elements.copyMarqueeText.disabled = false;
           this.elements.speakButton.style.display = '';
           this.elements.searchButton.style.display = '';
