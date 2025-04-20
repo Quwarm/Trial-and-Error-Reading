@@ -74,6 +74,12 @@
       padding: 8px 0px;
     }
 
+    h4 {
+      font-size: 16px;
+      font-weight: normal;
+      padding: 8px 0px;
+    }
+
     label {
       display: block;
       padding: 8px 0px;
@@ -165,6 +171,11 @@
 
     .ta-center {
       text-align: center;
+    }
+
+    .w50 {
+      width: 50%;
+      margin: 0 auto !important;
     }
 
     label > select, label > input[type="text"] {
@@ -834,18 +845,15 @@
         width: 100%;
         vertical-align: middle;
       }
-
       label > input[type="number"] {
         width: 100%;
         vertical-align: middle;
       }
-
       label > span, label > button {
         display: inline-block;
         width: 100%;
         vertical-align: middle;
       }
-
       label input[type="checkbox"] + span, label input[type="radio"] + span {
         width: 100%;
       }
@@ -855,6 +863,9 @@
       }
       .tab-content * {
         margin: 5px 1px;
+      }
+      .w50 {
+        width: 100%;
       }
       #tab-navigation {
         flex-direction: column;
@@ -1882,7 +1893,7 @@
           <div>
             <label>
               <span>Delete attempts from history in time less than or equal to (seconds):</span>
-              <input type="number" id="attempt-min-time-number" min="1" max="1000" step="1" value="30">
+              <input type="number" id="attempt-min-time-number" min="1" max="1000" step="1" value="10">
             </label>
           </div>
         </div>
@@ -1911,6 +1922,23 @@
               <input type="checkbox" id="faster-transitions-toggle">
               <span>Reduced pause between sentences</span>
             </label>
+          </div>
+          <div>
+            <label>
+              <input type="checkbox" id="speak-sentence-by-sentence-toggle">
+              <span>One sentence at a time</span>
+            </label>
+          </div>
+          <div>
+            <label>
+              <input type="checkbox" id="speak-word-by-word-toggle">
+              <span>One word at a time</span>
+            </label>
+          </div>
+          <div>
+            <h4 class="w50">
+              Choose one of the last two options if you experience problems with text position updates during speech synthesis.
+            </h4>
           </div>
         </div>
         <div class="with-rounded-border">
@@ -2273,6 +2301,8 @@
         appendTextToggle: 'sle_append_text_toggle',
         importDataReplacement: 'sle_import_data_replacement',
         fasterTransitionsToggle: 'sle_faster_transitions_toggle',
+        speakWordByWordToggle: 'sle_speak_word_by_word',
+        speakSentenceBySentenceToggle: 'sle_speak_sentence_by_sentence',
         exportTextsWithBookmarksToggle: 'sle_export_texts_with_bookmarks_toggle',
         sentenceCountToGenerate: 'sle_sentence_count_to_generate',
         wikiLang: 'sle_wiki_lang',
@@ -2603,6 +2633,8 @@
         this.elements.exportHistoryToggle = document.getElementById('export-history-toggle');
         this.elements.exportHistory = document.getElementById('export-history');
         this.elements.fasterTransitionsToggle = document.getElementById("faster-transitions-toggle");
+        this.elements.speakWordByWordToggle = document.getElementById("speak-word-by-word-toggle");
+        this.elements.speakSentenceBySentenceToggle = document.getElementById("speak-sentence-by-sentence-toggle");
         this.elements.fastForwardButton = document.getElementById('fast-forward-button');
         this.elements.fontSizeNumber = document.getElementById('font-size-number');
         this.elements.fontSizeSlider = document.getElementById('font-size-slider');
@@ -2944,6 +2976,8 @@
         this.elements.sentenceCountInput.addEventListener('input', () => this.saveSentenceCountToGenerate());
         this.elements.loadWikiLanguageSelect.addEventListener('input', () => this.saveWikiLang());
         this.elements.fasterTransitionsToggle.addEventListener('click', () => this.toggleFasterTransitions());
+        this.elements.speakWordByWordToggle.addEventListener('click', () => this.toggleSpeakWordByWord());
+        this.elements.speakSentenceBySentenceToggle.addEventListener('click', () => this.toggleSpeakSentenceBySentence());
         this.elements.exportAllTextsWithBookmarksToggle.addEventListener('click', () => this.toggleExportTextsWithBookmarks());
         this.elements.exportHistoryToggle.addEventListener('click', () => this.toggleExportHistory());
         this.elements.exportHistory.addEventListener('click', () => this.exportHistory());
@@ -3120,7 +3154,7 @@
         this.isLoopEnabled = localStorage.getItem(this.settingsNames.loop) === 'true';
         if (this.isLoopEnabled) this.elements.loopToggle.classList.add('active');
         this.elements.mainContainer.classList.add(localStorage.getItem(this.settingsNames.appSizeToggle) || 'normal-size');
-        this.elements.attemptMinTimeInput.value = localStorage.getItem(this.settingsNames.attemptMinTime) || '30';
+        this.elements.attemptMinTimeInput.value = localStorage.getItem(this.settingsNames.attemptMinTime) || '10';
         this.toggleAttemptMinTime();
         this.elements.showSpeakButtonToggle.checked = localStorage.getItem(this.settingsNames.voiceButton) === 'true';
         this.toggleSpeechButton();
@@ -3145,6 +3179,10 @@
         this.saveWikiLang();
         this.elements.fasterTransitionsToggle.checked = localStorage.getItem(this.settingsNames.fasterTransitionsToggle) === 'true';
         this.toggleFasterTransitions();
+        this.elements.speakWordByWordToggle.checked = localStorage.getItem(this.settingsNames.speakWordByWordToggle) === 'true';
+        this.toggleSpeakWordByWord();
+        this.elements.speakSentenceBySentenceToggle.checked = localStorage.getItem(this.settingsNames.speakSentenceBySentenceToggle) === 'true';
+        this.toggleSpeakSentenceBySentence();
         this.elements.exportAllTextsWithBookmarksToggle.checked = localStorage.getItem(this.settingsNames.exportTextsWithBookmarksToggle) !== 'false';
         this.toggleExportTextsWithBookmarks();
         this.elements.exportHistoryToggle.checked = localStorage.getItem(this.settingsNames.exportHistoryToggle) !== 'false';
@@ -4705,6 +4743,20 @@
 
       toggleFasterTransitions() {
         localStorage.setItem(this.settingsNames.fasterTransitionsToggle, this.elements.fasterTransitionsToggle.checked);
+      },
+
+      toggleSpeakWordByWord() {
+        if (this.elements.speakWordByWordToggle.checked) {
+          this.elements.speakSentenceBySentenceToggle.checked = false;
+        }
+        localStorage.setItem(this.settingsNames.speakWordByWordToggle, this.elements.speakWordByWordToggle.checked);
+      },
+
+      toggleSpeakSentenceBySentence() {
+        if (this.elements.speakSentenceBySentenceToggle.checked) {
+          this.elements.speakWordByWordToggle.checked = false;
+        }
+        localStorage.setItem(this.settingsNames.speakSentenceBySentenceToggle, this.elements.speakSentenceBySentenceToggle.checked);
       },
 
       toggleExportTextsWithBookmarks() {
@@ -6844,6 +6896,7 @@
           currentReader.amendHistoryItem();
           currentReader.isSpeaking = false;
           currentReader.wasStarted = false;
+          currentReader.currentWordIndexToSpeech = 0;
         };
 
         if (this.isSpeaking) {
@@ -6913,63 +6966,129 @@
         });
         let markAdded = false;
 
-        utterance.onboundary = (event) => {
-          if (event.name === 'word') {
-            const wordIndex = wordsPositions.findIndex((v => v > event.charIndex)) - 1;
-            const spanIndex = Math.min(wordIndex, spanPositions.length - 1);
-            const startPos = containerWidth;
-            const endPos = -textWidth;
+        const wordByWord = this.elements.speakWordByWordToggle.checked;
+        const sentenceBySentence = this.elements.speakSentenceBySentenceToggle.checked;
 
-            currentReader.currentPosition = Math.max(endPos, Math.min(startPos, spanPositions[spanIndex] + shift));
-            currentReader.elements.marqueeDisplay.style.left = `${currentReader.currentPosition}px`;
-
-            const newLastUpdateTime = Date.now();
-            const elapsedTime = (newLastUpdateTime - currentReader.animationStartTime) / 1000;
-            const wordsPerSecond = elapsedTime ? wordIndex / elapsedTime : wordIndex;
-            const remainingWords = wordCount - wordIndex;
-            const secondsRemaining = wordsPerSecond > 0 ? (remainingWords / wordsPerSecond) : 0;
-
-            currentReader.infoSecondsRemaining = secondsRemaining;
-            currentReader.infoWPM = Math.floor(wordsPerSecond * 60);
-            currentReader.infoProgress = currentReader.getProgressByPosition();
-
-            if (!markAdded) {
-              currentReader.elements.progressBarContainer.appendChild(mark);
-              markAdded = true;
-            }
-          }
-        };
-
-        utterance.onend = () => {
-          const wordIndex = wordCount;
+        const updateWordUI = (wordIndex) => {
+          const spanIndex = Math.min(wordIndex, spanPositions.length - 1);
           const startPos = containerWidth;
           const endPos = -textWidth;
 
-          currentReader.currentPosition = endPos;
+          currentReader.currentPosition = Math.max(endPos, Math.min(startPos, spanPositions[spanIndex] + shift));
           currentReader.elements.marqueeDisplay.style.left = `${currentReader.currentPosition}px`;
 
           const newLastUpdateTime = Date.now();
           const elapsedTime = (newLastUpdateTime - currentReader.animationStartTime) / 1000;
           const wordsPerSecond = elapsedTime ? wordIndex / elapsedTime : wordIndex;
+          const remainingWords = wordCount - wordIndex;
+          const secondsRemaining = wordsPerSecond > 0 ? (remainingWords / wordsPerSecond) : 0;
 
-          currentReader.infoSecondsRemaining = 0;
+          currentReader.infoSecondsRemaining = secondsRemaining;
           currentReader.infoWPM = Math.floor(wordsPerSecond * 60);
           currentReader.infoProgress = currentReader.getProgressByPosition();
 
+          if (!markAdded) {
+            currentReader.elements.progressBarContainer.appendChild(mark);
+            markAdded = true;
+          }
+        };
+
+        const completeSpeech = () => {
+          currentReader.currentPosition = -textWidth;
+          currentReader.elements.marqueeDisplay.style.left = `${currentReader.currentPosition}px`;
+          currentReader.infoSecondsRemaining = 0;
+          currentReader.infoWPM = Math.floor(wordCount / ((Date.now() - currentReader.animationStartTime) / 1000) * 60);
+          currentReader.infoProgress = currentReader.getProgressByPosition();
           if (markAdded) {
             mark.remove();
+            markAdded = false;
           }
-
           stopUpdate();
-
           if (currentReader.elements.loopToggle.classList.contains('active')) {
             currentReader.currentPosition = null;
             setTimeout(() => currentReader.toggleSpeech(), 50);
           }
         };
 
-        startUpdate();
-        this.speechSynthesis.speak(utterance);
+        if (sentenceBySentence) {
+          const speakSentence = (wordIndex) => {
+            if (wordIndex >= wordCount || !currentReader.isSpeaking) {
+              completeSpeech();
+              return;
+            }
+            let endIndex = wordIndex;
+            for (let i = wordIndex; i < wordsFromIndex.length; ++i) {
+              endIndex = i;
+              if (wordsFromIndex[i].indexOf('!') >= 0 || wordsFromIndex[i].indexOf('?') >= 0 || wordsFromIndex[i].indexOf('.') >= 0) {
+                break;
+              }
+            }
+            const utterance = new SpeechSynthesisUtterance(wordsFromIndex.slice(wordIndex, endIndex + 1).join(' '));
+            if (this.voices[selectedVoiceIndex]) {
+              utterance.voice = this.voices[selectedVoiceIndex];
+            }
+            utterance.rate = this.speechRate / 100;
+            utterance.pitch = this.speechPitch / 100;
+            utterance.volume = this.speechVolume / 100;
+            updateWordUI(wordIndex);
+            utterance.onend = () => {
+              currentReader.currentWordIndexToSpeech = endIndex + 1;
+              speakSentence(currentReader.currentWordIndexToSpeech);
+            };
+            currentReader.speechSynthesis.speak(utterance);
+          };
+
+          currentReader.currentWordIndexToSpeech = 0;
+          startUpdate();
+          speakSentence(currentReader.currentWordIndexToSpeech);
+        }
+        else if (wordByWord) {
+          const speakWord = (wordIndex) => {
+            if (wordIndex >= wordCount || !currentReader.isSpeaking) {
+              completeSpeech();
+              return;
+            }
+            const utterance = new SpeechSynthesisUtterance(wordsFromIndex[wordIndex]);
+            if (this.voices[selectedVoiceIndex]) {
+              utterance.voice = this.voices[selectedVoiceIndex];
+            }
+            utterance.rate = this.speechRate / 100;
+            utterance.pitch = this.speechPitch / 100;
+            utterance.volume = this.speechVolume / 100;
+            updateWordUI(wordIndex);
+            utterance.onend = () => {
+              currentReader.currentWordIndexToSpeech = wordIndex + 1;
+              speakWord(currentReader.currentWordIndexToSpeech);
+            };
+            currentReader.speechSynthesis.speak(utterance);
+          };
+
+          currentReader.currentWordIndexToSpeech = 0;
+          startUpdate();
+          speakWord(currentReader.currentWordIndexToSpeech);
+        } else {
+          const utterance = new SpeechSynthesisUtterance(realTextFromIndex);
+          if (this.voices[selectedVoiceIndex]) {
+            utterance.voice = this.voices[selectedVoiceIndex];
+          }
+          utterance.rate = this.speechRate / 100;
+          utterance.pitch = this.speechPitch / 100;
+          utterance.volume = this.speechVolume / 100;
+
+          utterance.onboundary = (event) => {
+            if (event.name === 'word') {
+              const wordIndex = wordsPositions.findIndex((v) => v > event.charIndex) - 1;
+              updateWordUI(wordIndex);
+            }
+          };
+
+          utterance.onend = () => {
+            completeSpeech();
+          };
+
+          startUpdate();
+          this.speechSynthesis.speak(utterance);
+        }
       },
 
       toggleSearch() {
