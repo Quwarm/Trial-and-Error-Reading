@@ -163,8 +163,31 @@
       transform: scaleX(-1) scaleY(-1);
     }
 
-    /* Margin */
+    .ta-center {
+      text-align: center;
+    }
 
+    label > select, label > input[type="text"] {
+      width: 15%;
+      vertical-align: middle;
+    }
+
+    label > input[type="number"] {
+      width: 15%;
+      vertical-align: middle;
+    }
+
+    label > span, label > button {
+      display: inline-block;
+      width: 15%;
+      vertical-align: middle;
+    }
+
+    label input[type="checkbox"] + span, label input[type="radio"] + span {
+      width: auto;
+    }
+
+    /* Margin */
     .tab-content * {
       margin: 1px;
     }
@@ -581,7 +604,6 @@
     #marquee-container {
       width: 100%;
       height: 60px;
-      overflow: hidden;
       position: relative;
       border: 2px solid var(--border-color);
       padding-left: 2px;
@@ -745,18 +767,62 @@
     }
 
     /* Info tab */
-    #info-tab ul {
-      list-style-type: disc;
-      text-align: left;
+    #help-section {
+      text-align: justify;
       max-width: 600px;
       margin: 0 auto;
     }
-    
-    #info-tab li {
-      margin-bottom: 10px;
+
+    #help-section h3 {
+      text-align: center;
     }
 
-    @media (max-width: 600px) {
+    #help-section ul {
+      list-style-type: disc;
+    }
+    
+    /* Text parameters, Report, History, Help sections */
+    #text-parameters, #report-section, #history-section {
+      display: block;
+      margin: 0 auto;
+      max-width: 50%;
+    }
+
+    #history-list {
+      max-height: 700px;
+      overflow-y: auto;
+    }
+
+    #text-parameters > div, .report-row {
+      display: flex;
+    }
+
+    #text-parameters > div > span, .report-row > span {
+      flex: 1;
+      word-break: break-word;
+      overflow: hidden;
+    }
+
+    .history-row {
+      display: flex;
+      flex-wrap: wrap;
+    }
+
+    .history-row > div {
+      flex: 0 0 100%;
+      display: grid;
+      grid-template-columns: 50% 1fr;
+    }
+
+    .history-row > div > span {
+      display: block;
+    }
+
+    .history-row > div > span:first-child {
+      font-weight: bold;
+    }
+
+    @media (max-width: 786px) {
       button {
         width: 100%;
         margin: 10px 0;
@@ -764,12 +830,28 @@
       kbd {
         display: none;
       }
-      select {
+      label > select, label > input[type="text"] {
+        width: 100%;
+        vertical-align: middle;
+      }
+
+      label > input[type="number"] {
+        width: 100%;
+        vertical-align: middle;
+      }
+
+      label > span, label > button {
+        display: inline-block;
+        width: 100%;
+        vertical-align: middle;
+      }
+
+      label input[type="checkbox"] + span, label input[type="radio"] + span {
         width: 100%;
       }
       input[type="range"] ~ input[type="number"] {
         width: 30%;
-        margin-left: 20%;
+        margin-left: 10%;
       }
       .tab-content * {
         margin: 5px 1px;
@@ -794,6 +876,28 @@
       }
       #color-input {
         min-height: 250px;
+      }
+      #text-parameters, #report-section, #history-section {
+        max-width: 100%;
+      }
+      #text-parameters > div, .report-row {
+        flex-direction: column;
+      }
+      #text-parameters > div > span, .report-row > span {
+        flex: none;
+        width: 100%;
+      }
+      #text-parameters > div > span:nth-child(1), .report-row > span:nth-child(1) {
+        font-weight: bold;
+      }
+      .history-row > div {
+        grid-template-columns: 1fr;
+      }
+      .mob-ta-left {
+        text-align: left;
+      }
+      .mob-w50 {
+        width: 50%;
       }
     }
   </style>
@@ -840,6 +944,9 @@
           <div id="bookmarks-list"></div>
         </div>
       </div>
+      <div id="text-view-container">
+        <button id="text-view-button" class="grey-button">Text view</button>
+      </div>
       <div id="controls-container-footer">
         <button id="loop-toggle" class="gray-button">Loop <kbd>L</kbd></button>
         <div id="progress-display" style="display: none;"></div>
@@ -866,413 +973,460 @@
         </div>
         <hr>
         <div>
-          <button id="refresh-text" class="gray-button" disabled>↻ Text ↻ <kbd>T</kbd></button>
-          <button id="refresh-view" class="gray-button" disabled>↻ View ↻ <kbd>V</kbd></button>
-          <button id="refresh-colors" class="gray-button" disabled>↻ Colors ↻</button>
+          <div>
+            <div id="text-parameters">
+              <h3>Text after manipulations</h3>
+              <div>
+                <span>Shannon entropy</span>
+                <span><span id="text-parameter-shannon-entropy-number">0</span></span>
+              </div>
+              <div>
+                <span>Words</span>
+                <span><span id="text-parameter-words-number">0</span></span>
+              </div>
+              <div>
+                <span>Unique words</span>
+                <span><span id="text-parameter-unique-words-number">0</span> (<span id="text-parameter-unique-words-percent">0%</span>)</span>
+              </div>
+              <div>
+                <span>Average word length</span>
+                <span><span id="text-parameter-average-word-length">0</span></span>
+              </div>
+              <div>
+                <span>Average word frequency</span>
+                <span><span id="text-parameter-average-word-frequency">0</span></span>
+              </div>
+              <div>
+                <span>Complexity</span>
+                <span><span id="text-parameter-text-after-manipulations-complexity">0</span></span>
+              </div>
+              <div>
+                <span>Alphabet letters</span>
+                <span><span id="text-parameter-alphabet-letters-number">0</span> (<span id="text-parameter-alphabet-letters-percent">0%</span>)</span>
+              </div>
+              <div>
+                <span>Colored letters</span>
+                <span><span id="text-parameter-letters-colored-number">0</span> (<span id="text-parameter-letters-colored-percent">0%</span>)</span>
+              </div>
+            </div>
+          </div>
         </div>
+        <hr>
         <div>
+          <button id="refresh-words" class="gray-button" disabled>↻ Words ↻ <kbd>W</kbd></button>
+          <button id="refresh-view" class="gray-button" disabled>↻ View ↻ <kbd>V</kbd></button>
+          <br>
+          <button id="refresh-sentences" class="gray-button" disabled>↻ Sentences ↻</button>
+          <button id="refresh-colors" class="gray-button" disabled>↻ Colors ↻</button>
+          <br>
           <button id="copy-marquee-text" class="gray-button" disabled>Copy text</button>
         </div>
         <hr>
         <div>
-          <h3>Reading</h3>
-        </div>
-        <div>
-          <label for="font-size-number"><span>Text size</span></label>
-          <input type="range" id="font-size-slider" min="8" max="50" value="50">
-          <input type="number" id="font-size-number" min="8" max="50" value="50">
-        </div>
-        <div>
-          <label for="speed-number"><span>Speed <kbd>+</kbd><kbd>-</kbd></span></label>
-          <input type="range" id="speed-slider" min="1" max="300" value="100">
-          <input type="number" id="speed-number" min="1" max="500" value="100">
-          <label><input type="checkbox" id="speed-smooth-toggle"> Smooth (platform-dependent)</label>
+          <div>
+            <h3>Reading</h3>
+          </div>
+          <div>
+            <label for="font-size-number"><span>Text size</span></label>
+            <input type="range" id="font-size-slider" min="8" max="50" value="50">
+            <input type="number" id="font-size-number" min="8" max="50" value="50">
+          </div>
+          <div>
+            <label for="speed-number"><span>Speed <kbd>+</kbd><kbd>-</kbd></span></label>
+            <input type="range" id="speed-slider" min="1" max="300" value="100">
+            <input type="number" id="speed-number" min="1" max="500" value="100">
+            <label><input type="checkbox" id="speed-smooth-toggle"> Smooth (platform-dependent)</label>
+          </div>
         </div>
         <hr>
         <div>
           <h3>Letters</h3>
-        </div>
-        <div>
-          <label>
-            <span>Skip letters:</span>
-            <select id="letter-skip-select">
-              <option value="no">-</option>
-              <option value="10%_letters">10%</option>
-              <option value="20%_letters">20%</option>
-              <option value="30%_letters">30%</option>
-              <option value="40%_letters">40%</option>
-              <option value="50%_letters">50%</option>
-              <option value="60%_letters">60%</option>
-              <option value="70%_letters">70%</option>
-              <option value="80%_letters">80%</option>
-              <option value="90%_letters">90%</option>
-              <option value="100%_letters">Almost all letters</option>
-            </select>
-          </label>
-        </div>
-        <div>
-          <label>
-            <span>Reverse letters:</span>
-            <select id="letter-reverse-select">
-              <option value="no">-</option>
-              <option value="except_first_last">Except first and last letters</option>
-              <option value="except_first">Except first letter</option>
-              <option value="except_capitalized">Except capitalized words</option>
-              <option value="all_letters">All letters</option>
-            </select>
-          </label>
-        </div>
-        <div>
-          <label>
-            <span>Shuffle letters:</span>
-            <select id="letter-shuffle-select">
-              <option value="no">-</option>
-              <option value="middle">Middle of word</option>
-              <option value="except_first_last">Except first and last letters</option>
-              <option value="except_first">Except first letter</option>
-              <option value="except_capitalized">Except capitalized words</option>
-              <option value="all_letters">All letters</option>
-            </select>
-          </label>
-        </div>
-        <div>
-          <label>
-            <span>False letters:</span>
-            <select id="letter-false-select">
-              <option value="no">-</option>
-              <option value="10%_letters">10%</option>
-              <option value="20%_letters">20%</option>
-              <option value="30%_letters">30%</option>
-              <option value="40%_letters">40%</option>
-              <option value="50%_letters">50%</option>
-              <option value="60%_letters">60%</option>
-              <option value="70%_letters">70%</option>
-              <option value="80%_letters">80%</option>
-              <option value="90%_letters">90%</option>
-              <option value="100%_letters">100%</option>
-            </select>
-          </label>
-        </div>
-        <div>
-          <label>
-            <span>Eliminate letters:</span>
-            <select id="letter-elimination-select">
-              <option value="no">-</option>
-              <option value="20%_vowels">20% vowels</option>
-              <option value="40%_vowels">40% vowels</option>
-              <option value="60%_vowels">60% vowels</option>
-              <option value="80%_vowels">80% vowels</option>
-              <option value="100%_vowels">Almost all vowels</option>
-              <option value="10%_random">10% smart-random</option>
-              <option value="20%_random">20% smart-random</option>
-              <option value="30%_random">30% smart-random</option>
-              <option value="40%_random">40% smart-random</option>
-              <option value="50%_random">50% smart-random</option>
-            </select>
-          </label>
-        </div>
-        <div id="rot-n-div" class="with-rounded-border">
-          <label><input type="checkbox" id="rot-n-toggle"> ROT-N</label>
-          <div id="rot-n-options">
-            <div>
-              <label>
-                <span>Min N:</span>
-                <input type="number" id="rot-n-number-min" min="-1000" max="1000" value="1">
-              </label>
-            </div>
-            <div>
-              <label>
-                <span>Max N:</span>
-                <input type="number" id="rot-n-number-max" min="-1000" max="1000" value="1">
-              </label>
-            </div>
-            <div>
-              <label><input type="checkbox" id="rot-n-exclude-zero"> Exclude N=0</label>
-            </div>
-            <div>
-              <label><input type="checkbox" id="rot-n-each-mapping"> Random N for each mapping</label>
-            </div>
-            <div>
-              <label><input type="checkbox" id="rot-n-upper-case-lower-case"> Upper case = Lower case</label>
-            </div>
-            <div>
-              <label>
-                <span>Additional mappings:</span>
-                <input type="number" id="rot-n-complexity" min="0" max="1000" value="0">
-              </label>
-            </div>
-            <div>
-              <label>
-                <span class="select-label">Language:</span>
-                <select id="rot-n-language-select">
-                  <option value="no">-</option>
-                </select>
-              </label>
-            </div>
-            <div>
-              <button id="rot-n-generate-button" class="gray-button">Regenerate</button>
-            </div>
-            <div>
-              <div id="rot-n-language-info"></div>
+          <div>
+            <label>
+              <span>Skip letters:</span>
+              <select id="letter-skip-select">
+                <option value="no">-</option>
+                <option value="10%_letters">10%</option>
+                <option value="20%_letters">20%</option>
+                <option value="30%_letters">30%</option>
+                <option value="40%_letters">40%</option>
+                <option value="50%_letters">50%</option>
+                <option value="60%_letters">60%</option>
+                <option value="70%_letters">70%</option>
+                <option value="80%_letters">80%</option>
+                <option value="90%_letters">90%</option>
+                <option value="100%_letters">Almost all letters</option>
+              </select>
+            </label>
+          </div>
+          <div>
+            <label>
+              <span>Reverse letters:</span>
+              <select id="letter-reverse-select">
+                <option value="no">-</option>
+                <option value="except_first_last">Except first and last letters</option>
+                <option value="except_first">Except first letter</option>
+                <option value="except_capitalized">Except capitalized words</option>
+                <option value="all_letters">All letters</option>
+              </select>
+            </label>
+          </div>
+          <div>
+            <label>
+              <span>Shuffle letters:</span>
+              <select id="letter-shuffle-select">
+                <option value="no">-</option>
+                <option value="middle">Middle of word</option>
+                <option value="except_first_last">Except first and last letters</option>
+                <option value="except_first">Except first letter</option>
+                <option value="except_capitalized">Except capitalized words</option>
+                <option value="all_letters">All letters</option>
+              </select>
+            </label>
+          </div>
+          <div>
+            <label>
+              <span>False letters:</span>
+              <select id="letter-false-select">
+                <option value="no">-</option>
+                <option value="10%_letters">10%</option>
+                <option value="20%_letters">20%</option>
+                <option value="30%_letters">30%</option>
+                <option value="40%_letters">40%</option>
+                <option value="50%_letters">50%</option>
+                <option value="60%_letters">60%</option>
+                <option value="70%_letters">70%</option>
+                <option value="80%_letters">80%</option>
+                <option value="90%_letters">90%</option>
+                <option value="100%_letters">100%</option>
+              </select>
+            </label>
+          </div>
+          <div>
+            <label>
+              <span>Eliminate letters:</span>
+              <select id="letter-elimination-select">
+                <option value="no">-</option>
+                <option value="20%_vowels">20% vowels</option>
+                <option value="40%_vowels">40% vowels</option>
+                <option value="60%_vowels">60% vowels</option>
+                <option value="80%_vowels">80% vowels</option>
+                <option value="100%_vowels">Almost all vowels</option>
+                <option value="10%_random">10% smart-random</option>
+                <option value="20%_random">20% smart-random</option>
+                <option value="30%_random">30% smart-random</option>
+                <option value="40%_random">40% smart-random</option>
+                <option value="50%_random">50% smart-random</option>
+              </select>
+            </label>
+          </div>
+          <div id="rot-n-div" class="with-rounded-border">
+            <label><input type="checkbox" id="rot-n-toggle"> ROT-N</label>
+            <div id="rot-n-options">
+              <div>
+                <label>
+                  <span>Min N:</span>
+                  <input type="number" id="rot-n-number-min" min="-1000" max="1000" value="1">
+                </label>
+              </div>
+              <div>
+                <label>
+                  <span>Max N:</span>
+                  <input type="number" id="rot-n-number-max" min="-1000" max="1000" value="1">
+                </label>
+              </div>
+              <div>
+                <label><input type="checkbox" id="rot-n-exclude-zero"> Exclude N=0</label>
+              </div>
+              <div>
+                <label><input type="checkbox" id="rot-n-each-mapping"> Random N for each mapping</label>
+              </div>
+              <div>
+                <label><input type="checkbox" id="rot-n-upper-case-lower-case"> Upper case = Lower case</label>
+              </div>
+              <div>
+                <label>
+                  <span>Additional mappings:</span>
+                  <input type="number" id="rot-n-complexity" min="0" max="1000" value="0">
+                </label>
+              </div>
+              <div>
+                <label>
+                  <span class="select-label">Language:</span>
+                  <select id="rot-n-language-select">
+                    <option value="no">-</option>
+                  </select>
+                </label>
+              </div>
+              <div>
+                <button id="rot-n-generate-button" class="gray-button">Regenerate</button>
+              </div>
+              <div>
+                <div id="rot-n-language-info"></div>
+              </div>
             </div>
           </div>
         </div>
         <hr>
         <div>
           <h3>Words</h3>
+          <div>
+            <label>
+              <span>Skip words:</span>
+              <select id="word-skip-select">
+                <option value="no">-</option>
+                <option value="5%_words">5%</option>
+                <option value="10%_words">10%</option>
+                <option value="15%_words">15%</option>
+                <option value="20%_words">20%</option>
+                <option value="25%_words">25%</option>
+                <option value="30%_words">30%</option>
+                <option value="35%_words">35%</option>
+                <option value="40%_words">40%</option>
+                <option value="45%_words">45%</option>
+                <option value="50%_words">50%</option>
+                <option value="55%_words">55%</option>
+                <option value="60%_words">60%</option>
+                <option value="65%_words">65%</option>
+                <option value="70%_words">70%</option>
+                <option value="75%_words">75%</option>
+                <option value="80%_words">80%</option>
+                <option value="85%_words">85%</option>
+                <option value="90%_words">90%</option>
+                <option value="95%_words">95%</option>
+                <option value="100%_words">100%</option>
+              </select>
+            </label>
+          </div>
+          <div>
+            <label>
+              <span>False words:</span>
+              <select id="word-false-select">
+                <option value="no">-</option>
+                <option value="5%_words">5%</option>
+                <option value="10%_words">10%</option>
+                <option value="15%_words">15%</option>
+                <option value="20%_words">20%</option>
+                <option value="25%_words">25%</option>
+                <option value="30%_words">30%</option>
+                <option value="35%_words">35%</option>
+                <option value="40%_words">40%</option>
+                <option value="45%_words">45%</option>
+                <option value="50%_words">50%</option>
+                <option value="55%_words">55%</option>
+                <option value="60%_words">60%</option>
+                <option value="65%_words">65%</option>
+                <option value="70%_words">70%</option>
+                <option value="75%_words">75%</option>
+                <option value="80%_words">80%</option>
+                <option value="85%_words">85%</option>
+                <option value="90%_words">90%</option>
+                <option value="95%_words">95%</option>
+                <option value="100%_words">100%</option>
+              </select>
+            </label>
+          </div>
+          <div>
+            <label>
+              <span>Concatenate words:</span>
+              <select id="word-concat-select">
+                <option value="no">-</option>
+                <option value="5%_words">5%</option>
+                <option value="10%_words">10%</option>
+                <option value="15%_words">15%</option>
+                <option value="20%_words">20%</option>
+                <option value="25%_words">25%</option>
+                <option value="30%_words">30%</option>
+                <option value="35%_words">35%</option>
+                <option value="40%_words">40%</option>
+                <option value="45%_words">45%</option>
+                <option value="50%_words">50%</option>
+                <option value="55%_words">55%</option>
+                <option value="60%_words">60%</option>
+                <option value="65%_words">65%</option>
+                <option value="70%_words">70%</option>
+                <option value="75%_words">75%</option>
+                <option value="80%_words">80%</option>
+                <option value="85%_words">85%</option>
+                <option value="90%_words">90%</option>
+                <option value="95%_words">95%</option>
+                <option value="100%_words">100%</option>
+              </select>
+            </label>
+          </div>
         </div>
+        <hr>
         <div>
-          <label>
-            <span>Skip words:</span>
-            <select id="word-skip-select">
-              <option value="no">-</option>
-              <option value="5%_words">5%</option>
-              <option value="10%_words">10%</option>
-              <option value="15%_words">15%</option>
-              <option value="20%_words">20%</option>
-              <option value="25%_words">25%</option>
-              <option value="30%_words">30%</option>
-              <option value="35%_words">35%</option>
-              <option value="40%_words">40%</option>
-              <option value="45%_words">45%</option>
-              <option value="50%_words">50%</option>
-              <option value="55%_words">55%</option>
-              <option value="60%_words">60%</option>
-              <option value="65%_words">65%</option>
-              <option value="70%_words">70%</option>
-              <option value="75%_words">75%</option>
-              <option value="80%_words">80%</option>
-              <option value="85%_words">85%</option>
-              <option value="90%_words">90%</option>
-              <option value="95%_words">95%</option>
-              <option value="100%_words">100%</option>
-            </select>
-          </label>
-        </div>
-        <div>
-          <label>
-            <span>Shuffle words:</span>
-            <select id="word-shuffle-select">
-              <option value="no">-</option>
-              <option value="2_words">2 words</option>
-              <option value="3_words">3 words</option>
-              <option value="4_words">4 words</option>
-              <option value="5_words">5 words</option>
-              <option value="6_words">6 words</option>
-              <option value="7_words">7 words</option>
-              <option value="8_words">8 words</option>
-              <option value="9_words">9 words</option>
-              <option value="10_words">10 words</option>
-            </select>
-          </label>
-        </div>
-        <div>
-          <label>
-            <span>False words:</span>
-            <select id="word-false-select">
-              <option value="no">-</option>
-              <option value="5%_words">5%</option>
-              <option value="10%_words">10%</option>
-              <option value="15%_words">15%</option>
-              <option value="20%_words">20%</option>
-              <option value="25%_words">25%</option>
-              <option value="30%_words">30%</option>
-              <option value="35%_words">35%</option>
-              <option value="40%_words">40%</option>
-              <option value="45%_words">45%</option>
-              <option value="50%_words">50%</option>
-              <option value="55%_words">55%</option>
-              <option value="60%_words">60%</option>
-              <option value="65%_words">65%</option>
-              <option value="70%_words">70%</option>
-              <option value="75%_words">75%</option>
-              <option value="80%_words">80%</option>
-              <option value="85%_words">85%</option>
-              <option value="90%_words">90%</option>
-              <option value="95%_words">95%</option>
-              <option value="100%_words">100%</option>
-            </select>
-          </label>
-        </div>
-        <div>
-          <label>
-            <span>Concatenate words:</span>
-            <select id="word-concat-select">
-              <option value="no">-</option>
-              <option value="5%_words">5%</option>
-              <option value="10%_words">10%</option>
-              <option value="15%_words">15%</option>
-              <option value="20%_words">20%</option>
-              <option value="25%_words">25%</option>
-              <option value="30%_words">30%</option>
-              <option value="35%_words">35%</option>
-              <option value="40%_words">40%</option>
-              <option value="45%_words">45%</option>
-              <option value="50%_words">50%</option>
-              <option value="55%_words">55%</option>
-              <option value="60%_words">60%</option>
-              <option value="65%_words">65%</option>
-              <option value="70%_words">70%</option>
-              <option value="75%_words">75%</option>
-              <option value="80%_words">80%</option>
-              <option value="85%_words">85%</option>
-              <option value="90%_words">90%</option>
-              <option value="95%_words">95%</option>
-              <option value="100%_words">100%</option>
-            </select>
-          </label>
-        </div>
-        <div>
-          <label>
-            <span>Shuffle sentences:</span>
-            <select id="sentence-shuffle-select">
-              <option value="no">-</option>
-              <option value="2_sentences">2 consecutive</option>
-              <option value="3_sentences">3 consecutive</option>
-              <option value="4_sentences">4 consecutive</option>
-              <option value="5_sentences">5 consecutive</option>
-              <option value="6_sentences">6 consecutive</option>
-              <option value="7_sentences">7 consecutive</option>
-              <option value="8_sentences">8 consecutive</option>
-              <option value="9_sentences">9 consecutive</option>
-              <option value="10_sentences">10 consecutive</option>
-              <option value="all_sentences">All</option>
-            </select>
-          </label>
+          <h3>Word order</h3>
+          <div>
+            <label>
+              <span>Shuffle words:</span>
+              <select id="word-shuffle-select">
+                <option value="no">-</option>
+                <option value="2_words">2 words</option>
+                <option value="3_words">3 words</option>
+                <option value="4_words">4 words</option>
+                <option value="5_words">5 words</option>
+                <option value="6_words">6 words</option>
+                <option value="7_words">7 words</option>
+                <option value="8_words">8 words</option>
+                <option value="9_words">9 words</option>
+                <option value="10_words">10 words</option>
+              </select>
+            </label>
+          </div>
+          <div>
+            <label>
+              <span>Shuffle sentences:</span>
+              <select id="sentence-shuffle-select">
+                <option value="no">-</option>
+                <option value="2_sentences">2 consecutive</option>
+                <option value="3_sentences">3 consecutive</option>
+                <option value="4_sentences">4 consecutive</option>
+                <option value="5_sentences">5 consecutive</option>
+                <option value="6_sentences">6 consecutive</option>
+                <option value="7_sentences">7 consecutive</option>
+                <option value="8_sentences">8 consecutive</option>
+                <option value="9_sentences">9 consecutive</option>
+                <option value="10_sentences">10 consecutive</option>
+                <option value="all_sentences">All</option>
+              </select>
+            </label>
+          </div>
         </div>
         <hr>
         <div>
           <h3>View</h3>
-        </div>
-        <div>
-          <label>
-            <span>Marquee theme:</span>
-            <select id="marquee-theme-select">
-              <option value="marquee-theme-1">Theme 1</option>
-              <option value="marquee-theme-2">Theme 2</option>
-              <option value="marquee-theme-3">Theme 3</option>
-              <option value="marquee-theme-4">Theme 4</option>
-            </select>
-          </label>
-        </div>
-        <div>
-          <label>
-            <span>Rotate words:</span>
-            <select id="rotating-words-select">
-              <option value="no">-</option>
-              <option value="words_180">Words 180&deg;</option>
-              <option value="words_1_-1">Words 1&deg;, -1&deg;</option>
-              <option value="words_181_-181">Words 181&deg;, -181&deg;</option>
-              <option value="words_1_-1_181_-181">Words 1&deg;, -1&deg; 181&deg;, -181&deg;</option>
-              <option value="random_words_180">Random words 180&deg;</option>
-              <option value="random_words_1_-1">Random words 1&deg;, -1&deg;</option>
-              <option value="random_words_181_-181">Random words 181&deg;, -181&deg;</option>
-              <option value="random_words_1_-1_181_-181">Random words 1&deg;, -1&deg; 181&deg;, -181&deg;</option>
-            </select>
-          </label>
-        </div>
-        <div>
-          <label>
-            <span>Rotate letters:</span>
-            <select id="rotating-letters-select">
-              <option value="no">-</option>
-              <option value="letters_180">Letters 180&deg;</option>
-              <option value="letters_90">Letters 90&deg;</option>
-              <option value="letters_270">Letters 270&deg;</option>
-              <option value="letters_90_270">Letters 90&deg;, 270&deg;</option>
-              <option value="letters_180_90_270">Letters 180&deg;, 90&deg;, 270&deg;</option>
-              <option value="letters_random">Letters random&deg;</option>
-              <option value="random_letters_180">Random letters 180&deg;</option>
-              <option value="random_letters_90">Random letters 90&deg;</option>
-              <option value="random_letters_270">Random letters 270&deg;</option>
-              <option value="random_letters_90_270">Random letters 90&deg;, 270&deg;</option>
-              <option value="random_letters_180_90_270">Random letters 180&deg;, 90&deg;, 270&deg;</option>
-              <option value="random_letters_random">Random letters random&deg;</option>
-            </select>
-          </label>
-        </div>
-        <div>
-          <label>
-            <span>Mirror words:</span>
-            <select id="mirroring-words-select">
-              <option value="no">-</option>
-              <option value="words_x">Words X (horizontally)</option>
-              <option value="words_y">Words Y (vertically)</option>
-              <option value="words_xy">Words XY</option>
-              <option value="words_x_xor_y">Words X or Y</option>
-              <option value="words_x_or_y_or_xy">Words X or Y or XY</option>
-              <option value="random_words_x">Random words X</option>
-              <option value="random_words_y">Random words Y</option>
-              <option value="random_words_xy">Random words XY</option>
-              <option value="random_words_x_xor_y">Random words X or Y</option>
-              <option value="random_words_x_or_y_or_xy">Random words X or Y or XY</option>
-            </select>
-          </label>
-        </div>
-        <div>
-          <label>
-            <span>Mirror letters:</span>
-            <select id="mirroring-letters-select">
-              <option value="no">-</option>
-              <option value="letters_x">Letters X</option>
-              <option value="letters_y">Letters Y</option>
-              <option value="letters_xy">Letters XY</option>
-              <option value="letters_x_xor_y">Letters X or Y</option>
-              <option value="letters_x_or_y_or_xy">Letters X or Y or XY</option>
-              <option value="random_letters_x">Random letters X</option>
-              <option value="random_letters_y">Random letters Y</option>
-              <option value="random_letters_xy">Random letters XY</option>
-              <option value="random_letters_x_xor_y">Random letters X or Y</option>
-              <option value="random_letters_x_or_y_or_xy">Random letters X or Y or XY</option>
-            </select>
-          </label>
-        </div>
-        <div id="skewing-div" class="with-rounded-border">
-          <label><input type="checkbox" id="skewing-toggle"> Skew</label>
-          <div id="skewing-options">
-            <div>
-              <label>
-                <span>Target:</span>
-                <select id="skewing-select">
-                  <option value="text">Text</option>
-                  <option value="word">Word</option>
-                  <option value="letter">Letter</option>
-                </select>
-              </label>
-            </div>
-            <div>
-              <label>
-                <span>Min angle&deg;:</span>
-                <input type="number" id="skewing-number-min" min="-90" max="90" value="1">
-              </label>
-            </div>
-            <div>
-              <label>
-                <span>Max angle&deg;:</span>
-                <input type="number" id="skewing-number-max" min="-90" max="90" value="10">
-              </label>
-            </div>
-          </div>
-        </div>
-        <div id="color-encoder-div">
           <div>
             <label>
-              <input type="checkbox" id="color-encoder-toggle">
-              <span>Color <kbd>E</kbd></span>
+              <span>Marquee theme:</span>
+              <select id="marquee-theme-select">
+                <option value="marquee-theme-1">Theme 1</option>
+                <option value="marquee-theme-2">Theme 2</option>
+                <option value="marquee-theme-3">Theme 3</option>
+                <option value="marquee-theme-4">Theme 4</option>
+              </select>
             </label>
           </div>
-          <div id="color-encoder-options">
-            <div>
-              <label><input type="checkbox" id="text-background-coloring-toggle"> Background coloring</label>
+          <div>
+            <label>
+              <span>Rotate words:</span>
+              <select id="rotating-words-select">
+                <option value="no">-</option>
+                <option value="words_180">Words 180&deg;</option>
+                <option value="words_1_-1">Words 1&deg;, -1&deg;</option>
+                <option value="words_181_-181">Words 181&deg;, -181&deg;</option>
+                <option value="words_1_-1_181_-181">Words 1&deg;, -1&deg; 181&deg;, -181&deg;</option>
+                <option value="random_words_180">Random words 180&deg;</option>
+                <option value="random_words_1_-1">Random words 1&deg;, -1&deg;</option>
+                <option value="random_words_181_-181">Random words 181&deg;, -181&deg;</option>
+                <option value="random_words_1_-1_181_-181">Random words 1&deg;, -1&deg; 181&deg;, -181&deg;</option>
+              </select>
+            </label>
+          </div>
+          <div>
+            <label>
+              <span>Rotate letters:</span>
+              <select id="rotating-letters-select">
+                <option value="no">-</option>
+                <option value="letters_180">Letters 180&deg;</option>
+                <option value="letters_90">Letters 90&deg;</option>
+                <option value="letters_270">Letters 270&deg;</option>
+                <option value="letters_90_270">Letters 90&deg;, 270&deg;</option>
+                <option value="letters_180_90_270">Letters 180&deg;, 90&deg;, 270&deg;</option>
+                <option value="letters_random">Letters random&deg;</option>
+                <option value="random_letters_180">Random letters 180&deg;</option>
+                <option value="random_letters_90">Random letters 90&deg;</option>
+                <option value="random_letters_270">Random letters 270&deg;</option>
+                <option value="random_letters_90_270">Random letters 90&deg;, 270&deg;</option>
+                <option value="random_letters_180_90_270">Random letters 180&deg;, 90&deg;, 270&deg;</option>
+                <option value="random_letters_random">Random letters random&deg;</option>
+              </select>
+            </label>
+          </div>
+          <div>
+            <label>
+              <span>Mirror words:</span>
+              <select id="mirroring-words-select">
+                <option value="no">-</option>
+                <option value="words_x">Words X (horizontally)</option>
+                <option value="words_y">Words Y (vertically)</option>
+                <option value="words_xy">Words XY</option>
+                <option value="words_x_xor_y">Words X or Y</option>
+                <option value="words_x_or_y_or_xy">Words X or Y or XY</option>
+                <option value="random_words_x">Random words X</option>
+                <option value="random_words_y">Random words Y</option>
+                <option value="random_words_xy">Random words XY</option>
+                <option value="random_words_x_xor_y">Random words X or Y</option>
+                <option value="random_words_x_or_y_or_xy">Random words X or Y or XY</option>
+              </select>
+            </label>
+          </div>
+          <div>
+            <label>
+              <span>Mirror letters:</span>
+              <select id="mirroring-letters-select">
+                <option value="no">-</option>
+                <option value="letters_x">Letters X</option>
+                <option value="letters_y">Letters Y</option>
+                <option value="letters_xy">Letters XY</option>
+                <option value="letters_x_xor_y">Letters X or Y</option>
+                <option value="letters_x_or_y_or_xy">Letters X or Y or XY</option>
+                <option value="random_letters_x">Random letters X</option>
+                <option value="random_letters_y">Random letters Y</option>
+                <option value="random_letters_xy">Random letters XY</option>
+                <option value="random_letters_x_xor_y">Random letters X or Y</option>
+                <option value="random_letters_x_or_y_or_xy">Random letters X or Y or XY</option>
+              </select>
+            </label>
+          </div>
+          <div id="skewing-div" class="with-rounded-border">
+            <label><input type="checkbox" id="skewing-toggle"> Skew</label>
+            <div id="skewing-options">
+              <div>
+                <label>
+                  <span>Target:</span>
+                  <select id="skewing-select">
+                    <option value="text">Text</option>
+                    <option value="word">Word</option>
+                    <option value="letter">Letter</option>
+                  </select>
+                </label>
+              </div>
+              <div>
+                <label>
+                  <span>Min angle&deg;:</span>
+                  <input type="number" id="skewing-number-min" min="-90" max="90" value="1">
+                </label>
+              </div>
+              <div>
+                <label>
+                  <span>Max angle&deg;:</span>
+                  <input type="number" id="skewing-number-max" min="-90" max="90" value="10">
+                </label>
+              </div>
             </div>
+          </div>
+          <div id="color-encoder-div">
             <div>
               <label>
-                <span>Number of mappings:</span>
-                <input type="number" id="color-letter-count" min="0" max="100" value="1">
+                <input type="checkbox" id="color-encoder-toggle">
+                Color <kbd>E</kbd>
               </label>
             </div>
-            <button id="dump-colors" class="gray-button">Dump colors</button>
-            <textarea id="color-input" placeholder="(&lt;letters&gt; OR &quot;&lt;consecutive words&gt;&quot; OR &quot;***&quot;)&#13;&#10;(&lt;color&gt; OR default OR transparent OR font &lt;color&gt; OR bg &lt;color&gt; OR font-bg &lt;color-1&gt; &lt;color-2&gt;)&#13;&#10;&#13;&#10;abcde green&#13;&#10;&quot;these four consecutive words&quot; rgb(120, 120, 120)&#13;&#10;&quot;***&quot; font-bg red blue"></textarea>
+            <div id="color-encoder-options">
+              <div>
+                <label><input type="checkbox" id="text-background-coloring-toggle"> Background coloring</label>
+              </div>
+              <div>
+                <label>
+                  <span>Number of mappings:</span>
+                  <input type="number" id="color-letter-count" min="0" max="100" value="1">
+                </label>
+              </div>
+              <button id="dump-colors" class="gray-button">Dump colors</button>
+              <textarea id="color-input" placeholder="(&lt;letters&gt; OR &quot;&lt;consecutive words&gt;&quot; OR &quot;***&quot;)&#13;&#10;(&lt;color&gt; OR default OR transparent OR font &lt;color&gt; OR bg &lt;color&gt; OR font-bg &lt;color-1&gt; &lt;color-2&gt;)&#13;&#10;&#13;&#10;abcde green&#13;&#10;&quot;these four consecutive words&quot; rgb(120, 120, 120)&#13;&#10;&quot;***&quot; font-bg red blue"></textarea>
+            </div>
           </div>
         </div>
       </div>
@@ -1708,9 +1862,28 @@
             <input type="checkbox" id="show-bookmarks-button-toggle">
             <span>Show Bookmarks button</span>
           </label>
+          <label>
+            <input type="checkbox" id="show-text-view-button-toggle">
+            <span>Show Text view button</span>
+          </label>
           <div>
             <button id="theme-toggle" class="cyan-button">Toggle Theme</button>
             <button id="full-size-toggle" class="cyan-button">Toggle Full Size</button>
+          </div>
+        </div>
+        <div class="with-rounded-border">
+          <h3>History</h3>
+          <div>
+            <label>
+              <input type="checkbox" id="history-enable-toggle">
+              <span>Enable history</span>
+            </label>
+          </div>
+          <div>
+            <label>
+              <span>Delete attempts from history in time less than or equal to (seconds):</span>
+              <input type="number" id="attempt-min-time-number" min="1" max="1000" step="1" value="30">
+            </label>
           </div>
         </div>
         <div class="with-rounded-border">
@@ -1765,6 +1938,7 @@
           <div>
             <button id="import-all-settings-profiles" class="dark-button">Import all settings profiles</button>
             <button id="import-all-texts" class="dark-button">Import all texts</button>
+            <button id="import-history" class="dark-button">Import history</button>
           </div>
           <div>
             <button id="import-all-settings-profiles-and-texts" class="dark-button">Import all settings profiles and texts</button>
@@ -1780,8 +1954,15 @@
             </label>
           </div>
           <div>
+            <label>
+              <input type="checkbox" id="export-history-toggle">
+              <span>Export history</span>
+            </label>
+          </div>
+          <div>
             <button id="export-all-settings-profiles" class="dark-button">Export all settings profiles</button>
             <button id="export-all-texts" class="dark-button">Export all texts</button>
+            <button id="export-history" class="dark-button">Export history</button>
           </div>
           <div>
             <button id="export-all-settings-profiles-and-texts" class="dark-button">Export all settings profiles and texts</button>
@@ -1793,24 +1974,96 @@
           <div>
             <button id="delete-all-settings-profiles" class="dark-button">Delete all settings profiles</button>
             <button id="delete-all-texts" class="dark-button">Delete all texts</button>
+            <button id="delete-history" class="dark-button">Delete history</button>
             <button id="delete-all-data" class="dark-button">Delete all</button>
           </div>
         </div>
       </div>
       <div id="info-tab" class="tab-content container-items-in-center with-rounded-border">
-        <div>
-            <p>Here are some tips and recommendations to help you effectively use this website:</p>
-            <ul>
-                <li><strong>Resist checking answers too soon:</strong> Avoid looking up the solution until you're certain you don't know a word or have spent enough time trying to figure it out.</li>
-                <li><strong>Take breaks:</strong> Regular breaks can improve your problem-solving efficiency and keep your mind fresh.</li>
-                <li><strong>Be patient with progress:</strong> Improvements may take months and depends on how often you train, as well as your diet and sleep quality.</li>
-                <li><strong>Short sessions are key:</strong> Training twice a day in short bursts is more effective than one long session daily.</li>
-                <li><strong>Quality over quantity:</strong> Fully solving a few sentences per day is better than partially solving many.</li>
-                <li><strong>Challenge yourself:</strong> Solving without changing the text combination on the go (via "↻ Text ↻" button) is harder and more beneficial than adjusting it mid-session.</li>
-                <li><strong>Increase difficulty:</strong> Continuously ramp up the exercise difficulty to maintain progress, rather than staying at an easy level for too long.</li>
-            </ul>
+        <div class="with-rounded-border">
+          <div id="report-section">
+            <h3>Report</h3>
+            <div class="report-table">
+              <div class="report-row">
+                <span>Today</span>
+                <span><span id="report-today-attempts">0</span> attempts</span>
+                <span><span id="report-today-time">00:00:00</span></span>
+              </div>
+              <div class="report-row">
+                <span>Last 3 Days</span>
+                <span><span id="report-3days-attempts">0</span> attempts</span>
+                <span><span id="report-3days-time">00:00:00</span></span>
+              </div>
+              <div class="report-row">
+                <span>This Week</span>
+                <span><span id="report-week-attempts">0</span> attempts</span>
+                <span><span id="report-week-time">00:00:00</span></span>
+              </div>
+              <div class="report-row">
+                <span>Previous Week</span>
+                <span><span id="report-prev-week-attempts">0</span> attempts</span>
+                <span><span id="report-prev-week-time">00:00:00</span></span>
+              </div>
+              <div class="report-row">
+                <span>This Month</span>
+                <span><span id="report-month-attempts">0</span> attempts</span>
+                <span><span id="report-month-time">00:00:00</span></span>
+              </div>
+              <div class="report-row" style="display: none;">
+                <span>Previous Month</span>
+                <span><span id="report-prev-month-attempts">0</span> attempts</span>
+                <span><span id="report-prev-month-time">00:00:00</span></span>
+              </div>
+            </div>
+          </div>
         </div>
-        <a href="https://github.com/Quwarm/Trial-and-Error-Reading" target="_blank">GitHub</a>
+        <div class="with-rounded-border">
+          <div id="history-section">
+            <h3>History</h3>
+            <button id="prev-history-item-button" class="dark-button">&lt;</button>
+            <input type="number" id="history-index" min="1" value="1">
+            <button id="next-history-item-button" class="dark-button">&gt;</button>
+            <div class="history-table" id="history-list">
+            </div>
+          </div>
+        </div>
+        <div class="with-rounded-border">
+          <div id="help-section">
+            <h3>Trial and Error Reading</h3>
+            <p>
+              Trial and Error Reading is a web-based platform designed to enhance cognitive abilities
+              through the iterative decoding of encoded text. By manipulating text and applying transformations
+              the platform transforms reading into a challenging puzzle-solving exercise.
+              This approach fosters skills including pattern recognition, problem-solving, intuition, working memory,
+              and language proficiency.
+            </p>
+            <h3>How to use it?</h3>
+            <ol>
+              <li><strong>Select Text</strong>: go to the Texts tab, click the Download button to fetch a random Wikipedia summary, or paste your text in the text area. Click Save.</li>
+              <li><strong>Customize Manipulations</strong>: In the Manipulations tab, adjust settings like skipping letters, shuffling words, or adding colors to make the text a puzzle. Start with simple options (e.g., 10% letter skip).</li>
+              <li><strong>Start Reading</strong>: Return to the main screen, click Start (or press Space) to display the manipulated text. Decode it by recognizing patterns and guessing words.</li>
+              <li><strong>Control Playback</strong>: Use Play/Pause (Space), Stop (S), or Rewind/Forward (←/→) to navigate. Adjust speed or font size if needed.</li>
+              <li><strong>Use Tools</strong>: Click Speak for text-to-speech, Search to find words, or Bookmarks to save progress.</li>
+              <li><strong>Track Progress</strong>: Check the Information tab for reports on your attempts and time spent.</li>
+              <li><strong>Experiment and Increase Difficulty</strong>: Try harder manipulations (e.g., ROT-N, false letters) and follow recommendations to improve skills.</li>
+            </ol>
+            <h3>Recommendations</h3>
+            <ul>
+              <li><strong>Resist checking answers too soon:</strong> Avoid looking up the solution until you're certain you don't know a word or have spent enough time trying to figure it out.</li>
+              <li><strong>Take breaks:</strong> Regular breaks can improve your problem-solving efficiency and keep your mind fresh.</li>
+              <li><strong>Be patient with progress:</strong> Improvements may take months and depends on how often you train, as well as your diet and sleep quality.</li>
+              <li><strong>Short sessions are key:</strong> Training twice a day in short bursts is more effective than one long session daily.</li>
+              <li><strong>Quality over quantity:</strong> Fully solving a few sentences per day is better than partially solving many.</li>
+              <li><strong>Challenge yourself:</strong> Solving without changing the text combination on the go (via "↻ Text ↻" button) is harder and more beneficial than adjusting it mid-session.</li>
+              <li><strong>Increase difficulty:</strong> Continuously ramp up the exercise difficulty to maintain progress, rather than staying at an easy level for too long.</li>
+            </ul>
+            <div class="ta-center">
+              <h3>
+                <a href="https://github.com/Quwarm/Trial-and-Error-Reading" target="_blank">GitHub</a>
+              </h3>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -1833,11 +2086,21 @@
       rotNLetterMap: new Map(),
       letterMapItemMaxLength: 0,
 
+      realText: '', /* for comparing */
+      realText1List: [], /* for words after 1st manipulations step [sentences & words] */
+      realText1RefList: [], /* for ref words after 1 manipulations step */
+      realText2List: [],  /* for words after 2nd manipulations step [letters] */
+      realTextDiffBase: 0, /* difference: realText1List - realText2List */
+      realTextDiff: 0, /* difference: realText1List - realText2List */
+      textParameters: null,
+
       textNeedsUpdate: true,
-      previousText: null,
       previousSettings: {},
       previousPosition: null,
 
+      wasStarted: false,
+      startProgress: 0,
+      endProgress: 0,
       wasColorTaskEnabled: null,
       wasColorTaskChecked: true,
       isLoopEnabled: false,
@@ -1856,7 +2119,7 @@
       controllerForUnload: null,
 
       databaseName: 'TrialAndErrorReadingDB',
-      databaseVersion: 2,
+      databaseVersion: 3,
       database: null,
       defaultTextUpperLimit: 2000000,
       defaultTextName: 'Default',
@@ -1869,6 +2132,21 @@
       settingsProfileIsModified: false,
       deleteAllDataViewCounter: 0,
       deleteAllDataViewMax: 2,
+
+      forceNewHistoryItem: true,
+      history: [],
+      historyTypes: {
+        speak: 'Speak',
+        play: 'Play',
+      },
+      report: {
+        today: { attempts: 0, time: 0 },
+        last3Days: { attempts: 0, time: 0 },
+        thisWeek: { attempts: 0, time: 0 },
+        prevWeek: { attempts: 0, time: 0 },
+        thisMonth: { attempts: 0, time: 0 },
+        prevMonth: { attempts: 0, time: 0 }
+      },
 
       vowelPattern: null,
       letterPattern: null,
@@ -1892,11 +2170,12 @@
       speechPitch: 100,
       speechVolume: 100,
 
+      isTextViewActive: false,
+
       isSearchActive: false,
       searchQuery: '',
       searchMatches: [],
       currentMatchIndex: -1,
-      textToSearch: '',
 
       isBookmarksActive: false,
       tmpBookmarks: [],
@@ -1947,6 +2226,9 @@
         settingsProfile: 'sle_settings_profile',
         settingsProfiles: 'sle_settings_profiles',
 
+        /* history */
+        history: 'sle_history',
+
         /* profile settings */
         colorMap: 'sle_color_task_map',
         colorTaskToggle: 'sle_color_task_toggle',
@@ -1964,7 +2246,7 @@
         shufflingWords: 'sle_shuffling_words',
         falseWords: 'sle_false_words',
         concatWords: 'sle_concat_words',
-        shuffleSentences: 'sle_shuffle_sentences',
+        shufflingSentences: 'sle_shuffling_sentences',
         rotating: 'sle_rotating',
         rotatingWords: 'sle_rotating_words',
         rotatingLetters: 'sle_rotating_letters',
@@ -1999,6 +2281,7 @@
         appSizeToggle: 'sle_app_size_toggle',
         activeTab: 'sle_active_tab',
         lastPosition: 'sle_last_position',
+        attemptMinTime: 'sle_attempt_min_time',
 
         /* text-to-speech */
         voiceButton: 'sle_voice_button',
@@ -2012,6 +2295,13 @@
 
         /* bookmarks */
         bookmarksButton: 'sle_bookmarks_button',
+
+        /* text view */
+        textViewButton: 'sle_text_view_button',
+
+        /* history */
+        historyStatus: 'sle_history_status',
+        exportHistoryToggle: 'sle_export_history_toggle',
       },
 
       getDefaultSettingsProfile() {
@@ -2032,7 +2322,7 @@
         settings[this.settingsNames.reversingLetters] = 'no';
         settings[this.settingsNames.falseWords] = 'no';
         settings[this.settingsNames.concatWords] = 'no';
-        settings[this.settingsNames.shuffleSentences] = 'no';
+        settings[this.settingsNames.shufflingSentences] = 'no';
         settings[this.settingsNames.rotatingWords] = 'no';
         settings[this.settingsNames.rotatingLetters] = 'no';
         settings[this.settingsNames.mirroringWords] = 'no';
@@ -2073,7 +2363,7 @@
         settings[this.settingsNames.shufflingWords] = this.elements.wordShuffleSelect.value;
         settings[this.settingsNames.falseWords] = this.elements.wordFalseSelect.value;
         settings[this.settingsNames.concatWords] = this.elements.wordConcatSelect.value;
-        settings[this.settingsNames.shuffleSentences] = this.elements.sentenceShuffleSelect.value;
+        settings[this.settingsNames.shufflingSentences] = this.elements.sentenceShuffleSelect.value;
         settings[this.settingsNames.rotatingWords] = this.elements.rotatingWordsSelect.value;
         settings[this.settingsNames.rotatingLetters] = this.elements.rotatingLettersSelect.value;
         settings[this.settingsNames.mirroringWords] = this.elements.mirroringWordsSelect.value;
@@ -2145,7 +2435,7 @@
         currentKey = this.settingsNames.concatWords;
         this.elements.wordConcatSelect.value = keys.includes(currentKey) ? settingsProfileData[currentKey] : defaultSettings[currentKey];
 
-        currentKey = this.settingsNames.shuffleSentences;
+        currentKey = this.settingsNames.shufflingSentences;
         this.elements.sentenceShuffleSelect.value = keys.includes(currentKey) ? settingsProfileData[currentKey] : defaultSettings[currentKey];
 
         currentKey = this.settingsNames.rotatingWords;
@@ -2233,6 +2523,7 @@
               currentReader.setupPatterns();
               currentReader.bindEvents();
               currentReader.loadPreferences();
+              currentReader.loadHistory();
             }
             catch (err) {
               console.error(err);
@@ -2275,146 +2566,183 @@
       },
 
       cacheElements() {
-        this.elements.mainContainer = document.getElementById('main-container');
-        this.elements.textInput = document.getElementById('text-input');
-        this.elements.speedSlider = document.getElementById('speed-slider');
-        this.elements.speedNumber = document.getElementById('speed-number');
-        this.elements.speedSmoothToggle = document.getElementById('speed-smooth-toggle');
-        this.elements.progressDisplay = document.getElementById('progress-display');
-        this.elements.colorDetails = document.getElementById('color-details');
+        this.elements.addBookmarkButton = document.getElementById("add-bookmark-button");
         this.elements.appendTextToggle = document.getElementById('append-text-toggle');
-        this.elements.letterReverseSelect = document.getElementById('letter-reverse-select');
-        this.elements.letterShuffleSelect = document.getElementById('letter-shuffle-select');
-        this.elements.letterFalseSelect = document.getElementById('letter-false-select');
-        this.elements.letterEliminationSelect = document.getElementById('letter-elimination-select');
-        this.elements.letterSkipSelect = document.getElementById('letter-skip-select');
-        this.elements.wordShuffleSelect = document.getElementById('word-shuffle-select');
-        this.elements.wordFalseSelect = document.getElementById('word-false-select');
-        this.elements.wordConcatSelect = document.getElementById('word-concat-select');
-        this.elements.sentenceShuffleSelect = document.getElementById('sentence-shuffle-select');
-        this.elements.wordSkipSelect = document.getElementById('word-skip-select');
-        this.elements.marqueeDisplay = document.getElementById('marquee-display');
-        this.elements.marqueeContainer = document.getElementById('marquee-container');
-        this.elements.playPauseButton = document.getElementById('play-pause-button');
-        this.elements.stopButton = document.getElementById('stop-button');
-        this.elements.themeToggle = document.getElementById('theme-toggle');
-        this.elements.fullSizeToggle = document.getElementById('full-size-toggle');
+        this.elements.attemptMinTimeInput = document.getElementById('attempt-min-time-number');
+        this.elements.bookmarkNameInput = document.getElementById("bookmark-name-input");
+        this.elements.bookmarksButton = document.getElementById("bookmarks-button");
+        this.elements.bookmarksContainer = document.getElementById("bookmarks-container");
+        this.elements.bookmarksControls = document.getElementById("bookmarks-controls");
+        this.elements.bookmarksList = document.getElementById("bookmarks-list");
+        this.elements.cancelBookmarksButton = document.getElementById("cancel-bookmarks-button");
+        this.elements.clearTextButton = document.getElementById('clear-text-button');
+        this.elements.colorDetails = document.getElementById('color-details');
+        this.elements.colorEncoderDiv = document.getElementById('color-encoder-div');
+        this.elements.colorEncoderOptions = document.getElementById('color-encoder-options');
+        this.elements.colorEncoderToggle = document.getElementById('color-encoder-toggle');
+        this.elements.colorInput = document.getElementById('color-input');
+        this.elements.colorLetterCount = document.getElementById('color-letter-count');
+        this.elements.controlsContainerFooter = document.getElementById('controls-container-footer');
+        this.elements.copyCurrentText = document.getElementById('copy-current-text');
+        this.elements.copyMarqueeText = document.getElementById('copy-marquee-text');
+        this.elements.deleteAllData = document.getElementById('delete-all-data');
+        this.elements.deleteHistory = document.getElementById('delete-history');
         this.elements.deleteAllSettingsProfiles = document.getElementById('delete-all-settings-profiles');
         this.elements.deleteAllTexts = document.getElementById('delete-all-texts');
-        this.elements.deleteAllData = document.getElementById('delete-all-data');
-        this.elements.clearTextButton = document.getElementById('clear-text-button');
-        this.elements.sentenceCountInput = document.getElementById('sentence-count-input');
-        this.elements.loadSentenceWordsmythBeginner = document.getElementById('load-sentence-wordsmyth-beginner');
-        this.elements.loadSentenceWordsmythIntermediate = document.getElementById('load-sentence-wordsmyth-intermediate');
-        this.elements.loadSentenceWordsmythAdvanced = document.getElementById('load-sentence-wordsmyth-advanced');
-        this.elements.loadSentenceMerriamWebster = document.getElementById('load-sentence-merriam-webster');
-        this.elements.loadWikiLanguageSelect = document.getElementById('load-wiki-language-select');
-        this.elements.loadWikiButton = document.getElementById('load-wiki-button');
-        this.elements.loadUnderthekey = document.getElementById('load-underthekey');
-        this.elements.loadMetaphorpsum = document.getElementById('load-metaphorpsum');
-        this.elements.loadFile = document.getElementById('load-file');
-        this.elements.shuffleParagraphs = document.getElementById('shuffle-paragraphs');
-        this.elements.shuffleSentences = document.getElementById('shuffle-sentences');
-        this.elements.splitIntoParagraphs = document.getElementById('split-into-paragraphs');
-        this.elements.colorEncoderToggle = document.getElementById('color-encoder-toggle');
-        this.elements.colorEncoderOptions = document.getElementById('color-encoder-options');
-        this.elements.colorLetterCount = document.getElementById('color-letter-count');
-        this.elements.rewindButton = document.getElementById('rewind-button');
-        this.elements.fastForwardButton = document.getElementById('fast-forward-button');
-        this.elements.colorInput = document.getElementById('color-input');
-        this.elements.dumpColors = document.getElementById('dump-colors');
-        this.elements.showColorInfoToggle = document.getElementById('show-color-info-toggle');
-        this.elements.refreshText = document.getElementById('refresh-text');
-        this.elements.refreshView = document.getElementById('refresh-view');
-        this.elements.refreshColors = document.getElementById('refresh-colors');
-        this.elements.copyMarqueeText = document.getElementById('copy-marquee-text');
-        this.elements.copyCurrentText = document.getElementById('copy-current-text');
-        this.elements.textHelper = document.getElementById('text-helper');
-        this.elements.loopToggle = document.getElementById('loop-toggle');
-        this.elements.fontSizeSlider = document.getElementById('font-size-slider');
-        this.elements.fontSizeNumber = document.getElementById('font-size-number');
-        this.elements.tabButtons = document.querySelectorAll('.tab-button');
-        this.elements.tabNavigation = document.getElementById('tab-navigation');
-        this.elements.tabContent = document.getElementById('tab-content');
-        this.elements.tabContents = document.querySelectorAll('.tab-content');
-        this.elements.progressBarContainer = document.getElementById('progress-bar-container');
-        this.elements.progressBar = document.getElementById('progress-bar');
-        this.elements.textSelect = document.getElementById('text-select');
-        this.elements.newTextButton = document.getElementById('new-text-button');
-        this.elements.duplicateTextButton = document.getElementById('duplicate-text-button');
-        this.elements.deleteTextButton = document.getElementById('delete-text-button');
-        this.elements.saveTextButton = document.getElementById('save-text-button');
-        this.elements.colorEncoderDiv = document.getElementById('color-encoder-div');
-        this.elements.settingsProfileSelect = document.getElementById('settings-profile-select');
-        this.elements.newSettingsProfileButton = document.getElementById('new-settings-profile-button');
-        this.elements.duplicateSettingsProfileButton = document.getElementById('duplicate-settings-profile-button');
         this.elements.deleteSettingsProfileButton = document.getElementById('delete-settings-profile-button');
-        this.elements.saveSettingsProfileButton = document.getElementById('save-settings-profile-button');
-        this.elements.resetSettingsProfileButton = document.getElementById('reset-settings-profile-button');
-        this.elements.textToSpeechContainer = document.getElementById('text-to-speech-container');
-        this.elements.showSpeakButtonToggle = document.getElementById('show-speak-button-toggle');
-        this.elements.showBookmarksButtonToggle = document.getElementById('show-bookmarks-button-toggle');
-        this.elements.showSearchButtonToggle = document.getElementById('show-search-button-toggle');
-        this.elements.speakButton = document.getElementById('speak-button');
-        this.elements.voiceSelect = document.getElementById('voice-select');
-        this.elements.speechRateSlider = document.getElementById('speech-rate-slider');
-        this.elements.speechRateNumber = document.getElementById('speech-rate-number');
-        this.elements.speechPitchSlider = document.getElementById('speech-pitch-slider');
-        this.elements.speechPitchNumber = document.getElementById('speech-pitch-number');
-        this.elements.speechVolumeSlider = document.getElementById('speech-volume-slider');
-        this.elements.speechVolumeNumber = document.getElementById('speech-volume-number');
-        this.elements.importAllSettingsProfiles = document.getElementById('import-all-settings-profiles');
-        this.elements.importAllTexts = document.getElementById('import-all-texts');
-        this.elements.importAllSettingsProfilesAndTexts = document.getElementById('import-all-settings-profiles-and-texts');
-        this.elements.importAll = document.getElementById('import-all');
+        this.elements.deleteTextButton = document.getElementById('delete-text-button');
+        this.elements.dumpColors = document.getElementById('dump-colors');
+        this.elements.duplicateSettingsProfileButton = document.getElementById('duplicate-settings-profile-button');
+        this.elements.duplicateTextButton = document.getElementById('duplicate-text-button');
+        this.elements.historyEnableToggle = document.getElementById('history-enable-toggle');
+        this.elements.exportAll = document.getElementById('export-all');
         this.elements.exportAllSettingsProfiles = document.getElementById('export-all-settings-profiles');
+        this.elements.exportAllSettingsProfilesAndTexts = document.getElementById('export-all-settings-profiles-and-texts');
         this.elements.exportAllTexts = document.getElementById('export-all-texts');
         this.elements.exportAllTextsWithBookmarksToggle = document.getElementById('export-all-texts-with-bookmarks-toggle');
-        this.elements.exportAllSettingsProfilesAndTexts = document.getElementById('export-all-settings-profiles-and-texts');
-        this.elements.exportAll = document.getElementById('export-all');
-        this.elements.searchContainer = document.getElementById('search-container');
+        this.elements.exportHistoryToggle = document.getElementById('export-history-toggle');
+        this.elements.exportHistory = document.getElementById('export-history');
+        this.elements.fasterTransitionsToggle = document.getElementById("faster-transitions-toggle");
+        this.elements.fastForwardButton = document.getElementById('fast-forward-button');
+        this.elements.fontSizeNumber = document.getElementById('font-size-number');
+        this.elements.fontSizeSlider = document.getElementById('font-size-slider');
+        this.elements.fullSizeToggle = document.getElementById('full-size-toggle');
+        this.elements.hiddenContent1 = document.getElementById('hidden-content-1');
+        this.elements.historyList = document.getElementById('history-list');
+        this.elements.historyIndex = document.getElementById('history-index');
+        this.elements.prevHistoryItemButton = document.getElementById('prev-history-item-button');
+        this.elements.nextHistoryItemButton = document.getElementById('next-history-item-button');
+        this.elements.importAll = document.getElementById('import-all');
+        this.elements.importAllSettingsProfiles = document.getElementById('import-all-settings-profiles');
+        this.elements.importAllSettingsProfilesAndTexts = document.getElementById('import-all-settings-profiles-and-texts');
+        this.elements.importAllTexts = document.getElementById('import-all-texts');
+        this.elements.importHistory = document.getElementById('import-history');
+        this.elements.importDataReplacement = Array.from(document.getElementsByName("import-data-replacement"));
+        this.elements.letterEliminationSelect = document.getElementById('letter-elimination-select');
+        this.elements.letterFalseSelect = document.getElementById('letter-false-select');
+        this.elements.letterReverseSelect = document.getElementById('letter-reverse-select');
+        this.elements.letterShuffleSelect = document.getElementById('letter-shuffle-select');
+        this.elements.letterSkipSelect = document.getElementById('letter-skip-select');
+        this.elements.loadFile = document.getElementById('load-file');
+        this.elements.loadMetaphorpsum = document.getElementById('load-metaphorpsum');
+        this.elements.loadSentenceMerriamWebster = document.getElementById('load-sentence-merriam-webster');
+        this.elements.loadSentenceWordsmythAdvanced = document.getElementById('load-sentence-wordsmyth-advanced');
+        this.elements.loadSentenceWordsmythBeginner = document.getElementById('load-sentence-wordsmyth-beginner');
+        this.elements.loadSentenceWordsmythIntermediate = document.getElementById('load-sentence-wordsmyth-intermediate');
+        this.elements.loadUnderthekey = document.getElementById('load-underthekey');
+        this.elements.loadWikiButton = document.getElementById('load-wiki-button');
+        this.elements.loadWikiLanguageSelect = document.getElementById('load-wiki-language-select');
+        this.elements.loopToggle = document.getElementById('loop-toggle');
+        this.elements.mainContainer = document.getElementById('main-container');
+        this.elements.marqueeContainer = document.getElementById('marquee-container');
+        this.elements.marqueeDisplay = document.getElementById('marquee-display');
+        this.elements.marqueeThemeSelect = document.getElementById('marquee-theme-select');
+        this.elements.mirroringLettersSelect = document.getElementById('mirroring-letters-select');
+        this.elements.mirroringWordsSelect = document.getElementById('mirroring-words-select');
+        this.elements.newSettingsProfileButton = document.getElementById('new-settings-profile-button');
+        this.elements.newTextButton = document.getElementById('new-text-button');
+        this.elements.playPauseButton = document.getElementById('play-pause-button');
+        this.elements.progressBar = document.getElementById('progress-bar');
+        this.elements.progressBarContainer = document.getElementById('progress-bar-container');
+        this.elements.progressDisplay = document.getElementById('progress-display');
+        this.elements.randomParagraphsCaption = document.getElementById('random-paragraphs-caption');
+        this.elements.refreshColors = document.getElementById('refresh-colors');
+        this.elements.refreshSentences = document.getElementById('refresh-sentences');
+        this.elements.refreshView = document.getElementById('refresh-view');
+        this.elements.refreshWords = document.getElementById('refresh-words');
+        this.elements.report3DaysAttempts = document.getElementById('report-3days-attempts');
+        this.elements.report3DaysTime = document.getElementById('report-3days-time');
+        this.elements.reportMonthAttempts = document.getElementById('report-month-attempts');
+        this.elements.reportMonthTime = document.getElementById('report-month-time');
+        this.elements.reportPrevMonthAttempts = document.getElementById('report-prev-month-attempts');
+        this.elements.reportPrevMonthTime = document.getElementById('report-prev-month-time');
+        this.elements.reportPrevWeekAttempts = document.getElementById('report-prev-week-attempts');
+        this.elements.reportPrevWeekTime = document.getElementById('report-prev-week-time');
+        this.elements.reportTodayAttempts = document.getElementById('report-today-attempts');
+        this.elements.reportTodayTime = document.getElementById('report-today-time');
+        this.elements.reportWeekAttempts = document.getElementById('report-week-attempts');
+        this.elements.reportWeekTime = document.getElementById('report-week-time');
+        this.elements.resetSettingsProfileButton = document.getElementById('reset-settings-profile-button');
+        this.elements.rewindButton = document.getElementById('rewind-button');
+        this.elements.rotatingLettersSelect = document.getElementById('rotating-letters-select');
+        this.elements.rotatingWordsSelect = document.getElementById('rotating-words-select');
+        this.elements.rotNComplexity = document.getElementById('rot-n-complexity');
+        this.elements.rotNDiv = document.getElementById('rot-n-div');
+        this.elements.rotNEachMapping = document.getElementById('rot-n-each-mapping');
+        this.elements.rotNExcludeZero = document.getElementById('rot-n-exclude-zero');
+        this.elements.rotNGenerateButton = document.getElementById('rot-n-generate-button');
+        this.elements.rotNLanguageInfo = document.getElementById('rot-n-language-info');
+        this.elements.rotNLanguageSelect = document.getElementById('rot-n-language-select');
+        this.elements.rotNNumberMax = document.getElementById('rot-n-number-max');
+        this.elements.rotNNumberMin = document.getElementById('rot-n-number-min');
+        this.elements.rotNOptions = document.getElementById('rot-n-options');
+        this.elements.rotNToggle = document.getElementById('rot-n-toggle');
+        this.elements.rotNUpperCaseLowerCase = document.getElementById('rot-n-upper-case-lower-case');
+        this.elements.saveBookmarksButton = document.getElementById("save-bookmarks-button");
+        this.elements.saveSettingsProfileButton = document.getElementById('save-settings-profile-button');
+        this.elements.saveTextButton = document.getElementById('save-text-button');
         this.elements.searchButton = document.getElementById('search-button');
+        this.elements.searchContainer = document.getElementById('search-container');
         this.elements.searchControls = document.getElementById('search-controls');
         this.elements.searchInput = document.getElementById('search-input');
         this.elements.searchNextButton = document.getElementById('search-next-button');
         this.elements.searchPrevButton = document.getElementById('search-prev-button');
-        this.elements.controlsContainerFooter = document.getElementById('controls-container-footer');
-        this.elements.bookmarksButton = document.getElementById("bookmarks-button");
-        this.elements.bookmarksContainer = document.getElementById("bookmarks-container");
-        this.elements.bookmarksControls = document.getElementById("bookmarks-controls");
-        this.elements.bookmarkNameInput = document.getElementById("bookmark-name-input");
-        this.elements.addBookmarkButton = document.getElementById("add-bookmark-button");
-        this.elements.bookmarksList = document.getElementById("bookmarks-list");
-        this.elements.saveBookmarksButton = document.getElementById("save-bookmarks-button");
-        this.elements.cancelBookmarksButton = document.getElementById("cancel-bookmarks-button");
-        this.elements.importDataReplacement = Array.from(document.getElementsByName("import-data-replacement"));
-        this.elements.fasterTransitionsToggle = document.getElementById("faster-transitions-toggle");
-        this.elements.rotNToggle = document.getElementById('rot-n-toggle');
-        this.elements.rotNOptions = document.getElementById('rot-n-options');
-        this.elements.rotNDiv = document.getElementById('rot-n-div');
-        this.elements.rotNLanguageSelect = document.getElementById('rot-n-language-select');
-        this.elements.rotNGenerateButton = document.getElementById('rot-n-generate-button');
-        this.elements.rotNLanguageInfo = document.getElementById('rot-n-language-info');
-        this.elements.rotNNumberMin = document.getElementById('rot-n-number-min');
-        this.elements.rotNNumberMax = document.getElementById('rot-n-number-max');
-        this.elements.rotNExcludeZero = document.getElementById('rot-n-exclude-zero');
-        this.elements.rotNEachMapping = document.getElementById('rot-n-each-mapping');
-        this.elements.rotNUpperCaseLowerCase = document.getElementById('rot-n-upper-case-lower-case');
-        this.elements.rotNComplexity = document.getElementById('rot-n-complexity');
-        this.elements.rotatingWordsSelect = document.getElementById('rotating-words-select');
-        this.elements.rotatingLettersSelect = document.getElementById('rotating-letters-select');
-        this.elements.mirroringWordsSelect = document.getElementById('mirroring-words-select');
-        this.elements.mirroringLettersSelect = document.getElementById('mirroring-letters-select');
-        this.elements.skewingToggle = document.getElementById('skewing-toggle');
-        this.elements.skewingOptions = document.getElementById('skewing-options');
+        this.elements.sentenceCountInput = document.getElementById('sentence-count-input');
+        this.elements.sentenceShuffleSelect = document.getElementById('sentence-shuffle-select');
+        this.elements.settingsProfileSelect = document.getElementById('settings-profile-select');
+        this.elements.showBookmarksButtonToggle = document.getElementById('show-bookmarks-button-toggle');
+        this.elements.showColorInfoToggle = document.getElementById('show-color-info-toggle');
+        this.elements.showSearchButtonToggle = document.getElementById('show-search-button-toggle');
+        this.elements.showSpeakButtonToggle = document.getElementById('show-speak-button-toggle');
+        this.elements.showTextViewButtonToggle = document.getElementById('show-text-view-button-toggle');
+        this.elements.shuffleParagraphs = document.getElementById('shuffle-paragraphs');
+        this.elements.shuffleSentences = document.getElementById('shuffle-sentences');
         this.elements.skewingDiv = document.getElementById('skewing-div');
-        this.elements.skewingSelect = document.getElementById('skewing-select');
-        this.elements.skewingNumberMin = document.getElementById('skewing-number-min');
         this.elements.skewingNumberMax = document.getElementById('skewing-number-max');
+        this.elements.skewingNumberMin = document.getElementById('skewing-number-min');
+        this.elements.skewingOptions = document.getElementById('skewing-options');
+        this.elements.skewingSelect = document.getElementById('skewing-select');
+        this.elements.skewingToggle = document.getElementById('skewing-toggle');
+        this.elements.speakButton = document.getElementById('speak-button');
+        this.elements.speechPitchNumber = document.getElementById('speech-pitch-number');
+        this.elements.speechPitchSlider = document.getElementById('speech-pitch-slider');
+        this.elements.speechRateNumber = document.getElementById('speech-rate-number');
+        this.elements.speechRateSlider = document.getElementById('speech-rate-slider');
+        this.elements.speechVolumeNumber = document.getElementById('speech-volume-number');
+        this.elements.speechVolumeSlider = document.getElementById('speech-volume-slider');
+        this.elements.speedNumber = document.getElementById('speed-number');
+        this.elements.speedSlider = document.getElementById('speed-slider');
+        this.elements.speedSmoothToggle = document.getElementById('speed-smooth-toggle');
+        this.elements.splitIntoParagraphs = document.getElementById('split-into-paragraphs');
+        this.elements.stopButton = document.getElementById('stop-button');
+        this.elements.tabButtons = document.querySelectorAll('.tab-button');
+        this.elements.tabContent = document.getElementById('tab-content');
+        this.elements.tabContents = document.querySelectorAll('.tab-content');
+        this.elements.tabNavigation = document.getElementById('tab-navigation');
         this.elements.textBackgroundColoringToggle = document.getElementById('text-background-coloring-toggle');
-        this.elements.hiddenContent1 = document.getElementById('hidden-content-1');
-        this.elements.randomParagraphsCaption = document.getElementById('random-paragraphs-caption');
-        this.elements.marqueeThemeSelect = document.getElementById('marquee-theme-select');
+        this.elements.textHelper = document.getElementById('text-helper');
+        this.elements.textInput = document.getElementById('text-input');
+        this.elements.textParameterAfterManipulationsComplexity = document.getElementById('text-parameter-text-after-manipulations-complexity');
+        this.elements.textParameterAlphabetLettersNumber = document.getElementById('text-parameter-alphabet-letters-number');
+        this.elements.textParameterAlphabetLettersPercent = document.getElementById('text-parameter-alphabet-letters-percent');
+        this.elements.textParameterAverageWordFrequency = document.getElementById('text-parameter-average-word-frequency');
+        this.elements.textParameterAverageWordLength = document.getElementById('text-parameter-average-word-length');
+        this.elements.textParameterLettersColoredNumber = document.getElementById('text-parameter-letters-colored-number');
+        this.elements.textParameterLettersColoredPercent = document.getElementById('text-parameter-letters-colored-percent');
+        this.elements.textParameterShannonEntropyNumber = document.getElementById('text-parameter-shannon-entropy-number');
+        this.elements.textParameterUniqueWordsNumber = document.getElementById('text-parameter-unique-words-number');
+        this.elements.textParameterUniqueWordsPercent = document.getElementById('text-parameter-unique-words-percent');
+        this.elements.textParameterWordsNumber = document.getElementById('text-parameter-words-number');
+        this.elements.textSelect = document.getElementById('text-select');
+        this.elements.textToSpeechContainer = document.getElementById('text-to-speech-container');
+        this.elements.textViewButton = document.getElementById('text-view-button');
+        this.elements.textViewContainer = document.getElementById("text-view-container");
+        this.elements.themeToggle = document.getElementById('theme-toggle');
+        this.elements.voiceSelect = document.getElementById('voice-select');
+        this.elements.wordConcatSelect = document.getElementById('word-concat-select');
+        this.elements.wordFalseSelect = document.getElementById('word-false-select');
+        this.elements.wordShuffleSelect = document.getElementById('word-shuffle-select');
+        this.elements.wordSkipSelect = document.getElementById('word-skip-select');
 
         this.cachedContainerWidth = null;
         this.cachedTextWidth = null;
@@ -2441,8 +2769,11 @@
           const request = indexedDB.open(currentReader.databaseName, currentReader.databaseVersion);
           request.onupgradeneeded = function (event) {
             currentReader.database = event.target.result;
-            currentReader.database.createObjectStore(currentReader.settingsNames.texts, { keyPath: "title" });
-            currentReader.database.createObjectStore(currentReader.settingsNames.settingsProfiles, { keyPath: "name" });
+            if (currentReader.databaseVersion === 3) {
+              currentReader.database.createObjectStore(currentReader.settingsNames.texts, { keyPath: "title" });
+              currentReader.database.createObjectStore(currentReader.settingsNames.settingsProfiles, { keyPath: "name" });
+              currentReader.database.createObjectStore(currentReader.settingsNames.history, { keyPath: 'timestamp' });
+            }
           };
           request.onsuccess = function (event) {
             currentReader.database = event.target.result;
@@ -2500,6 +2831,7 @@
         this.elements.deleteAllSettingsProfiles.addEventListener('click', () => this.deleteAllSettingsProfiles());
         this.elements.deleteAllTexts.addEventListener('click', () => this.deleteAllTexts());
         this.elements.deleteAllData.addEventListener('click', () => this.deleteAllData());
+        this.elements.deleteHistory.addEventListener('click', () => this.deleteHistory());
         this.elements.clearTextButton.addEventListener('click', () => {
           if (!confirm('Are you sure you want to clear the current text?')) {
             return;
@@ -2536,7 +2868,8 @@
         this.elements.dumpColors.addEventListener('click', () => this.dumpColorMap());
         this.elements.showColorInfoToggle.addEventListener('click', () => this.toggleColorDetails());
         this.elements.appendTextToggle.addEventListener('click', () => this.toggleAppendText());
-        this.elements.refreshText.addEventListener('click', () => this.refreshMarqueeText());
+        this.elements.refreshSentences.addEventListener('click', () => this.refreshMarqueeSentences());
+        this.elements.refreshWords.addEventListener('click', () => this.refreshMarqueeWords());
         this.elements.refreshView.addEventListener('click', () => this.refreshMarqueeView());
         this.elements.refreshColors.addEventListener('click', () => {
           if (currentReader.elements.textBackgroundColoringToggle.checked && !confirm('Are you sure you want to refresh the colors?')) {
@@ -2573,6 +2906,8 @@
         });
         this.elements.showSpeakButtonToggle.addEventListener('click', () => this.toggleSpeechButton());
         this.elements.showBookmarksButtonToggle.addEventListener('click', () => this.toggleBookmarksButton());
+        this.elements.showTextViewButtonToggle.addEventListener('click', () => this.toggleTextViewButton());
+        this.elements.historyEnableToggle.addEventListener('click', () => this.toggleHistoryEnable());
         this.elements.showSearchButtonToggle.addEventListener('click', () => this.toggleSearchButton());
         this.elements.speakButton.addEventListener('click', () => this.toggleSpeech());
         this.elements.voiceSelect.addEventListener('input', () => this.updateVoice());
@@ -2584,6 +2919,7 @@
         this.elements.speechVolumeNumber.addEventListener('input', () => this.adjustSpeechVolume(this.elements.speechVolumeNumber.value));
         this.elements.importAllSettingsProfiles.addEventListener('click', () => this.importAllSettingsProfiles());
         this.elements.importAllTexts.addEventListener('click', () => this.importAllTexts());
+        this.elements.importHistory.addEventListener('click', () => this.importHistory());
         this.elements.importAllSettingsProfilesAndTexts.addEventListener('click', () => this.importAllSettingsProfilesAndTexts());
         this.elements.importAll.addEventListener('click', () => this.importAll());
         this.elements.exportAllSettingsProfiles.addEventListener('click', () => this.exportAllSettingsProfiles());
@@ -2609,18 +2945,32 @@
         this.elements.loadWikiLanguageSelect.addEventListener('input', () => this.saveWikiLang());
         this.elements.fasterTransitionsToggle.addEventListener('click', () => this.toggleFasterTransitions());
         this.elements.exportAllTextsWithBookmarksToggle.addEventListener('click', () => this.toggleExportTextsWithBookmarks());
+        this.elements.exportHistoryToggle.addEventListener('click', () => this.toggleExportHistory());
+        this.elements.exportHistory.addEventListener('click', () => this.exportHistory());
         this.elements.rotNToggle.addEventListener('click', () => this.toggleRotN());
         this.elements.rotNLanguageSelect.addEventListener('input', () => this.toggleRotNLanguageInfo());
         this.elements.rotNGenerateButton.addEventListener('click', () => this.toggleRotNGenerate());
         this.elements.rotNNumberMin.addEventListener('input', () => {
-          this.elements.rotNNumberMax.value = this.elements.rotNNumberMin.value;
+          if (this.elements.rotNNumberMax.value && this.elements.rotNNumberMin.value) {
+            this.elements.rotNNumberMax.value = Math.max(this.elements.rotNNumberMax.value, this.elements.rotNNumberMin.value);
+          }
           this.toggleRotNLanguageInfo();
         });
-        this.elements.rotNNumberMax.addEventListener('input', () => this.toggleRotNLanguageInfo());
+        this.elements.rotNNumberMax.addEventListener('input', () => {
+          if (this.elements.rotNNumberMax.value && this.elements.rotNNumberMin.value) {
+            this.elements.rotNNumberMin.value = Math.min(this.elements.rotNNumberMax.value, this.elements.rotNNumberMin.value);
+          }
+          this.toggleRotNLanguageInfo();
+        });
         this.elements.rotNComplexity.addEventListener('input', () => this.toggleRotNLanguageInfo());
         this.elements.skewingToggle.addEventListener('click', () => this.toggleSkewing());
         this.elements.randomParagraphsCaption.addEventListener('click', () => this.showHiddenContent1());
         this.elements.marqueeThemeSelect.addEventListener('input', () => this.toggleMarqueeTheme());
+        this.elements.textViewButton.addEventListener('click', () => this.toggleTextView());
+        this.elements.attemptMinTimeInput.addEventListener('input', () => this.toggleAttemptMinTime());
+        this.elements.prevHistoryItemButton.addEventListener('click', () => this.prevHistoryItem());
+        this.elements.nextHistoryItemButton.addEventListener('click', () => this.nextHistoryItem());
+        this.elements.historyIndex.addEventListener('input', () => this.renderHistory(true));
 
         this.controlBeforeUnload();
 
@@ -2632,43 +2982,43 @@
         const settingsProfileModified = function () {
           currentReader.settingsProfileIsModified = true;
         };
-        this.elements.fontSizeSlider.addEventListener('input', settingsProfileModified);
-        this.elements.fontSizeNumber.addEventListener('input', settingsProfileModified);
-        this.elements.speedSlider.addEventListener('input', settingsProfileModified);
-        this.elements.speedNumber.addEventListener('input', settingsProfileModified);
-        this.elements.speedSmoothToggle.addEventListener('click', settingsProfileModified);
         this.elements.colorEncoderToggle.addEventListener('click', settingsProfileModified);
+        this.elements.colorInput.addEventListener('input', settingsProfileModified);
         this.elements.colorLetterCount.addEventListener('input', settingsProfileModified);
         this.elements.dumpColors.addEventListener('click', settingsProfileModified);
-        this.elements.colorInput.addEventListener('input', settingsProfileModified);
-        this.elements.letterSkipSelect.addEventListener('input', settingsProfileModified);
+        this.elements.fontSizeNumber.addEventListener('input', settingsProfileModified);
+        this.elements.fontSizeSlider.addEventListener('input', settingsProfileModified);
+        this.elements.letterEliminationSelect.addEventListener('input', settingsProfileModified);
+        this.elements.letterFalseSelect.addEventListener('input', settingsProfileModified);
         this.elements.letterReverseSelect.addEventListener('input', settingsProfileModified);
         this.elements.letterShuffleSelect.addEventListener('input', settingsProfileModified);
-        this.elements.letterFalseSelect.addEventListener('input', settingsProfileModified);
-        this.elements.letterEliminationSelect.addEventListener('input', settingsProfileModified);
-        this.elements.wordSkipSelect.addEventListener('input', settingsProfileModified);
-        this.elements.wordShuffleSelect.addEventListener('input', settingsProfileModified);
-        this.elements.wordFalseSelect.addEventListener('input', settingsProfileModified);
-        this.elements.wordConcatSelect.addEventListener('input', settingsProfileModified);
-        this.elements.sentenceShuffleSelect.addEventListener('input', settingsProfileModified);
-        this.elements.rotatingWordsSelect.addEventListener('input', settingsProfileModified);
-        this.elements.rotatingLettersSelect.addEventListener('input', settingsProfileModified);
-        this.elements.mirroringWordsSelect.addEventListener('input', settingsProfileModified);
-        this.elements.mirroringLettersSelect.addEventListener('input', settingsProfileModified);
-        this.elements.rotNToggle.addEventListener('click', settingsProfileModified);
-        this.elements.rotNLanguageSelect.addEventListener('input', settingsProfileModified);
-        this.elements.rotNNumberMin.addEventListener('input', settingsProfileModified);
-        this.elements.rotNNumberMax.addEventListener('input', settingsProfileModified);
-        this.elements.rotNExcludeZero.addEventListener('click', settingsProfileModified);
-        this.elements.rotNEachMapping.addEventListener('click', settingsProfileModified);
-        this.elements.rotNUpperCaseLowerCase.addEventListener('click', settingsProfileModified);
-        this.elements.rotNComplexity.addEventListener('input', settingsProfileModified);
-        this.elements.skewingToggle.addEventListener('click', settingsProfileModified);
-        this.elements.skewingSelect.addEventListener('input', settingsProfileModified);
-        this.elements.skewingNumberMin.addEventListener('input', settingsProfileModified);
-        this.elements.skewingNumberMax.addEventListener('input', settingsProfileModified);
-        this.elements.textBackgroundColoringToggle.addEventListener('click', settingsProfileModified);
+        this.elements.letterSkipSelect.addEventListener('input', settingsProfileModified);
         this.elements.marqueeThemeSelect.addEventListener('input', settingsProfileModified);
+        this.elements.mirroringLettersSelect.addEventListener('input', settingsProfileModified);
+        this.elements.mirroringWordsSelect.addEventListener('input', settingsProfileModified);
+        this.elements.rotatingLettersSelect.addEventListener('input', settingsProfileModified);
+        this.elements.rotatingWordsSelect.addEventListener('input', settingsProfileModified);
+        this.elements.rotNComplexity.addEventListener('input', settingsProfileModified);
+        this.elements.rotNEachMapping.addEventListener('click', settingsProfileModified);
+        this.elements.rotNExcludeZero.addEventListener('click', settingsProfileModified);
+        this.elements.rotNLanguageSelect.addEventListener('input', settingsProfileModified);
+        this.elements.rotNNumberMax.addEventListener('input', settingsProfileModified);
+        this.elements.rotNNumberMin.addEventListener('input', settingsProfileModified);
+        this.elements.rotNToggle.addEventListener('click', settingsProfileModified);
+        this.elements.rotNUpperCaseLowerCase.addEventListener('click', settingsProfileModified);
+        this.elements.sentenceShuffleSelect.addEventListener('input', settingsProfileModified);
+        this.elements.skewingNumberMax.addEventListener('input', settingsProfileModified);
+        this.elements.skewingNumberMin.addEventListener('input', settingsProfileModified);
+        this.elements.skewingSelect.addEventListener('input', settingsProfileModified);
+        this.elements.skewingToggle.addEventListener('click', settingsProfileModified);
+        this.elements.speedNumber.addEventListener('input', settingsProfileModified);
+        this.elements.speedSlider.addEventListener('input', settingsProfileModified);
+        this.elements.speedSmoothToggle.addEventListener('click', settingsProfileModified);
+        this.elements.textBackgroundColoringToggle.addEventListener('click', settingsProfileModified);
+        this.elements.wordConcatSelect.addEventListener('input', settingsProfileModified);
+        this.elements.wordFalseSelect.addEventListener('input', settingsProfileModified);
+        this.elements.wordShuffleSelect.addEventListener('input', settingsProfileModified);
+        this.elements.wordSkipSelect.addEventListener('input', settingsProfileModified);
 
         document.addEventListener('keydown', e => this.handleKeyPress(e));
         window.addEventListener('resize', () => {
@@ -2759,7 +3109,8 @@
       loadPreferences() {
         this.elements.rewindButton.disabled = true;
         this.elements.fastForwardButton.disabled = true;
-        this.elements.refreshText.disabled = true;
+        this.elements.refreshSentences.disabled = true;
+        this.elements.refreshWords.disabled = true;
         this.elements.refreshView.disabled = true;
         this.elements.refreshColors.disabled = true;
         this.elements.copyMarqueeText.disabled = true;
@@ -2769,10 +3120,16 @@
         this.isLoopEnabled = localStorage.getItem(this.settingsNames.loop) === 'true';
         if (this.isLoopEnabled) this.elements.loopToggle.classList.add('active');
         this.elements.mainContainer.classList.add(localStorage.getItem(this.settingsNames.appSizeToggle) || 'normal-size');
+        this.elements.attemptMinTimeInput.value = localStorage.getItem(this.settingsNames.attemptMinTime) || '30';
+        this.toggleAttemptMinTime();
         this.elements.showSpeakButtonToggle.checked = localStorage.getItem(this.settingsNames.voiceButton) === 'true';
         this.toggleSpeechButton();
         this.elements.showBookmarksButtonToggle.checked = localStorage.getItem(this.settingsNames.bookmarksButton) === 'true';
         this.toggleBookmarksButton();
+        this.elements.showTextViewButtonToggle.checked = localStorage.getItem(this.settingsNames.textViewButton) === 'true';
+        this.toggleTextViewButton();
+        this.elements.historyEnableToggle.checked = localStorage.getItem(this.settingsNames.historyStatus) !== 'false';
+        this.toggleHistoryEnable();
         this.elements.showSearchButtonToggle.checked = localStorage.getItem(this.settingsNames.searchButton) === 'true';
         this.toggleSearchButton();
         const importDataReplacementValue = localStorage.getItem(this.settingsNames.importDataReplacement) || this.importDataReplacementVariants.replaceIfProvided;
@@ -2790,6 +3147,8 @@
         this.toggleFasterTransitions();
         this.elements.exportAllTextsWithBookmarksToggle.checked = localStorage.getItem(this.settingsNames.exportTextsWithBookmarksToggle) !== 'false';
         this.toggleExportTextsWithBookmarks();
+        this.elements.exportHistoryToggle.checked = localStorage.getItem(this.settingsNames.exportHistoryToggle) !== 'false';
+        this.toggleExportHistory();
 
         const voiceIndex = localStorage.getItem(this.settingsNames.voice) || null;
         if (voiceIndex != null) {
@@ -2869,6 +3228,7 @@
               event.preventDefault();
               event.returnValue = `You have unsaved changes! Are you sure you want to reload this page?`;
             }
+            currentReader.saveHistory();
           };
           window.addEventListener('beforeunload', currentReader.controllerForUnload);
         }
@@ -2890,6 +3250,7 @@
         this.currentPosition = this.cachedContainerWidth;
         this.elements.marqueeDisplay.style.left = `${this.currentPosition}px`;
         this.elements.speakButton.style.display = '';
+        this.elements.textViewButton.style.display = '';
         this.elements.searchButton.style.display = '';
         this.elements.bookmarksButton.style.display = '';
         this.elements.controlsContainerFooter.style.display = '';
@@ -2900,17 +3261,28 @@
         if (fully) {
           this.animationStartTime = null;
           this.currentPosition = null;
-          this.previousText = '';
+          this.realText = '';
+          this.realText1List = [];
+          this.realText1RefList = [];
+          this.realText2List = [];
           this.wordCount = 0;
           this.elements.rewindButton.disabled = true;
           this.elements.fastForwardButton.disabled = true;
-          this.elements.refreshText.disabled = true;
+          this.elements.refreshSentences.disabled = true;
+          this.elements.refreshWords.disabled = true;
           this.elements.refreshView.disabled = true;
           this.elements.refreshColors.disabled = true;
           this.elements.copyMarqueeText.disabled = true;
         }
         else {
           this.savePosition();
+          if (this.wasStarted) {
+            this.endProgress = this.getProgressByPosition();
+            this.amendHistoryItem();
+            this.wasStarted = false;
+            this.loadHistory();
+          }
+          this.forceNewHistoryItem = true;
         }
       },
 
@@ -2919,24 +3291,73 @@
           movement = false;
           this.fromContinue = false;
         }
-        let htmlValue = this.elements.textInput.value.replace(/\s+/g, ' ').replace(/\p{C}+/ug, '').replace(/\p{Z}+/ug, ' ').trim();
-        if (!htmlValue) {
-          alert(`The text "${this.currentTextName}" is empty`);
-          return false;
-        }
-
-        this.elements.textHelper.innerHTML = htmlValue;
+        this.elements.textHelper.innerHTML = this.elements.textInput.value.replace(/\s+/g, ' ').replace(/\p{C}+/ug, '').replace(/\p{Z}+/ug, ' ').trim();
         const cleanedText = this.elements.textHelper.textContent || "";
         this.elements.textHelper.innerHTML = '';
 
-        if (this.previousText !== cleanedText) {
-          this.wordCount = cleanedText.split(/\s+/).filter(w => w).length;
+        if (!cleanedText) {
+          alert(`The text "${this.currentTextName}" is empty`);
+          return false;
         }
 
         let palleteChanged = false;
         const currentSettings = this.getCurrentSettingsProfile();
         const backgroundColoring = currentSettings[this.settingsNames.colorTaskBackgroundColoring];
         const previousRect = this.getScreenRectByWordIndex(this.targetWordIndex);
+
+        let textChanged = false;
+        let wordHint1Pre = false, wordHint2Pre = false;
+        if (this.elements.rotNToggle.checked && !this.elements.rotNLanguageInfo.innerHTML) {
+          this.toggleRotNGenerate();
+          textChanged = true;
+        }
+        if (
+          textChanged ||
+          this.realText !== cleanedText ||
+          JSON.stringify(this.previousSettings[this.settingsNames.shufflingSentences]) !== JSON.stringify(currentSettings[this.settingsNames.shufflingSentences]) ||
+          JSON.stringify(this.previousSettings[this.settingsNames.shufflingWords]) !== JSON.stringify(currentSettings[this.settingsNames.shufflingWords])
+        ) {
+          textChanged = true;
+          this.realText = cleanedText;
+          this.realText1List = [];
+          this.realText1RefList = [];
+          this.realTextDiffBase = 0;
+          this.realTextDiff = 0;
+        }
+        if (textChanged) {
+          const sentencesNPattern = /(\d+)_sentences?/;
+          const sentenceShuffleSelectValue = this.elements.sentenceShuffleSelect.value;
+          const sentenceShuffleMatch = sentenceShuffleSelectValue !== 'no' ? (sentencesNPattern.exec(sentenceShuffleSelectValue) || sentenceShuffleSelectValue === 'all_sentences' && [null, -1]) : null;
+          const sentenceShuffleNumber = sentenceShuffleMatch ? parseInt(sentenceShuffleMatch[1]) : 0;
+          let realText1 = this.realText;
+          let realText1Ref = this.realText;
+          if (sentenceShuffleNumber !== 0) {
+            [realText1, realText1Ref] = this.shuffleSentences(realText1, realText1Ref, sentenceShuffleNumber);
+          }
+          this.realText1List = realText1.split(/\s+/);
+          this.realText1RefList = realText1Ref.split(/\s+/);
+          const wordsNPattern = /(\d+)_words?/;
+          const wordShuffleSelectValue = this.elements.wordShuffleSelect.value;
+          const wordShuffleMatch = wordShuffleSelectValue !== 'no' ? wordsNPattern.exec(wordShuffleSelectValue) : null;
+          const wordShuffleNumber = wordShuffleMatch ? parseInt(wordShuffleMatch[1]) : 0;
+          if (wordShuffleNumber !== 0) {
+            const shuffledIndices = this.shuffleWordGroups(this.realText1List, wordShuffleNumber);
+            const newWords = [], newRefWords = [];
+            let kDiff = 0;
+            for (let i = 0; i < shuffledIndices.length; ++i) {
+              const nextWord = this.realText1List[shuffledIndices[i]];
+              const nextRefWord = this.realText1RefList[shuffledIndices[i]];
+              const origWord = this.realText1RefList[i];
+              newWords.push(nextWord);
+              newRefWords.push(`${origWord} [${nextRefWord}]`);
+              kDiff += Math.abs(i - shuffledIndices[i]);
+            }
+            this.realText1List = newWords.length > 0 ? newWords : this.realText1List;
+            this.realText1RefList = newRefWords.length > 0 ? newRefWords : this.realText1List;
+            this.realTextDiffBase = Math.pow(kDiff + 1, 2) / 8 / newWords.length;
+            wordHint1Pre = true;
+          }
+        }
 
         if (!resume && this.elements.colorEncoderToggle.checked) {
           palleteChanged = true;
@@ -2995,13 +3416,13 @@
             const newColors = this.generateColors(targetSize);
             const letters = Array.from(this.colorList);
             preservedLetters.forEach(char => {
-              if (letters.length < targetSize && (cleanedText.includes(char) || char === '***') && !letters.includes(char)) {
+              if (letters.length < targetSize && (this.realText.includes(char) || char === '***') && !letters.includes(char)) {
                 letters.push(char);
               }
             });
             let index = 0;
-            for (let i = 0; i < cleanedText.length && letters.length < targetSize; i++) {
-              const char = cleanedText[i];
+            for (let i = 0; i < this.realText.length && letters.length < targetSize; i++) {
+              const char = this.realText[i];
               if (this.isLetter(char) && !letters.includes(char.toLowerCase()) && !letters.includes(char.toUpperCase())) {
                 letters.push(char);
                 index++;
@@ -3059,7 +3480,7 @@
         const textNeedsUpdate = [
           this.textNeedsUpdate === true,
           this.currentPosition == null,
-          this.previousText !== cleanedText,
+          textChanged === true,
           ...[
           this.settingsNames.skippingLetters,
           this.settingsNames.reversingLetters,
@@ -3067,12 +3488,10 @@
           this.settingsNames.falseLetters,
           this.settingsNames.eliminatingLetters,
           this.settingsNames.skippingWords,
-          this.settingsNames.shufflingWords,
           this.settingsNames.falseWords,
           this.settingsNames.rotNToggle,
           this.settingsNames.rotNMap,
           this.settingsNames.concatWords,
-          this.settingsNames.shuffleSentences,
           ].map(x => JSON.stringify(this.previousSettings[x]) !== JSON.stringify(currentSettings[x]))
         ].some(b => b);
 
@@ -3122,13 +3541,19 @@
             }
             return {};
           };
+          this.realTextDiff = this.realTextDiffBase;
           this.elements.marqueeDisplay.innerHTML = this.processText(
-            textNeedsUpdate ? cleanedText : this.elements.marqueeDisplay.textContent,
-            cleanedText,
+            textNeedsUpdate ? this.realText1List : this.realText2List,
+            this.realText1RefList,
             Array.from(this.elements.marqueeDisplay.querySelectorAll('.marquee-word-span')),
             textNeedsUpdate,
-            colorize
+            colorize,
+            wordHint1Pre,
+            wordHint2Pre
           );
+          this.realText2List = this.elements.marqueeDisplay.textContent.split(/\s+/);
+          this.wordCount = this.realText2List.length;
+          this.updateTextStats();
         }
 
         if (!resume) {
@@ -3144,8 +3569,6 @@
 
         this.adjustSpeed(null);
 
-        this.animationStartTime = Date.now();
-        this.lastUpdateTime = this.animationStartTime;
         if (this.targetWordIndex != null && JSON.stringify(previousRect) !== JSON.stringify(currentRect)) {
           this.currentPosition = this.getPositionByWordIndex(this.targetWordIndex);
         }
@@ -3153,7 +3576,6 @@
         this.elements.marqueeDisplay.style.left = `${this.currentPosition}px`;
 
         this.textNeedsUpdate = false;
-        this.previousText = cleanedText;
         this.previousSettings = currentSettings;
         this.previousPosition = this.currentPosition;
         this.wasColorTaskEnabled = this.elements.colorEncoderToggle.checked;
@@ -3185,8 +3607,15 @@
               this.currentPosition = startPos;
               this.previousPosition = this.currentPosition;
               this.elements.marqueeDisplay.style.left = `${startPos}px`;
-              if (this.animationTimer) this.animationTimer = setTimeout(animate, this.stepDelay);
               this.savePosition();
+              this.endProgress = this.getProgressByPosition();
+              this.amendHistoryItem();
+              this.startProgress = this.getProgressByPosition();
+              this.endProgress = this.startProgress;
+              this.forceNewHistoryItem = true;
+              this.animationStartTime = Date.now();
+              this.amendHistoryItem();
+              if (this.animationTimer) this.animationTimer = setTimeout(animate, this.stepDelay);
             } else {
               this.currentPosition = endPos;
               this.previousPosition = this.currentPosition;
@@ -3194,7 +3623,13 @@
               clearTimeout(this.animationTimer);
               this.animationTimer = null;
               this.savePosition();
+              this.endProgress = this.getProgressByPosition();
+              this.amendHistoryItem();
+              this.forceNewHistoryItem = true;
+              this.animationStartTime = Date.now();
+              this.amendHistoryItem();
               this.elements.speakButton.style.display = '';
+              this.elements.textViewButton.style.display = '';
               this.elements.searchButton.style.display = '';
               this.elements.bookmarksButton.style.display = '';
               this.elements.controlsContainerFooter.style.display = '';
@@ -3212,12 +3647,18 @@
 
         this.elements.rewindButton.disabled = false;
         this.elements.fastForwardButton.disabled = false;
-        this.elements.refreshText.disabled = false;
+        this.elements.refreshSentences.disabled = false;
+        this.elements.refreshWords.disabled = false;
         this.elements.refreshView.disabled = false;
         this.elements.refreshColors.disabled = false;
         this.elements.copyMarqueeText.disabled = false;
+        this.animationStartTime = Date.now(); /* for history */
+        this.lastUpdateTime = this.animationStartTime;
+        this.startProgress = this.getProgressByPosition();
+        this.endProgress = this.startProgress;
         if (movement) {
           this.elements.speakButton.style.display = 'none';
+          this.elements.textViewButton.style.display = 'none';
           this.elements.searchButton.style.display = 'none';
           this.elements.bookmarksButton.style.display = 'none';
           this.elements.controlsContainerFooter.style.display = '';
@@ -3225,6 +3666,12 @@
           this.elements.progressDisplay.style.display = '';
           this.elements.tabNavigation.style.display = 'none';
           this.elements.tabContent.style.display = 'none';
+          this.amendHistoryItem();
+        }
+        this.animationStartTime = Date.now(); /* for animation */
+        this.lastUpdateTime = this.animationStartTime;
+        if (movement) {
+          this.wasStarted = true;
           this.animationTimer = setTimeout(animate, this.stepDelay);
         }
         this.savePosition();
@@ -3236,6 +3683,7 @@
           clearTimeout(this.animationTimer);
           this.animationTimer = null;
           this.elements.speakButton.style.display = '';
+          this.elements.textViewButton.style.display = '';
           this.elements.searchButton.style.display = '';
           this.elements.bookmarksButton.style.display = '';
           this.elements.controlsContainerFooter.style.display = '';
@@ -3244,17 +3692,17 @@
           this.elements.tabNavigation.style.display = '';
           this.elements.tabContent.style.display = '';
           this.savePosition();
+          this.endProgress = this.getProgressByPosition();
+          this.amendHistoryItem();
         }
       },
 
-      processText(text, referenceText, wordsSpans, shouldModify, colorize) {
+      processText(textList, referenceWordList, wordsSpans, shouldModify, colorize, wordHint1Pre = false, wordHint2Pre = false) {
         const currentReader = this;
         const vowelsPercentPattern = /(\d+)%_vowels/;
         const randomPercentPattern = /(\d+)%_random/;
         const lettersPercentPattern = /(\d+)%_letters?/;
         const wordsPercentPattern = /(\d+)%_words?/;
-        const wordsNPattern = /(\d+)_words?/;
-        const sentencesNPattern = /(\d+)_sentences?/;
 
         const letterEliminationSelectValue = this.elements.letterEliminationSelect.value;
         const letterEliminationVowelMatch = shouldModify && letterEliminationSelectValue !== 'no' ? vowelsPercentPattern.exec(letterEliminationSelectValue) : null;
@@ -3269,7 +3717,7 @@
         const letterFalseSelectValue = this.elements.letterFalseSelect.value;
         const textChars = [];
         if (shouldModify && letterFalseSelectValue !== 'no') {
-          textChars.push(...(new Set(Array.from(referenceText).filter(w => this.letterPattern.test(w)))));
+          textChars.push(...(new Set(Array.from(this.realText).filter(w => this.letterPattern.test(w)))));
         }
         const letterFalseMatch = textChars.length ? lettersPercentPattern.exec(letterFalseSelectValue) : null;
         const letterFalsePercent = letterFalseMatch ? parseInt(letterFalseMatch[1]) / 100 : 0;
@@ -3277,7 +3725,7 @@
         const wordFalseSelectValue = this.elements.wordFalseSelect.value;
         const textWords = [];
         if (shouldModify && wordFalseSelectValue !== 'no') {
-          textWords.push(...(new Set(referenceText.split(this.notWordPattern).filter(w => w))));
+          textWords.push(...(new Set(this.realText.split(this.notWordPattern).filter(w => w).slice(0, 1000))));
         }
         const wordFalseMatch = textWords.length ? wordsPercentPattern.exec(wordFalseSelectValue) : null;
         const wordFalsePercent = wordFalseMatch ? parseInt(wordFalseMatch[1]) / 100 : 0;
@@ -3285,10 +3733,6 @@
         const wordConcatSelectValue = this.elements.wordConcatSelect.value;
         const wordConcatMatch = shouldModify && wordConcatSelectValue !== 'no' ? wordsPercentPattern.exec(wordConcatSelectValue) : null;
         const wordConcatPercent = wordConcatMatch ? parseInt(wordConcatMatch[1]) / 100 : 0;
-
-        const sentenceShuffleSelectValue = this.elements.sentenceShuffleSelect.value;
-        const sentenceShuffleMatch = shouldModify && sentenceShuffleSelectValue !== 'no' ? (sentencesNPattern.exec(sentenceShuffleSelectValue) || sentenceShuffleSelectValue === 'all_sentences' && [null, -1]) : null;
-        const sentenceShuffleNumber = sentenceShuffleMatch ? parseInt(sentenceShuffleMatch[1]) : 0;
 
         const wordSkipSelectValue = this.elements.wordSkipSelect.value;
         const wordSkipMatch = shouldModify && wordSkipSelectValue !== 'no' ? wordsPercentPattern.exec(wordSkipSelectValue) : null;
@@ -3300,9 +3744,6 @@
         const letterShuffleSelectValue = this.elements.letterShuffleSelect.value;
         const letterShuffleCheck = shouldModify && letterShuffleSelectValue !== 'no';
 
-        const wordShuffleSelectValue = this.elements.wordShuffleSelect.value;
-        const wordShuffleMatch = shouldModify && wordShuffleSelectValue !== 'no' ? wordsNPattern.exec(wordShuffleSelectValue) : null;
-        const wordShuffleNumber = wordShuffleMatch ? parseInt(wordShuffleMatch[1]) : 0;
         const skipShuffleReverseRegex = this.upperCaseWordStartPattern;
 
         const rotNToggleValue = this.elements.rotNToggle.checked;
@@ -3467,7 +3908,8 @@
                           settingRotate ||
                           settingMirror ||
                           settingSkew ||
-                          colorEncoderToggleChecked;
+                          colorEncoderToggleChecked ||
+                          wordHint1Pre;
         const wordHint2 = letterSkipMatch != null ||
                           letterReverseCheck ||
                           letterShuffleCheck ||
@@ -3475,64 +3917,59 @@
                           letterEliminationVowelMatch != null ||
                           letterEliminationRandomMatch != null ||
                           rotNToggleValue && this.letterMapItemMaxLength > 0 ||
-                          wordShuffleMatch != null ||
                           wordFalseMatch != null ||
-                          wordConcatMatch != null;
+                          wordConcatMatch != null ||
+                          wordHint2Pre;
 
         /* Algorithm */
         const escapeString = str => str.replace(/[\\"]/g, '').replaceAll('\'', '\\\'');
-        if (sentenceShuffleNumber !== 0) {
-          [text, referenceText] = this.shuffleSentences(text, referenceText, sentenceShuffleNumber);
-        }
-        let textLines = text.split('\n');
-        let refLines = referenceText.split('\n');
-        return textLines.map((line, lineIndex) => {
-          const words = line.split(/\s+/).filter(word => word);
-          const refWords = refLines[lineIndex] ? refLines[lineIndex].split(/\s+/) : words;
+        let textLines = [textList];
+        let refLines = [referenceWordList];
+        const startDiffValue = 1000 / textList.length;
+        return textLines.map((lineList, lineIndex) => {
+          const words = lineList;
+          const refWords = refLines[lineIndex] ? refLines[lineIndex] : words.slice();
           let processedWords = words;
           let processedRefWords = refWords;
 
+          if (wordFalseMatch) {
+            const originalSize = processedWords.length;
+            [processedWords, processedRefWords] = this.falseWords(textWords, processedWords, processedRefWords, wordFalsePercent);
+            this.realTextDiff += startDiffValue * 3.0 * (processedWords.length - originalSize);
+          }
+
           if (wordConcatMatch) {
+            const originalSize = processedWords.length;
             [processedWords, processedRefWords] = this.concatWords(processedWords, processedRefWords, wordConcatPercent);
+            this.realTextDiff += startDiffValue * 1.0 * (originalSize - processedWords.length);
           }
 
           if (wordSkipMatch) {
             processedWords = this.skipWords(processedWords, wordSkipMatchPercent);
-          }
-
-          if (wordShuffleMatch) {
-            const shuffledIndices = this.shuffleWordGroups(processedWords, wordShuffleNumber);
-            const newWords = [];
-            const newRefWords = [];
-            for (let i = 0; i < shuffledIndices.length; ++i) {
-              const nextWord = processedWords[shuffledIndices[i]];
-              const nextRefWord = processedRefWords[shuffledIndices[i]];
-              const origWord = processedRefWords[i];
-              newWords.push(nextWord);
-              newRefWords.push(`${origWord} [${nextRefWord}]`);
-            }
-            processedWords = newWords;
-            processedRefWords = newRefWords;
-          }
-
-          if (wordFalseMatch) {
-            [processedWords, processedRefWords] = this.falseWords(textWords, processedWords, processedRefWords, wordFalsePercent);
+            this.realTextDiff += startDiffValue * Math.pow(Math.max(1, processedWords.length * wordSkipMatchPercent), 1.6);
           }
 
           const processedWordsLength = processedWords.length;
+          let realTextDiffW = 0;
 
           return processedWords.map((word, processedWordIndex) => {
+            let realTextDiffLEliminate = 1, realTextDiffLSkip = 1, realTextDiffLRot = 1, realTextDiffLFalse = 1, realTextDiffLReverse = 1, realTextDiffLShuffle = 1;
+            let realTextDiffRotate = 1, realTextDiffMirror = 1, realTextDiffSkew = 1;
             let modifiedWord = word;
 
             if (word.length > 1) {
+              const originalSize = modifiedWord.length;
               if (letterEliminationVowelMatch) {
                 modifiedWord = this.eliminateLetters(this.vowelPatternG, modifiedWord, letterEliminationVowelPercent);
+                realTextDiffLEliminate *= Math.pow(3.0 * (originalSize - modifiedWord.length), 2.0);
               }
               else if (letterEliminationRandomMatch) {
                 modifiedWord = this.eliminateLetters(this.letterPatternG, modifiedWord, letterEliminationRandomPercent);
+                realTextDiffLEliminate *= Math.pow(3.0 * (originalSize - modifiedWord.length), 2.0);
               }
               if (letterSkipMatch) {
                 modifiedWord = this.skipLetters(modifiedWord, letterSkipPercent);
+                realTextDiffLSkip *= Math.pow(Math.max(1, 2 * Math.floor(letterSkipPercent * modifiedWord.length)), 2.2);
               }
             }
 
@@ -3557,6 +3994,8 @@
                 const originalMiddle = Array.from(midLetters);
                 const originalMiddleSize = new Set(originalMiddle).size;
                 midLetters.reverse();
+                const k = (firstLetters.length ? 1.5 : 1) * (midLetters.length ? 1.5 : 1) * (lastLetters.length ? 1.5 : 1);
+                realTextDiffLReverse *= Math.max(1, k * midLetters.length / parts.length);
                 const reordered = [...firstLetters, ...midLetters, ...lastLetters];
                 const result = [];
                 let j = 0;
@@ -3574,7 +4013,7 @@
                   ? 0
                   : letterShuffleSelectValue === 'except_first_last' || letterShuffleSelectValue === 'except_first'
                     ? 1
-                    : Math.floor(part.length / 3); /* middle */
+                    : Math.max(1, Math.floor(part.length / 3)); /* middle */
                 const suffixLength = letterShuffleSelectValue === 'except_first' ? 0 : threshold;
                 const letters = [];
                 for (const x of part) {
@@ -3592,6 +4031,20 @@
                     this.shuffleArray(midLetters);
                   }
                 }
+                let k = 4.5;
+                if (letterShuffleSelectValue === 'except_first_last') {
+                  k = 13;
+                }
+                else if (letterShuffleSelectValue === 'except_first') {
+                  k = 13;
+                }
+                else if (letterShuffleSelectValue === 'except_capitalized') {
+                  k = 11;
+                }
+                else if (letterShuffleSelectValue === 'all_letters') {
+                  k = 13;
+                }
+                realTextDiffLShuffle *= Math.max(1, k * midLetters.length / parts.length);
                 const reordered = [...firstLetters, ...midLetters, ...lastLetters];
                 const result = [];
                 let j = 0;
@@ -3618,22 +4071,26 @@
                   const variantIndex = this.randomInt(0, Math.min(variants.length - 1, Math.floor((processedWordIndex + 1) / processedWordsLength * variants.length)));
                   charsList.push(variants[variantIndex]);
                   i += this.letterMapItemMaxLength;
+                  realTextDiffLRot *= variants.length * currentLength;
                 }
                 else {
                   charsList.push(modifiedWord[i]);
                   i += 1;
                 }
               }
+              realTextDiffLRot *= 80.0;
               modifiedWord = charsList.join('');
             }
 
             if (letterFalseMatch) {
               const newWordChars = Array.from(modifiedWord);
-              for (let i = 0; i < Math.floor(letterFalsePercent * modifiedWord.length); ++i) {
+              const n = Math.floor(letterFalsePercent * modifiedWord.length);
+              for (let i = 0; i < n; ++i) {
                 const nextChar = textChars[this.randomInt(0, textChars.length - 1)];
                 const randomPosition = this.randomInt(0, newWordChars.length);
                 newWordChars.splice(randomPosition, 0, nextChar);
               }
+              realTextDiffLFalse *= 10.0 * n;
               modifiedWord = newWordChars.join('');
             }
 
@@ -3816,10 +4273,16 @@
                 onclickParam = '';
               }
             }
-
+            const realTextDiffL = ((realTextDiffRotate - 1) + (realTextDiffMirror - 1) + (realTextDiffSkew - 1)) / finalWord.length + ((Math.max(realTextDiffLEliminate - 1, realTextDiffLSkip - 1) + Math.max(1, realTextDiffLFalse) * Math.max(1, realTextDiffLRot - 1 + Math.max(realTextDiffLReverse - 1, realTextDiffLShuffle - 1))) / Math.max(1, modifiedWord.length));
+            if (realTextDiffL > 1) {
+              realTextDiffW += realTextDiffL;
+            }
+            if (processedWordIndex === processedWordsLength - 1 && realTextDiffW > 1) {
+              this.realTextDiff += startDiffValue * realTextDiffW;
+            }
             return `<span class="marquee-word-span${newWordMark}${newClassesString}"${newStyleString}${onclickParam}>${finalWord}</span>`;
           }).join(' ');
-        }).join('\n');
+        })[0];
       },
 
       eliminateLetters(regex, word, percentOfLetters, onlyReturnIndices = false) {
@@ -3931,18 +4394,35 @@
       maxDistanceIndexes(length) {
         if (length <= 0) return [];
         const result = [0];
+        if (length === 1) return result;
+        result.push(length - 1);
         const remaining = new Set();
-        for (let i = 1; i < length; i++) remaining.add(i);
+        for (let i = 1; i < length - 1; i++) remaining.add(i);
         while (remaining.size > 0) {
-          let maxDist = -1;
+          let maxMinDist = -1;
           let bestIdx = -1;
+          const sortedResult = result.slice().sort((a, b) => a - b);
           for (const current of remaining) {
-            let currentDist = Infinity;
-            for (const prev of result) {
-              currentDist = Math.min(currentDist, Math.abs(current - prev));
+            let left = 0, right = sortedResult.length - 1;
+            let minDist = Infinity;
+            while (left <= right) {
+              const mid = Math.floor((left + right) / 2);
+              const dist = Math.abs(current - sortedResult[mid]);
+              minDist = Math.min(minDist, dist);
+              if (current < sortedResult[mid]) {
+                right = mid - 1;
+              } else {
+                left = mid + 1;
+              }
             }
-            if (currentDist > maxDist) {
-              maxDist = currentDist;
+            if (right >= 0) {
+              minDist = Math.min(minDist, Math.abs(current - sortedResult[right]));
+            }
+            if (left < sortedResult.length) {
+              minDist = Math.min(minDist, Math.abs(current - sortedResult[left]));
+            }
+            if (minDist > maxMinDist) {
+              maxMinDist = minDist;
               bestIdx = current;
             }
           }
@@ -3983,13 +4463,12 @@
 
       concatWords(words, refWords, percent) {
         const wordsToConcat = Math.floor(words.filter((v, i) => this.wordPattern.test(v)).length * percent);
-        const indicesN1N2 = this.makeDistantIndicesForWords(words);
-        const indicesN1 = indicesN1N2[0], indicesN2 = indicesN1N2[1];
+        const indicesN1 = this.makeDistantIndicesForWords(words)[0];
         const newWordsIndexes = [];
-        for (let i = 0, k = 0; i < indicesN1.length && i < indicesN2.length && k < wordsToConcat; ++i) {
+        for (let i = 0, k = 0; i < indicesN1.length && k < wordsToConcat; ++i) {
           const currentIndex = indicesN1[i];
-          const nextIndex = indicesN2[i];
-          if (currentIndex + 1 === nextIndex && nextIndex < words.length) {
+          const nextIndex = currentIndex + 1;
+          if (nextIndex < words.length) {
             const word = words[currentIndex];
             const nextWord = words[nextIndex];
             const refWord = refWords[currentIndex];
@@ -4016,20 +4495,13 @@
         }
         const wordsToFalse = Math.floor(words.filter((v, i) => this.wordPattern.test(v)).length * percent);
         const indicesN1N2 = this.makeDistantIndicesForWords(words);
-        const indicesN1 = indicesN1N2[0], indicesN2 = indicesN1N2[1];
+        const indices = [...indicesN1N2[0], ...indicesN1N2[1]];
         const newWordsIndexes = [];
-        for (let i = 0, k = 0; i < indicesN1.length && i < indicesN2.length && k < wordsToFalse; ++i) {
-          const currentIndex = indicesN1[i];
-          const nextIndex = indicesN2[i];
-          if (currentIndex + 1 === nextIndex && nextIndex < words.length) {
-            const word = words[currentIndex];
-            const nextWord = words[nextIndex];
-            if (this.wordPattern.test(word) && this.wordPattern.test(nextWord)) {
-              const textWord = textWords[this.randomInt(0, textWords.length - 1)];
-              newWordsIndexes.push([nextIndex, textWord, `- [${textWord}]`]);
-              ++k;
-            }
-          }
+        for (let i = 0, k = 0; i < indices.length && k < wordsToFalse; ++i) {
+          const currentIndex = indices[i];
+          const textWord = textWords[this.randomInt(0, textWords.length - 1)];
+          newWordsIndexes.push([currentIndex, textWord, `- [${textWord}]`]);
+          ++k;
         }
         newWordsIndexes.sort((a, b) => b[0] - a[0]);
         const newWords = words.slice(), newRefWords = refWords.slice();
@@ -4118,6 +4590,80 @@
         }
       },
 
+      toggleTextView() {
+        if (!this.realText) {
+          return;
+        }
+        if (this.isTextViewActive) {
+          this.elements.marqueeContainer.style.overflow = '';
+          this.elements.marqueeContainer.style.minHeight = '';
+          this.elements.marqueeDisplay.style.whiteSpace = '';
+          this.elements.marqueeDisplay.style.textAlign = '';
+          this.elements.marqueeDisplay.style.left = '';
+          this.elements.playPauseButton.style.display = '';
+          this.elements.stopButton.style.display = '';
+          this.elements.rewindButton.style.display = '';
+          this.elements.fastForwardButton.style.display = '';
+          this.elements.refreshSentences.style.display = '';
+          this.elements.refreshWords.style.display = '';
+          this.elements.refreshView.style.display = '';
+          this.elements.refreshColors.style.display = '';
+          this.elements.copyMarqueeText.style.display = '';
+          this.elements.speakButton.style.display = '';
+          this.elements.searchButton.style.display = '';
+          this.elements.bookmarksButton.style.display = '';
+          this.elements.controlsContainerFooter.style.display = '';
+          this.elements.loopToggle.style.display = '';
+          this.elements.progressDisplay.style.display = '';
+          this.elements.tabNavigation.style.display = '';
+          this.elements.tabContent.style.display = '';
+          this.elements.progressBarContainer.style.display = '';
+          if (this.targetWordIndex != null) {
+            this.currentPosition = this.getPositionByWordIndex(this.targetWordIndex);
+            this.elements.marqueeDisplay.style.left = `${this.currentPosition}px`;
+          }
+        }
+        else {
+          this.elements.marqueeContainer.style.overflow = 'scroll';
+          this.elements.marqueeContainer.style.minHeight = '88vh';
+          this.elements.marqueeDisplay.style.whiteSpace = 'normal';
+          this.elements.marqueeDisplay.style.textAlign = 'left';
+          this.elements.marqueeDisplay.style.left = '0px';
+          this.elements.playPauseButton.style.display = 'none';
+          this.elements.stopButton.style.display = 'none';
+          this.elements.rewindButton.style.display = 'none';
+          this.elements.fastForwardButton.style.display = 'none';
+          this.elements.refreshSentences.style.display = 'none';
+          this.elements.refreshWords.style.display = 'none';
+          this.elements.refreshView.style.display = 'none';
+          this.elements.refreshColors.style.display = 'none';
+          this.elements.copyMarqueeText.style.display = 'none';
+          this.elements.speakButton.style.display = 'none';
+          this.elements.searchButton.style.display = 'none';
+          this.elements.bookmarksButton.style.display = 'none';
+          this.elements.controlsContainerFooter.style.display = 'none';
+          this.elements.loopToggle.style.display = 'none';
+          this.elements.progressDisplay.style.display = 'none';
+          this.elements.tabNavigation.style.display = 'none';
+          this.elements.tabContent.style.display = 'none';
+          this.elements.progressBarContainer.style.display = 'none';
+          if (this.targetWordIndex != null) {
+            this.getWordItemByWordIndex(this.targetWordIndex)?.scrollIntoView();
+          }
+        }
+        this.isTextViewActive = !this.isTextViewActive;
+      },
+
+      toggleAttemptMinTime() {
+        const value = parseInt(this.elements.attemptMinTimeInput.value);
+        if (value === value && value >= 1) {
+          localStorage.setItem(this.settingsNames.attemptMinTime, value);
+        }
+        else {
+          this.elements.attemptMinTimeInput.value = '1';
+        }
+      },
+
       toggleLoop() {
         this.isLoopEnabled = !this.isLoopEnabled;
         this.elements.loopToggle.classList.toggle('active');
@@ -4163,6 +4709,10 @@
 
       toggleExportTextsWithBookmarks() {
         localStorage.setItem(this.settingsNames.exportTextsWithBookmarksToggle, this.elements.exportAllTextsWithBookmarksToggle.checked);
+      },
+
+      toggleExportHistory() {
+        localStorage.setItem(this.settingsNames.exportHistoryToggle, this.elements.exportHistoryToggle.checked);
       },
 
       saveSentenceCountToGenerate() {
@@ -4233,7 +4783,7 @@
 
       rewind() {
         if (this.currentPosition !== null) {
-          const wasPlaying = this.animationTimer !== null;
+          const wasPlaying = this.animationTimer != null;
           if (wasPlaying) this.pauseAnimation();
           const containerWidth = this.cachedContainerWidth;
           const textWidth = this.cachedTextWidth;
@@ -4246,7 +4796,7 @@
 
       fastForward() {
         if (this.currentPosition !== null) {
-          const wasPlaying = this.animationTimer !== null;
+          const wasPlaying = this.animationTimer != null;
           if (wasPlaying) this.pauseAnimation();
           const containerWidth = this.cachedContainerWidth;
           const textWidth = this.cachedTextWidth;
@@ -4259,7 +4809,7 @@
 
       goToStartPosition() {
         if (this.currentPosition !== null) {
-          const wasPlaying = this.animationTimer !== null;
+          const wasPlaying = this.animationTimer != null;
           if (wasPlaying) this.pauseAnimation();
           const containerWidth = this.cachedContainerWidth;
           const textWidth = this.cachedTextWidth;
@@ -4272,7 +4822,7 @@
 
       goToEndPosition() {
         if (this.currentPosition !== null) {
-          const wasPlaying = this.animationTimer !== null;
+          const wasPlaying = this.animationTimer != null;
           if (wasPlaying) this.pauseAnimation();
           const containerWidth = this.cachedContainerWidth;
           const textWidth = this.cachedTextWidth;
@@ -4283,9 +4833,23 @@
         }
       },
 
-      refreshMarqueeText() {
+      refreshMarqueeSentences() {
         if (this.currentPosition !== null) {
-          const wasPlaying = this.animationTimer !== null;
+          const wasPlaying = this.animationTimer != null;
+          if (wasPlaying) this.pauseAnimation();
+          this.realText = '';
+          this.realText1List = [];
+          this.realText1RefList = [];
+          this.realText2List = [];
+          this.startAnimation(false, false);
+          this.savePosition();
+          if (wasPlaying) this.startAnimation(true);
+        }
+      },
+
+      refreshMarqueeWords() {
+        if (this.currentPosition !== null) {
+          const wasPlaying = this.animationTimer != null;
           if (wasPlaying) this.pauseAnimation();
           this.textNeedsUpdate = true;
           this.startAnimation(false, false);
@@ -4296,7 +4860,7 @@
 
       refreshMarqueeView() {
         if (this.currentPosition !== null) {
-          const wasPlaying = this.animationTimer !== null;
+          const wasPlaying = this.animationTimer != null;
           if (wasPlaying) this.pauseAnimation();
           this.wasColorTaskChecked = false;
           this.startAnimation(false, false);
@@ -4307,7 +4871,7 @@
 
       refreshMarqueeColors(fullUpdate = true) {
         if (this.currentPosition !== null) {
-          const wasPlaying = this.animationTimer !== null;
+          const wasPlaying = this.animationTimer != null;
           if (wasPlaying) this.pauseAnimation();
           if (fullUpdate && this.elements.colorEncoderToggle.checked) {
             this.colorMap.clear();
@@ -4322,7 +4886,7 @@
 
       copyMarqueeText() {
         if (this.currentPosition !== null) {
-          navigator.clipboard.writeText(this.elements.marqueeDisplay.textContent);
+          navigator.clipboard.writeText(this.realText2List.join(' '));
         }
       },
 
@@ -4545,7 +5109,7 @@
           this.elements.colorEncoderDiv.classList.add('with-rounded-border');
         }
         if (updateMarqueeTextBlock) {
-          const wasPlaying = this.animationTimer !== null;
+          const wasPlaying = this.animationTimer != null;
           if (wasPlaying) this.pauseAnimation();
           this.wasColorTaskChecked = false;
           if (this.elements.textInput.value) {
@@ -4862,7 +5426,7 @@
         const containerWidth = this.cachedContainerWidth;
         const textWidth = this.cachedTextWidth;
         if (position == null || containerWidth == null || textWidth == null) {
-          return null;
+          return 0;
         }
         const startPos = containerWidth;
         const endPos = -textWidth;
@@ -4914,6 +5478,20 @@
         return null;
       },
 
+      getWordItemByWordIndex(targetWordIndex) {
+        let wordIndex = 0;
+        for (const elem of this.elements.marqueeDisplay.querySelectorAll('.marquee-word-span')) {
+          if (elem.classList.contains(this.newWordMark)) {
+            continue;
+          }
+          if (wordIndex === targetWordIndex) {
+            return elem;
+          }
+          wordIndex += 1;
+        }
+        return null;
+      },
+
       getPositionByWordIndex(targetWordIndex) {
         if (targetWordIndex == null) {
           return null;
@@ -4952,7 +5530,8 @@
             this.elements.playPauseButton.innerHTML = 'Pause';
             this.elements.playPauseButton.classList.add('pause');
           }
-          this.targetWordIndex = this.getFirstVisibleWordIndex() || this.targetWordIndex;
+          const wIndex = this.getFirstVisibleWordIndex();
+          this.targetWordIndex = wIndex != null ? wIndex : this.targetWordIndex;
           this.textsLastPositions[currentTextName] = {
             position: lastPosition,
             wordIndex: this.targetWordIndex
@@ -5027,7 +5606,7 @@
 
       handleKeyPress(event) {
         if (['INPUT', 'TEXTAREA'].includes(event.target.tagName)) return;
-        event.preventDefault();
+        let preventDefault = true;
         switch (event.key) {
           case ' ': this.togglePlayback(); break;
           case 'ArrowUp': this.goToEndPosition(); break;
@@ -5042,11 +5621,15 @@
           case 'S': this.stopPlayback(); break;
           case '+': this.adjustSpeed(parseInt(this.elements.speedNumber.value || 0) + 1); break;
           case '-': this.adjustSpeed(parseInt(this.elements.speedNumber.value || 0) - 1); break;
-          case 't':
-          case 'T': this.refreshMarqueeText(); break;
+          case 'w':
+          case 'W': this.refreshMarqueeWords(); break;
           case 'v':
           case 'V': this.refreshMarqueeView(); break;
           case 'Escape': this.elements.showColorInfoToggle.click(); break;
+          default: preventDefault = false; break;
+        }
+        if (preventDefault) {
+          event.preventDefault();
         }
       },
 
@@ -5057,7 +5640,7 @@
           const searchMarks = this.elements.progressBarContainer.querySelectorAll('.search-mark');
           searchMarks.forEach(mark => mark.remove());
         }
-        if (this.currentPosition !== null && containerWidth != null && this.previousText) {
+        if (this.currentPosition !== null && containerWidth != null && this.realText) {
           const progress = this.getProgressByPosition();
           this.elements.progressBar.style.width = `${progress}%`;
           if (updateSearchMarks && this.searchMatches.length > 0) {
@@ -5080,8 +5663,8 @@
 
       handleProgressBarClick(event) {
         const containerWidth = this.cachedContainerWidth;
-        if (this.currentPosition !== null && containerWidth != null && this.previousText) {
-          const wasPlaying = this.animationTimer !== null;
+        if (this.currentPosition !== null && containerWidth != null && this.realText) {
+          const wasPlaying = this.animationTimer != null;
           if (wasPlaying) this.pauseAnimation();
 
           const rect = this.elements.progressBarContainer.getBoundingClientRect();
@@ -5122,6 +5705,7 @@
           currentReader.currentSettingsProfileName = selectedSettingsProfileName;
           localStorage.setItem(currentReader.settingsNames.currentSettingsProfile, currentReader.currentSettingsProfileName);
           currentReader.settingsProfileIsModified = false;
+          currentReader.forceNewHistoryItem = true;
           if (callback) {
             return callback();
           }
@@ -5135,6 +5719,7 @@
             currentReader.currentSettingsProfileName = selectedSettingsProfileName;
             localStorage.setItem(currentReader.settingsNames.currentSettingsProfile, currentReader.currentSettingsProfileName);
             currentReader.settingsProfileIsModified = false;
+            currentReader.forceNewHistoryItem = true;
             if (callback) {
               return callback();
             }
@@ -5169,6 +5754,7 @@
           localStorage.setItem(currentReader.settingsNames.currentTextName, currentReader.currentTextName);
           currentReader.textIsModified = false;
           currentReader.reloadPosition();
+          currentReader.forceNewHistoryItem = true;
           if (callback) {
             return callback();
           }
@@ -5184,6 +5770,7 @@
             localStorage.setItem(currentReader.settingsNames.currentTextName, currentReader.currentTextName);
             currentReader.textIsModified = false;
             currentReader.reloadPosition();
+            currentReader.forceNewHistoryItem = true;
             if (callback) {
               return callback();
             }
@@ -5487,6 +6074,19 @@
         }
       },
 
+      deleteHistory(callback = null) {
+        const currentReader = this;
+        if (currentReader.database && confirm('Are you sure you want to delete the history?')) {
+          this.history = [];
+          this.saveHistory(() => {
+            if (callback) {
+              return callback();
+            }
+            currentReader.locationReload();
+          });
+        }
+      },
+
       deleteAllData(callback = null) {
         const currentReader = this;
         if (confirm('Are you sure you want to delete all data? This action will also remove all texts and non-profile settings.')) {
@@ -5750,6 +6350,64 @@
         }
       },
 
+      importHistoryAux(data, callback = null) {
+        const currentReader = this;
+        try {
+          const jsonParsed = (typeof data === 'string' ? JSON.parse(data) : data), newHistoryItems = [];
+          for (const jsonObject of (jsonParsed[currentReader.settingsNames.history] || [])) {
+            if (jsonObject) {
+              newHistoryItems.push(jsonObject);
+            }
+          }
+          const historyItems = this.history;
+          if (newHistoryItems.length > 0) {
+            const currentReplacement = currentReader.getImportReplacement();
+            const addAsNew = currentReplacement === currentReader.importDataReplacementVariants.addAsNew;
+            const appendOnly = currentReplacement === currentReader.importDataReplacementVariants.appendOnly;
+            const replaceIfProvided = currentReplacement === currentReader.importDataReplacementVariants.replaceIfProvided;
+            const newHistory = [];
+            for (const newHistoryItem of newHistoryItems) {
+              let found = false;
+              for (const historyItem of this.history) {
+                if (newHistoryItem.timestamp === historyItem.timestamp) {
+                  if (addAsNew) {
+                    newHistory.push(historyItem);
+                    break;
+                  }
+                  if (appendOnly) {
+                    found = true;
+                    break;
+                  }
+                  if (replaceIfProvided) {
+                    break;
+                  }
+                  break;
+                }
+              }
+              if (!found) {
+                newHistory.push(newHistoryItem);
+              }
+            }
+            this.history = newHistory.sort((a, b) => b.timestamp - a.timestamp);
+            this.saveHistory();
+            if (callback) {
+              return callback(jsonParsed);
+            }
+            this.locationReload();
+          }
+          else {
+            if (callback) {
+              return callback(jsonParsed);
+            }
+            alert('No history found in the file');
+          }
+        }
+        catch (err) {
+          console.error(err);
+          alert(`Error importing history: ${err}`);
+        }
+      },
+
       importAllTexts(callback = null) {
         const currentReader = this;
         if (currentReader.textIsModified) {
@@ -5820,31 +6478,63 @@
         document.body.removeChild(element);
       },
 
+      importHistory(afterSuccessCallback = null) {
+        const currentReader = this;
+        const element = document.createElement('input');
+        element.id = 'file_upload';
+        element.type = 'file';
+        element.onchange = function (event) {
+          if (window.File && window.FileReader && window.FileList && window.Blob) {
+            const f = event.target.files[0];
+            if (f) {
+              const r = new FileReader;
+              r.addEventListener("load", (function (event) {
+                currentReader.importHistoryAux(event.target.result, (jsonParsed) => {
+                  if (afterSuccessCallback) {
+                    return afterSuccessCallback(jsonParsed);
+                  }
+                  currentReader.locationReload();
+                });
+              }));
+              r.readAsText(f);
+            }
+          } else {
+            alert("This functionality is not supported by your browser")
+          }
+        }
+        document.body.appendChild(element);
+        element.click();
+        document.body.removeChild(element);
+      },
+
       importAll() {
         const currentReader = this;
         const currentReplacement = currentReader.getImportReplacement();
         const addAsNew = currentReplacement === currentReader.importDataReplacementVariants.addAsNew;
         const appendOnly = currentReplacement === currentReader.importDataReplacementVariants.appendOnly;
         const replaceIfProvided = currentReplacement === currentReader.importDataReplacementVariants.replaceIfProvided;
-        currentReader.importAllSettingsProfilesAndTexts((jsonParsed) => {
-          for (const [k, v] of Object.entries(jsonParsed)) {
-            if (k == null || v == null) {
-              continue;
+        currentReader.importAllSettingsProfilesAndTexts((jsonParsed1) => {
+          currentReader.importHistoryAux(jsonParsed1, (jsonParsed2) => {
+              for (const [k, v] of Object.entries(jsonParsed2)) {
+                if (k == null || v == null) {
+                  continue;
+                }
+                if (
+                  k !== currentReader.settingsNames.history &&
+                  k !== currentReader.settingsNames.textBookmarks &&
+                  k !== currentReader.settingsNames.texts &&
+                  k !== currentReader.settingsNames.text &&
+                  k !== currentReader.settingsNames.settingsProfiles &&
+                  k !== currentReader.settingsNames.settingsProfile
+                ) {
+                  const included = (localStorage.getItem(k) || null) == null;
+                  if (replaceIfProvided || !included && (addAsNew || appendOnly)) {
+                    localStorage.setItem(k, v);
+                  }
+                }
             }
-            if (
-              k !== currentReader.settingsNames.textBookmarks &&
-              k !== currentReader.settingsNames.texts &&
-              k !== currentReader.settingsNames.text &&
-              k !== currentReader.settingsNames.settingsProfiles &&
-              k !== currentReader.settingsNames.settingsProfile
-            ) {
-              const included = (localStorage.getItem(k) || null) == null;
-              if (replaceIfProvided || !included && (addAsNew || appendOnly)) {
-                localStorage.setItem(k, v);
-              }
-            }
-          }
-          currentReader.locationReload();
+            currentReader.locationReload();
+          });
         });
       },
 
@@ -5931,6 +6621,17 @@
         };
       },
 
+      exportHistory(callback = null) {
+        const currentReader = this;
+        const historyKey = currentReader.settingsNames.history;
+        const exportData = {};
+        exportData[historyKey] = this.history;
+        if (callback) {
+          return callback(exportData);
+        }
+        currentReader.downloadExportFile(exportData, 'history');
+      },
+
       exportAllSettingsProfilesAndTexts(afterSuccessCallback = null) {
         const currentReader = this;
         currentReader.exportAllSettingsProfiles((exportData1) => {
@@ -5948,30 +6649,43 @@
 
       exportAll() {
         const currentReader = this;
-        currentReader.exportAllSettingsProfilesAndTexts((exportData) => {
-          for (const localStorageSettingName of Object.values(currentReader.settingsNames)) {
-            const localStorageSettingValue = localStorage.getItem(localStorageSettingName);
-            if (localStorageSettingValue == null) {
-              continue;
+        return currentReader.exportHistory((exportData1) => {
+          return currentReader.exportAllSettingsProfilesAndTexts((exportData) => {
+            if (currentReader.elements.exportHistoryToggle.checked) {
+              for (const [key, value] of Object.entries(exportData1)) {
+                exportData[key] = value;
+              }
             }
-            if (
-              localStorageSettingName !== currentReader.settingsNames.textBookmarks &&
-              localStorageSettingName !== currentReader.settingsNames.texts &&
-              localStorageSettingName !== currentReader.settingsNames.text &&
-              localStorageSettingName !== currentReader.settingsNames.settingsProfiles &&
-              localStorageSettingName !== currentReader.settingsNames.settingsProfile
-            ) {
-              exportData[localStorageSettingName] = localStorageSettingValue;
+            for (const localStorageSettingName of Object.values(currentReader.settingsNames)) {
+              const localStorageSettingValue = localStorage.getItem(localStorageSettingName);
+              if (localStorageSettingValue == null) {
+                continue;
+              }
+              if (
+                localStorageSettingName !== currentReader.settingsNames.history &&
+                localStorageSettingName !== currentReader.settingsNames.textBookmarks &&
+                localStorageSettingName !== currentReader.settingsNames.texts &&
+                localStorageSettingName !== currentReader.settingsNames.text &&
+                localStorageSettingName !== currentReader.settingsNames.settingsProfiles &&
+                localStorageSettingName !== currentReader.settingsNames.settingsProfile
+              ) {
+                exportData[localStorageSettingName] = localStorageSettingValue;
+              }
             }
-          }
-          return 'all';
+            return 'all';
+          });
         });
       },
 
-      getStrDateTime() {
-        let dts = new Date((new Date().setHours(new Date().getHours() - (new Date().getTimezoneOffset() / 60)))).toISOString();
-        dts = dts.replace('T', ' ').replaceAll('-', '.').slice(0, 19);
-        return dts;
+      getStrDateTime(timestamp = null) {
+        let datetimeValue = null;
+        if (timestamp != null) {
+          datetimeValue = new Date((new Date(timestamp).setHours(new Date(timestamp).getHours() - (new Date().getTimezoneOffset() / 60))));
+        }
+        if (datetimeValue == null) {
+          datetimeValue = new Date((new Date().setHours(new Date().getHours() - (new Date().getTimezoneOffset() / 60))));
+        }
+        return datetimeValue.toISOString().replace('T', ' ').replaceAll('-', '.').slice(0, 19);
       },
 
       downloadExportFile(data, dataInfoTag) {
@@ -6059,6 +6773,16 @@
         localStorage.setItem(this.settingsNames.bookmarksButton, this.elements.showBookmarksButtonToggle.checked);
       },
 
+      toggleTextViewButton() {
+        this.elements.textViewContainer.style.display = this.elements.showTextViewButtonToggle.checked ? '' : 'none';
+        localStorage.setItem(this.settingsNames.textViewButton, this.elements.showTextViewButtonToggle.checked);
+      },
+
+      toggleHistoryEnable() {
+        this.historyStatus = this.elements.historyEnableToggle.checked;
+        localStorage.setItem(this.settingsNames.historyStatus, this.historyStatus);
+      },
+
       toggleSpeech() {
         if (!this.speechSynthesis) return;
 
@@ -6071,12 +6795,14 @@
           currentReader.elements.stopButton.disabled = true;
           currentReader.elements.rewindButton.disabled = true;
           currentReader.elements.fastForwardButton.disabled = true;
-          currentReader.elements.refreshText.disabled = true;
+          currentReader.elements.refreshSentences.disabled = true;
+          currentReader.elements.refreshWords.disabled = true;
           currentReader.elements.refreshView.disabled = true;
           currentReader.elements.refreshColors.disabled = true;
           currentReader.elements.copyMarqueeText.disabled = true;
           currentReader.elements.searchButton.style.display = 'none';
           currentReader.elements.bookmarksButton.style.display = 'none';
+          currentReader.elements.textViewButton.style.display = 'none';
           currentReader.elements.controlsContainerFooter.style.display = '';
           currentReader.elements.loopToggle.style.display = 'none';
           currentReader.elements.progressDisplay.style.display = '';
@@ -6084,22 +6810,28 @@
           currentReader.elements.tabContent.style.display = 'none';
           currentReader.animationStartTime = Date.now();
           currentReader.isSpeaking = true;
+          currentReader.savePosition();
+          currentReader.startProgress = currentReader.getProgressByPosition();
+          currentReader.endProgress = currentReader.startProgress;
+          currentReader.amendHistoryItem();
+          currentReader.wasStarted = true;
         };
 
         const stopUpdate = function () {
           currentReader.speechSynthesis.cancel();
-          currentReader.isSpeaking = false;
           currentReader.elements.speakButton.textContent = 'Speak';
           currentReader.elements.playPauseButton.disabled = false;
           currentReader.elements.stopButton.disabled = false;
           currentReader.elements.rewindButton.disabled = false;
           currentReader.elements.fastForwardButton.disabled = false;
-          currentReader.elements.refreshText.disabled = false;
+          currentReader.elements.refreshSentences.disabled = false;
+          currentReader.elements.refreshWords.disabled = false;
           currentReader.elements.refreshView.disabled = false;
           currentReader.elements.refreshColors.disabled = false;
           currentReader.elements.copyMarqueeText.disabled = false;
           currentReader.elements.searchButton.style.display = '';
           currentReader.elements.bookmarksButton.style.display = '';
+          currentReader.elements.textViewButton.style.display = '';
           currentReader.elements.controlsContainerFooter.style.display = '';
           currentReader.elements.loopToggle.style.display = '';
           currentReader.elements.progressDisplay.style.display = '';
@@ -6107,7 +6839,11 @@
           currentReader.elements.tabContent.style.display = '';
           const speakMarks = currentReader.elements.progressBarContainer.querySelectorAll('.speak-mark');
           speakMarks.forEach(mark => mark.remove());
+          currentReader.savePosition();
+          currentReader.endProgress = currentReader.getProgressByPosition();
+          currentReader.amendHistoryItem();
           currentReader.isSpeaking = false;
+          currentReader.wasStarted = false;
         };
 
         if (this.isSpeaking) {
@@ -6116,14 +6852,12 @@
         }
 
         this.startAnimation(false, false);
-        const processedText = this.elements.marqueeDisplay.textContent;
-        const realText = this.elements.fasterTransitionsToggle.checked ? this.previousText.replaceAll('.', ';') : this.previousText;
-        if (!processedText || !realText) {
+        if (!this.realText1List.length || !this.realText2List.length) {
           return;
         }
+        const words = (this.elements.fasterTransitionsToggle.checked ? this.realText1List.map(v => v.replaceAll('.', ';')) : this.realText1List);
 
         this.updateCachedSizes();
-        const words = realText.split(/\s+/).filter(w => w);
         const containerWidth = this.cachedContainerWidth;
         const textWidth = this.cachedTextWidth;
         const shift = containerWidth * Math.max(0, Math.min(0.5, containerWidth / 100 - 5));
@@ -6141,12 +6875,12 @@
           }
         }
 
-        if (spans.length <= startSpanIndex || words.length <= startSpanIndex || spans.length !== words.length) {
+        if (spans.length <= startSpanIndex || spans.length !== words.length) {
           return;
         }
-        const realTextFromIndex = words.slice(startSpanIndex).join(' ');
-
-        const wordCount = realTextFromIndex.split(/\s+/).filter(w => w).length;
+        const wordsFromIndex = words.slice(startSpanIndex);
+        const realTextFromIndex = wordsFromIndex.join(' ');
+        const wordCount = words.length - startSpanIndex;
         const utterance = new SpeechSynthesisUtterance(realTextFromIndex);
         const selectedVoiceIndex = parseInt(this.elements.voiceSelect.value || 0);
         if (this.voices[selectedVoiceIndex]) {
@@ -6155,6 +6889,15 @@
         utterance.rate = this.speechRate / 100;
         utterance.pitch = this.speechPitch / 100;
         utterance.volume = this.speechVolume / 100;
+
+        const wordsPositions = wordsFromIndex.reduce((indexes, word, i) => {
+            if (i === 0) {
+                indexes.push(0);
+            } else {
+                indexes.push(indexes[i-1] + wordsFromIndex[i-1].length + 1);
+            }
+            return indexes;
+        }, []);
 
         const spanPositions = spans.slice(startSpanIndex).map(span => {
           const spanRect = span.getBoundingClientRect();
@@ -6172,7 +6915,7 @@
 
         utterance.onboundary = (event) => {
           if (event.name === 'word') {
-            const wordIndex = realTextFromIndex.substring(0, event.charIndex).split(/\s+/).filter(w => w).length;
+            const wordIndex = wordsPositions.findIndex((v => v > event.charIndex)) - 1;
             const spanIndex = Math.min(wordIndex, spanPositions.length - 1);
             const startPos = containerWidth;
             const endPos = -textWidth;
@@ -6194,7 +6937,6 @@
               currentReader.elements.progressBarContainer.appendChild(mark);
               markAdded = true;
             }
-            currentReader.savePosition();
           }
         };
 
@@ -6218,7 +6960,6 @@
             mark.remove();
           }
 
-          currentReader.savePosition();
           stopUpdate();
 
           if (currentReader.elements.loopToggle.classList.contains('active')) {
@@ -6240,8 +6981,7 @@
         }
 
         this.startAnimation(false, false);
-        this.textToSearch = this.elements.marqueeDisplay.textContent;
-        if (!this.textToSearch) {
+        if (!this.realText2List.length) {
           return;
         }
 
@@ -6254,11 +6994,13 @@
           currentReader.elements.stopButton.disabled = true;
           currentReader.elements.rewindButton.disabled = false;
           currentReader.elements.fastForwardButton.disabled = false;
-          currentReader.elements.refreshText.disabled = true;
+          currentReader.elements.refreshSentences.disabled = true;
+          currentReader.elements.refreshWords.disabled = true;
           currentReader.elements.refreshView.disabled = true;
           currentReader.elements.refreshColors.disabled = true;
           currentReader.elements.copyMarqueeText.disabled = true;
           currentReader.elements.speakButton.style.display = 'none';
+          currentReader.elements.textViewButton.style.display = 'none';
           currentReader.elements.bookmarksButton.style.display = 'none';
           currentReader.elements.controlsContainerFooter.style.display = '';
           currentReader.elements.loopToggle.style.display = 'none';
@@ -6272,11 +7014,13 @@
           currentReader.elements.stopButton.disabled = false;
           currentReader.elements.rewindButton.disabled = false;
           currentReader.elements.fastForwardButton.disabled = false;
-          currentReader.elements.refreshText.disabled = false;
+          currentReader.elements.refreshSentences.disabled = false;
+          currentReader.elements.refreshWords.disabled = false;
           currentReader.elements.refreshView.disabled = false;
           currentReader.elements.refreshColors.disabled = false;
           currentReader.elements.copyMarqueeText.disabled = false;
           currentReader.elements.speakButton.style.display = '';
+          currentReader.elements.textViewButton.style.display = '';
           currentReader.elements.bookmarksButton.style.display = '';
           currentReader.elements.controlsContainerFooter.style.display = '';
           currentReader.elements.loopToggle.style.display = '';
@@ -6291,9 +7035,8 @@
         this.searchQuery = query.trim();
         this.searchMatches = [];
         this.currentMatchIndex = -1;
-        const text = this.textToSearch;
 
-        if (!this.searchQuery || !text) {
+        if (!this.searchQuery || !this.realText2List.length) {
           this.updateProgressBar(true);
           return;
         }
@@ -6364,7 +7107,6 @@
         this.searchQuery = '';
         this.searchMatches = [];
         this.currentMatchIndex = -1;
-        this.textToSearch = '';
         this.elements.searchInput.value = '';
         this.updateProgressBar(true);
       },
@@ -6376,7 +7118,7 @@
         }
 
         this.startAnimation(false, false);
-        if (!this.previousText) {
+        if (!this.realText2List.length) {
           return;
         }
 
@@ -6390,11 +7132,13 @@
           this.elements.stopButton.disabled = true;
           this.elements.rewindButton.disabled = false;
           this.elements.fastForwardButton.disabled = false;
-          this.elements.refreshText.disabled = true;
+          this.elements.refreshSentences.disabled = true;
+          this.elements.refreshWords.disabled = true;
           this.elements.refreshView.disabled = true;
           this.elements.refreshColors.disabled = true;
           this.elements.copyMarqueeText.disabled = true;
           this.elements.speakButton.style.display = 'none';
+          this.elements.textViewButton.style.display = 'none';
           this.elements.searchButton.style.display = 'none';
           this.elements.controlsContainerFooter.style.display = '';
           this.elements.loopToggle.style.display = 'none';
@@ -6410,11 +7154,13 @@
           this.elements.stopButton.disabled = false;
           this.elements.rewindButton.disabled = false;
           this.elements.fastForwardButton.disabled = false;
-          this.elements.refreshText.disabled = false;
+          this.elements.refreshSentences.disabled = false;
+          this.elements.refreshWords.disabled = false;
           this.elements.refreshView.disabled = false;
           this.elements.refreshColors.disabled = false;
           this.elements.copyMarqueeText.disabled = false;
           this.elements.speakButton.style.display = '';
+          this.elements.textViewButton.style.display = '';
           this.elements.searchButton.style.display = '';
           this.elements.controlsContainerFooter.style.display = '';
           this.elements.loopToggle.style.display = '';
@@ -6430,7 +7176,7 @@
       loadBookmarks() {
         const currentReader = this;
         currentReader.elements.bookmarksList.innerHTML = "";
-        const bookmarks = currentReader.tmpBookmarks.sort((a, b) => a.progress - b.progress);
+        const bookmarks = currentReader.tmpBookmarks.sort((a, b) => a.wordIndex - b.wordIndex);
         bookmarks.forEach((bookmark, index) => {
           const bookmarkDiv = document.createElement("div");
           bookmarkDiv.className = "bookmark-item with-rounded-border";
@@ -6489,7 +7235,7 @@
 
         if (!currentReader.database) return;
 
-        const bookmarks = (this.isBookmarksActive ? this.tmpBookmarks : this.currentTextBookmarks).sort((a, b) => a.progress - b.progress);
+        const bookmarks = (this.isBookmarksActive ? this.tmpBookmarks : this.currentTextBookmarks).sort((a, b) => a.wordIndex - b.wordIndex);
 
         if (currentReader.currentTextName === currentReader.defaultTextName) {
           localStorage.setItem(currentReader.settingsNames.textBookmarks, JSON.stringify(bookmarks));
@@ -6546,6 +7292,409 @@
           });
           currentReader.elements.progressBarContainer.appendChild(mark);
         });
+      },
+
+      calcShannonEntropy(str) {
+        const freq = {};
+        for (const char of str) {
+          freq[char] = (freq[char] || 0) + 1;
+        }
+        let entropy = 0;
+        const len = str.length;
+        for (const char in freq) {
+          const p = freq[char] / len;
+          entropy -= p * Math.log2(p);
+        }
+        return entropy;
+      },
+
+      calculateTextParameters() {
+        if (!this.realText1List.length) {
+          return {
+            shannonEntropy: 0,
+            wordCount: 0,
+            avgWordLength: 0,
+            avgWordFrequency: 0,
+            uniqueWords: 0,
+            uniqueWordsPercent: 0,
+            complexity: 0,
+            alphabetLetters: 0,
+            alphabetLettersPercent: 0,
+            coloredLetters: 0,
+            coloredLettersPercent: 0,
+            allCharsCount: 0
+          };
+        }
+
+        /* Number of words */
+        const words = this.realText2List.filter(w => this.wordPattern.test(w));
+        const wordCount = words.length;
+
+        /* Average word length */
+        const totalWordLength = words.reduce((sum, w) => sum + w.length, 0);
+        const avgWordLength = (wordCount ? (totalWordLength / wordCount) : 0).toFixed(1);
+
+        /* Average word frequency */
+        const wordFreqMap = new Map();
+        words.forEach(word => {
+          const key = word.toLowerCase();
+          wordFreqMap.set(key, (wordFreqMap.get(key) || 0) + 1);
+        });
+        const uniqueWordCount = wordFreqMap.size;
+        const avgWordFrequency = (uniqueWordCount ? (wordCount / uniqueWordCount) : 0).toFixed(1);
+
+        /* Unique words (number/percent) */
+        const uniqueWords = uniqueWordCount;
+        const uniqueWordsPercent = (wordCount ? (uniqueWords / wordCount * 100) : 0).toFixed(1);
+
+        /* Text complexity after manipulations */
+        const complexity = this.realTextDiff.toFixed(1);
+
+        /* Alphabet letters (number/percent) */
+        const allChars = this.realText2List.join('').split('');
+        const shannonEntropy = this.calcShannonEntropy(allChars).toFixed(1);
+        const allCharsCount = allChars.length;
+        const allLetters = allChars.filter(c => /\p{L}/u.test(c));
+        const allLowercasedLetters = allLetters.map(c => c.toLowerCase());
+        const uniqueLetters = new Set(allLowercasedLetters);
+        const alphabetLetters = uniqueLetters.size;
+        const alphabetLettersPercent = (alphabetLetters ? (allLetters.length / allChars.length * 100) : 0).toFixed(1);
+
+        /* 7. Colored letters (number/percent) */
+        const coloredLettersValue = this.elements.colorEncoderToggle.checked && this.elements.textBackgroundColoringToggle.checked ? this.colorList.length : 0;
+        const coloredLetters = '' + coloredLettersValue;
+        const coloredLettersPercent = (coloredLettersValue ? (allChars.filter(c => this.colorMap.get(c)).length / allChars.length * 100) : 0).toFixed(1);
+
+        return {
+          shannonEntropy,
+          wordCount,
+          avgWordLength,
+          avgWordFrequency,
+          uniqueWords,
+          uniqueWordsPercent,
+          complexity,
+          alphabetLetters,
+          alphabetLettersPercent,
+          coloredLetters,
+          coloredLettersPercent,
+          allCharsCount
+        };
+      },
+
+      updateTextStats() {
+        this.textParameters = this.calculateTextParameters();
+        this.elements.textParameterShannonEntropyNumber.textContent = this.textParameters.shannonEntropy;
+        this.elements.textParameterWordsNumber.textContent = this.textParameters.wordCount;
+        this.elements.textParameterUniqueWordsNumber.textContent = this.textParameters.uniqueWords;
+        this.elements.textParameterUniqueWordsPercent.textContent = `${this.textParameters.uniqueWordsPercent}%`;
+        this.elements.textParameterAverageWordLength.textContent = this.textParameters.avgWordLength;
+        this.elements.textParameterAverageWordFrequency.textContent = this.textParameters.avgWordFrequency;
+        this.elements.textParameterAfterManipulationsComplexity.textContent = `${this.textParameters.complexity}`;
+        this.elements.textParameterAlphabetLettersNumber.textContent = this.textParameters.alphabetLetters;
+        this.elements.textParameterAlphabetLettersPercent.textContent = `${this.textParameters.alphabetLettersPercent}%`;
+        this.elements.textParameterLettersColoredNumber.textContent = this.textParameters.coloredLetters;
+        this.elements.textParameterLettersColoredPercent.textContent = `${this.textParameters.coloredLettersPercent}%`;
+      },
+
+      loadHistory(callback = null) {
+        const currentReader = this;
+        if (!this.database) return;
+        const transaction = currentReader.database.transaction([currentReader.settingsNames.history], 'readonly');
+        const objectStore = transaction.objectStore(currentReader.settingsNames.history);
+        const request = objectStore.getAll();
+        request.onsuccess = () => {
+          currentReader.history = (request.result || []).sort((a, b) => b.timestamp - a.timestamp);
+          currentReader.renderHistory();
+          currentReader.updateReport();
+          if (callback) {
+            callback();
+          }
+        };
+        request.onerror = (event) => {
+          const message = `Error importing history: ${event.target.error}`;
+          console.error(event.target.error);
+          alert(message);
+        };
+      },
+
+      saveHistory(callback = null) {
+        const currentReader = this;
+        if (!this.database) return;
+        const transaction = currentReader.database.transaction([currentReader.settingsNames.history], 'readwrite');
+        const objectStore = transaction.objectStore(currentReader.settingsNames.history);
+        objectStore.clear();
+        const minTimeValue = Math.max(1, parseInt(currentReader.elements.attemptMinTimeInput.value || 1));
+        this.history.forEach(item => {
+          if (item.timeSpent <= minTimeValue) {
+            return;
+          }
+          if (parseFloat(item.maxProgress) <= 0) {
+            return;
+          }
+          objectStore.add(item);
+        });
+        transaction.oncomplete = () => {
+          if (callback) {
+            callback();
+          }
+        };
+        transaction.onabort = () => {
+          console.error(transaction.error);
+          alert(transaction.error);
+        };
+      },
+
+      prevHistoryItem() {
+        const currentIndex = parseInt(this.elements.historyIndex.value || 1);
+        const prevIndex = Math.max(1, Math.min(this.history.length, currentIndex - 1));
+        this.elements.historyIndex.value = prevIndex;
+        this.renderHistory(true);
+      },
+
+      nextHistoryItem() {
+        const currentIndex = parseInt(this.elements.historyIndex.value || 1);
+        const nextIndex = Math.max(1, Math.min(this.history.length, currentIndex + 1));
+        this.elements.historyIndex.value = nextIndex;
+        this.renderHistory(true);
+      },
+
+      renderHistory(afterUpdate = false) {
+        if (!afterUpdate) {
+          this.elements.historyIndex.value = '1';
+        }
+        const currentIndex = parseInt(this.elements.historyIndex.value || 1);
+        const existingIndex = Math.max(1, Math.min(this.history.length, currentIndex));
+        this.elements.historyIndex.value = '' + existingIndex;
+        const historyList = this.elements.historyList;
+        const r = [];
+        let index = 0;
+        for (const item of this.history) {
+          const datetime = this.getStrDateTime(new Date(parseInt(item.timestamp)));
+          if (index + 1 === existingIndex) {
+            r.push(`
+      <div class="history-row with-rounded-border">
+        <div>
+          <span>Date-Time</span>
+          <span>${datetime}</span>
+        </div>
+        <div>
+          <span>Type</span>
+          <span>${item.type}</span>
+        </div>
+        <div>
+          <span>Time spent</span>
+          <span>${this.formatTime(item.timeSpent)}</span>
+        </div>
+        <div>
+          <span>Max progress</span>
+          <span>${item.maxProgress.toFixed(1)}%</span>
+        </div>
+        <div>
+          <span>Text</span>
+          <span>${item.textName}</span>
+        </div>
+        <div>
+          <span>Settings profile</span>
+          <span>${item.settingsProfileName}</span>
+        </div>
+        <div>
+          <span>Shannon entropy</span>
+          <span>${item.textParameters.shannonEntropy}</span>
+        </div>
+        <div>
+          <span>Words</span>
+          <span>${item.textParameters.wordCount}</span>
+        </div>
+        <div>
+          <span>Unique words</span>
+          <span>${item.textParameters.uniqueWords} (${item.textParameters.uniqueWordsPercent}%)</span>
+        </div>
+        <div>
+          <span>Average word length</span>
+          <span>${item.textParameters.avgWordLength}</span>
+        </div>
+        <div>
+          <span>Average word frequency</span>
+          <span>${item.textParameters.avgWordFrequency}</span>
+        </div>
+        <div>
+          <span>Complexity</span>
+          <span>${item.textParameters.complexity}</span>
+        </div>
+        <div>
+          <span>Alphabet letters</span>
+          <span>${item.textParameters.alphabetLetters} (${item.textParameters.alphabetLettersPercent}%)</span>
+        </div>
+        <div>
+          <span>Colored letters</span>
+          <span>${item.textParameters.coloredLetters} (${item.textParameters.coloredLettersPercent}%)</span>
+        </div>
+        <div>
+          <span class="mob-ta-left"><button class="delete-attempt dark-button mob-w50" data-index="${index}">Delete</button></span>
+        </div>
+      </div>
+    `);
+          }
+          index += 1;
+        }
+        historyList.innerHTML = r.join('');
+        document.querySelectorAll('.delete-attempt').forEach(button => {
+          button.addEventListener('click', () => this.deleteHistoryItem(parseInt(button.dataset.index)));
+        });
+      },
+
+      amendHistoryItemAux() {
+        if (!this.historyStatus) {
+          this.saveHistory(() => {
+            this.updateReport();
+            this.renderHistory(true);
+          });
+          return true;
+        }
+        if (!this.realText || !this.textParameters) {
+          return null;
+        }
+        if (!this.history.length || this.forceNewHistoryItem) {
+          return false;
+        }
+        const lastItem = this.history[0];
+        if (lastItem == null) {
+          return false;
+        }
+        if (this.currentTextName !== lastItem.textName || this.currentSettingsProfileName !== lastItem.settingsProfileName) {
+          return false;
+        }
+        if (this.isSpeaking && lastItem.type !== this.historyTypes.speak || !this.isSpeaking && lastItem.type === this.historyTypes.speak) {
+          return false;
+        }
+        const timeSpent = lastItem.timeSpent + (this.animationStartTime ? Math.floor((Date.now() - this.animationStartTime) / 1000) : 0);
+        const newMaxProgress = Math.max(0, Math.min(100, lastItem.maxProgress + Math.max(0, this.endProgress - this.startProgress)));
+        const item = {
+          timestamp: lastItem.timestamp,
+          type: lastItem.type,
+          timeSpent: timeSpent,
+          maxProgress: newMaxProgress,
+          textName: lastItem.textName,
+          settingsProfileName: lastItem.settingsProfileName,
+          textParameters: this.textParameters
+        };
+        this.history.shift();
+        this.history.unshift(item);
+        this.saveHistory(() => {
+          this.updateReport();
+          this.renderHistory();
+        });
+        return true;
+      },
+
+      amendHistoryItem() {
+        const r = this.amendHistoryItemAux();
+        if (r === false) {
+          this.forceNewHistoryItem = false;
+          return this.addHistoryItem(this.isSpeaking ? this.historyTypes.speak : this.historyTypes.play);
+        }
+      },
+
+      addHistoryItemAux(type) {
+        if (!this.historyStatus) {
+          return this.saveHistory(() => {
+            this.updateReport();
+            this.renderHistory(true);
+          });
+        }
+        if (!this.textParameters) {
+          return;
+        }
+        const item = {
+          timestamp: Date.now(),
+          type: type,
+          timeSpent: this.animationStartTime ? Math.floor((Date.now() - this.animationStartTime) / 1000) : 0,
+          maxProgress: 0,
+          settingsProfileName: this.currentSettingsProfileName,
+          textName: this.currentTextName,
+          textParameters: this.textParameters
+        };
+        this.history.unshift(item);
+        this.saveHistory(() => {
+          this.updateReport();
+          this.renderHistory();
+        });
+      },
+
+      addHistoryItem(type) {
+        this.addHistoryItemAux(type || (this.isSpeaking ? this.historyTypes.speak : this.historyTypes.play));
+      },
+
+      deleteHistoryItem(index) {
+        this.history.splice(index, 1);
+        this.saveHistory(() => {
+          this.updateReport();
+          this.renderHistory(true);
+        });
+      },
+
+      renderReport() {
+        this.elements.reportTodayAttempts.textContent = this.report.today.attempts;
+        this.elements.reportTodayTime.textContent = this.formatTime(this.report.today.time);
+        this.elements.report3DaysAttempts.textContent = this.report.last3Days.attempts;
+        this.elements.report3DaysTime.textContent = this.formatTime(this.report.last3Days.time);
+        this.elements.reportWeekAttempts.textContent = this.report.thisWeek.attempts;
+        this.elements.reportWeekTime.textContent = this.formatTime(this.report.thisWeek.time);
+        this.elements.reportPrevWeekAttempts.textContent = this.report.prevWeek.attempts;
+        this.elements.reportPrevWeekTime.textContent = this.formatTime(this.report.prevWeek.time);
+        this.elements.reportMonthAttempts.textContent = this.report.thisMonth.attempts;
+        this.elements.reportMonthTime.textContent = this.formatTime(this.report.thisMonth.time);
+        this.elements.reportPrevMonthAttempts.textContent = this.report.prevMonth.attempts;
+        this.elements.reportPrevMonthTime.textContent = this.formatTime(this.report.prevMonth.time);
+      },
+
+      updateReport() {
+        const now = new Date();
+        const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+        const threeDaysAgo = new Date(today.getTime() - 3 * 24 * 60 * 60 * 1000);
+        const weekStart = new Date(today.getTime() - today.getDay() * 24 * 60 * 60 * 1000);
+        const lastWeekStart = new Date(weekStart.getTime() - 7 * 24 * 60 * 60 * 1000);
+        const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+        const lastMonthStart = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+
+        this.report = {
+          today: { attempts: 0, time: 0 },
+          last3Days: { attempts: 0, time: 0 },
+          thisWeek: { attempts: 0, time: 0 },
+          prevWeek: { attempts: 0, time: 0 },
+          thisMonth: { attempts: 0, time: 0 },
+          prevMonth: { attempts: 0, time: 0 }
+        };
+
+        this.history.forEach(item => {
+          const attemptDate = new Date(item.timestamp);
+          if (attemptDate >= today) {
+            this.report.today.attempts++;
+            this.report.today.time += item.timeSpent;
+          }
+          if (attemptDate >= threeDaysAgo) {
+            this.report.last3Days.attempts++;
+            this.report.last3Days.time += item.timeSpent;
+          }
+          if (attemptDate >= weekStart) {
+            this.report.thisWeek.attempts++;
+            this.report.thisWeek.time += item.timeSpent;
+          }
+          if (attemptDate >= lastWeekStart && attemptDate < weekStart) {
+            this.report.prevWeek.attempts++;
+            this.report.prevWeek.time += item.timeSpent;
+          }
+          if (attemptDate >= monthStart) {
+            this.report.thisMonth.attempts++;
+            this.report.thisMonth.time += item.timeSpent;
+          }
+          if (attemptDate >= lastMonthStart && attemptDate < monthStart) {
+            this.report.prevMonth.attempts++;
+            this.report.prevMonth.time += item.timeSpent;
+          }
+        });
+        
+        this.renderReport();
       },
 
     };
