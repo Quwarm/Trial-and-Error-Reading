@@ -1017,11 +1017,15 @@
                 <span><span id="text-parameter-text-after-manipulations-complexity">0</span></span>
               </div>
               <div>
-                <span>Alphabet symbols</span>
+                <span>All symbols</span>
+                <span><span id="text-parameter-all-symbols-number">0</span></span>
+              </div>
+              <div>
+                <span>Unique letters</span>
                 <span><span id="text-parameter-alphabet-letters-number">0</span> (<span id="text-parameter-alphabet-letters-percent">0%</span>)</span>
               </div>
               <div>
-                <span>Colored symbols</span>
+                <span>Colored unique symbols</span>
                 <span><span id="text-parameter-letters-colored-number">0</span> (<span id="text-parameter-letters-colored-percent">0%</span>)</span>
               </div>
             </div>
@@ -2542,6 +2546,8 @@
         this.toggleMarqueeTheme();
         this.toggleColorEncoder(this.currentPosition != null);
         this.toggleColorDetails();
+        this.updateTextStats();
+        this.updateTextViewStats();
       },
 
       initialize() {
@@ -2760,6 +2766,7 @@
         this.elements.textHelper = document.getElementById('text-helper');
         this.elements.textInput = document.getElementById('text-input');
         this.elements.textParameterAfterManipulationsComplexity = document.getElementById('text-parameter-text-after-manipulations-complexity');
+        this.elements.textParameterAllSymbolsNumber = document.getElementById('text-parameter-all-symbols-number');
         this.elements.textParameterAlphabetLettersNumber = document.getElementById('text-parameter-alphabet-letters-number');
         this.elements.textParameterAlphabetLettersPercent = document.getElementById('text-parameter-alphabet-letters-percent');
         this.elements.textParameterAverageWordFrequency = document.getElementById('text-parameter-average-word-frequency');
@@ -4253,12 +4260,15 @@
                 else {
                   newTransforms.push(letterRotateSetting);
                 }
+                realTextDiffRotate += 1;
               }
               if (letterMirrorSetting) {
                 newClasses.push(letterMirrorSetting);
+                realTextDiffMirror += 1;
               }
               if (letterSkewSetting) {
                 newTransforms.push(letterSkewSetting);
+                realTextDiffSkew += 1;
               }
               if (newTransforms.length) {
                 newStyles.push('transform: ' + newTransforms.join(' '));
@@ -4290,12 +4300,15 @@
               else {
                 newTransforms.push(wordRotateSetting);
               }
+              realTextDiffRotate += 1;
             }
             if (wordMirrorSetting) {
               newClasses.push(wordMirrorSetting);
+              realTextDiffMirror += 1;
             }
             if (wordSkewSetting) {
               newTransforms.push(wordSkewSetting);
+              realTextDiffSkew += 1;
             }
             if (newTransforms.length) {
               newStyles.push('transform: ' + newTransforms.join(' '));
@@ -4329,7 +4342,10 @@
                 onclickParam = '';
               }
             }
-            const realTextDiffL = ((realTextDiffRotate - 1) + (realTextDiffMirror - 1) + (realTextDiffSkew - 1)) / finalWord.length + ((Math.max(realTextDiffLEliminate - 1, realTextDiffLSkip - 1) + Math.max(1, realTextDiffLFalse) * Math.max(1, realTextDiffLRot - 1 + Math.max(realTextDiffLReverse - 1, realTextDiffLShuffle - 1))) / Math.max(1, modifiedWord.length));
+            const realTextDiffL = (
+              (realTextDiffRotate - 1) + (realTextDiffMirror - 1) + (realTextDiffSkew - 1) +
+              Math.max(realTextDiffLEliminate - 1, realTextDiffLSkip - 1) + (realTextDiffLFalse - 1) + (realTextDiffLRot - 1) +
+              Math.max(realTextDiffLReverse - 1, realTextDiffLShuffle - 1)) / Math.max(1, modifiedWord.length);
             if (realTextDiffL > 1) {
               realTextDiffW += realTextDiffL;
             }
@@ -7534,6 +7550,7 @@
         this.elements.textParameterAverageWordLength.textContent = this.textParameters.avgWordLength;
         this.elements.textParameterAverageWordFrequency.textContent = this.textParameters.avgWordFrequency;
         this.elements.textParameterAfterManipulationsComplexity.textContent = `${this.textParameters.complexity}`;
+        this.elements.textParameterAllSymbolsNumber.textContent = this.textParameters.allCharsCount;
         this.elements.textParameterAlphabetLettersNumber.textContent = this.textParameters.alphabetLetters;
         this.elements.textParameterAlphabetLettersPercent.textContent = `${this.textParameters.alphabetLettersPercent}%`;
         this.updateTextViewStats();
@@ -7674,11 +7691,15 @@
           <span>${item.textParameters.complexity}</span>
         </div>
         <div>
-          <span>Alphabet symbols</span>
+          <span>All symbols</span>
+          <span>${item.textParameters.allCharsCount}</span>
+        </div>
+        <div>
+          <span>Unique letters</span>
           <span>${item.textParameters.alphabetLetters} (${item.textParameters.alphabetLettersPercent}%)</span>
         </div>
         <div>
-          <span>Colored symbols</span>
+          <span>Colored unique symbols</span>
           <span>${item.textParameters.coloredLetters} (${item.textParameters.coloredLettersPercent}%)</span>
         </div>
         <div>
