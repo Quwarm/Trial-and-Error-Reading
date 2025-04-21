@@ -7,6 +7,9 @@
   <title>Trial and Error Reading</title>
   <link rel="icon" type="image/png" href="favicon.png" />
   <script src="js/alphabets.js" type="text/javascript"></script>
+  <script src="js/hammer.js" type="text/javascript"></script>
+  <script src="js/chart.js" type="text/javascript"></script>
+  <script src="js/chartjs-plugin-zoom.js" type="text/javascript"></script>
   <script src="sentences/merriam_webster.js" type="text/javascript"></script>
   <script src="sentences/wordsmyth1.js" type="text/javascript"></script>
   <script src="sentences/wordsmyth2.js" type="text/javascript"></script>
@@ -838,6 +841,14 @@
       font-weight: bold;
     }
 
+    /* Chart */
+    #chart-container {
+      height: 68vh;
+      width: 50%;
+      margin: 0 auto;
+      overflow: hidden;
+    }
+
     @media (max-width: 786px) {
       button {
         width: 100%;
@@ -914,6 +925,9 @@
       }
       .mob-w50 {
         width: 50%;
+      }
+      #chart-container {
+        width: 100%;
       }
     }
   </style>
@@ -2065,6 +2079,24 @@
           </div>
         </div>
         <div class="with-rounded-border">
+          <h3>Chart</h3>
+          <div>
+            <label>
+              Range:
+              <select id="chart-time-range">
+                <option value="minute">Minute</option>
+                <option value="hour" selected>Hour</option>
+                <option value="day">Day</option>
+                <option value="month">Month</option>
+              </select>
+            </label>
+            <button id="generate-chart-button">Generate chart</button>
+          </div>
+          <div id="chart-container" style="display: none;">
+            <canvas id="chart-object" width="400" height="200"></canvas>
+          </div>
+        </div>
+        <div class="with-rounded-border">
           <div id="help-section">
             <h3>Trial and Error Reading</h3>
             <p>
@@ -2108,6 +2140,8 @@
   <div id="text-helper" style="display: none;"></div>
 
   <script>
+    Chart.register(ChartZoom);
+
     const MarqueeReader = {
       version: '2.00',
       constructed: false,
@@ -2787,6 +2821,11 @@
         this.elements.wordFalseSelect = document.getElementById('word-false-select');
         this.elements.wordShuffleSelect = document.getElementById('word-shuffle-select');
         this.elements.wordSkipSelect = document.getElementById('word-skip-select');
+        this.elements.generateChartButton = document.getElementById('generate-chart-button');
+        this.elements.chartContainer = document.getElementById('chart-container');
+        this.elements.chartObject = document.getElementById('chart-object');
+        this.elements.chartTimeRangeSelect = document.getElementById('chart-time-range');
+        this.elements.chartMetricSelect = document.getElementById('chart-metric');
 
         this.cachedContainerWidth = null;
         this.cachedTextWidth = null;
@@ -3022,6 +3061,7 @@
         this.elements.prevHistoryItemButton.addEventListener('click', () => this.prevHistoryItem());
         this.elements.nextHistoryItemButton.addEventListener('click', () => this.nextHistoryItem());
         this.elements.historyIndex.addEventListener('input', () => this.renderHistory(true));
+        this.elements.generateChartButton.addEventListener('click', () => this.generateChart());
 
         this.controlBeforeUnload();
 
@@ -3415,7 +3455,7 @@
         }
 
         if (!resume && this.elements.colorEncoderToggle.checked) {
-          palleteChanged = true;
+          const prevColorList = JSON.stringify(this.colorList);
           const currentReader = this;
           const targetSize = parseInt(this.elements.colorLetterCount.value || 0);
           const preservedColors = new Map();
@@ -3466,7 +3506,6 @@
               });
             }
           });
-
           if (this.colorMap.size < targetSize || currentSettings[this.settingsNames.colorTaskColors] !== this.previousSettings[this.settingsNames.colorTaskColors]) {
             const newColors = this.generateColors(targetSize);
             const letters = Array.from(this.colorList);
@@ -3516,6 +3555,10 @@
             }
           }
           this.colorList.sort((a, b) => a.toLowerCase().localeCompare(b.toLowerCase()));
+          const curColorList = JSON.stringify(this.colorList);
+          if (prevColorList !== curColorList) {
+            palleteChanged = true;
+          }
         }
 
         if (!resume) {
@@ -3638,6 +3681,7 @@
         this.textNeedsUpdate = false;
         this.previousSettings = currentSettings;
         this.previousPosition = this.currentPosition;
+        this.previousColorInput = this.elements.colorInput.value;
         this.wasColorTaskEnabled = this.elements.colorEncoderToggle.checked;
         this.wasColorTaskChecked = true;
 
@@ -7870,6 +7914,181 @@
         this.renderReport();
       },
 
+      generateChart() {
+        if (!this.history.length) {
+          return;
+        }
+        if (window.myChart instanceof Chart) {
+          window.myChart.destroy();
+          window.myChart = null;
+          this.elements.generateChartButton.innerHTML = 'Generate';
+          this.elements.chartContainer.style.display = 'none';
+          return;
+        }
+        this.elements.generateChartButton.innerHTML = 'Hide';
+        this.elements.chartContainer.style.display = '';
+
+        const ctx = this.elements.chartObject.getContext('2d');
+
+        const timeRangeType = this.elements.chartTimeRangeSelect.value;
+
+        const selectedMetrics = [
+          'timeSpent',
+          'allCharsCount',
+          'wordCount',
+          'complexity',
+          'shannonEntropyMin',
+          'shannonEntropyMax',
+          'minProgress',
+          'maxProgress'];
+        const selectedMetricsLabels = [
+          'Time spent (minutes)',
+          'Symbols*Progress',
+          'Words*Progress',
+          'Complexity*Progress',
+          'Shannon entropy^Min',
+          'Shannon entropy^Max',
+          'Progress^Min',
+          'Progress^Max'];
+
+        if (selectedMetrics.length === 0) {
+          alert('Please select at least one metric.');
+          return;
+        }
+
+        const dailyData = {};
+        this.history.forEach(item => {
+          const progress = item.maxProgress;
+          const floatProgress = parseFloat(progress);
+          if (!(floatProgress === floatProgress && floatProgress > 0)) {
+            return;
+          }
+          let date = this.getStrDateTime(item.timestamp).slice(0, 16);
+          if (timeRangeType === 'hour') {
+            date = date.slice(0, 13).concat(':00');
+          }
+          else if (timeRangeType === 'day') {
+            date = date.slice(0, 11);
+          }
+          else if (timeRangeType === 'month') {
+            date = date.slice(0, 7);
+          }
+          if (!dailyData[date]) {
+            dailyData[date] = {};
+            selectedMetrics.forEach(metric => {
+              dailyData[date][metric] = 0;
+            });
+          }
+          selectedMetrics.forEach(metric => {
+            if (metric === 'timeSpent') {
+              dailyData[date][metric] += Math.ceil(item[metric] / 60);
+            } else {
+              const value = metric.includes('shannonEntropy') ? item.textParameters['shannonEntropy'] : item.textParameters[metric];
+              const floatValue = parseFloat(value);
+              const intValue = parseInt(value);
+              const rValue = floatValue === floatValue && floatValue >= 0 ? Math.ceil(floatValue * floatProgress / 100) : (
+                intValue === intValue && intValue >= 0 ? Math.ceil(intValue * floatProgress / 100) : value
+              );
+              if (metric === 'shannonEntropyMin') {
+                dailyData[date][metric] = Math.min(dailyData[date][metric] || floatValue, floatValue);
+              }
+              else if (metric === 'shannonEntropyMax') {
+                dailyData[date][metric] = Math.max(dailyData[date][metric] || floatValue, floatValue);
+              }
+              else if (metric === 'minProgress') {
+                dailyData[date][metric] = Math.min(dailyData[date][metric] || floatProgress, floatProgress);
+              }
+              else if (metric === 'maxProgress') {
+                dailyData[date][metric] = Math.max(dailyData[date][metric] || floatProgress, floatProgress);
+              }
+              else {
+                dailyData[date][metric] += rValue;
+              }
+            }
+          });
+        });
+
+        const labels = Object.keys(dailyData).sort();
+        const datasets = selectedMetrics.map((metric, index) => ({
+          label: selectedMetricsLabels[index],
+          data: labels.map(date => dailyData[date][metric]),
+          borderColor: `rgba(${Math.random() * 255}, ${Math.random() * 255}, ${Math.random() * 255}, 1)`,
+          backgroundColor: `rgba(${Math.random() * 255}, ${Math.random() * 255}, ${Math.random() * 255}, 0.2)`,
+          fill: true,
+          tension: 0.3,
+          hidden: metric !== 'timeSpent'
+        }));
+
+        if (window.myChart instanceof Chart) {
+          window.myChart.destroy();
+          window.myChart = null;
+        }
+
+        window.myChart = new Chart(ctx, {
+          type: 'line',
+          data: {
+            labels: labels,
+            datasets: datasets
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+              x: {
+                title: {
+                  display: true,
+                  text: 'Date',
+                },
+              },
+              y: {
+                beginAtZero: true,
+                title: {
+                  display: true,
+                  text: 'Value',
+                },
+              }
+            },
+            pan: {
+              enabled: true,
+              mode: 'x',
+              modifierKey: null,
+            },
+            zoom: {
+              enabled: true,
+              mode: 'x',
+            },
+            plugins: {
+              legend: {
+                position: 'top',
+              },
+              title: {
+                display: false,
+                text: '',
+              },
+              zoom: {
+                pan: {
+                  enabled: true,
+                  mode: 'x',
+                  modifierKey: null,
+                },
+                zoom: {
+                  wheel: {
+                    enabled: true,
+                    speed: 0.1
+                  },
+                  pinch: {
+                    enabled: false
+                  },
+                  drag: {
+                    enabled: false
+                  },
+                  mode: 'x',
+                }
+              }
+            }
+          }
+        });
+      }
     };
 
     document.addEventListener('DOMContentLoaded', () => {
