@@ -203,6 +203,11 @@
       margin: 1px;
     }
 
+    #progress-display, #color-details {
+      margin-top: 5px;
+      margin-bottom: 5px;
+    }
+
     /* Padding */
     button, .tab-button {
       padding: 10px 15px;
@@ -1012,11 +1017,11 @@
                 <span><span id="text-parameter-text-after-manipulations-complexity">0</span></span>
               </div>
               <div>
-                <span>Alphabet letters</span>
+                <span>Alphabet symbols</span>
                 <span><span id="text-parameter-alphabet-letters-number">0</span> (<span id="text-parameter-alphabet-letters-percent">0%</span>)</span>
               </div>
               <div>
-                <span>Colored letters</span>
+                <span>Colored symbols</span>
                 <span><span id="text-parameter-letters-colored-number">0</span> (<span id="text-parameter-letters-colored-percent">0%</span>)</span>
               </div>
             </div>
@@ -1027,7 +1032,7 @@
           <button id="refresh-words" class="gray-button" disabled>↻ Words ↻ <kbd>W</kbd></button>
           <button id="refresh-view" class="gray-button" disabled>↻ View ↻ <kbd>V</kbd></button>
           <br>
-          <button id="refresh-sentences" class="gray-button" disabled>↻ Sentences ↻</button>
+          <button id="refresh-sentences" class="gray-button" disabled>↻ Word order ↻</button>
           <button id="refresh-colors" class="gray-button" disabled>↻ Colors ↻</button>
           <br>
           <button id="copy-marquee-text" class="gray-button" disabled>Copy text</button>
@@ -1327,11 +1332,11 @@
                 <option value="words_180">Words 180&deg;</option>
                 <option value="words_1_-1">Words 1&deg;, -1&deg;</option>
                 <option value="words_181_-181">Words 181&deg;, -181&deg;</option>
-                <option value="words_1_-1_181_-181">Words 1&deg;, -1&deg; 181&deg;, -181&deg;</option>
+                <option value="words_1_-1_181_-181">Words 1&deg;, -1&deg;, 181&deg;, -181&deg;</option>
                 <option value="random_words_180">Random words 180&deg;</option>
                 <option value="random_words_1_-1">Random words 1&deg;, -1&deg;</option>
                 <option value="random_words_181_-181">Random words 181&deg;, -181&deg;</option>
-                <option value="random_words_1_-1_181_-181">Random words 1&deg;, -1&deg; 181&deg;, -181&deg;</option>
+                <option value="random_words_1_-1_181_-181">Random words 1&deg;, -1&deg;, 181&deg;, -181&deg;</option>
               </select>
             </label>
           </div>
@@ -2060,9 +2065,9 @@
             <h3>Trial and Error Reading</h3>
             <p>
               Trial and Error Reading is a web-based platform designed to enhance cognitive abilities
-              through the iterative decoding of encoded text. By manipulating text and applying transformations
+              through the iterative decoding of encoded text. By manipulating text and applying transformations to it,
               the platform transforms reading into a challenging puzzle-solving exercise.
-              This approach fosters skills including pattern recognition, problem-solving, intuition, working memory,
+              This approach fosters skills such as pattern recognition, problem-solving, intuition, working memory,
               and language proficiency.
             </p>
             <h3>How to use it?</h3>
@@ -2130,7 +2135,7 @@
       startProgress: 0,
       endProgress: 0,
       wasColorTaskEnabled: null,
-      wasColorTaskChecked: true,
+      wasColorTaskChecked: false,
       isLoopEnabled: false,
       wordCount: 0,
 
@@ -2900,7 +2905,12 @@
         this.elements.dumpColors.addEventListener('click', () => this.dumpColorMap());
         this.elements.showColorInfoToggle.addEventListener('click', () => this.toggleColorDetails());
         this.elements.appendTextToggle.addEventListener('click', () => this.toggleAppendText());
-        this.elements.refreshSentences.addEventListener('click', () => this.refreshMarqueeSentences());
+        this.elements.refreshSentences.addEventListener('click', () => {
+          if (!confirm('Are you sure you want to refresh the word order?')) {
+            return;
+          }
+          currentReader.refreshMarqueeSentences();
+        });
         this.elements.refreshWords.addEventListener('click', () => this.refreshMarqueeWords());
         this.elements.refreshView.addEventListener('click', () => this.refreshMarqueeView());
         this.elements.refreshColors.addEventListener('click', () => {
@@ -3591,7 +3601,12 @@
           );
           this.realText2List = this.elements.marqueeDisplay.textContent.split(/\s+/);
           this.wordCount = this.realText2List.length;
-          this.updateTextStats();
+          if (textNeedsUpdate) {
+            this.updateTextStats();
+          }
+          if (colorsNeedsUpdate) {
+            this.updateTextViewStats();
+          }
         }
 
         if (!resume) {
@@ -3943,10 +3958,6 @@
         const textSkewSetting = settingSkew1 ? getRandomSkewStyle() : '';
 
         const wordHint1 = wordSkipMatch != null ||
-                          settingRotate ||
-                          settingMirror ||
-                          settingSkew ||
-                          colorEncoderToggleChecked ||
                           wordHint1Pre;
         const wordHint2 = letterSkipMatch != null ||
                           letterReverseCheck ||
@@ -4182,6 +4193,9 @@
                   ? getRandomSkewStyle()
                   : '');
 
+            wordHint1Pre = false;
+            wordHint2Pre = false;
+
             const finalWord = Array.from(modifiedWord).map((char) => {
 
               const letterRotateSetting = textLettersRotateSetting
@@ -4257,6 +4271,9 @@
                   newClasses.push(v);
                 }
               }
+              if (newClasses.length > 1 || newStyles.length > 0) {
+                wordHint1Pre = true;
+              }
               const newClassesString = newClasses.join(' ');
               const newStyleString = newStyles.length ? ` style="${newStyles.join(';')}"` : '';
               if (newClasses.length > 0 || newStyles.length > 0) {
@@ -4284,6 +4301,9 @@
               newStyles.push('transform: ' + newTransforms.join(' '));
             }
 
+            if (newClasses.length > 1 || newStyles.length > 0) {
+              wordHint1Pre = true;
+            }
             const currentRefWord = (processedRefWords[processedWordIndex] || word);
             const hasSpan = !shouldModify && processedWordIndex < wordsSpans.length;
             const hadNewWordMark = hasSpan && wordsSpans[processedWordIndex].classList.contains(this.newWordMark);
@@ -4291,11 +4311,9 @@
             const newClassesString = newClasses.join(' ');
             const newStyleString = newStyles.length ? ` style="${newStyles.join(';')}"` : '';
 
-            let onclickParam = '';
-            if (hasSpan) {
-              onclickParam = ' onclick="' + wordsSpans[processedWordIndex].getAttribute('onclick') + '"';
-            }
-            else if (wordHint2 && modifiedWord !== currentRefWord) {
+            const onclickFromSpan = hasSpan ? (wordsSpans[processedWordIndex].getAttribute('onclick') || '') : '';
+            let onclickParam = onclickFromSpan;
+            if ((wordHint2 || wordHint2Pre) && modifiedWord !== currentRefWord) {
               if (finalWord !== modifiedWord) {
                 onclickParam = ` onclick="MarqueeReader.showWordHint('${escapeString(modifiedWord)}', '${escapeString(currentRefWord)}')"`;
               }
@@ -4304,7 +4322,7 @@
               }
             }
             else {
-              if (wordHint1 && finalWord !== currentRefWord) {
+              if ((wordHint1 || wordHint1Pre) && finalWord !== currentRefWord) {
                 onclickParam = ` onclick="MarqueeReader.showWordHint('${escapeString(currentRefWord)}')"`;
               }
               else {
@@ -5617,9 +5635,10 @@
 
       updateAnimationInfoCycle() {
         this.updateProgressBar();
-        this.elements.progressDisplay.innerHTML = this.formatTime(this.infoSecondsRemaining);
-        this.elements.progressDisplay.innerHTML += `<br>WPM: ${this.infoWPM}`;
-        this.elements.progressDisplay.innerHTML += this.infoProgress ? `<br>Progress: ${(0.0 + this.infoProgress).toFixed(1)}%` : '';
+        const s = this.formatTime(this.infoSecondsRemaining).concat(`<br>WPM: ${this.infoWPM}`).concat(this.infoProgress ? `<br>Progress: ${(0.0 + this.infoProgress).toFixed(1)}%` : '');
+        if (s !== this.elements.progressDisplay.innerHTML) {
+          this.elements.progressDisplay.innerHTML = s;
+        }
         if (this.database && this.currentTextName === this.defaultTextName && this.elements.textInput.value.length > this.defaultTextUpperLimit) {
           this.elements.textInput.value = this.elements.textInput.value.slice(0, this.defaultTextUpperLimit);
           setTimeout(() => alert(`The Default text cannot contain more than ${this.defaultTextUpperLimit} characters (and is originally intended for fallback in case the database is unavailable). Create a new text for a larger available size.`));
@@ -7439,8 +7458,6 @@
             complexity: 0,
             alphabetLetters: 0,
             alphabetLettersPercent: 0,
-            coloredLetters: 0,
-            coloredLettersPercent: 0,
             allCharsCount: 0
           };
         }
@@ -7479,11 +7496,6 @@
         const alphabetLetters = uniqueLetters.size;
         const alphabetLettersPercent = (alphabetLetters ? (allLetters.length / allChars.length * 100) : 0).toFixed(1);
 
-        /* 7. Colored letters (number/percent) */
-        const coloredLettersValue = this.elements.colorEncoderToggle.checked && this.elements.textBackgroundColoringToggle.checked ? this.colorList.length : 0;
-        const coloredLetters = '' + coloredLettersValue;
-        const coloredLettersPercent = (coloredLettersValue ? (allChars.filter(c => this.colorMap.get(c)).length / allChars.length * 100) : 0).toFixed(1);
-
         return {
           shannonEntropy,
           wordCount,
@@ -7494,14 +7506,27 @@
           complexity,
           alphabetLetters,
           alphabetLettersPercent,
-          coloredLetters,
-          coloredLettersPercent,
           allCharsCount
         };
       },
 
+      calculateTextViewParameters() {
+        /* Colored symbols (number/percent) */
+        const allChars = this.realText2List.join('').split('');
+        const coloredLettersValue = this.elements.colorEncoderToggle.checked && this.elements.textBackgroundColoringToggle.checked ? this.colorList.length : 0;
+        const coloredLetters = coloredLettersValue;
+        const coloredLettersPercent = (coloredLettersValue ? (allChars.filter(c => this.colorMap.get(c)).length / allChars.length * 100) : 0).toFixed(1);
+        return {
+          coloredLetters,
+          coloredLettersPercent,
+        };
+      },
+
       updateTextStats() {
-        this.textParameters = this.calculateTextParameters();
+        this.textParameters = {
+          ...this.textParameters,
+          ...this.calculateTextParameters()
+        };
         this.elements.textParameterShannonEntropyNumber.textContent = this.textParameters.shannonEntropy;
         this.elements.textParameterWordsNumber.textContent = this.textParameters.wordCount;
         this.elements.textParameterUniqueWordsNumber.textContent = this.textParameters.uniqueWords;
@@ -7511,6 +7536,14 @@
         this.elements.textParameterAfterManipulationsComplexity.textContent = `${this.textParameters.complexity}`;
         this.elements.textParameterAlphabetLettersNumber.textContent = this.textParameters.alphabetLetters;
         this.elements.textParameterAlphabetLettersPercent.textContent = `${this.textParameters.alphabetLettersPercent}%`;
+        this.updateTextViewStats();
+      },
+
+      updateTextViewStats() {
+        this.textParameters = {
+          ...this.textParameters,
+          ...this.calculateTextViewParameters()
+        };
         this.elements.textParameterLettersColoredNumber.textContent = this.textParameters.coloredLetters;
         this.elements.textParameterLettersColoredPercent.textContent = `${this.textParameters.coloredLettersPercent}%`;
       },
@@ -7641,11 +7674,11 @@
           <span>${item.textParameters.complexity}</span>
         </div>
         <div>
-          <span>Alphabet letters</span>
+          <span>Alphabet symbols</span>
           <span>${item.textParameters.alphabetLetters} (${item.textParameters.alphabetLettersPercent}%)</span>
         </div>
         <div>
-          <span>Colored letters</span>
+          <span>Colored symbols</span>
           <span>${item.textParameters.coloredLetters} (${item.textParameters.coloredLettersPercent}%)</span>
         </div>
         <div>
