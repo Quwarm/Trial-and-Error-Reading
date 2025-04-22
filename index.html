@@ -637,7 +637,7 @@
       box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
       direction: ltr;
       background-color: var(--container-background);
-      overflow: clip;
+      overflow: hidden;
     }
 
     #marquee-display {
@@ -645,7 +645,7 @@
       white-space: nowrap;
       line-height: 60px;
       text-align: right;
-      overflow: clip;
+      overflow: hidden;
     }
 
     #settings-profile-select, #text-select {
@@ -667,11 +667,12 @@
 
     .marquee-letter-span[onclick], .marquee-word-span[onclick] {
       cursor: pointer;
-      overflow: clip;
+      overflow: hidden;
     }
 
     .marquee-word-span {
       display: inline-block;
+      vertical-align: top;
     }
 
     .marquee-letter-span {
@@ -850,7 +851,7 @@
 
     /* Chart */
     #chart-container {
-      height: 68vh;
+      height: calc(max(68vh, 300px));
       width: 50%;
       margin: 0 auto;
       overflow: hidden;
@@ -1304,15 +1305,19 @@
               <span>Shuffle words:</span>
               <select id="word-shuffle-select">
                 <option value="no">-</option>
-                <option value="2_words">2 words</option>
-                <option value="3_words">3 words</option>
-                <option value="4_words">4 words</option>
-                <option value="5_words">5 words</option>
-                <option value="6_words">6 words</option>
-                <option value="7_words">7 words</option>
-                <option value="8_words">8 words</option>
-                <option value="9_words">9 words</option>
-                <option value="10_words">10 words</option>
+                <option value="2_words">2 consecutive</option>
+                <option value="3_words">3 consecutive</option>
+                <option value="4_words">4 consecutive</option>
+                <option value="5_words">5 consecutive</option>
+                <option value="6_words">6 consecutive</option>
+                <option value="7_words">7 consecutive</option>
+                <option value="8_words">8 consecutive</option>
+                <option value="9_words">9 consecutive</option>
+                <option value="10_words">10 consecutive</option>
+                <option value="-1_words">Sentence (easy)</option>
+                <option value="-2_words">Sentence (medium)</option>
+                <option value="-3_words">Sentence (hard/1)</option>
+                <option value="-4_words">Sentence (hard/2)</option>
               </select>
             </label>
           </div>
@@ -1480,6 +1485,13 @@
           <button id="save-text-button" class="blue-button">Save</button>
           <button id="clear-text-button" class="dark-button">Clear</button>
           <button id="delete-text-button" class="dark-button">Delete</button>
+        </div>
+        <br>
+        <div>
+          <label>
+            <input type="checkbox" id="show-hide-text-toggle">
+            <span>Show text</span>
+          </label>
         </div>
         <div>
           <label>
@@ -2362,6 +2374,7 @@
         activeTab: 'sle_active_tab',
         lastPosition: 'sle_last_position',
         attemptMinTime: 'sle_attempt_min_time',
+        showHideTextToggle: 'sle_show_hide_text_toggle',
 
         /* text-to-speech */
         voiceButton: 'sle_voice_button',
@@ -2776,6 +2789,7 @@
         this.elements.settingsProfileSelect = document.getElementById('settings-profile-select');
         this.elements.showBookmarksButtonToggle = document.getElementById('show-bookmarks-button-toggle');
         this.elements.showColorInfoToggle = document.getElementById('show-color-info-toggle');
+        this.elements.showHideTextToggle = document.getElementById('show-hide-text-toggle');
         this.elements.showSearchButtonToggle = document.getElementById('show-search-button-toggle');
         this.elements.showSpeakButtonToggle = document.getElementById('show-speak-button-toggle');
         this.elements.showTextViewButtonToggle = document.getElementById('show-text-view-button-toggle');
@@ -3069,6 +3083,7 @@
         this.elements.nextHistoryItemButton.addEventListener('click', () => this.nextHistoryItem());
         this.elements.historyIndex.addEventListener('input', () => this.renderHistory(true));
         this.elements.generateChartButton.addEventListener('click', () => this.generateChart());
+        this.elements.showHideTextToggle.addEventListener('click', () => this.toggleShowHideText());
 
         this.controlBeforeUnload();
 
@@ -3230,6 +3245,8 @@
         this.toggleHistoryEnable();
         this.elements.showSearchButtonToggle.checked = localStorage.getItem(this.settingsNames.searchButton) === 'true';
         this.toggleSearchButton();
+        this.elements.showHideTextToggle.checked = localStorage.getItem(this.settingsNames.showHideTextToggle) !== 'false';
+        this.toggleShowHideText();
         const importDataReplacementValue = localStorage.getItem(this.settingsNames.importDataReplacement) || this.importDataReplacementVariants.replaceIfProvided;
         this.elements.importDataReplacement.forEach((elem) => {
           if (elem.value === importDataReplacementValue) {
@@ -3438,7 +3455,7 @@
           }
           this.realText1List = realText1.split(/\s+/);
           this.realText1RefList = realText1Ref.split(/\s+/);
-          const wordsNPattern = /(\d+)_words?/;
+          const wordsNPattern = /(\-?\d+)_words?/;
           const wordShuffleSelectValue = this.elements.wordShuffleSelect.value;
           const wordShuffleMatch = wordShuffleSelectValue !== 'no' ? wordsNPattern.exec(wordShuffleSelectValue) : null;
           const wordShuffleNumber = wordShuffleMatch ? parseInt(wordShuffleMatch[1]) : 0;
@@ -3450,7 +3467,36 @@
               const nextWord = this.realText1List[shuffledIndices[i]];
               const nextRefWord = this.realText1RefList[shuffledIndices[i]];
               const origWord = this.realText1RefList[i];
-              newWords.push(nextWord);
+              if (wordShuffleNumber >= -3) {
+                newWords.push(i !== shuffledIndices[i] ? nextWord[0].toLowerCase().concat(nextWord.slice(1)) : nextWord);
+                newRefWords.push(`${origWord} [${nextRefWord}]`);
+                kDiff += Math.abs(i - shuffledIndices[i]);
+                continue;
+              }
+              const tNextWord = Array.from(nextWord).filter(v => this.letterPattern.test(v)).join('');
+              const prevWord = this.realText1List[i], newNextWordList = [];
+              let state = 0;
+              for (const ch of prevWord) {
+                if (state === 0) {
+                  if (this.isLetter(ch)) {
+                    newNextWordList.push(...tNextWord);
+                    state = 1;
+                    continue;
+                  }
+                  newNextWordList.push(ch);
+                }
+                else if (state === 1) {
+                  if (!this.isLetter(ch)) {
+                    newNextWordList.push(ch);
+                  }
+                }
+              }
+              const rNextWord = newNextWordList.join('');
+              const rrNextWord = (rNextWord && i !== shuffledIndices[i] ? rNextWord[0].toLowerCase().concat(rNextWord.slice(1)) : rNextWord) || nextWord;
+              if (!rrNextWord) {
+                continue;
+              }
+              newWords.push(rrNextWord);
               newRefWords.push(`${origWord} [${nextRefWord}]`);
               kDiff += Math.abs(i - shuffledIndices[i]);
             }
@@ -3462,7 +3508,7 @@
         }
 
         if (!resume && this.elements.colorEncoderToggle.checked) {
-          const prevColorList = JSON.stringify(this.colorList);
+          const prevColorList = JSON.stringify(this.colorMap.entries());
           const currentReader = this;
           const targetSize = parseInt(this.elements.colorLetterCount.value || 0);
           const preservedColors = new Map();
@@ -3562,7 +3608,7 @@
             }
           }
           this.colorList.sort((a, b) => a.toLowerCase().localeCompare(b.toLowerCase()));
-          const curColorList = JSON.stringify(this.colorList);
+          const curColorList = JSON.stringify(this.colorMap.entries());
           if (prevColorList !== curColorList) {
             palleteChanged = true;
           }
@@ -4337,7 +4383,7 @@
               }
               const newClassesString = newClasses.join(' ');
               const newStyleString = newStyles.length ? ` style="${newStyles.join(';')}"` : '';
-              if (newClasses.length > 0 || newStyles.length > 0) {
+              if (newClasses.length > 1 || newStyles.length > 0) {
                 formatted = `<span class="marquee-letter-span${newClassesString}"${newStyleString}>${formatted}</span>`;
               }
               return formatted;
@@ -4478,21 +4524,43 @@
       shuffleWordGroups(words, groupSize) {
         const shuffledIndices = [];
         for (let start = 0; start < words.length;) {
-          let groupWords = words.slice(start, start + groupSize);
-          const subGroupWords = [groupWords[0]];
-          const notLetter = this.notLetterPattern.test(groupWords[0]);
-          for (let j = 1; j < groupWords.length; j++) {
-            if (notLetter || this.notLetterPattern.test(groupWords[j])) {
-              break;
+          let groupWords = [];
+          if (groupSize < 0) {
+            let end;
+            for (end = start; end < words.length; ++end) {
+              const word = words[end];
+              if (word.indexOf('?') >= 0 || word.indexOf('!') >= 0 || word.indexOf('.') >= 0) {
+                break;
+              }
             }
-            subGroupWords.push(groupWords[j]);
+            groupWords = words.slice(start, end + 1);
           }
-          groupWords = subGroupWords;
+          else {
+            groupWords = words.slice(start, start + groupSize);
+          }
+          if (groupWords.length === 0) {
+            break;
+          }
+          if (groupSize >= -1) {
+            const subGroupWords = [groupWords[0]];
+            const notLetter = this.notLetterPattern.test(groupWords[0]);
+            for (let j = 1; j < groupWords.length; j++) {
+              const word = groupWords[j];
+              if (notLetter || this.notLetterPattern.test(word)) {
+                break;
+              }
+              subGroupWords.push(word);
+            }
+            groupWords = subGroupWords;
+          }
           const groupLength = groupWords.length;
           const shuffleableIndices = [];
           const fixedIndices = new Set();
           for (let j = 0; j < groupLength; j++) {
-            if (!this.notLetterPattern.test(groupWords[j]) && this.wordPattern.test(groupWords[j])) {
+              const word = groupWords[j];
+              if (!this.notLetterPattern.test(word) && this.wordPattern.test(word)
+                || groupSize === -3 && !(word.indexOf('?') >= 0 || word.indexOf('!') >= 0 || word.indexOf('.') >= 0)
+                || groupSize === -4) {
               shuffleableIndices.push(j);
             }
             else {
@@ -4787,6 +4855,17 @@
         }
       },
 
+      toggleShowHideText() {
+        const visible = this.elements.showHideTextToggle.checked;
+        if (visible) {
+          this.elements.textInput.style.display = '';
+        }
+        else {
+          this.elements.textInput.style.display = 'none';
+        }
+        localStorage.setItem(this.settingsNames.showHideTextToggle, visible);
+      },
+
       toggleLoop() {
         this.isLoopEnabled = !this.isLoopEnabled;
         this.elements.loopToggle.classList.toggle('active');
@@ -4809,18 +4888,33 @@
       },
 
       getNextName(currentName, allNames) {
-        const regex = /(?<=[([{])\d+(?=[)\]}]?$)/;
-        let tmpName = currentName;
+        let tmpName = currentName.trim();
         while (allNames.includes(tmpName)) {
-          const match = tmpName.match(regex);
-          if (match) {
-            const number = match ? parseInt(match[0]) : 0;
-            const nextNumber = (number === number) ? number + 1 : 1;
-            const newName = [...tmpName.slice(0, match.index), '' + nextNumber, ...tmpName.slice(match.index + match.length)];
-            tmpName = newName.join('');
+          let number = 0;
+          let prefix = tmpName;
+          let found = false;
+          for (const [open, close] of [['(', ')'], ['[', ']'], ['{', '}']]) {
+            if (tmpName.endsWith(close)) {
+              const lastOpen = tmpName.lastIndexOf(open);
+              if (lastOpen !== -1) {
+                const numStr = tmpName.slice(lastOpen + 1, -1);
+                number = parseInt(numStr);
+                if (number === number) {
+                  prefix = tmpName.slice(0, lastOpen).trim();
+                  found = true;
+                  break;
+                }
+                else {
+                  number = 0;
+                }
+              }
+            }
           }
-          else {
-            tmpName += ` (1)`;
+          if (found) {
+            const nextNumber = number + 1;
+            tmpName = `${prefix} (${nextNumber})`;
+          } else {
+            tmpName = `${tmpName} (1)`;
           }
         }
         return tmpName;
