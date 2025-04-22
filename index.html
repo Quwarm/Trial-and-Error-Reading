@@ -635,7 +635,6 @@
       padding-left: 2px;
       padding-right: 2px;
       box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-      direction: ltr;
       background-color: var(--container-background);
       overflow: hidden;
     }
@@ -1343,6 +1342,15 @@
         <hr>
         <div>
           <h3>View</h3>
+          <div>
+            <label>
+              <span>Text direction:</span>
+              <select id="text-direction-select">
+                <option value="ltr">Left to Right</option>
+                <option value="rtl">Right to Left</option>
+              </select>
+            </label>
+          </div>
           <div>
             <label>
               <span>Marquee theme:</span>
@@ -2357,6 +2365,7 @@
         skewingNumberMax: 'sle_skewing_number_max',
         textSize: 'sle_text_size',
         marqueeTheme: 'sle_marquee_theme',
+        textDirection: 'sle_text_direction',
 
         /* non-profile settings */
         showColorInfoToggle: 'sle_show_color_info_toggle',
@@ -2435,6 +2444,7 @@
         settings[this.settingsNames.skewingNumberMax] = '30';
         settings[this.settingsNames.textSize] = '42';
         settings[this.settingsNames.marqueeTheme] = 'marquee-theme-1';
+        settings[this.settingsNames.textDirection] = 'ltr';
         return settings;
       },
 
@@ -2476,6 +2486,7 @@
         settings[this.settingsNames.skewingNumberMax] = this.elements.skewingNumberMax.value;
         settings[this.settingsNames.textSize] = this.elements.fontSizeNumber.value;
         settings[this.settingsNames.marqueeTheme] = this.elements.marqueeThemeSelect.value;
+        settings[this.settingsNames.textDirection] = this.elements.textDirectionSelect.value;
         return settings;
       },
 
@@ -2592,6 +2603,9 @@
         currentKey = this.settingsNames.marqueeTheme;
         this.elements.marqueeThemeSelect.value = keys.includes(currentKey) ? settingsProfileData[currentKey] : defaultSettings[currentKey];
 
+        currentKey = this.settingsNames.textDirection;
+        this.elements.textDirectionSelect.value = keys.includes(currentKey) ? settingsProfileData[currentKey] : defaultSettings[currentKey];
+
         this.adjustSpeed(this.elements.speedNumber.value);
         this.adjustFontSize(this.elements.fontSizeNumber.value);
         this.toggleRotN();
@@ -2600,6 +2614,7 @@
         this.toggleMarqueeTheme();
         this.toggleColorEncoder(this.currentPosition != null);
         this.toggleColorDetails();
+        this.toggleTextDirection();
         this.updateTextStats();
         this.updateTextViewStats();
       },
@@ -2677,6 +2692,7 @@
         this.elements.colorEncoderToggle = document.getElementById('color-encoder-toggle');
         this.elements.colorInput = document.getElementById('color-input');
         this.elements.colorLetterCount = document.getElementById('color-letter-count');
+        this.elements.controlsContainer = document.getElementById('controls-container');
         this.elements.controlsContainerFooter = document.getElementById('controls-container-footer');
         this.elements.copyCurrentText = document.getElementById('copy-current-text');
         this.elements.copyMarqueeText = document.getElementById('copy-marquee-text');
@@ -2818,6 +2834,7 @@
         this.elements.tabContents = document.querySelectorAll('.tab-content');
         this.elements.tabNavigation = document.getElementById('tab-navigation');
         this.elements.textBackgroundColoringToggle = document.getElementById('text-background-coloring-toggle');
+        this.elements.textDirectionSelect = document.getElementById('text-direction-select');
         this.elements.textHelper = document.getElementById('text-helper');
         this.elements.textInput = document.getElementById('text-input');
         this.elements.textParameterAfterManipulationsComplexity = document.getElementById('text-parameter-text-after-manipulations-complexity');
@@ -3084,6 +3101,7 @@
         this.elements.historyIndex.addEventListener('input', () => this.renderHistory(true));
         this.elements.generateChartButton.addEventListener('click', () => this.generateChart());
         this.elements.showHideTextToggle.addEventListener('click', () => this.toggleShowHideText());
+        this.elements.textDirectionSelect.addEventListener('input', () => this.toggleTextDirection());
 
         this.controlBeforeUnload();
 
@@ -3132,6 +3150,7 @@
         this.elements.wordFalseSelect.addEventListener('input', settingsProfileModified);
         this.elements.wordShuffleSelect.addEventListener('input', settingsProfileModified);
         this.elements.wordSkipSelect.addEventListener('input', settingsProfileModified);
+        this.elements.textDirectionSelect.addEventListener('click', settingsProfileModified);
 
         document.addEventListener('keydown', e => this.handleKeyPress(e));
         window.addEventListener('resize', () => {
@@ -4866,6 +4885,24 @@
         localStorage.setItem(this.settingsNames.showHideTextToggle, visible);
       },
 
+      toggleTextDirection() {
+        const textDirectionValue = this.elements.textDirectionSelect.value;
+        if (textDirectionValue === 'ltr') {
+          this.elements.progressBarContainer.style.direction = '';
+          this.elements.controlsContainer.style.direction = '';
+          this.elements.marqueeContainer.style.transform = '';
+          this.elements.marqueeDisplay.style.transform = '';
+          this.elements.marqueeDisplay.style.direction = 'ltr';
+        }
+        else if (textDirectionValue === 'rtl') {
+          this.elements.progressBarContainer.style.direction = 'rtl';
+          this.elements.controlsContainer.style.direction = 'rtl';
+          this.elements.marqueeContainer.style.transform = 'scale(-1, 1)';
+          this.elements.marqueeDisplay.style.transform = 'scale(-1, 1)';
+          this.elements.marqueeDisplay.style.direction = 'rtl';
+        }
+      },
+
       toggleLoop() {
         this.isLoopEnabled = !this.isLoopEnabled;
         this.elements.loopToggle.classList.toggle('active');
@@ -5908,7 +5945,7 @@
           const startPos = containerWidth;
           const endPos = -textWidth;
 
-          const progress = clickX / rect.width;
+          const progress = (this.elements.progressBarContainer.style.direction === 'rtl' ? rect.width - clickX : clickX) / rect.width;
           this.currentPosition = this.getPositionByProgress(progress * 100);
           this.elements.marqueeDisplay.style.left = `${this.currentPosition}px`;
           this.savePosition();
