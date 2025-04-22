@@ -6958,17 +6958,35 @@
       },
 
       downloadExportFile(data, dataInfoTag) {
-        const jsonString = JSON.stringify(data, null, 2);
-        const blob = new Blob([jsonString], { type: 'application/json' });
-        const url = window.URL.createObjectURL(blob);
-        const link = document.createElement('a');
-        link.href = url;
-        const datetimeString = this.getStrDateTime().replaceAll(':', '.').replaceAll(' ', '_');
-        link.download = `reading_${dataInfoTag}_${datetimeString}.json`;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        window.URL.revokeObjectURL(url);
+        try {
+          const jsonString = JSON.stringify(data, null, 2);
+          const blob = new Blob([jsonString], { type: 'application/json' });
+          const reader = new FileReader();
+
+          reader.onloadend = () => {
+            const base64data = reader.result.split(',')[1];
+            const datetimeString = this.getStrDateTime().replaceAll(':', '.').replaceAll(' ', '_');
+            const fileName = `reading_${dataInfoTag}_${datetimeString}.json`;
+
+            if (window.Android) {
+              window.Android.startDownload(fileName, base64data, 'application/json');
+            } else {
+              const url = window.URL.createObjectURL(blob);
+              const link = document.createElement('a');
+              link.href = url;
+              link.download = fileName;
+              document.body.appendChild(link);
+              link.click();
+              setTimeout(() => {
+                document.body.removeChild(link);
+                window.URL.revokeObjectURL(url);
+              }, 0);
+            }
+          };
+          reader.readAsDataURL(blob);
+        } catch (e) {
+          console.error("Download error: ", e);
+        }
       },
 
       locationReload() {
