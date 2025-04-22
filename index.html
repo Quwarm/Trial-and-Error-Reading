@@ -7010,6 +7010,9 @@
       },
 
       loadVoices() {
+        if (!this.speechSynthesis) {
+          return;
+        }
         const updateVoices = () => {
           this.voices = this.speechSynthesis.getVoices();
           this.elements.voiceSelect.innerHTML = this.voices.map((voice, index) =>
@@ -8211,7 +8214,9 @@
     };
 
     document.addEventListener('DOMContentLoaded', () => {
-      window.speechSynthesis.cancel();
+      if (window.speechSynthesis) {
+        window.speechSynthesis.cancel();
+      }
       MarqueeReader.initialize();
     });
   </script>
