@@ -7,8 +7,8 @@
   <title>Trial and Error Reading</title>
   <link rel="icon" type="image/png" href="favicon.png" />
   <script src="js/alphabets.js" type="text/javascript"></script>
-  <script src="js/hammer.js" type="text/javascript"></script>
   <script src="js/chart.js" type="text/javascript"></script>
+  <script src="js/hammer.js" type="text/javascript"></script>
   <script src="js/chartjs-plugin-zoom.js" type="text/javascript"></script>
   <script src="sentences/merriam_webster.js" type="text/javascript"></script>
   <script src="sentences/wordsmyth1.js" type="text/javascript"></script>
@@ -46,6 +46,13 @@
       --blue-button-hover: rgb(11, 94, 215);
       --dark-button-background: rgb(55, 55, 55);
       --dark-button-hover: rgb(66, 70, 73);
+    }
+
+    canvas {
+      user-select: none;
+      -moz-user-select: none;
+      -webkit-user-select: none;
+      -ms-user-select: none;
     }
 
     body.dark {
@@ -8048,47 +8055,28 @@
                 },
               }
             },
-            pan: {
-              enabled: true,
-              mode: 'x',
-              modifierKey: null,
-            },
-            zoom: {
-              enabled: true,
-              mode: 'x',
-            },
             plugins: {
-              legend: {
-                position: 'top',
-              },
-              title: {
-                display: false,
-                text: '',
-              },
               zoom: {
                 pan: {
                   enabled: true,
                   mode: 'x',
-                  modifierKey: null,
+                  scaleMode: 'x',
                 },
                 zoom: {
                   wheel: {
                     enabled: true,
-                    speed: 0.1
                   },
                   pinch: {
-                    enabled: false
-                  },
-                  drag: {
-                    enabled: false
+                    enabled: true,
                   },
                   mode: 'x',
-                }
-              }
+                  scaleMode: 'x',
+                },
+              },
             }
           }
         });
-      }
+      },
     };
 
     document.addEventListener('DOMContentLoaded', () => {
