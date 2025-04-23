@@ -209,6 +209,7 @@
     }
 
     /* Margin */
+
     .tab-content * {
       margin: 1px;
     }
@@ -219,6 +220,7 @@
     }
 
     /* Padding */
+
     button, .tab-button {
       padding: 10px 15px;
       min-height: 42px;
@@ -815,7 +817,7 @@
     }
 
     #history-list {
-      max-height: 700px;
+      max-height: calc(min(80vh, 700px));
       overflow-y: auto;
     }
 
@@ -850,7 +852,7 @@
 
     /* Chart */
     #chart-container {
-      height: calc(max(68vh, 300px));
+      height: calc(max(70vh, 300px));
       width: 50%;
       margin: 0 auto;
       overflow: hidden;
@@ -4835,7 +4837,7 @@
         }
         else {
           this.elements.marqueeContainer.style.overflow = 'scroll';
-          this.elements.marqueeContainer.style.minHeight = '88vh';
+          this.elements.marqueeContainer.style.minHeight = '80vh';
           this.elements.marqueeDisplay.style.whiteSpace = 'normal';
           this.elements.marqueeDisplay.style.textAlign = 'left';
           this.elements.marqueeDisplay.style.left = '0px';
@@ -7651,24 +7653,60 @@
         });
       },
 
-      calcShannonEntropy(str) {
-        const freq = {};
-        for (const char of str) {
-          freq[char] = (freq[char] || 0) + 1;
+      calcShannonEntropy(words) {
+        if (!words || words.length === 0) {
+          return 0;
         }
-        let entropy = 0;
-        const len = str.length;
-        for (const char in freq) {
-          const p = freq[char] / len;
-          entropy -= p * Math.log2(p);
+
+        const unigrams = new Map(), bigrams = new Map();
+        let totalChars = 0;
+        for (const w of words) {
+          const word = Array.from(w.toLowerCase()).filter(ch => this.letterPattern.test(ch));
+          for (const char of word) {
+            unigrams.set(char, (unigrams.get(char) || 0) + 1);
+            totalChars++;
+          }
+          for (let i = 0; i < word.length - 1; i++) {
+            const bigram = word[i] + word[i + 1];
+            bigrams.set(bigram, (bigrams.get(bigram) || 0) + 1);
+          }
         }
-        return entropy;
+
+        const pUnigrams = new Map();
+        for (const char of unigrams.keys()) {
+          pUnigrams.set(char, unigrams.get(char) / totalChars);
+        }
+
+        const pBigrams = new Map();
+        for (const bigram of bigrams.keys()) {
+          const firstChar = bigram[0];
+          pBigrams.set(bigram, bigrams.get(bigram) / unigrams.get(firstChar));
+        }
+
+        let conditionalEntropy = 0;
+        for (const firstChar of unigrams.keys()) {
+          let innerSum = 0;
+          for (const secondChar of unigrams.keys()) {
+            const bigram = firstChar + secondChar;
+            const pBigram = pBigrams.get(bigram);
+            if (pBigram) {
+              const pBigramX = pBigram * Math.log2(pBigram);
+              if (isFinite(pBigramX)) {
+                innerSum -= pBigramX;
+              }
+            }
+          }
+          conditionalEntropy += pUnigrams.get(firstChar) * innerSum;
+        }
+
+        return conditionalEntropy;
       },
 
       calculateTextParameters() {
         if (!this.realText1List.length) {
           return {
-            shannonEntropy: 0,
+            shannonEntropyMin: 0,
+            shannonEntropyMax: 0,
             wordCount: 0,
             avgWordLength: 0,
             avgWordFrequency: 0,
@@ -7707,16 +7745,18 @@
 
         /* Alphabet letters (number/percent) */
         const allChars = this.realText2List.join('').split('');
-        const shannonEntropy = this.calcShannonEntropy(allChars).toFixed(1);
         const allCharsCount = allChars.length;
-        const allLetters = allChars.filter(c => /\p{L}/u.test(c));
+        const allLetters = allChars.filter(c => this.letterPattern.test(c));
         const allLowercasedLetters = allLetters.map(c => c.toLowerCase());
         const uniqueLetters = new Set(allLowercasedLetters);
         const alphabetLetters = uniqueLetters.size;
-        const alphabetLettersPercent = (alphabetLetters ? (allLetters.length / allChars.length * 100) : 0).toFixed(1);
+        const alphabetLettersPercent = (alphabetLetters ? (allLetters.length / allCharsCount * 100) : 0).toFixed(1);
+        const shannonEntropyMin = this.calcShannonEntropy(this.realText2List).toFixed(1);
+        const shannonEntropyMax = (alphabetLetters ? Math.log2(alphabetLetters) : 0).toFixed(1);
 
         return {
-          shannonEntropy,
+          shannonEntropyMin,
+          shannonEntropyMax,
           wordCount,
           avgWordLength,
           avgWordFrequency,
@@ -7746,7 +7786,7 @@
           ...this.textParameters,
           ...this.calculateTextParameters()
         };
-        this.elements.textParameterShannonEntropyNumber.textContent = this.textParameters.shannonEntropy;
+        this.elements.textParameterShannonEntropyNumber.textContent = `${this.textParameters.shannonEntropyMin}/${this.textParameters.shannonEntropyMax}`;
         this.elements.textParameterWordsNumber.textContent = this.textParameters.wordCount;
         this.elements.textParameterUniqueWordsNumber.textContent = this.textParameters.uniqueWords;
         this.elements.textParameterUniqueWordsPercent.textContent = `${this.textParameters.uniqueWordsPercent}%`;
@@ -7842,6 +7882,7 @@
         let index = 0;
         for (const item of this.history) {
           const datetime = this.getStrDateTime(new Date(parseInt(item.timestamp)));
+          const shannonEntropy = (item.textParameters.shannonEntropy ? item.textParameters.shannonEntropy : `${item.textParameters.shannonEntropyMin}/${item.textParameters.shannonEntropyMax}`);
           if (index + 1 === existingIndex) {
             r.push(`
       <div class="history-row with-rounded-border">
@@ -7871,7 +7912,7 @@
         </div>
         <div>
           <span>Shannon entropy</span>
-          <span>${item.textParameters.shannonEntropy}</span>
+          <span>${shannonEntropy}</span>
         </div>
         <div>
           <span>Words</span>
@@ -8096,19 +8137,21 @@
           'allCharsCount',
           'wordCount',
           'complexity',
-          'shannonEntropyMin',
           'shannonEntropyMax',
-          'minProgress',
-          'maxProgress'];
+          'shannonEntropyMin',
+          'maxProgress',
+          'minProgress'
+        ];
         const selectedMetricsLabels = [
           'Time spent (minutes)',
           'Symbols*Progress',
           'Words*Progress',
           'Complexity*Progress',
-          'Shannon entropy^Min',
           'Shannon entropy^Max',
-          'Progress^Min',
-          'Progress^Max'];
+          'Shannon entropy^Min',
+          'Progress^Max',
+          'Progress^Min'
+        ];
 
         if (selectedMetrics.length === 0) {
           alert('Please select at least one metric.');
@@ -8142,7 +8185,10 @@
             if (metric === 'timeSpent') {
               dailyData[date][metric] += Math.ceil(item[metric] / 60);
             } else {
-              const value = metric.includes('shannonEntropy') ? item.textParameters['shannonEntropy'] : item.textParameters[metric];
+              const value = metric.includes('shannonEntropy') ? (item.textParameters['shannonEntropy'] ? item.textParameters['shannonEntropy'] : item.textParameters['shannonEntropyMin']) : item.textParameters[metric];
+              if (value == null) {
+                return;
+              }
               const floatValue = parseFloat(value);
               const intValue = parseInt(value);
               const rValue = floatValue === floatValue && floatValue >= 0 ? Math.ceil(floatValue * floatProgress / 100) : (
