@@ -1076,8 +1076,8 @@
           </div>
           <div>
             <label for="speed-number"><span>Speed <kbd>+</kbd><kbd>-</kbd></span></label>
-            <input type="range" id="speed-slider" min="1" max="300" value="100">
-            <input type="number" id="speed-number" min="1" max="500" value="100">
+            <input type="range" id="speed-slider" min="1" max="1000" value="500">
+            <input type="number" id="speed-number" min="1" max="1000" value="500">
             <label><input type="checkbox" id="speed-smooth-toggle"> Smooth (platform-dependent)</label>
           </div>
         </div>
@@ -2415,7 +2415,7 @@
         settings[this.settingsNames.colorTaskLetters] = '1';
         settings[this.settingsNames.colorTaskColors] = '';
         settings[this.settingsNames.colorTaskBackgroundColoring] = true;
-        settings[this.settingsNames.speed] = '200';
+        settings[this.settingsNames.speed] = '500';
         settings[this.settingsNames.speedSmooth] = false;
         settings[this.settingsNames.skippingLetters] = 'no';
         settings[this.settingsNames.shufflingLetters] = 'no';
@@ -5038,14 +5038,16 @@
         const speed = Math.max(1, parseInt(value || this.elements.speedNumber.value || 0));
         this.elements.speedSlider.value = speed;
         this.elements.speedNumber.value = speed;
+
+        const speedEntry = { stepSize: speed / 1000, stepDelay: 1 };
         const speedSmooth = this.elements.speedSmoothToggle.checked;
-        const newStepSize = 1 + (speed > 200 ? (speed - 200) / (speedSmooth ? 20 : 100) : 0);
-        const newStepDelay = Math.max(1, 202 - Math.min(200, speed) - (speedSmooth)) + (speed < 20 ? 10 * (20 - speed) : 0);
+        const newStepSize = speedSmooth ? speedEntry.stepSize * 10 : speedEntry.stepSize;
+        const newStepDelay = speedSmooth ? speedEntry.stepDelay : speedEntry.stepDelay;
+
         if (this.animationTimer) {
           this.newStepSize = newStepSize;
           this.newStepDelay = newStepDelay;
-        }
-        else {
+        } else {
           this.stepSize = newStepSize;
           this.stepDelay = newStepDelay;
         }
