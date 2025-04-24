@@ -633,9 +633,7 @@
       width: 100%;
       height: 60px;
       position: relative;
-      border: 2px solid var(--border-color);
-      padding-left: 2px;
-      padding-right: 2px;
+      border: 1px solid var(--border-color);
       box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
       background-color: var(--container-background);
       overflow: hidden;
@@ -863,6 +861,9 @@
         width: 100%;
         margin: 10px 0;
       }
+      #stop-button {
+        width: 30%;
+      }
       kbd {
         display: none;
       }
@@ -929,11 +930,11 @@
       .history-row > div {
         grid-template-columns: 1fr;
       }
-      .mob-ta-left {
-        text-align: left;
+      .mob-ta-center {
+        text-align: center;
       }
-      .mob-w50 {
-        width: 50%;
+      .mob-w30 {
+        width: 30%;
       }
       #chart-container {
         width: 100%;
@@ -1531,6 +1532,12 @@
               <label>
                 <span>Number of paragraphs:</span>
                 <input type="number" id="sentence-count-input" min="1" max="1000" value="1">
+              </label>
+            </div>
+            <div>
+              <label>
+                <input type="checkbox" id="remove-marks-toggle">
+                <span>Remove marks</span>
               </label>
             </div>
             <div>
@@ -2311,6 +2318,15 @@
       sentenceMerriamWebsterGenerator: null,
       alphabets: [],
 
+      marksReplacementTrans: {
+        '\u00C0': 'A', '\u00C1': 'A', '\u00C2': 'A', '\u00C3': 'A', '\u00C4': 'A', '\u00C5': 'A', '\u00C7': 'C', '\u00C8': 'E', '\u00C9': 'E', '\u00CA': 'E',
+        '\u00CB': 'E', '\u00CC': 'I', '\u00CD': 'I', '\u00CE': 'I', '\u00CF': 'I', '\u00D1': 'N', '\u00D2': 'O', '\u00D3': 'O', '\u00D4': 'O', '\u00D5': 'O',
+        '\u00D6': 'O', '\u00D9': 'U', '\u00DA': 'U', '\u00DB': 'U', '\u00DC': 'U', '\u00DD': 'Y', '\u00E0': 'a', '\u00E1': 'a', '\u00E2': 'a', '\u00E3': 'a',
+        '\u00E4': 'a', '\u00E5': 'a', '\u00E7': 'c', '\u00E8': 'e', '\u00E9': 'e', '\u00EA': 'e', '\u00EB': 'e', '\u00EC': 'i', '\u00ED': 'i', '\u00EE': 'i',
+        '\u00EF': 'i', '\u00F1': 'n', '\u00F2': 'o', '\u00F3': 'o', '\u00F4': 'o', '\u00F5': 'o', '\u00F6': 'o', '\u00F9': 'u', '\u00FA': 'u', '\u00FB': 'u',
+        '\u00FC': 'u', '\u00FD': 'y', '\u00FF': 'y',
+      },
+
       settingsNames: {
         version: 'sle_version',
 
@@ -2386,6 +2402,7 @@
         lastPosition: 'sle_last_position',
         attemptMinTime: 'sle_attempt_min_time',
         showHideTextToggle: 'sle_show_hide_text_toggle',
+        removeMarksToggle: 'sle_remove_marks_toggle',
 
         /* text-to-speech */
         voiceButton: 'sle_voice_button',
@@ -2687,6 +2704,10 @@
         this.elements.bookmarksControls = document.getElementById("bookmarks-controls");
         this.elements.bookmarksList = document.getElementById("bookmarks-list");
         this.elements.cancelBookmarksButton = document.getElementById("cancel-bookmarks-button");
+        this.elements.chartContainer = document.getElementById('chart-container');
+        this.elements.chartMetricSelect = document.getElementById('chart-metric');
+        this.elements.chartObject = document.getElementById('chart-object');
+        this.elements.chartTimeRangeSelect = document.getElementById('chart-time-range');
         this.elements.clearTextButton = document.getElementById('clear-text-button');
         this.elements.colorDetails = document.getElementById('color-details');
         this.elements.colorEncoderDiv = document.getElementById('color-encoder-div');
@@ -2699,40 +2720,37 @@
         this.elements.copyCurrentText = document.getElementById('copy-current-text');
         this.elements.copyMarqueeText = document.getElementById('copy-marquee-text');
         this.elements.deleteAllData = document.getElementById('delete-all-data');
-        this.elements.deleteHistory = document.getElementById('delete-history');
         this.elements.deleteAllSettingsProfiles = document.getElementById('delete-all-settings-profiles');
         this.elements.deleteAllTexts = document.getElementById('delete-all-texts');
+        this.elements.deleteHistory = document.getElementById('delete-history');
         this.elements.deleteSettingsProfileButton = document.getElementById('delete-settings-profile-button');
         this.elements.deleteTextButton = document.getElementById('delete-text-button');
         this.elements.dumpColors = document.getElementById('dump-colors');
         this.elements.duplicateSettingsProfileButton = document.getElementById('duplicate-settings-profile-button');
         this.elements.duplicateTextButton = document.getElementById('duplicate-text-button');
-        this.elements.historyEnableToggle = document.getElementById('history-enable-toggle');
         this.elements.exportAll = document.getElementById('export-all');
         this.elements.exportAllSettingsProfiles = document.getElementById('export-all-settings-profiles');
         this.elements.exportAllSettingsProfilesAndTexts = document.getElementById('export-all-settings-profiles-and-texts');
         this.elements.exportAllTexts = document.getElementById('export-all-texts');
         this.elements.exportAllTextsWithBookmarksToggle = document.getElementById('export-all-texts-with-bookmarks-toggle');
-        this.elements.exportHistoryToggle = document.getElementById('export-history-toggle');
         this.elements.exportHistory = document.getElementById('export-history');
+        this.elements.exportHistoryToggle = document.getElementById('export-history-toggle');
         this.elements.fasterTransitionsToggle = document.getElementById("faster-transitions-toggle");
-        this.elements.speakWordByWordToggle = document.getElementById("speak-word-by-word-toggle");
-        this.elements.speakSentenceBySentenceToggle = document.getElementById("speak-sentence-by-sentence-toggle");
         this.elements.fastForwardButton = document.getElementById('fast-forward-button');
         this.elements.fontSizeNumber = document.getElementById('font-size-number');
         this.elements.fontSizeSlider = document.getElementById('font-size-slider');
         this.elements.fullSizeToggle = document.getElementById('full-size-toggle');
+        this.elements.generateChartButton = document.getElementById('generate-chart-button');
         this.elements.hiddenContent1 = document.getElementById('hidden-content-1');
-        this.elements.historyList = document.getElementById('history-list');
+        this.elements.historyEnableToggle = document.getElementById('history-enable-toggle');
         this.elements.historyIndex = document.getElementById('history-index');
-        this.elements.prevHistoryItemButton = document.getElementById('prev-history-item-button');
-        this.elements.nextHistoryItemButton = document.getElementById('next-history-item-button');
+        this.elements.historyList = document.getElementById('history-list');
         this.elements.importAll = document.getElementById('import-all');
         this.elements.importAllSettingsProfiles = document.getElementById('import-all-settings-profiles');
         this.elements.importAllSettingsProfilesAndTexts = document.getElementById('import-all-settings-profiles-and-texts');
         this.elements.importAllTexts = document.getElementById('import-all-texts');
-        this.elements.importHistory = document.getElementById('import-history');
         this.elements.importDataReplacement = Array.from(document.getElementsByName("import-data-replacement"));
+        this.elements.importHistory = document.getElementById('import-history');
         this.elements.letterEliminationSelect = document.getElementById('letter-elimination-select');
         this.elements.letterFalseSelect = document.getElementById('letter-false-select');
         this.elements.letterReverseSelect = document.getElementById('letter-reverse-select');
@@ -2756,7 +2774,9 @@
         this.elements.mirroringWordsSelect = document.getElementById('mirroring-words-select');
         this.elements.newSettingsProfileButton = document.getElementById('new-settings-profile-button');
         this.elements.newTextButton = document.getElementById('new-text-button');
+        this.elements.nextHistoryItemButton = document.getElementById('next-history-item-button');
         this.elements.playPauseButton = document.getElementById('play-pause-button');
+        this.elements.prevHistoryItemButton = document.getElementById('prev-history-item-button');
         this.elements.progressBar = document.getElementById('progress-bar');
         this.elements.progressBarContainer = document.getElementById('progress-bar-container');
         this.elements.progressDisplay = document.getElementById('progress-display');
@@ -2765,6 +2785,7 @@
         this.elements.refreshSentences = document.getElementById('refresh-sentences');
         this.elements.refreshView = document.getElementById('refresh-view');
         this.elements.refreshWords = document.getElementById('refresh-words');
+        this.elements.removeMarksToggle = document.getElementById('remove-marks-toggle');
         this.elements.report3DaysAttempts = document.getElementById('report-3days-attempts');
         this.elements.report3DaysTime = document.getElementById('report-3days-time');
         this.elements.reportMonthAttempts = document.getElementById('report-month-attempts');
@@ -2820,6 +2841,8 @@
         this.elements.skewingSelect = document.getElementById('skewing-select');
         this.elements.skewingToggle = document.getElementById('skewing-toggle');
         this.elements.speakButton = document.getElementById('speak-button');
+        this.elements.speakSentenceBySentenceToggle = document.getElementById("speak-sentence-by-sentence-toggle");
+        this.elements.speakWordByWordToggle = document.getElementById("speak-word-by-word-toggle");
         this.elements.speechPitchNumber = document.getElementById('speech-pitch-number');
         this.elements.speechPitchSlider = document.getElementById('speech-pitch-slider');
         this.elements.speechRateNumber = document.getElementById('speech-rate-number');
@@ -2861,11 +2884,6 @@
         this.elements.wordFalseSelect = document.getElementById('word-false-select');
         this.elements.wordShuffleSelect = document.getElementById('word-shuffle-select');
         this.elements.wordSkipSelect = document.getElementById('word-skip-select');
-        this.elements.generateChartButton = document.getElementById('generate-chart-button');
-        this.elements.chartContainer = document.getElementById('chart-container');
-        this.elements.chartObject = document.getElementById('chart-object');
-        this.elements.chartTimeRangeSelect = document.getElementById('chart-time-range');
-        this.elements.chartMetricSelect = document.getElementById('chart-metric');
 
         this.cachedContainerWidth = null;
         this.cachedTextWidth = null;
@@ -3104,6 +3122,7 @@
         this.elements.generateChartButton.addEventListener('click', () => this.generateChart());
         this.elements.showHideTextToggle.addEventListener('click', () => this.toggleShowHideText());
         this.elements.textDirectionSelect.addEventListener('input', () => this.toggleTextDirection());
+        this.elements.removeMarksToggle.addEventListener('input', () => this.toggleRemoveMarks());
 
         this.controlBeforeUnload();
 
@@ -3289,6 +3308,8 @@
         this.toggleExportTextsWithBookmarks();
         this.elements.exportHistoryToggle.checked = localStorage.getItem(this.settingsNames.exportHistoryToggle) !== 'false';
         this.toggleExportHistory();
+        this.elements.removeMarksToggle.checked = localStorage.getItem(this.settingsNames.removeMarksToggle) !== 'false';
+        this.toggleRemoveMarks();
 
         const voiceIndex = localStorage.getItem(this.settingsNames.voice) || null;
         if (voiceIndex != null) {
@@ -4905,6 +4926,23 @@
         }
       },
 
+      toggleRemoveMarks() {
+        const removeMarksToggleChecked = this.elements.removeMarksToggle.checked;
+        localStorage.setItem(this.settingsNames.removeMarksToggle, removeMarksToggleChecked);
+      },
+
+      removeMarksIfNeeded(text) {
+        const removeMarksToggleChecked = this.elements.removeMarksToggle.checked;
+        if (removeMarksToggleChecked) {
+          const newTextL = [];
+          for (const ch of text) {
+            newTextL.push(this.marksReplacementTrans[ch] || ch);
+          }
+          text = newTextL.join('').replace(/[\u0300\u0301\u030B\u030D\u030E\u030F\u0312\u0313\u0314\u0315\u0316\u0317\u0340\u0341\u0357\u0358]/ug, '').trim();
+        }
+        return text;
+      },
+
       toggleLoop() {
         this.isLoopEnabled = !this.isLoopEnabled;
         this.elements.loopToggle.classList.toggle('active');
@@ -5427,7 +5465,7 @@
           if (!next.done) {
             const sentence = next.value;
             if (sentence) {
-              const text = /[.!?]$/.test(sentence) ? sentence : `${sentence}.`;
+              const text = this.removeMarksIfNeeded(/[.!?]$/.test(sentence) ? sentence : `${sentence}.`);
               this.elements.textInput.value = this.elements.appendTextToggle.checked ? `${this.elements.textInput.value}${this.elements.textInput.value ? '\n\n' : ''}${text}` : text;
               this.textIsModified = true;
             }
@@ -5445,7 +5483,7 @@
           if (!next.done) {
             const sentence = next.value;
             if (sentence) {
-              const text = /[.!?]$/.test(sentence) ? sentence : `${sentence}.`;
+              const text = this.removeMarksIfNeeded(/[.!?]$/.test(sentence) ? sentence : `${sentence}.`);
               this.elements.textInput.value = this.elements.appendTextToggle.checked ? `${this.elements.textInput.value}${this.elements.textInput.value ? '\n\n' : ''}${text}` : text;
               this.textIsModified = true;
             }
@@ -5463,7 +5501,7 @@
           if (!next.done) {
             const sentence = next.value;
             if (sentence) {
-              const text = /[.!?]$/.test(sentence) ? sentence : `${sentence}.`;
+              const text = this.removeMarksIfNeeded(/[.!?]$/.test(sentence) ? sentence : `${sentence}.`);
               this.elements.textInput.value = this.elements.appendTextToggle.checked ? `${this.elements.textInput.value}${this.elements.textInput.value ? '\n\n' : ''}${text}` : text;
               this.textIsModified = true;
             }
@@ -5481,7 +5519,7 @@
           if (!next.done) {
             const sentence = next.value;
             if (sentence) {
-              const text = /[.!?]$/.test(sentence) ? sentence : `${sentence}.`;
+              const text = this.removeMarksIfNeeded(/[.!?]$/.test(sentence) ? sentence : `${sentence}.`);
               this.elements.textInput.value = this.elements.appendTextToggle.checked ? `${this.elements.textInput.value}${this.elements.textInput.value ? '\n\n' : ''}${text}` : text;
               this.textIsModified = true;
             }
@@ -5504,7 +5542,7 @@
           fetch(`https://${lang}.wikipedia.org/api/rest_v1/page/random/summary`)
           .then(response => response.json())
           .then(data => {
-            const text = data.extract.trim();
+            const text = this.removeMarksIfNeeded(data.extract.trim());
             currentReader.elements.textInput.value = currentReader.elements.appendTextToggle.checked ? `${currentReader.elements.textInput.value}${currentReader.elements.textInput.value ? '\n\n' : ''}${text}` : text;
             currentReader.textIsModified = true;
             if (currentHash === currentReader.sentenceHash && currentReader.sentenceCounter > 0) {
@@ -5533,7 +5571,7 @@
           .then(response => response.json())
           .then(data => {
             for (const sentence of data) {
-              const text = sentence['content'].trim();
+              const text = this.removeMarksIfNeeded(sentence['content'].trim());
               currentReader.elements.textInput.value = currentReader.elements.appendTextToggle.checked ? `${currentReader.elements.textInput.value}${currentReader.elements.textInput.value ? '\n\n' : ''}${text}` : text;
               currentReader.textIsModified = true;
             }
@@ -5560,8 +5598,9 @@
         }
         fetch('http://metaphorpsum.com/sentences/1')
           .then(response => response.text())
-          .then(text => {
-            currentReader.elements.textInput.value = currentReader.elements.appendTextToggle.checked ? `${currentReader.elements.textInput.value}${currentReader.elements.textInput.value ? '\n\n' : ''}${text.trim()}` : text.trim();
+          .then(data => {
+            const text = this.removeMarksIfNeeded(data.trim());
+            currentReader.elements.textInput.value = currentReader.elements.appendTextToggle.checked ? `${currentReader.elements.textInput.value}${currentReader.elements.textInput.value ? '\n\n' : ''}${text}` : text;
             currentReader.textIsModified = true;
             if (currentHash === currentReader.sentenceHash && currentReader.sentenceCounter > 0) {
               currentReader.sentenceCounter = Math.max(0, currentReader.sentenceCounter - 1);
@@ -5586,7 +5625,7 @@
           if (file) {
             const reader = new FileReader();
             reader.onload = event => {
-              const text = event.target.result.trim();
+              const text = this.removeMarksIfNeeded(event.target.result.trim());
               currentReader.elements.textInput.value = currentReader.elements.appendTextToggle.checked ? `${currentReader.elements.textInput.value}${currentReader.elements.textInput.value ? '\n\n' : ''}${text}` : text;
               currentReader.textIsModified = true;
             };
@@ -7949,7 +7988,7 @@
           <span>${item.textParameters.coloredLetters} (${item.textParameters.coloredLettersPercent}%)</span>
         </div>
         <div>
-          <span class="mob-ta-left"><button class="delete-attempt dark-button mob-w50" data-index="${index}">Delete</button></span>
+          <span class="mob-ta-center"><button class="delete-attempt dark-button mob-w30" data-index="${index}">Delete</button></span>
         </div>
       </div>
     `);
