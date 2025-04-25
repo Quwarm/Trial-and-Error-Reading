@@ -864,6 +864,9 @@
       #stop-button {
         width: 30%;
       }
+      #load-wiki-button {
+        width: 40%;
+      }
       kbd {
         display: none;
       }
@@ -1270,6 +1273,10 @@
               </select>
             </label>
           </div>
+        </div>
+        <hr>
+        <div>
+          <h3>Word order</h3>
           <div>
             <label>
               <span>Concatenate words:</span>
@@ -1298,10 +1305,6 @@
               </select>
             </label>
           </div>
-        </div>
-        <hr>
-        <div>
-          <h3>Word order</h3>
           <div>
             <label>
               <span>Shuffle words:</span>
@@ -2159,7 +2162,7 @@
               <li><strong>Be patient with progress:</strong> Improvements may take months and depends on how often you train, as well as your diet and sleep quality.</li>
               <li><strong>Short sessions are key:</strong> Training twice a day in short bursts is more effective than one long session daily.</li>
               <li><strong>Quality over quantity:</strong> Fully solving a few sentences per day is better than partially solving many.</li>
-              <li><strong>Challenge yourself:</strong> Solving without changing the text combination on the go (via "↻ Text ↻" button) is harder and more beneficial than adjusting it mid-session.</li>
+              <li><strong>Challenge yourself:</strong> Solving without changing the text combination on the go (via "↻ Words ↻" button) is harder and more beneficial than adjusting it mid-session.</li>
               <li><strong>Increase difficulty:</strong> Continuously ramp up the exercise difficulty to maintain progress, rather than staying at an easy level for too long.</li>
             </ul>
             <div class="ta-center">
@@ -2319,12 +2322,18 @@
       alphabets: [],
 
       marksReplacementTrans: {
-        '\u00C0': 'A', '\u00C1': 'A', '\u00C2': 'A', '\u00C3': 'A', '\u00C4': 'A', '\u00C5': 'A', '\u00C7': 'C', '\u00C8': 'E', '\u00C9': 'E', '\u00CA': 'E',
-        '\u00CB': 'E', '\u00CC': 'I', '\u00CD': 'I', '\u00CE': 'I', '\u00CF': 'I', '\u00D1': 'N', '\u00D2': 'O', '\u00D3': 'O', '\u00D4': 'O', '\u00D5': 'O',
-        '\u00D6': 'O', '\u00D9': 'U', '\u00DA': 'U', '\u00DB': 'U', '\u00DC': 'U', '\u00DD': 'Y', '\u00E0': 'a', '\u00E1': 'a', '\u00E2': 'a', '\u00E3': 'a',
-        '\u00E4': 'a', '\u00E5': 'a', '\u00E7': 'c', '\u00E8': 'e', '\u00E9': 'e', '\u00EA': 'e', '\u00EB': 'e', '\u00EC': 'i', '\u00ED': 'i', '\u00EE': 'i',
-        '\u00EF': 'i', '\u00F1': 'n', '\u00F2': 'o', '\u00F3': 'o', '\u00F4': 'o', '\u00F5': 'o', '\u00F6': 'o', '\u00F9': 'u', '\u00FA': 'u', '\u00FB': 'u',
-        '\u00FC': 'u', '\u00FD': 'y', '\u00FF': 'y',
+        '\u00C0': 'A', '\u00C1': 'A',
+        '\u00C8': 'E', '\u00C9': 'E',
+        '\u00CC': 'I', '\u00CD': 'I',
+        '\u00D2': 'O', '\u00D3': 'O',
+        '\u00D9': 'U', '\u00DA': 'U',
+        '\u00DD': 'Y',
+        '\u00E0': 'a', '\u00E1': 'a',
+        '\u00E8': 'e', '\u00E9': 'e',
+        '\u00EC': 'i', '\u00ED': 'i',
+        '\u00F2': 'o', '\u00F3': 'o',
+        '\u00F9': 'u', '\u00FA': 'u',
+        '\u00FD': 'y',
       },
 
       settingsNames: {
@@ -2363,7 +2372,6 @@
         falseWords: 'sle_false_words',
         concatWords: 'sle_concat_words',
         shufflingSentences: 'sle_shuffling_sentences',
-        rotating: 'sle_rotating',
         rotatingWords: 'sle_rotating_words',
         rotatingLetters: 'sle_rotating_letters',
         mirroringWords: 'sle_mirroring_words',
@@ -3468,7 +3476,7 @@
 
         let textChanged = false;
         let wordHint1Pre = false, wordHint2Pre = false;
-        if (this.elements.rotNToggle.checked && !this.elements.rotNLanguageInfo.innerHTML) {
+        if (this.elements.rotNToggle.checked && (!this.elements.rotNLanguageInfo.innerHTML || !this.rotNLetterMap.size)) {
           this.toggleRotNGenerate();
           textChanged = true;
         }
@@ -3476,7 +3484,8 @@
           textChanged ||
           this.realText !== cleanedText ||
           JSON.stringify(this.previousSettings[this.settingsNames.shufflingSentences]) !== JSON.stringify(currentSettings[this.settingsNames.shufflingSentences]) ||
-          JSON.stringify(this.previousSettings[this.settingsNames.shufflingWords]) !== JSON.stringify(currentSettings[this.settingsNames.shufflingWords])
+          JSON.stringify(this.previousSettings[this.settingsNames.shufflingWords]) !== JSON.stringify(currentSettings[this.settingsNames.shufflingWords]) ||
+          JSON.stringify(this.previousSettings[this.settingsNames.concatWords]) !== JSON.stringify(currentSettings[this.settingsNames.concatWords])
         ) {
           textChanged = true;
           this.realText = cleanedText;
@@ -3497,6 +3506,16 @@
           }
           this.realText1List = realText1.split(/\s+/);
           this.realText1RefList = realText1Ref.split(/\s+/);
+          const wordsPercentPattern = /(\d+)%_words?/;
+          const wordConcatSelectValue = this.elements.wordConcatSelect.value;
+          const wordConcatMatch = wordConcatSelectValue !== 'no' ? wordsPercentPattern.exec(wordConcatSelectValue) : null;
+          const wordConcatPercent = wordConcatMatch ? parseInt(wordConcatMatch[1]) / 100 : 0;
+          if (wordConcatMatch) {
+            const originalSize = this.realText1List.length;
+            [this.realText1List, this.realText1RefList] = this.concatWords(this.realText1List, this.realText1RefList, wordConcatPercent);
+            this.realTextDiffBase += (originalSize - this.realText1List.length);
+            wordHint2Pre = true;
+          }
           const wordsNPattern = /(\-?\d+)_words?/;
           const wordShuffleSelectValue = this.elements.wordShuffleSelect.value;
           const wordShuffleMatch = wordShuffleSelectValue !== 'no' ? wordsNPattern.exec(wordShuffleSelectValue) : null;
@@ -3544,7 +3563,7 @@
             }
             this.realText1List = newWords.length > 0 ? newWords : this.realText1List;
             this.realText1RefList = newRefWords.length > 0 ? newRefWords : this.realText1List;
-            this.realTextDiffBase = Math.pow(kDiff + 1, 2) / 8 / newWords.length;
+            this.realTextDiffBase += Math.pow(kDiff + 1, 2) / newWords.length;
             wordHint1Pre = true;
           }
         }
@@ -3685,6 +3704,8 @@
           this.settingsNames.rotNToggle,
           this.settingsNames.rotNMap,
           this.settingsNames.concatWords,
+          this.settingsNames.shufflingWords,
+          this.settingsNames.shufflingSentences,
           ].map(x => JSON.stringify(this.previousSettings[x]) !== JSON.stringify(currentSettings[x]))
         ].some(b => b);
 
@@ -3692,7 +3713,26 @@
           this.wasColorTaskEnabled !== this.elements.colorEncoderToggle.checked ||
           (this.elements.colorEncoderToggle.checked && this.previousColorInput !== this.elements.colorInput.value);
 
-        if (textNeedsUpdate || colorsNeedsUpdate) {
+        const viewNeedsUpdate = [
+          ...[
+          this.settingsNames.rotatingWords,
+          this.settingsNames.rotatingLetters,
+          this.settingsNames.mirroringWords,
+          this.settingsNames.mirroringLetters,
+          this.settingsNames.skewingToggle,
+          this.settingsNames.skewingType,
+          this.settingsNames.skewingNumberMin,
+          this.settingsNames.skewingNumberMax,
+          this.settingsNames.textDirection,
+          this.settingsNames.colorMap,
+          this.settingsNames.colorTaskToggle,
+          this.settingsNames.colorTaskLetters,
+          this.settingsNames.colorTaskColors,
+          this.settingsNames.colorTaskBackgroundColoring,
+          ].map(x => JSON.stringify(this.previousSettings[x]) !== JSON.stringify(currentSettings[x]))
+        ].some(b => b);
+
+        if (textNeedsUpdate || colorsNeedsUpdate || viewNeedsUpdate) {
           const currentReader = this;
           const splitByBrackets = (data) => {
             const result = [];
@@ -3749,7 +3789,7 @@
           if (textNeedsUpdate) {
             this.updateTextStats();
           }
-          if (colorsNeedsUpdate) {
+          if (colorsNeedsUpdate || viewNeedsUpdate) {
             this.updateTextViewStats();
           }
         }
@@ -3928,10 +3968,6 @@
         }
         const wordFalseMatch = textWords.length ? wordsPercentPattern.exec(wordFalseSelectValue) : null;
         const wordFalsePercent = wordFalseMatch ? parseInt(wordFalseMatch[1]) / 100 : 0;
-
-        const wordConcatSelectValue = this.elements.wordConcatSelect.value;
-        const wordConcatMatch = shouldModify && wordConcatSelectValue !== 'no' ? wordsPercentPattern.exec(wordConcatSelectValue) : null;
-        const wordConcatPercent = wordConcatMatch ? parseInt(wordConcatMatch[1]) / 100 : 0;
 
         const wordSkipSelectValue = this.elements.wordSkipSelect.value;
         const wordSkipMatch = shouldModify && wordSkipSelectValue !== 'no' ? wordsPercentPattern.exec(wordSkipSelectValue) : null;
@@ -4113,7 +4149,6 @@
                           letterEliminationRandomMatch != null ||
                           rotNToggleValue && this.letterMapItemMaxLength > 0 ||
                           wordFalseMatch != null ||
-                          wordConcatMatch != null ||
                           wordHint2Pre;
 
         /* Algorithm */
@@ -4131,12 +4166,6 @@
             const originalSize = processedWords.length;
             [processedWords, processedRefWords] = this.falseWords(textWords, processedWords, processedRefWords, wordFalsePercent);
             this.realTextDiff += startDiffValue * 3.0 * (processedWords.length - originalSize);
-          }
-
-          if (wordConcatMatch) {
-            const originalSize = processedWords.length;
-            [processedWords, processedRefWords] = this.concatWords(processedWords, processedRefWords, wordConcatPercent);
-            this.realTextDiff += startDiffValue * 1.0 * (originalSize - processedWords.length);
           }
 
           if (wordSkipMatch) {
@@ -4938,7 +4967,7 @@
           for (const ch of text) {
             newTextL.push(this.marksReplacementTrans[ch] || ch);
           }
-          text = newTextL.join('').replace(/[\u0300\u0301\u030B\u030D\u030E\u030F\u0312\u0313\u0314\u0315\u0316\u0317\u0340\u0341\u0357\u0358]/ug, '').trim();
+          text = newTextL.join('').replace(/[\u0300\u0301\u030F\u030B\u0316\u0317\u0340\u0341]/ug, '').trim();
         }
         return text;
       },
@@ -5250,9 +5279,11 @@
             rotNNumberMaxValue === rotNNumberMaxValue && rotNNumberMinValue <= rotNNumberMaxValue &&
             rotNComplexityValue === rotNComplexityValue &&
             rotNLanguageValue) {
+          let alphabet1Options = false;
           for (const alphabet of this.alphabets) {
             if (alphabet[0] === rotNLanguageValue) {
               const alphabetVariants = alphabet[2];
+              alphabet1Options = alphabetVariants.length;
               let rotNNumberGValue = this.randomInt(rotNNumberMinValue, rotNNumberMaxValue);
               if (rotNExcludeZeroChecked && rotNNumberMinValue !== rotNNumberMaxValue) {
                 while (rotNNumberGValue === 0) {
@@ -5333,22 +5364,26 @@
             this.shuffleArray(variants);
             let n = rotNComplexityValue;
             for (const [variantsKey, variantsValue] of variants) {
-              n -= 1;
-              if (n < 0) {
-                break;
-              }
               for (const variantKey of variantsKey) {
                 let filteredVariantsValue = [];
                 for (const variantValue of variantsValue) {
-                  if (!rotNUpperCaseLowerCase || variantKey !== variantKey.toLowerCase() &&
+                  if (!rotNUpperCaseLowerCase || alphabet1Options === 1 && variantValue !== variantKey ||
+                      variantKey !== variantKey.toLowerCase() &&
                       variantValue !== variantValue.toLowerCase() ||
                       variantKey !== variantKey.toUpperCase() &&
                       variantValue !== variantValue.toUpperCase()) {
                     filteredVariantsValue.push(variantValue);
                   }
                 }
+                n -= filteredVariantsValue.length;
                 const newMapping = [...(this.rotNLetterMap.get(variantKey) || []), ...filteredVariantsValue];
                 this.rotNLetterMap.set(variantKey, newMapping);
+                if (n <= 0) {
+                  break;
+                }
+              }
+              if (n <= 0) {
+                break;
               }
             }
           }
@@ -5385,7 +5420,7 @@
                     continue;
                   }
                   allEquals = false;
-                  tmpValue.push(`<div class="translation">${alphabetVariant[i]} &#8594; ${variantsString}</div>`);
+                  tmpValue.push(`<div class="translation"><span>${alphabetVariant[i]}</span> &#8594; <span>${variantsString}</span></div>`);
                   if (tmpValue.length >= 5) {
                     infoValue.push(tmpValue.join(' '));
                     tmpValue = [];
@@ -8226,7 +8261,8 @@
             if (metric === 'timeSpent') {
               dailyData[date][metric] += Math.ceil(item[metric] / 60);
             } else {
-              const value = metric.includes('shannonEntropy') ? (item.textParameters['shannonEntropy'] ? item.textParameters['shannonEntropy'] : item.textParameters['shannonEntropyMin']) : item.textParameters[metric];
+              const value = metric.includes('shannonEntropy') ? (item.textParameters['shannonEntropy'] ? item.textParameters['shannonEntropy'] : item.textParameters['shannonEntropyMin']) :
+                (metric === 'minProgress' || metric === 'maxProgress' ? floatProgress : item.textParameters[metric]);
               if (value == null) {
                 return;
               }
