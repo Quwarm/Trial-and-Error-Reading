@@ -3545,25 +3545,20 @@
                 kDiff += Math.abs(i - shuffledIndices[i]);
                 continue;
               }
-              const tNextWord = Array.from(nextWord).filter(v => this.letterPattern.test(v)).join('');
-              const prevWord = this.realText1List[i], newNextWordList = [];
-              let state = 0;
-              for (const ch of prevWord) {
-                if (state === 0) {
-                  if (this.isLetter(ch)) {
-                    newNextWordList.push(...tNextWord);
-                    state = 1;
-                    continue;
-                  }
-                  newNextWordList.push(ch);
-                }
-                else if (state === 1) {
-                  if (!this.isLetter(ch)) {
-                    newNextWordList.push(ch);
-                  }
-                }
-              }
-              const rNextWord = newNextWordList.join('');
+              const prevWord = this.realText1List[i];
+              const prevWordList = Array.from(prevWord);
+              const prevWordLettersStart = prevWordList.findIndex(v => !this.notLetterPattern.test(v));
+              const prevWordLettersEnd = prevWordList.findLastIndex(v => !this.notLetterPattern.test(v));
+              const nextWordList = Array.from(nextWord);
+              const nextWordLettersStart = nextWordList.findIndex(v => !this.notLetterPattern.test(v));
+              const nextWordLettersEnd = nextWordList.findLastIndex(v => !this.notLetterPattern.test(v));
+              const rNextWord = [
+                prevWord.slice(0, prevWordLettersStart >= 0 ? prevWordLettersStart : 0),
+                nextWord.slice(
+                  nextWordLettersStart >= 0 ? nextWordLettersStart : 0,
+                  nextWordLettersEnd >= 0 ? nextWordLettersEnd + 1 : nextWord.length),
+                prevWord.slice(prevWordLettersEnd >= 0 ? prevWordLettersEnd + 1 : prevWord.length)
+              ].join('');
               const rrNextWord = (rNextWord && i !== shuffledIndices[i] ? rNextWord[0].toLowerCase().concat(rNextWord.slice(1)) : rNextWord) || nextWord;
               if (!rrNextWord) {
                 continue;
