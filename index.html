@@ -72,7 +72,7 @@
       font-size: 16px;
       font-family: Arial, sans-serif;
       margin: 0;
-      padding: 20px;
+      padding: 10px;
       background-color: var(--background-color);
       color: var(--text-color);
       transition: background-color 0.3s, color 0.3s;
@@ -805,6 +805,15 @@
 
     #help-section ul {
       list-style-type: disc;
+      padding-left: 15px;
+    }
+
+    #help-section ol {
+      padding-left: 15px;
+    }
+
+    #help-section p {
+      text-indent: 15px;
     }
     
     /* Text parameters, Report, History, Help sections */
@@ -1525,6 +1534,12 @@
             </label>
           </div>
           <div>
+            <label>
+              <input type="checkbox" id="remove-marks-toggle">
+              <span>Remove accents after loading/fetching</span>
+            </label>
+          </div>
+          <div>
             <button id="split-into-paragraphs" class="dark-button">Split into paragraphs</button>
             <button id="shuffle-paragraphs" class="dark-button">Shuffle paragraphs</button>
             <button id="shuffle-sentences" class="dark-button">Shuffle sentences</button>
@@ -1539,13 +1554,7 @@
             </div>
             <div>
               <label>
-                <input type="checkbox" id="remove-marks-toggle">
-                <span>Remove marks</span>
-              </label>
-            </div>
-            <div>
-              <label>
-                <div>Random wiki summaries by language:</div>
+                <div>Random Wiki summaries by language:</div>
                 <select id="load-wiki-language-select">
                   <option value="af">Afrikaans / Afrikaans</option>
                   <option value="sq">Albanian / shqip</option>
@@ -1892,7 +1901,9 @@
                 <button id="load-wiki-button">Download</button>
               </label>
             </div>
-            <br>
+            <div>
+              <span>Random English sentences from dictionaries:</span>
+            </div>
             <div>
               <button id="load-sentence-wordsmyth-beginner">[En] Wordsmyth Beginner's [6153]</button>
             </div>
@@ -3563,7 +3574,7 @@
             }
             this.realText1List = newWords.length > 0 ? newWords : this.realText1List;
             this.realText1RefList = newRefWords.length > 0 ? newRefWords : this.realText1List;
-            this.realTextDiffBase += Math.pow(kDiff + 1, 2) / newWords.length;
+            this.realTextDiffBase += kDiff;
             wordHint1Pre = true;
           }
         }
@@ -3774,7 +3785,6 @@
             }
             return {};
           };
-          this.realTextDiff = this.realTextDiffBase;
           this.elements.marqueeDisplay.innerHTML = this.processText(
             textNeedsUpdate ? this.realText1List : this.realText2List,
             this.realText1RefList,
@@ -4156,6 +4166,7 @@
         let textLines = [textList];
         let refLines = [referenceWordList];
         const startDiffValue = 1000 / textList.length;
+        this.realTextDiff = startDiffValue * this.realTextDiffBase;
         return textLines.map((lineList, lineIndex) => {
           const words = lineList;
           const refWords = refLines[lineIndex] ? refLines[lineIndex] : words.slice();
@@ -4178,22 +4189,24 @@
 
           return processedWords.map((word, processedWordIndex) => {
             let realTextDiffLEliminate = 1, realTextDiffLSkip = 1, realTextDiffLRot = 1, realTextDiffLFalse = 1, realTextDiffLReverse = 1, realTextDiffLShuffle = 1;
-            let realTextDiffRotate = 1, realTextDiffMirror = 1, realTextDiffSkew = 1;
+            let realTextDiffRotate = 0, realTextDiffMirror = 0, realTextDiffSkew = 0;
             let modifiedWord = word;
 
             if (word.length > 1) {
               const originalSize = modifiedWord.length;
               if (letterEliminationVowelMatch) {
                 modifiedWord = this.eliminateLetters(this.vowelPatternG, modifiedWord, letterEliminationVowelPercent);
-                realTextDiffLEliminate *= Math.pow(3.0 * (originalSize - modifiedWord.length), 2.0);
+                realTextDiffLEliminate *= Math.pow(Math.max(1, 8 * (originalSize - modifiedWord.length)), 1.6);
               }
               else if (letterEliminationRandomMatch) {
                 modifiedWord = this.eliminateLetters(this.letterPatternG, modifiedWord, letterEliminationRandomPercent);
-                realTextDiffLEliminate *= Math.pow(3.0 * (originalSize - modifiedWord.length), 2.0);
+                realTextDiffLEliminate *= Math.pow(Math.max(1, 8 * (originalSize - modifiedWord.length)), 1.6);
               }
               if (letterSkipMatch) {
+                const originalWord = modifiedWord;
                 modifiedWord = this.skipLetters(modifiedWord, letterSkipPercent);
-                realTextDiffLSkip *= Math.pow(Math.max(1, 2 * Math.floor(letterSkipPercent * modifiedWord.length)), 2.2);
+                const diff = Array.from(originalWord).reduce((pv, v, idx) => pv + (modifiedWord[idx] !== v), 0);
+                realTextDiffLSkip *= Math.pow(Math.max(1, 8 * diff), 1.6);
               }
             }
 
@@ -4255,18 +4268,18 @@
                     this.shuffleArray(midLetters);
                   }
                 }
-                let k = 4.5;
-                if (letterShuffleSelectValue === 'except_first_last') {
-                  k = 13;
-                }
-                else if (letterShuffleSelectValue === 'except_first') {
-                  k = 13;
+                let k = 1;
+                if (letterShuffleSelectValue === 'all_letters') {
+                  k = 2.6;
                 }
                 else if (letterShuffleSelectValue === 'except_capitalized') {
-                  k = 11;
+                  k = 2.5;
                 }
-                else if (letterShuffleSelectValue === 'all_letters') {
-                  k = 13;
+                else if (letterShuffleSelectValue === 'except_first') {
+                  k = 2.25;
+                }
+                else if (letterShuffleSelectValue === 'except_first_last') {
+                  k = 2;
                 }
                 realTextDiffLShuffle *= Math.max(1, k * midLetters.length / parts.length);
                 const reordered = [...firstLetters, ...midLetters, ...lastLetters];
@@ -4295,16 +4308,20 @@
                   const variantIndex = this.randomInt(0, Math.min(variants.length - 1, Math.floor((processedWordIndex + 1) / processedWordsLength * variants.length)));
                   charsList.push(variants[variantIndex]);
                   i += this.letterMapItemMaxLength;
-                  realTextDiffLRot *= variants.length * currentLength;
+                  realTextDiffLRot += variants.length * currentLength;
                 }
                 else {
                   charsList.push(modifiedWord[i]);
                   i += 1;
                 }
               }
-              realTextDiffLRot *= 80.0;
+              if (realTextDiffLRot > 1) {
+                realTextDiffLRot *= 9;
+              }
               modifiedWord = charsList.join('');
             }
+
+            const beforeFalseWordLength = modifiedWord.length;
 
             if (letterFalseMatch) {
               const newWordChars = Array.from(modifiedWord);
@@ -4314,7 +4331,7 @@
                 const randomPosition = this.randomInt(0, newWordChars.length);
                 newWordChars.splice(randomPosition, 0, nextChar);
               }
-              realTextDiffLFalse *= 10.0 * n;
+              realTextDiffLFalse *= Math.max(1, 15.0 * n) * Math.max(1, realTextDiffLRot / 9);
               modifiedWord = newWordChars.join('');
             }
 
@@ -4468,15 +4485,15 @@
               else {
                 newTransforms.push(wordRotateSetting);
               }
-              realTextDiffRotate += 1;
+              realTextDiffRotate += modifiedWord.length;
             }
             if (wordMirrorSetting) {
               newClasses.push(wordMirrorSetting);
-              realTextDiffMirror += 1;
+              realTextDiffMirror += modifiedWord.length;
             }
             if (wordSkewSetting) {
               newTransforms.push(wordSkewSetting);
-              realTextDiffSkew += 1;
+              realTextDiffSkew += modifiedWord.length;
             }
             if (newTransforms.length) {
               newStyles.push('transform: ' + newTransforms.join(' '));
@@ -4511,9 +4528,13 @@
               }
             }
             const realTextDiffL = (
-              (realTextDiffRotate - 1) + (realTextDiffMirror - 1) + (realTextDiffSkew - 1) +
-              Math.max(realTextDiffLEliminate - 1, realTextDiffLSkip - 1) + (realTextDiffLFalse - 1) + (realTextDiffLRot - 1) +
-              Math.max(realTextDiffLReverse - 1, realTextDiffLShuffle - 1)) / Math.max(1, modifiedWord.length);
+              realTextDiffRotate + (realTextDiffRotate > 0) +
+              realTextDiffMirror + (realTextDiffMirror > 0) +
+              realTextDiffSkew + (realTextDiffSkew > 0) +
+              Math.max(realTextDiffLEliminate - 1, realTextDiffLSkip - 1) +
+              (realTextDiffLFalse - 1) +
+              (realTextDiffLRot - 1) +
+              Math.max(realTextDiffLReverse - 1, (realTextDiffLShuffle - 1) * 10)) / Math.max(1, beforeFalseWordLength);
             if (realTextDiffL > 1) {
               realTextDiffW += realTextDiffL;
             }
@@ -4852,11 +4873,17 @@
         }
       },
 
-      toggleTextView() {
+      toggleTextView(savePosition = false) {
+        if (!this.realText) {
+          this.startAnimation(false, false);
+        }
         if (!this.realText) {
           return;
         }
         if (this.isTextViewActive) {
+          if (savePosition) {
+            this.targetWordIndex = this.getFirstVerticalVisibleWordIndex() || this.targetWordIndex;
+          }
           this.elements.marqueeContainer.style.overflow = '';
           this.elements.marqueeContainer.style.minHeight = '';
           this.elements.marqueeDisplay.style.whiteSpace = '';
@@ -4880,6 +4907,8 @@
           this.elements.tabNavigation.style.display = '';
           this.elements.tabContent.style.display = '';
           this.elements.progressBarContainer.style.display = '';
+          this.elements.textViewContainer.removeChild(this.elements.textViewContainer.children[1]);
+          this.elements.textViewButton.innerHTML = 'Text view';
           if (this.targetWordIndex != null) {
             this.currentPosition = this.getPositionByWordIndex(this.targetWordIndex);
             this.elements.marqueeDisplay.style.left = `${this.currentPosition}px`;
@@ -4887,7 +4916,7 @@
         }
         else {
           this.elements.marqueeContainer.style.overflow = 'scroll';
-          this.elements.marqueeContainer.style.minHeight = '80vh';
+          this.elements.marqueeContainer.style.minHeight = '75vh';
           this.elements.marqueeDisplay.style.whiteSpace = 'normal';
           this.elements.marqueeDisplay.style.textAlign = 'left';
           this.elements.marqueeDisplay.style.left = '0px';
@@ -4909,6 +4938,12 @@
           this.elements.tabNavigation.style.display = 'none';
           this.elements.tabContent.style.display = 'none';
           this.elements.progressBarContainer.style.display = 'none';
+          this.elements.textViewButton.innerHTML = 'Back to previous position';
+          const backToCurrentButton = document.createElement('button');
+          backToCurrentButton.style = this.elements.textViewButton.style;
+          backToCurrentButton.innerHTML = 'Back to current position';
+          backToCurrentButton.addEventListener('click', () => this.toggleTextView(true));
+          this.elements.textViewContainer.appendChild(backToCurrentButton);
           if (this.targetWordIndex != null) {
             this.getWordItemByWordIndex(this.targetWordIndex)?.scrollIntoView();
           }
@@ -5802,6 +5837,23 @@
           }
           const rect = elem.getBoundingClientRect();
           if (0 <= rect.x + rect.width - containerRect.x) {
+            targetWordIndex = wordIndex;
+            break;
+          }
+          wordIndex += 1;
+        }
+        return targetWordIndex !== -1 ? targetWordIndex : null;
+      },
+
+      getFirstVerticalVisibleWordIndex() {
+        const containerRect = this.elements.marqueeContainer.getBoundingClientRect();
+        let wordIndex = 0, targetWordIndex = -1;
+        for (const elem of this.elements.marqueeDisplay.querySelectorAll('.marquee-word-span')) {
+          if (elem.classList.contains(this.newWordMark)) {
+            continue;
+          }
+          const rect = elem.getBoundingClientRect();
+          if (0 <= rect.y + rect.height - containerRect.y) {
             targetWordIndex = wordIndex;
             break;
           }
