@@ -7357,19 +7357,24 @@
         };
 
         const completeSpeech = () => {
-          currentReader.currentPosition = -textWidth;
-          currentReader.elements.marqueeDisplay.style.left = `${currentReader.currentPosition}px`;
-          currentReader.infoSecondsRemaining = 0;
-          currentReader.infoWPM = Math.floor(wordCount / ((Date.now() - currentReader.animationStartTime) / 1000) * 60);
-          currentReader.infoProgress = currentReader.getProgressByPosition();
+          const isSpeaking = this.isSpeaking;
+          if (isSpeaking) {
+            currentReader.currentPosition = -textWidth;
+            currentReader.elements.marqueeDisplay.style.left = `${currentReader.currentPosition}px`;
+            currentReader.infoSecondsRemaining = 0;
+            currentReader.infoWPM = Math.floor(wordCount / ((Date.now() - currentReader.animationStartTime) / 1000) * 60);
+            currentReader.infoProgress = currentReader.getProgressByPosition();
+          }
           if (markAdded) {
             mark.remove();
             markAdded = false;
           }
           stopUpdate();
-          if (currentReader.elements.loopToggle.classList.contains('active')) {
-            currentReader.currentPosition = null;
-            setTimeout(() => currentReader.toggleSpeech(), 50);
+          if (isSpeaking) {
+            if (currentReader.elements.loopToggle.classList.contains('active')) {
+              currentReader.currentPosition = null;
+              setTimeout(() => currentReader.toggleSpeech(), 50);
+            }
           }
         };
 
