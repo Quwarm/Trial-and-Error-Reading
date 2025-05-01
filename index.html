@@ -4877,7 +4877,7 @@
         }
         if (this.isTextViewActive) {
           if (savePosition) {
-            this.targetWordIndex = this.getFirstVerticalVisibleWordIndex() || this.targetWordIndex;
+            this.targetWordIndex = this.getFirstVerticalVisibleWordIndex() ?? this.targetWordIndex;
           }
           this.elements.marqueeContainer.style.overflow = '';
           this.elements.marqueeContainer.style.minHeight = '';
@@ -5848,7 +5848,7 @@
             continue;
           }
           const rect = elem.getBoundingClientRect();
-          if (0 <= rect.y + rect.height - containerRect.y) {
+          if (0 <= rect.y + rect.height * 1 / 2 - containerRect.y) {
             targetWordIndex = wordIndex;
             break;
           }
