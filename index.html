@@ -657,6 +657,15 @@
       text-align: center;
     }
 
+    #gemini-query-input {
+      width: 50%;
+    }
+
+    #gemini-query-label {
+      display: block;
+      margin: 0 auto;
+    }
+
     #voice-select {
       width: 50%;
       text-align: center;
@@ -915,6 +924,7 @@
       #settings-profile-select,
       #text-select,
       #load-wiki-language-select,
+      #gemini-query-input,
       #voice-select,
       #rot-n-language-select,
       #skewing-select {
@@ -1925,6 +1935,34 @@
               </div>
             </div>
           </div>
+          <div class="with-rounded-border">
+            <h3>Gemini API</h3>
+            <div>
+              <label>
+                <span>API Key:</span>
+                <input type="text" id="gemini-key-input" placeholder="API Key">
+              </label>
+            </div>
+            <div>
+              <label>
+                <span>Model:</span>
+                <select id="gemini-model-select">
+                  <option value="gemini-2.0-flash">Gemini 2.0 Flash</option>
+                  <option value="gemini-2.0-flash-lite">Gemini 2.0 Flash Lite</option>
+                  <option value="gemini-1.5-flash">Gemini 1.5 Flash</option>
+                  <option value="gemini-1.5-flash-8b">Gemini 1.5 Flash-8B</option>
+                  <option value="gemini-1.5-pro">Gemini 1.5 Pro</option>
+                </select>
+              </label>
+            </div>
+            <div>
+              <label>
+                <span id="gemini-query-label">Query:</span>
+                <input type="text" id="gemini-query-input">
+              </label>
+            </div>
+            <button id="load-gemini">Load</button>
+          </div>
         </div>
       </div>
       <div id="settings-tab" class="tab-content container-items-in-center with-rounded-border">
@@ -2422,6 +2460,9 @@
         attemptMinTime: 'sle_attempt_min_time',
         showHideTextToggle: 'sle_show_hide_text_toggle',
         removeMarksToggle: 'sle_remove_marks_toggle',
+        geminiKey: 'sle_gemini_key',
+        geminiQuery: 'sle_gemini_query',
+        geminiModel: 'sle_gemini_model',
 
         /* text-to-speech */
         voiceButton: 'sle_voice_button',
@@ -2760,6 +2801,9 @@
         this.elements.fontSizeSlider = document.getElementById('font-size-slider');
         this.elements.fullSizeToggle = document.getElementById('full-size-toggle');
         this.elements.generateChartButton = document.getElementById('generate-chart-button');
+        this.elements.geminiKeyInput = document.getElementById('gemini-key-input');
+        this.elements.geminiModelSelect = document.getElementById('gemini-model-select');
+        this.elements.geminiQueryInput = document.getElementById('gemini-query-input');
         this.elements.hiddenContent1 = document.getElementById('hidden-content-1');
         this.elements.historyEnableToggle = document.getElementById('history-enable-toggle');
         this.elements.historyIndex = document.getElementById('history-index');
@@ -2776,6 +2820,7 @@
         this.elements.letterShuffleSelect = document.getElementById('letter-shuffle-select');
         this.elements.letterSkipSelect = document.getElementById('letter-skip-select');
         this.elements.loadFile = document.getElementById('load-file');
+        this.elements.loadGemini = document.getElementById('load-gemini');
         this.elements.loadMetaphorpsum = document.getElementById('load-metaphorpsum');
         this.elements.loadSentenceMerriamWebster = document.getElementById('load-sentence-merriam-webster');
         this.elements.loadSentenceWordsmythAdvanced = document.getElementById('load-sentence-wordsmyth-advanced');
@@ -3142,6 +3187,10 @@
         this.elements.showHideTextToggle.addEventListener('click', () => this.toggleShowHideText());
         this.elements.textDirectionSelect.addEventListener('input', () => this.toggleTextDirection());
         this.elements.removeMarksToggle.addEventListener('input', () => this.toggleRemoveMarks());
+        this.elements.geminiKeyInput.addEventListener('input', () => this.toggleGeminiKey());
+        this.elements.geminiModelSelect.addEventListener('input', () => this.toggleGeminiModel());
+        this.elements.geminiQueryInput.addEventListener('input', () => this.toggleGeminiQuery());
+        this.elements.loadGemini.addEventListener('click', () => this.loadGemini());
 
         this.controlBeforeUnload();
 
@@ -3306,6 +3355,9 @@
         this.toggleSearchButton();
         this.elements.showHideTextToggle.checked = localStorage.getItem(this.settingsNames.showHideTextToggle) !== 'false';
         this.toggleShowHideText();
+        this.elements.geminiKeyInput.value = localStorage.getItem(this.settingsNames.geminiKey) || '';
+        this.elements.geminiQueryInput.value = localStorage.getItem(this.settingsNames.geminiQuery) || '';
+        this.elements.geminiModelSelect.value = localStorage.getItem(this.settingsNames.geminiModel) || 'gemini-2.0-flash';
         const importDataReplacementValue = localStorage.getItem(this.settingsNames.importDataReplacement) || this.importDataReplacementVariants.replaceIfProvided;
         this.elements.importDataReplacement.forEach((elem) => {
           if (elem.value === importDataReplacementValue) {
@@ -5700,6 +5752,40 @@
         this.elements.body.appendChild(input);
         input.click();
         this.elements.body.removeChild(input);
+      },
+
+      loadGemini() {
+        if (this.animationTimer || this.elements.geminiModelSelect.value.length === 0 || this.elements.geminiKeyInput.value.length === 0 || this.elements.geminiQueryInput.value.length === 0) {
+          return;
+        }
+        const currentReader = this;
+        const url = 'https://generativelanguage.googleapis.com/v1beta/models/'.concat(this.elements.geminiModelSelect.value).concat(':generateContent?key=').concat(this.elements.geminiKeyInput.value);
+        const headers = {
+          'Content-Type': 'application/json'
+        };
+        const data = {
+          contents: [
+            {
+              parts: [
+                {
+                  text: this.elements.geminiQueryInput.value
+                }
+              ]
+            }
+          ]
+        };
+        fetch(url, {
+          method: 'POST',
+          headers: headers,
+          body: JSON.stringify(data)
+        })
+          .then(response => response.json())
+          .then(data => {
+            const text = this.removeMarksIfNeeded(data.candidates[0].content.parts.map(t => t.text).join('\n').trim());
+            currentReader.elements.textInput.value = currentReader.elements.appendTextToggle.checked ? `${currentReader.elements.textInput.value}${currentReader.elements.textInput.value ? '\n\n' : ''}${text}` : text;
+            currentReader.textIsModified = true;
+          })
+          .catch(() => alert('[Gemini] Data fetching error'));
       },
 
       shuffleParagraphsInText() {
@@ -8404,6 +8490,18 @@
           }
         });
       },
+
+      toggleGeminiKey() {
+        localStorage.setItem(this.settingsNames.geminiKey, this.elements.geminiKeyInput.value);
+      },
+
+      toggleGeminiQuery() {
+        localStorage.setItem(this.settingsNames.geminiQuery, this.elements.geminiQueryInput.value);
+      },
+
+      toggleGeminiModel() {
+        localStorage.setItem(this.settingsNames.geminiModel, this.elements.geminiModelSelect.value);
+      }
     };
 
     document.addEventListener('DOMContentLoaded', () => {
