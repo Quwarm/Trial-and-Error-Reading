@@ -3453,7 +3453,7 @@
           currentReader.controllerForUnload = (event) => {
             if (currentReader.settingsProfileIsModified ||
                 currentReader.textIsModified ||
-                currentReader.animationTimer > 0 ||
+                currentReader.animationTimer != null ||
                 currentReader.isSpeaking ||
                 currentReader.isSearchActive ||
                 currentReader.isBookmarksActive) {
@@ -3470,12 +3470,12 @@
       },
 
       togglePlayback() {
-        this.animationTimer ? this.pauseAnimation() : this.startAnimation();
+        this.animationTimer != null ? this.pauseAnimation() : this.startAnimation();
       },
 
       stopPlayback(fully = false) {
-        if (this.animationTimer) {
-          clearTimeout(this.animationTimer);
+        if (this.animationTimer != null) {
+          cancelAnimationFrame(this.animationTimer);
           this.animationTimer = null;
         }
         this.fromContinue = false;
@@ -3911,12 +3911,12 @@
               this.forceNewHistoryItem = true;
               this.animationStartTime = Date.now();
               this.amendHistoryItem();
-              if (this.animationTimer) this.animationTimer = setTimeout(animate, this.stepDelay);
+              if (this.animationTimer != null) this.animationTimer = requestAnimationFrame(animate);
             } else {
               this.currentPosition = endPos;
               this.previousPosition = this.currentPosition;
               this.elements.marqueeDisplay.style.left = `${endPos}px`;
-              clearTimeout(this.animationTimer);
+              cancelAnimationFrame(this.animationTimer);
               this.animationTimer = null;
               this.savePosition();
               this.endProgress = this.getProgressByPosition();
@@ -3937,7 +3937,7 @@
           } else {
             this.currentPosition = newPosition;
             this.elements.marqueeDisplay.style.left = `${this.currentPosition}px`;
-            if (this.animationTimer) this.animationTimer = setTimeout(animate, this.stepDelay);
+            if (this.animationTimer != null) this.animationTimer = requestAnimationFrame(animate);
           }
         };
 
@@ -3968,15 +3968,15 @@
         this.lastUpdateTime = this.animationStartTime;
         if (movement) {
           this.wasStarted = true;
-          this.animationTimer = setTimeout(animate, this.stepDelay);
+          this.animationTimer = requestAnimationFrame(animate);
         }
         this.savePosition();
         return true;
       },
 
       pauseAnimation() {
-        if (this.animationTimer) {
-          clearTimeout(this.animationTimer);
+        if (this.animationTimer != null) {
+          cancelAnimationFrame(this.animationTimer);
           this.animationTimer = null;
           this.elements.speakButton.style.display = '';
           this.elements.textViewButton.style.display = '';
@@ -5193,7 +5193,7 @@
         const newStepSize = speedSmooth ? speedEntry.stepSize * 10 : speedEntry.stepSize;
         const newStepDelay = speedSmooth ? speedEntry.stepDelay : speedEntry.stepDelay;
 
-        if (this.animationTimer) {
+        if (this.animationTimer != null) {
           this.newStepSize = newStepSize;
           this.newStepDelay = newStepDelay;
         } else {
@@ -5573,7 +5573,7 @@
       },
 
       fetchSentenceWordsmythBeginner() {
-        if (this.animationTimer) {
+        if (this.animationTimer != null) {
           return;
         }
         const nSentences = Math.max(0, this.elements.sentenceCountInput.value);
@@ -5591,7 +5591,7 @@
       },
 
       fetchSentenceWordsmythIntermediate() {
-        if (this.animationTimer) {
+        if (this.animationTimer != null) {
           return;
         }
         const nSentences = Math.max(0, this.elements.sentenceCountInput.value);
@@ -5609,7 +5609,7 @@
       },
 
       fetchSentenceWordsmythAdvanced() {
-        if (this.animationTimer) {
+        if (this.animationTimer != null) {
           return;
         }
         const nSentences = Math.max(0, this.elements.sentenceCountInput.value);
@@ -5627,7 +5627,7 @@
       },
 
       fetchSentenceMerriamWebster() {
-        if (this.animationTimer) {
+        if (this.animationTimer != null) {
           return;
         }
         const nSentences = Math.max(0, this.elements.sentenceCountInput.value);
@@ -5645,7 +5645,7 @@
       },
 
       fetchWikipedia(cycle = false) {
-        if (this.animationTimer || this.elements.sentenceCountInput.value <= 0) {
+        if (this.animationTimer != null || this.elements.sentenceCountInput.value <= 0) {
           return;
         }
         const currentReader = this;
@@ -5675,7 +5675,7 @@
       },
 
       fetchUnderthekey(cycle = false) {
-        if (this.animationTimer || this.elements.sentenceCountInput.value <= 0) {
+        if (this.animationTimer != null || this.elements.sentenceCountInput.value <= 0) {
           return;
         }
         const currentReader = this;
@@ -5704,7 +5704,7 @@
       },
 
       fetchMetaphorpsum(cycle = false) {
-        if (this.animationTimer || this.elements.sentenceCountInput.value <= 0) {
+        if (this.animationTimer != null || this.elements.sentenceCountInput.value <= 0) {
           return;
         }
         const currentReader = this;
@@ -5731,7 +5731,7 @@
       },
 
       loadFromFile() {
-        if (this.animationTimer) {
+        if (this.animationTimer != null) {
           return;
         }
         const currentReader = this;
@@ -5755,7 +5755,7 @@
       },
 
       loadGemini() {
-        if (this.animationTimer || this.elements.geminiModelSelect.value.length === 0 || this.elements.geminiKeyInput.value.length === 0 || this.elements.geminiQueryInput.value.length === 0) {
+        if (this.animationTimer != null || this.elements.geminiModelSelect.value.length === 0 || this.elements.geminiKeyInput.value.length === 0 || this.elements.geminiQueryInput.value.length === 0) {
           return;
         }
         const currentReader = this;
@@ -7548,7 +7548,7 @@
       toggleSearch() {
         const currentReader = this;
 
-        if (this.animationTimer || this.isSpeaking) {
+        if (this.animationTimer != null || this.isSpeaking) {
           alert('Stop animation or speech first');
           return;
         }
@@ -7685,7 +7685,7 @@
       },
 
       toggleBookmarks() {
-        if (this.animationTimer || this.isSpeaking) {
+        if (this.animationTimer != null || this.isSpeaking) {
           alert("Stop animation or speech first");
           return;
         }
