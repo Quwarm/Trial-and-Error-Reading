@@ -14,7 +14,10 @@
   <script src="sentences/wordsmyth1.js" type="text/javascript"></script>
   <script src="sentences/wordsmyth2.js" type="text/javascript"></script>
   <script src="sentences/wordsmyth3.js" type="text/javascript"></script>
-  <style>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bad+Script&family=Caveat:wght@400..700&family=Comforter&family=Marck+Script&family=Pacifico&family=Roboto:ital,wght@0,100..900;1,100..900&family=Shantell+Sans:ital,wght@0,300..800;1,300..800&family=Ubuntu:ital,wght@0,300;0,400;0,500;0,700;1,300;1,400;1,500;1,700&display=swap" rel="stylesheet">
+<style>
     :root {
       --background-color: #eeeeee;
       --text-color: #333;
@@ -113,6 +116,7 @@
     }
 
     select,
+    #font-input,
     input[type="number"],
     input[type="text"] {
       text-align: center;
@@ -188,7 +192,7 @@
       margin: 0 auto !important;
     }
 
-    label > select, label > input[type="text"] {
+    label > select, label > #font-input, label > input[type="text"] {
       width: 15%;
       vertical-align: middle;
     }
@@ -226,7 +230,7 @@
       min-height: 42px;
     }
 
-    select, input[type="text"], input[type="number"] {
+    select, #font-input, input[type="text"], input[type="number"] {
       padding: 8px 0px;
     }
 
@@ -888,7 +892,7 @@
       kbd {
         display: none;
       }
-      label > select, label > input[type="text"] {
+      label > select, label > #font-input, label > input[type="text"] {
         width: 100%;
         vertical-align: middle;
       }
@@ -1367,6 +1371,53 @@
         <hr>
         <div>
           <h3>View</h3>
+          <div>
+            <label>
+              <span>Font family:</span>
+              <input type="text" id="font-input"/>
+              <select id="font-list-select">
+                <option value="-">-</option>
+                <option value="serif">[Generic] Serif</option>
+                <option value="sans-serif">[Generic] Sans-Serif</option>
+                <option value="cursive">[Generic] Cursive</option>
+                <option value="fantasy">[Generic] Fantasy</option>
+                <option value="monospace">[Generic] Monospace</option>
+                <option value="'Bad Script', cursive">[Handwriting] Bad Script</option>
+                <option value="'Caveat', cursive">[Handwriting] Caveat</option>
+                <option value="'Comforter', cursive">[Handwriting] Comforter</option>
+                <option value="'Marck Script', cursive">[Handwriting] Marck Script</option>
+                <option value="'Pacifico', cursive">[Handwriting] Pacifico</option>
+                <option value="'Shantell Sans', cursive">[Handwriting] Shantell Sans</option>
+                <option value="'Arial', sans-serif">Arial</option>
+                <option value="'Arial Black', sans-serif">Arial Black</option>
+                <option value="'Century Gothic Regular', 'Century Gothic', sans-serif">Century Gothic</option>
+                <option value="'Comic Sans MS', 'Comic Sans', cursive">Comic Sans</option>
+                <option value="'Courier New', monospace">Courier New</option>
+                <option value="'Georgia', serif">Georgia</option>
+                <option value="'Impact', fantasy">Impact</option>
+                <option value="'Lucida Sans Unicode', 'Lucida Sans', 'Lucida', sans-serif">Lucida Sans Unicode</option>
+                <option value="'Palatino Linotype', serif">Palatino Linotype</option>
+                <option value="'Roboto', sans-serif">Roboto</option>
+                <option value="'Roboto Black', sans-serif">Roboto Black</option>
+                <option value="'Tahoma', sans-serif">Tahoma</option>
+                <option value="'Times New Roman', serif">Times New Roman</option>
+                <option value="'Trebuchet MS', sans-serif">Trebuchet MS</option>
+                <option value="'Ubuntu', sans-serif">Ubuntu</option>
+                <option value="'Verdana', sans-serif">Verdana</option>
+              </select>
+            </label>
+          </div>
+          <div>
+            <label>
+              <span>Font style:</span>
+              <select id="font-style-select">
+                <option value="-">-</option>
+                <option value="bold">Bold</option>
+                <option value="italic">Italic</option>
+                <option value="bold_italic">Bold & Italic</option>
+              </select>
+            </label>
+          </div>
           <div>
             <label>
               <span>Text direction:</span>
@@ -2441,6 +2492,8 @@
         textSize: 'sle_text_size',
         marqueeTheme: 'sle_marquee_theme',
         textDirection: 'sle_text_direction',
+        fontFamily: 'sle_font_family',
+        fontStyle: 'sle_font_style',
 
         /* non-profile settings */
         showColorInfoToggle: 'sle_show_color_info_toggle',
@@ -2524,6 +2577,8 @@
         settings[this.settingsNames.textSize] = '42';
         settings[this.settingsNames.marqueeTheme] = 'marquee-theme-1';
         settings[this.settingsNames.textDirection] = 'ltr';
+        settings[this.settingsNames.fontFamily] = '-';
+        settings[this.settingsNames.fontStyle] = '-';
         return settings;
       },
 
@@ -2566,6 +2621,8 @@
         settings[this.settingsNames.textSize] = this.elements.fontSizeNumber.value;
         settings[this.settingsNames.marqueeTheme] = this.elements.marqueeThemeSelect.value;
         settings[this.settingsNames.textDirection] = this.elements.textDirectionSelect.value;
+        settings[this.settingsNames.fontFamily] = this.elements.fontFamilyInput.value;
+        settings[this.settingsNames.fontStyle] = this.elements.fontStyleSelect.value;
         return settings;
       },
 
@@ -2685,6 +2742,12 @@
         currentKey = this.settingsNames.textDirection;
         this.elements.textDirectionSelect.value = keys.includes(currentKey) ? settingsProfileData[currentKey] : defaultSettings[currentKey];
 
+        currentKey = this.settingsNames.fontFamily;
+        this.elements.fontFamilyInput.value = keys.includes(currentKey) ? settingsProfileData[currentKey] : defaultSettings[currentKey];
+
+        currentKey = this.settingsNames.fontStyle;
+        this.elements.fontStyleSelect.value = keys.includes(currentKey) ? settingsProfileData[currentKey] : defaultSettings[currentKey];
+
         this.adjustSpeed(this.elements.speedNumber.value);
         this.adjustFontSize(this.elements.fontSizeNumber.value);
         this.toggleRotN();
@@ -2694,6 +2757,7 @@
         this.toggleColorEncoder(this.currentPosition != null);
         this.toggleColorDetails();
         this.toggleTextDirection();
+        this.toggleFontFamily();
         this.updateTextStats();
         this.updateTextViewStats();
       },
@@ -2797,6 +2861,9 @@
         this.elements.exportHistoryToggle = document.getElementById('export-history-toggle');
         this.elements.fasterTransitionsToggle = document.getElementById("faster-transitions-toggle");
         this.elements.fastForwardButton = document.getElementById('fast-forward-button');
+        this.elements.fontFamilyInput = document.getElementById('font-input');
+        this.elements.fontListSelect = document.getElementById('font-list-select');
+        this.elements.fontStyleSelect = document.getElementById('font-style-select');
         this.elements.fontSizeNumber = document.getElementById('font-size-number');
         this.elements.fontSizeSlider = document.getElementById('font-size-slider');
         this.elements.fullSizeToggle = document.getElementById('full-size-toggle');
@@ -3191,6 +3258,8 @@
         this.elements.geminiModelSelect.addEventListener('input', () => this.toggleGeminiModel());
         this.elements.geminiQueryInput.addEventListener('input', () => this.toggleGeminiQuery());
         this.elements.loadGemini.addEventListener('click', () => this.loadGemini());
+        this.elements.fontFamilyInput.addEventListener('click', () => this.fontInputChanged());
+        this.elements.fontListSelect.addEventListener('input', () => this.fontListOptionSelected());
 
         this.controlBeforeUnload();
 
@@ -3240,6 +3309,9 @@
         this.elements.wordShuffleSelect.addEventListener('input', settingsProfileModified);
         this.elements.wordSkipSelect.addEventListener('input', settingsProfileModified);
         this.elements.textDirectionSelect.addEventListener('click', settingsProfileModified);
+        this.elements.fontFamilyInput.addEventListener('click', settingsProfileModified);
+        this.elements.fontListSelect.addEventListener('input', settingsProfileModified);
+        this.elements.fontStyleSelect.addEventListener('input', settingsProfileModified);
 
         document.addEventListener('keydown', e => this.handleKeyPress(e));
         window.addEventListener('resize', () => {
@@ -3849,6 +3921,7 @@
           if (colorsNeedsUpdate || viewNeedsUpdate) {
             this.updateTextViewStats();
           }
+          this.toggleFontFamily();
         }
 
         if (!resume) {
@@ -5034,6 +5107,72 @@
           this.elements.marqueeContainer.style.transform = 'scale(-1, 1)';
           this.elements.marqueeDisplay.style.transform = 'scale(-1, 1)';
           this.elements.marqueeDisplay.style.direction = 'rtl';
+        }
+      },
+
+      fontInputChanged(selectPriority = false) {
+        const currentValue = this.elements.fontFamilyInput.value;
+        const options = this.elements.fontListSelect.options;
+        let found = false;
+        if (currentValue !== '-' || selectPriority) {
+          for (let i = 0; i < options.length; ++i) {
+            if (options[i].value === currentValue) {
+              found = true;
+              this.elements.fontListSelect.value = currentValue;
+              break;
+            }
+          }
+        }
+        if (found || currentValue === '') {
+          this.elements.fontListSelect.style.display = '';
+          this.elements.fontFamilyInput.style.display = 'none';
+        }
+        else {
+          this.elements.fontListSelect.style.display = 'none';
+          this.elements.fontFamilyInput.style.display = '';
+        }
+      },
+
+      fontListOptionSelected() {
+        if (this.elements.fontListSelect.value === '-') {
+          this.elements.fontListSelect.style.display = 'none';
+          this.elements.fontFamilyInput.style.display = '';
+        }
+        this.elements.fontFamilyInput.value = this.elements.fontListSelect.value;
+      },
+
+      toggleFontFamily() {
+        this.elements.fontListSelect.style.display = 'none';
+        this.elements.fontFamilyInput.style.display = '';
+        let fontFamilyValue = this.elements.fontFamilyInput.value;
+        if (fontFamilyValue && fontFamilyValue !== '-') {
+          if (![...this.elements.fontListSelect.options].some((t) => t.value === fontFamilyValue)) {
+            fontFamilyValue = fontFamilyValue.split(/\s*?,\s*/).map((v) => [...this.elements.fontListSelect.options].some((t) => t.value === v) ? v : "'".concat(v.replace(/^["']+|["']+$/g, '')).concat("'")).join(', ');
+          }
+          this.elements.marqueeContainer.style.fontFamily = fontFamilyValue;
+        }
+        else {
+          this.elements.marqueeContainer.style.fontFamily = '';
+        }
+        this.fontInputChanged(true);
+        let fontStyleValue = this.elements.fontStyleSelect.value;
+        if (fontStyleValue && fontStyleValue !== '-') {
+          if (fontStyleValue.includes('bold')) {
+            this.elements.marqueeContainer.style.fontWeight = 'bold';
+          }
+          else {
+            this.elements.marqueeContainer.style.fontWeight = '';
+          }
+          if (fontStyleValue.includes('italic')) {
+            this.elements.marqueeContainer.style.fontStyle = 'italic';
+          }
+          else {
+            this.elements.marqueeContainer.style.fontStyle = '';
+          }
+        }
+        else {
+          this.elements.marqueeContainer.style.fontWeight = '';
+          this.elements.marqueeContainer.style.fontStyle = '';
         }
       },
 
