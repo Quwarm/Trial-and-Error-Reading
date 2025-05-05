@@ -5029,6 +5029,7 @@
           this.elements.progressBarContainer.style.display = '';
           this.elements.textViewContainer.removeChild(this.elements.textViewContainer.children[1]);
           this.elements.textViewButton.innerHTML = 'Text view';
+          this.elements.marqueeDisplay.style.height = '';
           if (this.targetWordIndex != null) {
             this.currentPosition = this.getPositionByWordIndex(this.targetWordIndex);
             this.elements.marqueeDisplay.style.left = `${this.currentPosition}px`;
@@ -5064,6 +5065,9 @@
           backToCurrentButton.innerHTML = 'Back to current position';
           backToCurrentButton.addEventListener('click', () => this.toggleTextView(true));
           this.elements.textViewContainer.appendChild(backToCurrentButton);
+          const marqueeContainerRect = this.elements.marqueeContainer.getBoundingClientRect();
+          const marqueeDisplayRect = this.elements.marqueeDisplay.getBoundingClientRect();
+          this.elements.marqueeDisplay.style.height = `${marqueeContainerRect.height + marqueeDisplayRect.height}px`;
           if (this.targetWordIndex != null) {
             this.getWordItemByWordIndex(this.targetWordIndex)?.scrollIntoView();
           }
@@ -6072,9 +6076,9 @@
           if (elem.classList.contains(this.newWordMark)) {
             continue;
           }
+          targetWordIndex = wordIndex;
           const rect = elem.getBoundingClientRect();
           if (0 <= rect.y + rect.height * 1 / 2 - containerRect.y) {
-            targetWordIndex = wordIndex;
             break;
           }
           wordIndex += 1;
