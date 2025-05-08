@@ -14,23 +14,19 @@
   <script src="sentences/wordsmyth1.js" type="text/javascript"></script>
   <script src="sentences/wordsmyth2.js" type="text/javascript"></script>
   <script src="sentences/wordsmyth3.js" type="text/javascript"></script>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="preconnect" href="https://fonts.cdnfonts.com" crossorigin>
+  <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin="anonymous">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous">
+  <link rel="preconnect" href="https://fonts.cdnfonts.com" crossorigin="anonymous">
   <link href="https://fonts.googleapis.com/css2?family=Bad+Script&family=Caveat:wght@400..700&family=Comforter&family=Marck+Script&family=Open+Sans:ital,wght@0,300..800;1,300..800&family=Pacifico&family=Roboto:ital,wght@0,100..900;1,100..900&family=Shantell+Sans:ital,wght@0,300..800;1,300..800&family=Ubuntu:ital,wght@0,300;0,400;0,500;0,700;1,300;1,400;1,500;1,700&display=swap" rel="stylesheet">
   <link href="https://fonts.cdnfonts.com/css/century-gothic" rel="stylesheet">
   <link href="https://fonts.cdnfonts.com/css/comic-sans" rel="stylesheet">
-  <link href="https://fonts.cdnfonts.com/css/courier-new" rel="stylesheet">
-  <link href="https://fonts.cdnfonts.com/css/georgia" rel="stylesheet">
   <link href="https://fonts.cdnfonts.com/css/impact" rel="stylesheet">
   <link href="https://fonts.cdnfonts.com/css/lucida-sans" rel="stylesheet">
-  <link href="https://fonts.cdnfonts.com/css/palatino-linotype" rel="stylesheet">
   <link href="https://fonts.cdnfonts.com/css/sf-ui-display" rel="stylesheet">
   <link href="https://fonts.cdnfonts.com/css/stampatello-faceto" rel="stylesheet">
   <link href="https://fonts.cdnfonts.com/css/tahoma" rel="stylesheet">
   <link href="https://fonts.cdnfonts.com/css/times-new-roman" rel="stylesheet">
   <link href="https://fonts.cdnfonts.com/css/trebuchet-ms-2" rel="stylesheet">
-  <link href="https://fonts.cdnfonts.com/css/verdana" rel="stylesheet">
 <style>
     :root {
       --background-color: #eeeeee;
@@ -1123,15 +1119,85 @@
             <h3>Reading</h3>
           </div>
           <div>
-            <label for="font-size-number"><span>Text size</span></label>
-            <input type="range" id="font-size-slider" min="8" max="50" value="50">
-            <input type="number" id="font-size-number" min="8" max="50" value="50">
-          </div>
-          <div>
             <label for="speed-number"><span>Speed <kbd>+</kbd><kbd>-</kbd></span></label>
             <input type="range" id="speed-slider" min="1" max="1000" value="500">
             <input type="number" id="speed-number" min="1" max="1000" value="500">
             <label><input type="checkbox" id="speed-smooth-toggle"> Smooth (platform-dependent)</label>
+            <label><input type="checkbox" id="rsvp-toggle"> Rapid serial visual presentation</label>
+          </div>
+          <div>
+            <label for="font-size-number"><span>Font size</span></label>
+            <input type="range" id="font-size-slider" min="8" max="50" value="50">
+            <input type="number" id="font-size-number" min="8" max="50" value="50">
+          </div>
+          <div>
+            <label>
+              <span>Font family:</span>
+              <input type="text" id="font-input"/>
+              <div id="font-load-div">
+                <div style="font-family: 'Bad Script', cursive;">1</div>
+                <div style="font-family: 'Caveat', cursive;">1</div>
+                <div style="font-family: 'Comforter', cursive;">1</div>
+                <div style="font-family: 'Marck Script', cursive;">1</div>
+                <div style="font-family: 'Pacifico', cursive;">1</div>
+                <div style="font-family: 'Shantell Sans', cursive; ">1</div>
+                <div style="font-family: 'Stampatello Faceto', cursive;">1</div>
+                <div style="font-family: 'Open Sans', sans-serif;">1</div>
+                <div style="font-family: 'Century Gothic', sans-serif;">1</div>
+                <div style="font-family: 'Comic Sans', cursive;">1</div>
+                <div style="font-family: 'Impact', fantasy;">1</div>
+                <div style="font-family: 'Lucida Sans Unicode', 'Lucida Sans', sans-serif;">1</div>
+                <div style="font-family: 'Roboto', sans-serif;">1</div>
+                <div style="font-family: 'Roboto Black', sans-serif;">1</div>
+                <div style="font-family: 'SF UI Display', sans-serif;">1</div>
+                <div style="font-family: 'Tahoma', sans-serif;">1</div>
+                <div style="font-family: 'Times New Roman', serif;">1</div>
+                <div style="font-family: 'Trebuchet MS', sans-serif;">1</div>
+                <div style="font-family: 'Ubuntu', sans-serif;">1</div>
+              </div>
+              <select id="font-list-select">
+                <option value="-">-</option>
+                <option value="'Open Sans', sans-serif">Open Sans [Default]</option>
+                <option value="'Century Gothic', sans-serif">Century Gothic</option>
+                <option value="'Comic Sans', cursive">Comic Sans</option>
+                <option value="'Impact', fantasy">Impact</option>
+                <option value="'Lucida Sans Unicode', 'Lucida Sans', sans-serif">Lucida Sans Unicode</option>
+                <option value="'Roboto', sans-serif">Roboto</option>
+                <option value="'Roboto Black', sans-serif">Roboto Black</option>
+                <option value="'SF UI Display', sans-serif">San Francisco</option>
+                <option value="'Tahoma', sans-serif">Tahoma</option>
+                <option value="'Times New Roman', serif">Times New Roman</option>
+                <option value="'Trebuchet MS', sans-serif">Trebuchet MS</option>
+                <option value="'Ubuntu', sans-serif">Ubuntu</option>
+                <option value="'Bad Script', cursive">[Handwriting] Bad Script</option>
+                <option value="'Caveat', cursive">[Handwriting] Caveat</option>
+                <option value="'Comforter', cursive">[Handwriting] Comforter</option>
+                <option value="'Marck Script', cursive">[Handwriting] Marck Script</option>
+                <option value="'Pacifico', cursive">[Handwriting] Pacifico</option>
+                <option value="'Shantell Sans', cursive">[Handwriting] Shantell Sans</option>
+                <option value="'Stampatello Faceto', cursive">[Handwriting] Stampatello Faceto</option>
+              </select>
+            </label>
+          </div>
+          <div>
+            <label>
+              <span>Font style:</span>
+              <select id="font-style-select">
+                <option value="-">-</option>
+                <option value="bold">Bold</option>
+                <option value="italic">Italic</option>
+                <option value="bold_italic">Bold & Italic</option>
+              </select>
+            </label>
+          </div>
+          <div>
+            <label>
+              <span>Text direction:</span>
+              <select id="text-direction-select">
+                <option value="ltr">Left to Right</option>
+                <option value="rtl">Right to Left</option>
+              </select>
+            </label>
           </div>
         </div>
         <hr>
@@ -1397,63 +1463,6 @@
         <hr>
         <div>
           <h3>View</h3>
-          <div>
-            <label>
-              <span>Font family:</span>
-              <input type="text" id="font-input"/>
-              <select id="font-list-select">
-                <option value="-">-</option>
-                <option value="serif">[Generic] Serif</option>
-                <option value="sans-serif">[Generic] Sans-Serif</option>
-                <option value="cursive">[Generic] Cursive</option>
-                <option value="fantasy">[Generic] Fantasy</option>
-                <option value="monospace">[Generic] Monospace</option>
-                <option value="'Bad Script', cursive">[Handwriting] Bad Script</option>
-                <option value="'Caveat', cursive">[Handwriting] Caveat</option>
-                <option value="'Comforter', cursive">[Handwriting] Comforter</option>
-                <option value="'Marck Script', cursive">[Handwriting] Marck Script</option>
-                <option value="'Pacifico', cursive">[Handwriting] Pacifico</option>
-                <option value="'Shantell Sans', cursive">[Handwriting] Shantell Sans</option>
-                <option value="'Stampatello Faceto', cursive">[Handwriting] Stampatello Faceto</option>
-                <option value="'Open Sans', sans-serif">Open Sans</option>
-                <option value="'Century Gothic', sans-serif">Century Gothic</option>
-                <option value="'Comic Sans', cursive">Comic Sans</option>
-                <option value="'Courier New', monospace">Courier New</option>
-                <option value="'Georgia', serif">Georgia</option>
-                <option value="'Impact', fantasy">Impact</option>
-                <option value="'Lucida Sans Unicode', 'Lucida Sans', sans-serif">Lucida Sans Unicode</option>
-                <option value="'Palatino Linotype', serif">Palatino Linotype</option>
-                <option value="'Roboto', sans-serif">Roboto</option>
-                <option value="'Roboto Black', sans-serif">Roboto Black</option>
-                <option value="'SF UI Display', sans-serif">San Francisco</option>
-                <option value="'Tahoma', sans-serif">Tahoma</option>
-                <option value="'Times New Roman', serif">Times New Roman</option>
-                <option value="'Trebuchet MS', sans-serif">Trebuchet MS</option>
-                <option value="'Ubuntu', sans-serif">Ubuntu</option>
-                <option value="'Verdana', sans-serif">Verdana</option>
-              </select>
-            </label>
-          </div>
-          <div>
-            <label>
-              <span>Font style:</span>
-              <select id="font-style-select">
-                <option value="-">-</option>
-                <option value="bold">Bold</option>
-                <option value="italic">Italic</option>
-                <option value="bold_italic">Bold & Italic</option>
-              </select>
-            </label>
-          </div>
-          <div>
-            <label>
-              <span>Text direction:</span>
-              <select id="text-direction-select">
-                <option value="ltr">Left to Right</option>
-                <option value="rtl">Right to Left</option>
-              </select>
-            </label>
-          </div>
           <div>
             <label>
               <span>Marquee theme:</span>
@@ -2173,7 +2182,7 @@
           <div>
             <label>
               <input type="checkbox" id="export-history-toggle">
-              <span>Export history</span>
+              <span>Export all with history</span>
             </label>
           </div>
           <div>
@@ -2226,7 +2235,7 @@
                 <span><span id="report-month-attempts">0</span> attempts</span>
                 <span><span id="report-month-time">00:00:00</span></span>
               </div>
-              <div class="report-row" style="display: none;">
+              <div class="report-row">
                 <span>Previous Month</span>
                 <span><span id="report-prev-month-attempts">0</span> attempts</span>
                 <span><span id="report-prev-month-time">00:00:00</span></span>
@@ -2351,6 +2360,7 @@
       stepDelay: 0,
       newStepSize: null,
       newStepDelay: null,
+      newSpeed: null,
 
       elements: {},
       controllerForUnload: null,
@@ -2521,6 +2531,7 @@
         textDirection: 'sle_text_direction',
         fontFamily: 'sle_font_family',
         fontStyle: 'sle_font_style',
+        rsvpMode: 'sle_rsvp_mode',
 
         /* non-profile settings */
         showColorInfoToggle: 'sle_show_color_info_toggle',
@@ -2618,6 +2629,7 @@
         settings[this.settingsNames.colorTaskBackgroundColoring] = this.elements.textBackgroundColoringToggle.checked;
         settings[this.settingsNames.speed] = this.elements.speedNumber.value;
         settings[this.settingsNames.speedSmooth] = this.elements.speedSmoothToggle.checked;
+        settings[this.settingsNames.rsvpMode] = this.elements.rsvpToggle.checked;
         settings[this.settingsNames.skippingLetters] = this.elements.letterSkipSelect.value;
         settings[this.settingsNames.reversingLetters] = this.elements.letterReverseSelect.value;
         settings[this.settingsNames.shufflingLetters] = this.elements.letterShuffleSelect.value;
@@ -2674,6 +2686,9 @@
 
         currentKey = this.settingsNames.speedSmooth;
         this.elements.speedSmoothToggle.checked = keys.includes(currentKey) ? settingsProfileData[currentKey] : defaultSettings[currentKey];
+
+        currentKey = this.settingsNames.rsvpMode;
+        this.elements.rsvpToggle.checked = keys.includes(currentKey) ? settingsProfileData[currentKey] : defaultSettings[currentKey];
 
         currentKey = this.settingsNames.skippingLetters;
         this.elements.letterSkipSelect.value = keys.includes(currentKey) ? settingsProfileData[currentKey] : defaultSettings[currentKey];
@@ -2890,6 +2905,7 @@
         this.elements.fastForwardButton = document.getElementById('fast-forward-button');
         this.elements.fontFamilyInput = document.getElementById('font-input');
         this.elements.fontListSelect = document.getElementById('font-list-select');
+        this.elements.fontLoadDiv = document.getElementById('font-load-div');
         this.elements.fontStyleSelect = document.getElementById('font-style-select');
         this.elements.fontSizeNumber = document.getElementById('font-size-number');
         this.elements.fontSizeSlider = document.getElementById('font-size-slider');
@@ -2972,6 +2988,7 @@
         this.elements.rotNOptions = document.getElementById('rot-n-options');
         this.elements.rotNToggle = document.getElementById('rot-n-toggle');
         this.elements.rotNUpperCaseLowerCase = document.getElementById('rot-n-upper-case-lower-case');
+        this.elements.rsvpToggle = document.getElementById('rsvp-toggle');
         this.elements.saveBookmarksButton = document.getElementById("save-bookmarks-button");
         this.elements.saveSettingsProfileButton = document.getElementById('save-settings-profile-button');
         this.elements.saveTextButton = document.getElementById('save-text-button');
@@ -3322,6 +3339,7 @@
         this.elements.rotNNumberMin.addEventListener('input', settingsProfileModified);
         this.elements.rotNToggle.addEventListener('click', settingsProfileModified);
         this.elements.rotNUpperCaseLowerCase.addEventListener('click', settingsProfileModified);
+        this.elements.rsvpToggle.addEventListener('click', settingsProfileModified);
         this.elements.sentenceShuffleSelect.addEventListener('input', settingsProfileModified);
         this.elements.skewingNumberMax.addEventListener('input', settingsProfileModified);
         this.elements.skewingNumberMin.addEventListener('input', settingsProfileModified);
@@ -3525,6 +3543,7 @@
             }
             currentReader.constructed = true;
             currentReader.savePosition();
+            currentReader.elements.fontLoadDiv.style.display = 'none';
             setTimeout(() => currentReader.updateAnimationInfoCycle(), currentReader.animationInfoUpdateDelay);
           });
         });
@@ -3931,6 +3950,7 @@
             }
             return {};
           };
+          this.toggleFontFamily();
           this.elements.marqueeDisplay.innerHTML = this.processText(
             textNeedsUpdate ? this.realText1List : this.realText2List,
             this.realText1RefList,
@@ -3948,7 +3968,6 @@
           if (colorsNeedsUpdate || viewNeedsUpdate) {
             this.updateTextViewStats();
           }
-          this.toggleFontFamily();
         }
 
         if (!resume) {
@@ -3999,13 +4018,12 @@
 
           if (newPosition <= endPos) {
             if (this.isLoopEnabled) {
-              this.animationStartTime = Date.now();
-              this.currentPosition = startPos;
-              this.previousPosition = this.currentPosition;
-              this.elements.marqueeDisplay.style.left = `${startPos}px`;
               this.savePosition();
               this.endProgress = this.getProgressByPosition();
               this.amendHistoryItem();
+              this.currentPosition = startPos;
+              this.previousPosition = this.currentPosition;
+              this.elements.marqueeDisplay.style.left = `${startPos}px`;
               this.startProgress = this.getProgressByPosition();
               this.endProgress = this.startProgress;
               this.forceNewHistoryItem = true;
@@ -4014,13 +4032,13 @@
               if (this.animationTimer != null) this.animationTimer = requestAnimationFrame(animate);
             } else {
               this.currentPosition = endPos;
+              this.savePosition();
+              this.endProgress = this.getProgressByPosition();
+              this.amendHistoryItem();
               this.previousPosition = this.currentPosition;
               this.elements.marqueeDisplay.style.left = `${endPos}px`;
               cancelAnimationFrame(this.animationTimer);
               this.animationTimer = null;
-              this.savePosition();
-              this.endProgress = this.getProgressByPosition();
-              this.amendHistoryItem();
               this.forceNewHistoryItem = true;
               this.animationStartTime = Date.now();
               this.amendHistoryItem();
@@ -4039,6 +4057,158 @@
             this.elements.marqueeDisplay.style.left = `${this.currentPosition}px`;
             if (this.animationTimer != null) this.animationTimer = requestAnimationFrame(animate);
           }
+        };
+
+        const animateRsvp = () => {
+          const containerRect = this.elements.marqueeContainer.getBoundingClientRect();
+          const words = this.realText2List;
+          const spans = Array.from(this.elements.marqueeDisplay.querySelectorAll('.marquee-word-span'));
+
+          let startSpanIndex = 0;
+          const shift = containerWidth * 0.5;
+          if (this.currentPosition !== null) {
+            for (let i = 0; i < spans.length; i++) {
+              const currentSpanRect = spans[i].getBoundingClientRect();
+              if (shift <= currentSpanRect.x + currentSpanRect.width - containerRect.x) {
+                startSpanIndex = i;
+                break;
+              }
+            }
+          }
+
+          if (startSpanIndex >= spans.length || spans.length !== words.length) {
+            cancelAnimationFrame(this.animationTimer);
+            this.animationTimer = null;
+            return;
+          }
+
+          const wordCount = words.length;
+          const totalWordLength = words.reduce((sum, w) => sum + w.length, 0);
+          const avgWordLength = Math.max(1, wordCount ? (totalWordLength / wordCount) : 0);
+
+          let currentWordIndex = startSpanIndex;
+          let wpm = this.speed;
+          let baseWordDelay = (60 / wpm) * 1000;
+          let curWordLength = 0;
+          let wordDelay = 0;
+
+          let wordStartTime = Date.now();
+          let isWordDisplayed = false;
+
+          const updateWordUI = (wordIndex) => {
+            if (wordIndex >= wordCount) {
+              completeAnimation();
+              return;
+            }
+
+            const spanRect = spans[wordIndex].getBoundingClientRect();
+            const marqueeRect = this.elements.marqueeDisplay.getBoundingClientRect();
+            const spanPos = -(spanRect.left - marqueeRect.left) + Math.max(0, shift - spanRect.width / 2);
+            this.currentPosition = Math.max(endPos, Math.min(startPos, spanPos));
+            this.elements.marqueeDisplay.style.left = `${this.currentPosition}px`;
+
+            const relWordN = wordIndex - startSpanIndex + 1;
+            const newLastUpdateTime = Date.now();
+            const elapsedTime = (newLastUpdateTime - this.animationStartTime) / 1000;
+            const wordsPerSecond = elapsedTime > 1 ? relWordN / elapsedTime : relWordN / 60;
+            const remainingWords = wordCount - wordIndex - 1;
+            const secondsRemaining = wordsPerSecond > 0 ? (remainingWords / wordsPerSecond) : 0;
+            const tWPM = Math.min(Math.floor(wordsPerSecond * 60), wpm);
+
+            this.infoSecondsRemaining = Math.floor(secondsRemaining);
+            this.infoWPM = tWPM !== wpm ? `${tWPM}-${wpm}` : `${wpm}`;
+            this.infoProgress = this.getProgressByPosition();
+            this.lastUpdateTime = newLastUpdateTime;
+          };
+
+          const completeAnimation = () => {
+            this.currentPosition = endPos;
+            this.elements.marqueeDisplay.style.left = `${this.currentPosition}px`;
+            this.infoSecondsRemaining = 0;
+            const tWPM = Math.floor((wordCount - startSpanIndex) / ((Date.now() - this.animationStartTime) / 1000) * 60);
+            this.infoWPM = tWPM !== wpm ? `${tWPM}-${wpm}` : `${wpm}`;
+            this.infoProgress = this.getProgressByPosition();
+            this.lastUpdateTime = this.animationStartTime;
+
+            if (this.isLoopEnabled) {
+              this.savePosition();
+              this.endProgress = this.getProgressByPosition();
+              this.amendHistoryItem();
+              this.currentPosition = startPos;
+              this.previousPosition = this.currentPosition;
+              this.elements.marqueeDisplay.style.left = `${startPos}px`;
+              this.startProgress = this.getProgressByPosition();
+              this.endProgress = this.startProgress;
+              this.forceNewHistoryItem = true;
+              this.animationStartTime = Date.now();
+              this.amendHistoryItem();
+              if (this.animationTimer != null) this.animationTimer = requestAnimationFrame(animateRsvp);
+            } else {
+              this.currentPosition = endPos;
+              this.savePosition();
+              this.endProgress = this.getProgressByPosition();
+              this.amendHistoryItem();
+              this.previousPosition = this.currentPosition;
+              this.elements.marqueeDisplay.style.left = `${endPos}px`;
+              cancelAnimationFrame(this.animationTimer);
+              this.animationTimer = null;
+              this.forceNewHistoryItem = true;
+              this.animationStartTime = Date.now();
+              this.amendHistoryItem();
+              this.elements.speakButton.style.display = '';
+              this.elements.textViewButton.style.display = '';
+              this.elements.searchButton.style.display = '';
+              this.elements.bookmarksButton.style.display = '';
+              this.elements.controlsContainerFooter.style.display = '';
+              this.elements.loopToggle.style.display = '';
+              this.elements.progressDisplay.style.display = '';
+              this.elements.tabNavigation.style.display = '';
+              this.elements.tabContent.style.display = '';
+            }
+          };
+
+          const getCostForWord = (currentWord) => {
+            return (
+              (['.', '!', '?', ':', ';'].some((v) => currentWord.includes(v)) ? 2 : 0) +
+              ([',', '-'].some((v) => currentWord.includes(v)) ? 1 : 0)
+            );
+          };
+
+          const animateFrame = () => {
+            if (currentWordIndex >= wordCount) {
+              completeAnimation();
+              return;
+            }
+
+            const currentTime = Date.now();
+            const currentWord = words[currentWordIndex];
+            if (this.newSpeed != null) {
+              this.speed = this.newSpeed;
+              this.newSpeed = null;
+              wpm = this.speed;
+              baseWordDelay = (60 / wpm) * 1000;
+              wordDelay = baseWordDelay * (Math.max(3, curWordLength) + getCostForWord(currentWord) * avgWordLength) / avgWordLength;
+            }
+
+            if (!isWordDisplayed) {
+              updateWordUI(currentWordIndex);
+              isWordDisplayed = true;
+              curWordLength = currentWord.length;
+              wordDelay = baseWordDelay * (Math.max(3, curWordLength) + getCostForWord(currentWord) * avgWordLength) / avgWordLength;
+            }
+
+            if (currentTime - wordStartTime >= wordDelay) {
+              currentWordIndex++;
+              isWordDisplayed = false;
+              wordStartTime = currentTime;
+            }
+
+            this.animationTimer = requestAnimationFrame(animateFrame);
+          };
+
+          this.animationStartTime = Date.now();
+          this.lastUpdateTime = this.animationStartTime;
+          this.animationTimer = requestAnimationFrame(animateFrame);
         };
 
         this.elements.rewindButton.disabled = false;
@@ -4068,7 +4238,7 @@
         this.lastUpdateTime = this.animationStartTime;
         if (movement) {
           this.wasStarted = true;
-          this.animationTimer = requestAnimationFrame(animate);
+          this.animationTimer = requestAnimationFrame(this.elements.rsvpToggle.checked ? animateRsvp : animate);
         }
         this.savePosition();
         return true;
@@ -5173,6 +5343,9 @@
       },
 
       toggleFontFamily() {
+        if (this.targetWordIndex == null) {
+          this.targetWordIndex = this.getFirstVisibleWordIndex();
+        }
         this.elements.fontListSelect.style.display = 'none';
         this.elements.fontFamilyInput.style.display = '';
         let fontFamilyValue = this.elements.fontFamilyInput.value;
@@ -5204,6 +5377,10 @@
         else {
           this.elements.marqueeContainer.style.fontWeight = '';
           this.elements.marqueeContainer.style.fontStyle = '';
+        }
+        if (this.targetWordIndex != null) {
+          this.currentPosition = this.getPositionByWordIndex(this.targetWordIndex);
+          this.elements.marqueeDisplay.style.left = `${this.currentPosition}px`;
         }
       },
 
@@ -5362,13 +5539,16 @@
         const speedSmooth = this.elements.speedSmoothToggle.checked;
         const newStepSize = speedSmooth ? speedEntry.stepSize * 10 : speedEntry.stepSize;
         const newStepDelay = speedSmooth ? speedEntry.stepDelay : speedEntry.stepDelay;
+        const newSpeed = speed;
 
         if (this.animationTimer != null) {
           this.newStepSize = newStepSize;
           this.newStepDelay = newStepDelay;
+          this.newSpeed = newSpeed;
         } else {
           this.stepSize = newStepSize;
           this.stepDelay = newStepDelay;
+          this.speed = newSpeed;
         }
       },
 
@@ -5378,7 +5558,31 @@
           if (wasPlaying) this.pauseAnimation();
           const containerWidth = this.cachedContainerWidth;
           const textWidth = this.cachedTextWidth;
-          this.currentPosition = Math.max(-textWidth, Math.min(containerWidth, parseInt(this.elements.marqueeDisplay.style.left) + Math.floor(containerWidth / 4)));
+          if (this.elements.rsvpToggle.checked) {
+            const containerRect = this.elements.marqueeContainer.getBoundingClientRect();
+            const startPos = containerWidth;
+            const endPos = -textWidth;
+            const spans = Array.from(this.elements.marqueeDisplay.querySelectorAll('.marquee-word-span'));
+            const shift = containerWidth * 0.5;
+            let startSpanIndex = 0;
+            for (let i = 0; i < spans.length; i++) {
+              const currentSpanRect = spans[i].getBoundingClientRect();
+              if (shift <= currentSpanRect.x + currentSpanRect.width - containerRect.x) {
+                startSpanIndex = i - 1;
+                break;
+              }
+            }
+            startSpanIndex = Math.max(0, startSpanIndex);
+            if (0 <= startSpanIndex && startSpanIndex < spans.length) {
+              const spanRect = spans[startSpanIndex].getBoundingClientRect();
+              const marqueeRect = this.elements.marqueeDisplay.getBoundingClientRect();
+              const spanPos = -(spanRect.left - marqueeRect.left) + shift;
+              this.currentPosition = Math.max(endPos, Math.min(startPos, spanPos));
+            }
+          }
+          else {
+            this.currentPosition = Math.max(-textWidth, Math.min(containerWidth, parseInt(this.elements.marqueeDisplay.style.left) + Math.floor(containerWidth / 4)));
+          }
           this.elements.marqueeDisplay.style.left = `${this.currentPosition}px`;
           this.savePosition();
           if (wasPlaying) this.startAnimation(true);
@@ -5391,7 +5595,31 @@
           if (wasPlaying) this.pauseAnimation();
           const containerWidth = this.cachedContainerWidth;
           const textWidth = this.cachedTextWidth;
-          this.currentPosition = Math.max(-textWidth, Math.min(containerWidth, parseInt(this.elements.marqueeDisplay.style.left) - Math.floor(containerWidth / 4)));
+          if (this.elements.rsvpToggle.checked) {
+            const containerRect = this.elements.marqueeContainer.getBoundingClientRect();
+            const startPos = containerWidth;
+            const endPos = -textWidth;
+            const spans = Array.from(this.elements.marqueeDisplay.querySelectorAll('.marquee-word-span'));
+            const shift = containerWidth * 0.5;
+            let startSpanIndex = 0;
+            for (let i = 0; i < spans.length; i++) {
+              const currentSpanRect = spans[i].getBoundingClientRect();
+              if (shift <= currentSpanRect.x + currentSpanRect.width - containerRect.x) {
+                startSpanIndex = i + 1;
+                break;
+              }
+            }
+            startSpanIndex = Math.min(spans.length - 1, startSpanIndex);
+            if (0 <= startSpanIndex && startSpanIndex < spans.length) {
+              const spanRect = spans[startSpanIndex].getBoundingClientRect();
+              const marqueeRect = this.elements.marqueeDisplay.getBoundingClientRect();
+              const spanPos = -(spanRect.left - marqueeRect.left) + shift;
+              this.currentPosition = Math.max(endPos, Math.min(startPos, spanPos));
+            }
+          }
+          else {
+            this.currentPosition = Math.max(-textWidth, Math.min(containerWidth, parseInt(this.elements.marqueeDisplay.style.left) - Math.floor(containerWidth / 4)));
+          }
           this.elements.marqueeDisplay.style.left = `${this.currentPosition}px`;
           this.savePosition();
           if (wasPlaying) this.startAnimation(true);
@@ -7596,10 +7824,11 @@
           currentReader.currentPosition = Math.max(endPos, Math.min(startPos, spanPositions[spanIndex] + shift));
           currentReader.elements.marqueeDisplay.style.left = `${currentReader.currentPosition}px`;
 
+          const relWordN = wordIndex + 1;
           const newLastUpdateTime = Date.now();
           const elapsedTime = (newLastUpdateTime - currentReader.animationStartTime) / 1000;
-          const wordsPerSecond = elapsedTime ? wordIndex / elapsedTime : wordIndex;
-          const remainingWords = wordCount - wordIndex;
+          const wordsPerSecond = elapsedTime > 1 ? relWordN / elapsedTime : relWordN / 60;
+          const remainingWords = wordCount - wordIndex - 1;
           const secondsRemaining = wordsPerSecond > 0 ? (remainingWords / wordsPerSecond) : 0;
 
           currentReader.infoSecondsRemaining = secondsRemaining;
