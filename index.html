@@ -16,7 +16,21 @@
   <script src="sentences/wordsmyth3.js" type="text/javascript"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Bad+Script&family=Caveat:wght@400..700&family=Comforter&family=Marck+Script&family=Pacifico&family=Roboto:ital,wght@0,100..900;1,100..900&family=Shantell+Sans:ital,wght@0,300..800;1,300..800&family=Ubuntu:ital,wght@0,300;0,400;0,500;0,700;1,300;1,400;1,500;1,700&display=swap" rel="stylesheet">
+  <link rel="preconnect" href="https://fonts.cdnfonts.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bad+Script&family=Caveat:wght@400..700&family=Comforter&family=Marck+Script&family=Open+Sans:ital,wght@0,300..800;1,300..800&family=Pacifico&family=Roboto:ital,wght@0,100..900;1,100..900&family=Shantell+Sans:ital,wght@0,300..800;1,300..800&family=Ubuntu:ital,wght@0,300;0,400;0,500;0,700;1,300;1,400;1,500;1,700&display=swap" rel="stylesheet">
+  <link href="https://fonts.cdnfonts.com/css/century-gothic" rel="stylesheet">
+  <link href="https://fonts.cdnfonts.com/css/comic-sans" rel="stylesheet">
+  <link href="https://fonts.cdnfonts.com/css/courier-new" rel="stylesheet">
+  <link href="https://fonts.cdnfonts.com/css/georgia" rel="stylesheet">
+  <link href="https://fonts.cdnfonts.com/css/impact" rel="stylesheet">
+  <link href="https://fonts.cdnfonts.com/css/lucida-sans" rel="stylesheet">
+  <link href="https://fonts.cdnfonts.com/css/palatino-linotype" rel="stylesheet">
+  <link href="https://fonts.cdnfonts.com/css/sf-ui-display" rel="stylesheet">
+  <link href="https://fonts.cdnfonts.com/css/stampatello-faceto" rel="stylesheet">
+  <link href="https://fonts.cdnfonts.com/css/tahoma" rel="stylesheet">
+  <link href="https://fonts.cdnfonts.com/css/times-new-roman" rel="stylesheet">
+  <link href="https://fonts.cdnfonts.com/css/trebuchet-ms-2" rel="stylesheet">
+  <link href="https://fonts.cdnfonts.com/css/verdana" rel="stylesheet">
 <style>
     :root {
       --background-color: #eeeeee;
@@ -73,7 +87,9 @@
 
     body {
       font-size: 16px;
-      font-family: Arial, sans-serif;
+      font-family: 'Open Sans', sans-serif;
+      font-weight: normal;
+      font-style: normal;
       margin: 0;
       padding: 10px;
       background-color: var(--background-color);
@@ -81,9 +97,19 @@
       transition: background-color 0.3s, color 0.3s;
     }
 
+    body button, body input, body select {
+      font-family: inherit;
+      font-weight: inherit;
+      font-style: inherit;
+    }
+
+    body textarea {
+      font-family: monospace;
+    }
+
     h3 {
       font-size: 16px;
-      font-weight: 600;
+      font-weight: bold;
       padding: 8px 0px;
     }
 
@@ -1388,17 +1414,18 @@
                 <option value="'Marck Script', cursive">[Handwriting] Marck Script</option>
                 <option value="'Pacifico', cursive">[Handwriting] Pacifico</option>
                 <option value="'Shantell Sans', cursive">[Handwriting] Shantell Sans</option>
-                <option value="'Arial', sans-serif">Arial</option>
-                <option value="'Arial Black', sans-serif">Arial Black</option>
-                <option value="'Century Gothic Regular', 'Century Gothic', sans-serif">Century Gothic</option>
-                <option value="'Comic Sans MS', 'Comic Sans', cursive">Comic Sans</option>
+                <option value="'Stampatello Faceto', cursive">[Handwriting] Stampatello Faceto</option>
+                <option value="'Open Sans', sans-serif">Open Sans</option>
+                <option value="'Century Gothic', sans-serif">Century Gothic</option>
+                <option value="'Comic Sans', cursive">Comic Sans</option>
                 <option value="'Courier New', monospace">Courier New</option>
                 <option value="'Georgia', serif">Georgia</option>
                 <option value="'Impact', fantasy">Impact</option>
-                <option value="'Lucida Sans Unicode', 'Lucida Sans', 'Lucida', sans-serif">Lucida Sans Unicode</option>
+                <option value="'Lucida Sans Unicode', 'Lucida Sans', sans-serif">Lucida Sans Unicode</option>
                 <option value="'Palatino Linotype', serif">Palatino Linotype</option>
                 <option value="'Roboto', sans-serif">Roboto</option>
                 <option value="'Roboto Black', sans-serif">Roboto Black</option>
+                <option value="'SF UI Display', sans-serif">San Francisco</option>
                 <option value="'Tahoma', sans-serif">Tahoma</option>
                 <option value="'Times New Roman', serif">Times New Roman</option>
                 <option value="'Trebuchet MS', sans-serif">Trebuchet MS</option>
@@ -5156,7 +5183,7 @@
           this.elements.marqueeContainer.style.fontFamily = fontFamilyValue;
         }
         else {
-          this.elements.marqueeContainer.style.fontFamily = '';
+          this.elements.marqueeContainer.style.fontFamily = "'Open Sans', sans-serif";
         }
         this.fontInputChanged(true);
         let fontStyleValue = this.elements.fontStyleSelect.value;
@@ -6228,7 +6255,7 @@
       },
 
       handleKeyPress(event) {
-        if (['INPUT', 'TEXTAREA'].includes(event.target.tagName)) return;
+        if (['INPUT', 'TEXTAREA', 'SELECT'].includes(event.target.tagName)) return;
         let preventDefault = true;
         switch (event.key) {
           case ' ': this.togglePlayback(); break;
