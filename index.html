@@ -716,7 +716,8 @@
 
     body.marquee-theme-2 .marquee-letter-span,
     body.marquee-theme-3 .marquee-letter-span,
-    body.marquee-theme-4 .marquee-letter-span {
+    body.marquee-theme-4 .marquee-letter-span,
+    body.marquee-theme-5 .marquee-letter-span {
       border-left: 1px solid var(--border-color-inv);
       border-right: 1px solid var(--border-color-inv);
     }
@@ -726,9 +727,18 @@
       border-right: 1px solid var(--border-color);
     }
 
-    body.marquee-theme-4 .marquee-word-span {
+    body.marquee-theme-4 .marquee-word-span,
+    body.marquee-theme-5 .marquee-word-span {
       border-left: 2px solid var(--border-color);
       border-right: 2px solid var(--border-color);
+    }
+
+    body.marquee-theme-4 .marquee-word-span {
+      padding: 0 5px;
+    }
+
+    body.marquee-theme-5 .marquee-word-span {
+      padding: 0 10px;
     }
 
     body.marquee-theme-1 .marquee-word-span {
@@ -745,6 +755,11 @@
 
     body.marquee-theme-4 .marquee-word-span {
       margin: 0px 26px;
+    }
+
+    body.marquee-theme-5 .marquee-word-span,
+    body.marquee-theme-6 .marquee-word-span {
+      margin: 0px 42px;
     }
 
     body.marquee-theme-1 .marquee-letter-span {
@@ -1123,8 +1138,14 @@
             <input type="range" id="speed-slider" min="1" max="1000" value="500">
             <input type="number" id="speed-number" min="1" max="1000" value="500">
             <label><input type="checkbox" id="speed-smooth-toggle"> Smooth (platform-dependent)</label>
-            <label><input type="checkbox" id="rsvp-toggle"> Rapid serial visual presentation</label>
+            <label><input type="checkbox" id="rsvp-toggle"> Rapid Serial Visual Presentation (RSVP)</label>
+            <div>
+              <label for="rsvp-punctuation-delay-number"><span>RSVP Punctuation delay (%)</span></label>
+              <input type="range" id="rsvp-punctuation-delay-slider" min="0" max="200" value="150">
+              <input type="number" id="rsvp-punctuation-delay-number" min="0" max="200" value="150">
+            </div>
           </div>
+          <hr>
           <div>
             <label for="font-size-number"><span>Font size</span></label>
             <input type="range" id="font-size-slider" min="8" max="50" value="50">
@@ -1471,6 +1492,8 @@
                 <option value="marquee-theme-2">Theme 2</option>
                 <option value="marquee-theme-3">Theme 3</option>
                 <option value="marquee-theme-4">Theme 4</option>
+                <option value="marquee-theme-5">Theme 5</option>
+                <option value="marquee-theme-6">Theme 6</option>
               </select>
             </label>
           </div>
@@ -2449,7 +2472,9 @@
         'marquee-theme-1',
         'marquee-theme-2',
         'marquee-theme-3',
-        'marquee-theme-4'
+        'marquee-theme-4',
+        'marquee-theme-5',
+        'marquee-theme-6'
       ],
 
       sentenceWordsmyth1Generator: null,
@@ -2532,6 +2557,7 @@
         fontFamily: 'sle_font_family',
         fontStyle: 'sle_font_style',
         rsvpMode: 'sle_rsvp_mode',
+        rsvpPunctuationDelay: 'sle_rsvp_punctuation_delay',
 
         /* non-profile settings */
         showColorInfoToggle: 'sle_show_color_info_toggle',
@@ -2617,6 +2643,7 @@
         settings[this.settingsNames.textDirection] = 'ltr';
         settings[this.settingsNames.fontFamily] = '-';
         settings[this.settingsNames.fontStyle] = '-';
+        settings[this.settingsNames.rsvpPunctuationDelay] = '150';
         return settings;
       },
 
@@ -2662,6 +2689,7 @@
         settings[this.settingsNames.textDirection] = this.elements.textDirectionSelect.value;
         settings[this.settingsNames.fontFamily] = this.elements.fontFamilyInput.value;
         settings[this.settingsNames.fontStyle] = this.elements.fontStyleSelect.value;
+        settings[this.settingsNames.rsvpPunctuationDelay] = this.elements.rsvpPunctuationDelayNumber.value;
         return settings;
       },
 
@@ -2790,8 +2818,12 @@
         currentKey = this.settingsNames.fontStyle;
         this.elements.fontStyleSelect.value = keys.includes(currentKey) ? settingsProfileData[currentKey] : defaultSettings[currentKey];
 
+        currentKey = this.settingsNames.rsvpPunctuationDelay;
+        this.elements.rsvpPunctuationDelayNumber.value = keys.includes(currentKey) ? settingsProfileData[currentKey] : defaultSettings[currentKey];
+
         this.adjustSpeed(this.elements.speedNumber.value);
         this.adjustFontSize(this.elements.fontSizeNumber.value);
+        this.adjustRsvpPunctuationDelay(this.elements.rsvpPunctuationDelayNumber.value);
         this.toggleRotN();
         this.toggleRotNGenerate(true);
         this.toggleSkewing();
@@ -2988,6 +3020,8 @@
         this.elements.rotNOptions = document.getElementById('rot-n-options');
         this.elements.rotNToggle = document.getElementById('rot-n-toggle');
         this.elements.rotNUpperCaseLowerCase = document.getElementById('rot-n-upper-case-lower-case');
+        this.elements.rsvpPunctuationDelaySlider = document.getElementById('rsvp-punctuation-delay-slider');
+        this.elements.rsvpPunctuationDelayNumber = document.getElementById('rsvp-punctuation-delay-number');
         this.elements.rsvpToggle = document.getElementById('rsvp-toggle');
         this.elements.saveBookmarksButton = document.getElementById("save-bookmarks-button");
         this.elements.saveSettingsProfileButton = document.getElementById('save-settings-profile-button');
@@ -3205,6 +3239,8 @@
         this.elements.fastForwardButton.addEventListener('click', () => this.fastForward());
         this.elements.fontSizeSlider.addEventListener('input', () => this.adjustFontSize(this.elements.fontSizeSlider.value));
         this.elements.fontSizeNumber.addEventListener('input', () => this.adjustFontSize(this.elements.fontSizeNumber.value));
+        this.elements.rsvpPunctuationDelaySlider.addEventListener('input', () => this.adjustRsvpPunctuationDelay(this.elements.rsvpPunctuationDelaySlider.value));
+        this.elements.rsvpPunctuationDelayNumber.addEventListener('input', () => this.adjustRsvpPunctuationDelay(this.elements.rsvpPunctuationDelayNumber.value));
         this.elements.speedSlider.addEventListener('input', () => this.adjustSpeed(this.elements.speedSlider.value));
         this.elements.speedNumber.addEventListener('input', () => this.adjustSpeed(this.elements.speedNumber.value));
         this.elements.tabButtons.forEach(button => button.addEventListener('click', () => this.switchTab(button)));
@@ -3357,6 +3393,8 @@
         this.elements.fontFamilyInput.addEventListener('click', settingsProfileModified);
         this.elements.fontListSelect.addEventListener('input', settingsProfileModified);
         this.elements.fontStyleSelect.addEventListener('input', settingsProfileModified);
+        this.elements.rsvpPunctuationDelaySlider.addEventListener('input', settingsProfileModified);
+        this.elements.rsvpPunctuationDelayNumber.addEventListener('input', settingsProfileModified);
 
         document.addEventListener('keydown', e => this.handleKeyPress(e));
         window.addEventListener('resize', () => {
@@ -4085,6 +4123,7 @@
           const wordCount = words.length;
           const totalWordLength = words.reduce((sum, w) => sum + w.length, 0);
           const avgWordLength = Math.max(1, wordCount ? (totalWordLength / wordCount) : 0);
+          const punctuationDelay = parseFloat(this.elements.rsvpPunctuationDelayNumber.value || 0);
 
           let currentWordIndex = startSpanIndex;
           let wpm = this.speed;
@@ -4094,6 +4133,15 @@
 
           let wordStartTime = Date.now();
           let isWordDisplayed = false;
+
+          const getCostForWord = (currentWord, avgWordLength) => {
+            const currentWordLengthM = Math.ceil(Math.max(avgWordLength, currentWord.length));
+            const exceptLetters = currentWord.replaceAll(this.letterPatternG, '');
+            const addCost1 = ['.', '!', '?', ';'].some((v) => currentWord.includes(v)) ? 2.0 : 0;
+            const addCost2 = [',', ':', '/', '\\'].some((v) => currentWord.includes(v)) ? 1.0 : 0;
+            const cost = currentWordLengthM / avgWordLength + Math.ceil((exceptLetters.length + addCost1 + addCost2) * punctuationDelay / 100);
+            return cost;
+          };
 
           const updateWordUI = (wordIndex) => {
             if (wordIndex >= wordCount) {
@@ -4113,10 +4161,9 @@
             const wordsPerSecond = elapsedTime > 1 ? relWordN / elapsedTime : relWordN / 60;
             const remainingWords = wordCount - wordIndex - 1;
             const secondsRemaining = wordsPerSecond > 0 ? (remainingWords / wordsPerSecond) : 0;
-            const tWPM = Math.min(Math.floor(wordsPerSecond * 60), wpm);
 
             this.infoSecondsRemaining = Math.floor(secondsRemaining);
-            this.infoWPM = tWPM !== wpm ? `${tWPM}-${wpm}` : `${wpm}`;
+            this.infoWPM = Math.min(Math.floor(wordsPerSecond * 60), wpm);
             this.infoProgress = this.getProgressByPosition();
             this.lastUpdateTime = newLastUpdateTime;
           };
@@ -4125,8 +4172,7 @@
             this.currentPosition = endPos;
             this.elements.marqueeDisplay.style.left = `${this.currentPosition}px`;
             this.infoSecondsRemaining = 0;
-            const tWPM = Math.floor((wordCount - startSpanIndex) / ((Date.now() - this.animationStartTime) / 1000) * 60);
-            this.infoWPM = tWPM !== wpm ? `${tWPM}-${wpm}` : `${wpm}`;
+            this.infoWPM = Math.floor((wordCount - startSpanIndex) / ((Date.now() - this.animationStartTime) / 1000) * 60);
             this.infoProgress = this.getProgressByPosition();
             this.lastUpdateTime = this.animationStartTime;
 
@@ -4167,13 +4213,6 @@
             }
           };
 
-          const getCostForWord = (currentWord) => {
-            return (
-              (['.', '!', '?', ':', ';'].some((v) => currentWord.includes(v)) ? 2 : 0) +
-              ([',', '-'].some((v) => currentWord.includes(v)) ? 1 : 0)
-            );
-          };
-
           const animateFrame = () => {
             if (currentWordIndex >= wordCount) {
               completeAnimation();
@@ -4187,14 +4226,14 @@
               this.newSpeed = null;
               wpm = this.speed;
               baseWordDelay = (60 / wpm) * 1000;
-              wordDelay = baseWordDelay * (Math.max(3, curWordLength) + getCostForWord(currentWord) * avgWordLength) / avgWordLength;
+              wordDelay = baseWordDelay * getCostForWord(currentWord, avgWordLength);
             }
 
             if (!isWordDisplayed) {
               updateWordUI(currentWordIndex);
               isWordDisplayed = true;
               curWordLength = currentWord.length;
-              wordDelay = baseWordDelay * (Math.max(3, curWordLength) + getCostForWord(currentWord) * avgWordLength) / avgWordLength;
+              wordDelay = baseWordDelay * getCostForWord(currentWord, avgWordLength);
             }
 
             if (currentTime - wordStartTime >= wordDelay) {
@@ -5525,6 +5564,11 @@
           this.currentPosition = this.getPositionByWordIndex(this.targetWordIndex);
           this.elements.marqueeDisplay.style.left = `${this.currentPosition}px`;
         }
+      },
+
+      adjustRsvpPunctuationDelay(value) {
+        this.elements.rsvpPunctuationDelayNumber.value = value;
+        this.elements.rsvpPunctuationDelaySlider.value = value;
       },
 
       adjustSpeed(value) {
