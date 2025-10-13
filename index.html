@@ -2345,6 +2345,42 @@
   <script>
     Chart.register(ChartZoom);
 
+    class RandomGenerator {
+      constructor(seedValue = null) {
+        this.init(seedValue);
+      }
+      getSeedValue() {
+        return this.seedValue;
+      }
+      generateRandomSeedValue() {
+        return (Math.random() * 2 ** 32) >>> 0;
+      }
+      init(seedValue = null) {
+        this.seedValue = seedValue;
+        if (this.seedValue == null) {
+          this.rng = Math.random;
+          return;
+        }
+        let a = this.seedValue;
+        this.rng = function () {
+          a |= 0;
+          a = a + 0x9e3779b9 | 0;
+          let t = a ^ a >>> 16;
+          t = Math.imul(t, 0x21f0aaad);
+          t = t ^ t >>> 15;
+          t = Math.imul(t, 0x735a2d97);
+          return ((t = t ^ t >>> 15) >>> 0) / 4294967296;
+        }
+      }
+      initRandom() {
+        this.init(this.generateRandomSeedValue());
+        return this.seedValue;
+      }
+      next() {
+        return this.rng();
+      }
+    };
+
     const MarqueeReader = {
       version: '2.00',
       constructed: false,
@@ -2402,6 +2438,7 @@
       currentTextBookmarks: [],
       textIsModified: false,
       textsLastPositions: {},
+      textsProfilesSeedsForText: {},
       defaultSettingsProfileName: 'Default',
       currentSettingsProfileName: 'Default',
       settingsProfileIsModified: false,
@@ -2512,6 +2549,7 @@
         textBookmarks: 'sle_text_bookmarks',
         texts: 'sle_texts',
         textsLastPositions: 'sle_texts_last_positions',
+        textsProfilesSeedsForText: 'sle_texts_profiles_seeds_for_text',
 
         /* settings profiles */
         currentSettingsProfile: 'sle_current_settings_profile',
@@ -2844,6 +2882,7 @@
       initialize() {
         const currentReader = this;
         console.info(currentReader);
+        currentReader.rnd = new RandomGenerator();
         currentReader.loadLastVersion();
         currentReader.loadBackground();
         currentReader.cacheElements();
@@ -3556,6 +3595,7 @@
         }
 
         this.textsLastPositions = JSON.parse(localStorage.getItem(this.settingsNames.textsLastPositions) || '{}');
+        this.textsProfilesSeedsForText = JSON.parse(localStorage.getItem(this.settingsNames.textsProfilesSeedsForText) || '{}');
 
         const currentTextName = localStorage.getItem(this.settingsNames.currentTextName) || this.defaultTextName;
         const texts = JSON.parse(localStorage.getItem(this.settingsNames.texts) || '[]');
@@ -3585,6 +3625,9 @@
               currentReader.currentPosition = parseInt(lastPosition || 0);
             }
             currentReader.constructed = true;
+            if (currentReader.textsProfilesSeedsForText[currentReader.currentTextName] != null) {
+              currentReader.rnd.init(currentReader.textsProfilesSeedsForText[currentReader.currentTextName][currentReader.currentSettingsProfileName]);
+            }
             currentReader.savePosition();
             currentReader.elements.fontLoadDiv.style.display = 'none';
             setTimeout(() => currentReader.updateAnimationInfoCycle(), currentReader.animationInfoUpdateDelay);
@@ -3594,7 +3637,7 @@
 
       randomInt(minIncluded, maxIncluded) {
         if (minIncluded === minIncluded && maxIncluded === maxIncluded) {
-          return Math.floor(Math.random() * (maxIncluded - minIncluded + 1)) + minIncluded;
+          return Math.floor(this.rnd.next() * (maxIncluded - minIncluded + 1)) + minIncluded;
         }
         else {
           return 0;
@@ -3602,7 +3645,7 @@
       },
 
       randomBool() {
-        return Math.random() < 0.5;
+        return this.rnd.next() < 0.5;
       },
 
       controlBeforeUnload() {
@@ -3697,6 +3740,13 @@
         const currentSettings = this.getCurrentSettingsProfile();
         const backgroundColoring = currentSettings[this.settingsNames.colorTaskBackgroundColoring];
         const previousRect = this.getScreenRectByWordIndex(this.targetWordIndex);
+
+        if (this.textsProfilesSeedsForText[this.currentTextName] != null) {
+          this.rnd.init(this.textsProfilesSeedsForText[this.currentTextName][this.currentSettingsProfileName]);
+        }
+        if (this.rnd.getSeedValue() == null) {
+          this.rnd.initRandom();
+        }
 
         let textChanged = false;
         let wordHint1Pre = false, wordHint2Pre = false;
@@ -5089,7 +5139,7 @@
       skipWords(words, percent) {
         const wordsToSkip = Math.floor(words.filter((v, i) => this.wordPattern.test(v)).length * percent);
         const indicesN1N2 = this.makeDistantIndicesForWords(words);
-        const indicesN1 = Math.random() < 0.5 ? indicesN1N2[0] : indicesN1N2[1];
+        const indicesN1 = this.rnd.next() < 0.5 ? indicesN1N2[0] : indicesN1N2[1];
         const indicesN2 = indicesN1 === indicesN1N2[0] ? indicesN1N2[1] : indicesN1N2[0];
         const indices = [...indicesN1, ...indicesN2].filter(value => this.wordPattern.test(words[value]));
         const newWords = words.slice();
@@ -5167,7 +5217,7 @@
 
       shuffleArray(array, notOriginal = true) {
         for (let i = array.length - 1; i > 0; i--) {
-          const j = Math.floor(Math.random() * (i + (1 - notOriginal)));
+          const j = Math.floor(this.rnd.next() * (i + (1 - notOriginal)));
           [array[i], array[j]] = [array[j], array[i]];
         }
       },
@@ -5181,9 +5231,9 @@
         for (let i = 0; i < count; i++) {
           let r, g, b;
           do {
-            r = Math.floor(Math.random() * 256);
-            g = Math.floor(Math.random() * 256);
-            b = Math.floor(Math.random() * 256);
+            r = Math.floor(this.rnd.next() * 256);
+            g = Math.floor(this.rnd.next() * 256);
+            b = Math.floor(this.rnd.next() * 256);
           } while (isTooDarkOrLight(r, g, b));
           colors.push(`#${r.toString(16).padStart(2, '0')}${g.toString(16).padStart(2, '0')}${b.toString(16).padStart(2, '0')}`);
         }
@@ -5709,6 +5759,8 @@
           this.realText1List = [];
           this.realText1RefList = [];
           this.realText2List = [];
+          this.rnd.initRandom();
+          this.savePosition();
           this.startAnimation(false, false);
           this.savePosition();
           if (wasPlaying) this.startAnimation(true);
@@ -5720,6 +5772,8 @@
           const wasPlaying = this.animationTimer != null;
           if (wasPlaying) this.pauseAnimation();
           this.textNeedsUpdate = true;
+          this.rnd.initRandom();
+          this.savePosition();
           this.startAnimation(false, false);
           this.savePosition();
           if (wasPlaying) this.startAnimation(true);
@@ -6442,6 +6496,11 @@
         }
         this.updateProgressBar();
         const currentTextName = this.currentTextName;
+        const currentSettingsProfile = this.currentSettingsProfileName;
+        if (this.textsProfilesSeedsForText[currentTextName] == null) {
+          this.textsProfilesSeedsForText[currentTextName] = {};
+        }
+        this.textsProfilesSeedsForText[currentTextName][currentSettingsProfile] = this.rnd.getSeedValue();
         const lastPosition = this.currentPosition;
         const cachedContainerWidth = this.cachedContainerWidth;
         const cachedTextWidth = this.cachedTextWidth;
@@ -6476,6 +6535,7 @@
           this.targetWordIndex = null;
         }
         localStorage.setItem(this.settingsNames.textsLastPositions, JSON.stringify(this.textsLastPositions));
+        localStorage.setItem(this.settingsNames.textsProfilesSeedsForText, JSON.stringify(this.textsProfilesSeedsForText));
       },
 
       reloadPosition() {
@@ -6628,8 +6688,8 @@
         currentReader.pauseAnimation();
         const selectedSettingsProfileName = currentReader.elements.settingsProfileSelect.value;
         if (selectedSettingsProfileName === currentReader.defaultSettingsProfileName) {
-          currentReader.setSettingsProfile(JSON.parse(localStorage.getItem(currentReader.settingsNames.settingsProfile) || '{}'));
           currentReader.currentSettingsProfileName = selectedSettingsProfileName;
+          currentReader.setSettingsProfile(JSON.parse(localStorage.getItem(currentReader.settingsNames.settingsProfile) || '{}'));
           localStorage.setItem(currentReader.settingsNames.currentSettingsProfile, currentReader.currentSettingsProfileName);
           currentReader.settingsProfileIsModified = false;
           currentReader.forceNewHistoryItem = true;
@@ -6642,8 +6702,8 @@
           const request = objectStore.get(selectedSettingsProfileName);
           request.onsuccess = () => {
             const data = request.result;
-            currentReader.setSettingsProfile(JSON.parse(data && data.settings ? data.settings : '{}'));
             currentReader.currentSettingsProfileName = selectedSettingsProfileName;
+            currentReader.setSettingsProfile(JSON.parse(data && data.settings ? data.settings : '{}'));
             localStorage.setItem(currentReader.settingsNames.currentSettingsProfile, currentReader.currentSettingsProfileName);
             currentReader.settingsProfileIsModified = false;
             currentReader.forceNewHistoryItem = true;
@@ -6906,6 +6966,7 @@
             const option = currentReader.elements.textSelect.querySelector(`option[value="${currentReader.currentTextName}"]`);
             if (option) option.remove();
             delete currentReader.textsLastPositions[currentReader.currentTextName];
+            delete currentReader.textsProfilesSeedsForText[currentReader.currentTextName];
             currentReader.currentTextName = currentReader.defaultTextName;
             currentReader.elements.textSelect.value = currentReader.currentTextName;
             currentReader.textIsModified = false;
@@ -6966,6 +7027,7 @@
               currentReader.currentPosition = null;
               localStorage.removeItem(currentReader.settingsNames.lastPosition);
               currentReader.textsLastPositions = {};
+              currentReader.textsProfilesSeedsForText = {};
               currentReader.savePosition();
               localStorage.removeItem(currentReader.settingsNames.text);
               localStorage.removeItem(currentReader.settingsNames.texts);
@@ -6984,6 +7046,7 @@
             currentReader.currentPosition = null;
             localStorage.removeItem(currentReader.settingsNames.lastPosition);
             currentReader.textsLastPositions = {};
+            currentReader.textsProfilesSeedsForText = {};
             currentReader.savePosition();
             localStorage.removeItem(currentReader.settingsNames.text);
             localStorage.removeItem(currentReader.settingsNames.textBookmarks);
@@ -7024,6 +7087,7 @@
               currentReader.currentPosition = null;
               localStorage.removeItem(currentReader.settingsNames.lastPosition);
               currentReader.textsLastPositions = {};
+              currentReader.textsProfilesSeedsForText = {};
               currentReader.savePosition();
               for (const settingName of Object.values(currentReader.settingsNames)) {
                 localStorage.removeItem(settingName);
@@ -7046,6 +7110,7 @@
             currentReader.currentPosition = null;
             localStorage.removeItem(currentReader.settingsNames.lastPosition);
             currentReader.textsLastPositions = {};
+            currentReader.textsProfilesSeedsForText = {};
             currentReader.savePosition();
             for (const settingName of Object.values(currentReader.settingsNames)) {
               localStorage.removeItem(settingName);
@@ -7208,6 +7273,7 @@
                   localStorage.setItem(currentReader.settingsNames.text, content);
                   localStorage.setItem(currentReader.settingsNames.textBookmarks, bookmarks);
                   delete currentReader.textsLastPositions[currentReader.currentTextName];
+                  delete currentReader.textsProfilesSeedsForText[currentReader.currentTextName];
                   if (currentReader.currentTextName === currentReader.defaultTextName) {
                     currentReader.currentPosition = null;
                     localStorage.removeItem(currentReader.settingsNames.lastPosition);
@@ -7236,6 +7302,7 @@
                 }
                 if (changed) {
                   delete currentReader.textsLastPositions[title];
+                  delete currentReader.textsProfilesSeedsForText[title];
                 }
                 if (changed && currentReader.currentTextName === title) {
                   currentReader.currentPosition = null;
