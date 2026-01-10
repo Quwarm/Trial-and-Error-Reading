@@ -3836,6 +3836,9 @@
             wordHint1Pre = true;
           }
         }
+        else {
+          wordHint2Pre = true; // badfix tho
+        }
 
         if (!resume && this.elements.colorEncoderToggle.checked) {
           const prevColorList = JSON.stringify(this.colorMap.entries());
