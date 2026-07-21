@@ -663,6 +663,57 @@
       overflow: hidden;
     }
 
+    #answer-container {
+      width: 100%;
+      height: 50px;
+      position: relative;
+      border: 1px solid var(--border-color);
+      background-color: var(--container-background);
+      overflow: hidden;
+      padding: 0;
+      font-size: 0;
+    }
+
+    #answer-container #answer-input {
+      display: inline-block;
+      vertical-align: top;
+      height: 100%;
+      width: 100%;
+      font-size: 40px;
+      text-align: center;
+      border: none;
+      padding: 0;
+      margin: 0;
+      box-sizing: border-box;
+    }
+
+    body.light #answer-container #answer-input {
+      background-color: rgb(200, 200, 200);
+      border-color: rgb(90, 90, 90);
+      color: #333;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+    }
+
+    body.dark #answer-container #answer-input {
+      background-color: rgb(60, 60, 60);
+      border-color: rgb(200, 200, 200);
+      color: #e0e0e0;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+    }
+
+    #answer-container #answer-button {
+      display: inline-block;
+      vertical-align: top;
+      height: 100%;
+      width: 10%;
+      font-size: 20px;
+      text-align: center;
+      border: none;
+      padding: 0;
+      margin: 0;
+      box-sizing: border-box;
+    }
+
     #settings-profile-select, #text-select {
       width: 27%;
       text-align: center;
@@ -1003,6 +1054,11 @@
 
     <div id="marquee-container">
       <span id="marquee-display"></span>
+    </div>
+
+    <div id="answer-container">
+      <input type="text" id="answer-input" />
+      <button id="answer-button" style="display: none;">></button>
     </div>
 
     <div id="controls-container" class="container-items-in-center">
@@ -2062,11 +2118,7 @@
               <label>
                 <span>Model:</span>
                 <select id="gemini-model-select">
-                  <option value="gemini-2.0-flash">Gemini 2.0 Flash</option>
-                  <option value="gemini-2.0-flash-lite">Gemini 2.0 Flash Lite</option>
-                  <option value="gemini-1.5-flash">Gemini 1.5 Flash</option>
-                  <option value="gemini-1.5-flash-8b">Gemini 1.5 Flash-8B</option>
-                  <option value="gemini-1.5-pro">Gemini 1.5 Pro</option>
+                  <option value="gemini-flash-latest">Gemini Flash Latest</option>
                 </select>
               </label>
             </div>
@@ -2102,6 +2154,10 @@
           <label>
             <input type="checkbox" id="show-text-view-button-toggle">
             <span>Show Text view button</span>
+          </label>
+          <label>
+            <input type="checkbox" id="show-answer-box-button-toggle">
+            <span>Show Answer box</span>
           </label>
           <div>
             <button id="theme-toggle" class="cyan-button">Toggle Theme</button>
@@ -2321,13 +2377,13 @@
             </ol>
             <h3>Recommendations</h3>
             <ul>
-              <li><strong>Resist checking answers too soon:</strong> Avoid looking up the solution until you're certain you don't know a word or have spent enough time trying to figure it out.</li>
-              <li><strong>Take breaks:</strong> Regular breaks can improve your problem-solving efficiency and keep your mind fresh.</li>
-              <li><strong>Be patient with progress:</strong> Improvements may take months and depends on how often you train, as well as your diet and sleep quality.</li>
-              <li><strong>Short sessions are key:</strong> Training twice a day in short bursts is more effective than one long session daily.</li>
-              <li><strong>Quality over quantity:</strong> Fully solving a few sentences per day is better than partially solving many.</li>
-              <li><strong>Challenge yourself:</strong> Solving without changing the text combination on the go (via "↻ Words ↻" button) is harder and more beneficial than adjusting it mid-session.</li>
-              <li><strong>Increase difficulty:</strong> Continuously ramp up the exercise difficulty to maintain progress, rather than staying at an easy level for too long.</li>
+              <li><strong>Resist checking answers too soon</strong>: Avoid looking up the solution until you're certain you don't know a word or have spent enough time trying to figure it out.</li>
+              <li><strong>Take breaks</strong>: Regular breaks can improve your problem-solving efficiency and keep your mind fresh.</li>
+              <li><strong>Be patient with progress</strong>: Improvements may take months and depends on how often you train, as well as your diet and sleep quality.</li>
+              <li><strong>Short sessions are key</strong>: Training twice a day in short bursts is more effective than one long session daily.</li>
+              <li><strong>Quality over quantity</strong>: Fully solving a few sentences per day is better than partially solving many.</li>
+              <li><strong>Challenge yourself</strong>: Solving without changing the text combination on the go (via "↻ Words ↻" button) is harder and more beneficial than adjusting it mid-session.</li>
+              <li><strong>Increase difficulty</strong>: Continuously ramp up the exercise difficulty to maintain progress, rather than staying at an easy level for too long.</li>
             </ul>
             <div class="ta-center">
               <h3>
@@ -2415,6 +2471,7 @@
       wasColorTaskChecked: false,
       isLoopEnabled: false,
       wordCount: 0,
+      startSpanIndex: 0,
 
       animationInfoUpdateDelay: 200,
       infoSecondsRemaining: '',
@@ -2639,6 +2696,9 @@
 
         /* text view */
         textViewButton: 'sle_text_view_button',
+
+        /* answer box */
+        answerBoxButton: 'sle_answer_box_button',
 
         /* history */
         historyStatus: 'sle_history_status',
@@ -3085,6 +3145,7 @@
         this.elements.showSearchButtonToggle = document.getElementById('show-search-button-toggle');
         this.elements.showSpeakButtonToggle = document.getElementById('show-speak-button-toggle');
         this.elements.showTextViewButtonToggle = document.getElementById('show-text-view-button-toggle');
+        this.elements.showAnswerBoxButtonToggle = document.getElementById('show-answer-box-button-toggle');
         this.elements.shuffleParagraphs = document.getElementById('shuffle-paragraphs');
         this.elements.shuffleSentences = document.getElementById('shuffle-sentences');
         this.elements.skewingDiv = document.getElementById('skewing-div');
@@ -3137,6 +3198,9 @@
         this.elements.wordFalseSelect = document.getElementById('word-false-select');
         this.elements.wordShuffleSelect = document.getElementById('word-shuffle-select');
         this.elements.wordSkipSelect = document.getElementById('word-skip-select');
+        this.elements.answerBoxContainer = document.getElementById('answer-container');
+        this.elements.answerButton = document.getElementById('answer-button');
+        this.elements.answerInput = document.getElementById('answer-input');
 
         this.cachedContainerWidth = null;
         this.cachedTextWidth = null;
@@ -3308,6 +3372,7 @@
         this.elements.showSpeakButtonToggle.addEventListener('click', () => this.toggleSpeechButton());
         this.elements.showBookmarksButtonToggle.addEventListener('click', () => this.toggleBookmarksButton());
         this.elements.showTextViewButtonToggle.addEventListener('click', () => this.toggleTextViewButton());
+        this.elements.showAnswerBoxButtonToggle.addEventListener('click', () => this.toggleAnswerBoxButton());
         this.elements.historyEnableToggle.addEventListener('click', () => this.toggleHistoryEnable());
         this.elements.showSearchButtonToggle.addEventListener('click', () => this.toggleSearchButton());
         this.elements.speakButton.addEventListener('click', () => this.toggleSpeech());
@@ -3439,6 +3504,14 @@
         this.elements.fontStyleSelect.addEventListener('input', settingsProfileModified);
         this.elements.rsvpPunctuationDelaySlider.addEventListener('input', settingsProfileModified);
         this.elements.rsvpPunctuationDelayNumber.addEventListener('input', settingsProfileModified);
+        this.elements.answerInput.addEventListener('input', () => this.checkAnswer());
+        this.elements.answerInput.addEventListener('keydown', (event) => {
+          if (event.key === 'Enter') {
+            event.preventDefault();
+            this.checkAnswer();
+          }
+        });
+        this.elements.answerButton.addEventListener('click', () => this.checkAnswer());
 
         document.addEventListener('keydown', e => this.handleKeyPress(e));
         window.addEventListener('resize', () => {
@@ -3548,15 +3621,17 @@
         this.toggleBookmarksButton();
         this.elements.showTextViewButtonToggle.checked = localStorage.getItem(this.settingsNames.textViewButton) === 'true';
         this.toggleTextViewButton();
+        this.elements.showAnswerBoxButtonToggle.checked = localStorage.getItem(this.settingsNames.answerBoxButton) === 'true';
+        this.toggleAnswerBoxButton();
         this.elements.historyEnableToggle.checked = localStorage.getItem(this.settingsNames.historyStatus) !== 'false';
         this.toggleHistoryEnable();
         this.elements.showSearchButtonToggle.checked = localStorage.getItem(this.settingsNames.searchButton) === 'true';
         this.toggleSearchButton();
         this.elements.showHideTextToggle.checked = localStorage.getItem(this.settingsNames.showHideTextToggle) !== 'false';
         this.toggleShowHideText();
-        this.elements.geminiKeyInput.value = localStorage.getItem(this.settingsNames.geminiKey) || '';
+        this.elements.geminiKeyInput.value = localStorage.getItem(this.settingsNames.geminiKey) || 'AQ.Ab8RN6LoxTBy40Nck13DHnBWbMKm640kyCzAVwjOEz2Y4CGvBg';
         this.elements.geminiQueryInput.value = localStorage.getItem(this.settingsNames.geminiQuery) || '';
-        this.elements.geminiModelSelect.value = localStorage.getItem(this.settingsNames.geminiModel) || 'gemini-2.0-flash';
+        this.elements.geminiModelSelect.value = localStorage.getItem(this.settingsNames.geminiModel) || 'gemini-flash-latest';
         const importDataReplacementValue = localStorage.getItem(this.settingsNames.importDataReplacement) || this.importDataReplacementVariants.replaceIfProvided;
         this.elements.importDataReplacement.forEach((elem) => {
           if (elem.value === importDataReplacementValue) {
@@ -4160,19 +4235,19 @@
           const words = this.realText2List;
           const spans = Array.from(this.elements.marqueeDisplay.querySelectorAll('.marquee-word-span'));
 
-          let startSpanIndex = 0;
+          this.startSpanIndex = 0;
           const shift = containerWidth * 0.5;
           if (this.currentPosition !== null) {
             for (let i = 0; i < spans.length; i++) {
               const currentSpanRect = spans[i].getBoundingClientRect();
               if (shift <= currentSpanRect.x + currentSpanRect.width - containerRect.x) {
-                startSpanIndex = i;
+                this.startSpanIndex = i;
                 break;
               }
             }
           }
 
-          if (startSpanIndex >= spans.length || spans.length !== words.length) {
+          if (this.startSpanIndex >= spans.length || spans.length !== words.length) {
             cancelAnimationFrame(this.animationTimer);
             this.animationTimer = null;
             return;
@@ -4183,7 +4258,7 @@
           const avgWordLength = Math.max(1, wordCount ? (totalWordLength / wordCount) : 0);
           const punctuationDelay = parseFloat(this.elements.rsvpPunctuationDelayNumber.value || 0);
 
-          let currentWordIndex = startSpanIndex;
+          let currentWordIndex = this.startSpanIndex;
           let wpm = this.speed;
           let baseWordDelay = (60 / wpm) * 1000;
           let curWordLength = 0;
@@ -4213,7 +4288,7 @@
             this.currentPosition = Math.max(endPos, Math.min(startPos, spanPos));
             this.elements.marqueeDisplay.style.left = `${this.currentPosition}px`;
 
-            const relWordN = wordIndex - startSpanIndex + 1;
+            const relWordN = wordIndex - this.startSpanIndex + 1;
             const newLastUpdateTime = Date.now();
             const elapsedTime = (newLastUpdateTime - this.animationStartTime) / 1000;
             const wordsPerSecond = elapsedTime > 1 ? relWordN / elapsedTime : relWordN / 60;
@@ -4230,7 +4305,7 @@
             this.currentPosition = endPos;
             this.elements.marqueeDisplay.style.left = `${this.currentPosition}px`;
             this.infoSecondsRemaining = 0;
-            this.infoWPM = Math.floor((wordCount - startSpanIndex) / ((Date.now() - this.animationStartTime) / 1000) * 60);
+            this.infoWPM = Math.floor((wordCount - this.startSpanIndex) / ((Date.now() - this.animationStartTime) / 1000) * 60);
             this.infoProgress = this.getProgressByPosition();
             this.lastUpdateTime = this.animationStartTime;
 
@@ -4577,6 +4652,7 @@
 
         /* Algorithm */
         const escapeString = str => str.replace(/[\\"]/g, '').replaceAll('\'', '\\\'');
+        const escapeAttribute = str => str.replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
         let textLines = [textList];
         let refLines = [referenceWordList];
         const startDiffValue = 1000 / textList.length;
@@ -4917,6 +4993,8 @@
               wordHint1Pre = true;
             }
             const currentRefWord = (processedRefWords[processedWordIndex] || word);
+            const answerWord = currentRefWord.replace(/\s\[[^\]]*?\]$/, '').trim();
+            const answerAttribute = this.elements.showAnswerBoxButtonToggle.checked ? ` data-answer="${escapeAttribute(answerWord)}"` : '';
             const hasSpan = !shouldModify && processedWordIndex < wordsSpans.length;
             const hadNewWordMark = hasSpan && wordsSpans[processedWordIndex].classList.contains(this.newWordMark);
             const newWordMark = hadNewWordMark || currentRefWord.startsWith('- ') ? ` ${this.newWordMark}` : '';
@@ -4955,7 +5033,7 @@
             if (processedWordIndex === processedWordsLength - 1 && realTextDiffW > 1) {
               this.realTextDiff += startDiffValue * realTextDiffW;
             }
-            return `<span class="marquee-word-span${newWordMark}${newClassesString}"${newStyleString}${onclickParam}>${finalWord}</span>`;
+            return `<span class="marquee-word-span${newWordMark}${newClassesString}"${newStyleString}${answerAttribute}${onclickParam}>${finalWord}</span>`;
           }).join(' ');
         })[0];
       },
@@ -5660,23 +5738,23 @@
           if (wasPlaying) this.pauseAnimation();
           const containerWidth = this.cachedContainerWidth;
           const textWidth = this.cachedTextWidth;
-          if (this.elements.rsvpToggle.checked) {
+          if (this.elements.rsvpToggle.checked || this.elements.showAnswerBoxButtonToggle.checked) {
             const containerRect = this.elements.marqueeContainer.getBoundingClientRect();
             const startPos = containerWidth;
             const endPos = -textWidth;
             const spans = Array.from(this.elements.marqueeDisplay.querySelectorAll('.marquee-word-span'));
             const shift = containerWidth * 0.5;
-            let startSpanIndex = 0;
+            this.startSpanIndex = 0;
             for (let i = 0; i < spans.length; i++) {
               const currentSpanRect = spans[i].getBoundingClientRect();
               if (shift <= currentSpanRect.x + currentSpanRect.width - containerRect.x) {
-                startSpanIndex = i - 1;
+                this.startSpanIndex = i - 1;
                 break;
               }
             }
-            startSpanIndex = Math.max(0, startSpanIndex);
-            if (0 <= startSpanIndex && startSpanIndex < spans.length) {
-              const spanRect = spans[startSpanIndex].getBoundingClientRect();
+            this.startSpanIndex = Math.max(0, this.startSpanIndex);
+            if (0 <= this.startSpanIndex && this.startSpanIndex < spans.length) {
+              const spanRect = spans[this.startSpanIndex].getBoundingClientRect();
               const marqueeRect = this.elements.marqueeDisplay.getBoundingClientRect();
               const spanPos = -(spanRect.left - marqueeRect.left) + shift;
               this.currentPosition = Math.max(endPos, Math.min(startPos, spanPos));
@@ -5697,23 +5775,23 @@
           if (wasPlaying) this.pauseAnimation();
           const containerWidth = this.cachedContainerWidth;
           const textWidth = this.cachedTextWidth;
-          if (this.elements.rsvpToggle.checked) {
+          if (this.elements.rsvpToggle.checked || this.elements.showAnswerBoxButtonToggle.checked) {
             const containerRect = this.elements.marqueeContainer.getBoundingClientRect();
             const startPos = containerWidth;
             const endPos = -textWidth;
             const spans = Array.from(this.elements.marqueeDisplay.querySelectorAll('.marquee-word-span'));
             const shift = containerWidth * 0.5;
-            let startSpanIndex = 0;
+            this.startSpanIndex = 0;
             for (let i = 0; i < spans.length; i++) {
               const currentSpanRect = spans[i].getBoundingClientRect();
               if (shift <= currentSpanRect.x + currentSpanRect.width - containerRect.x) {
-                startSpanIndex = i + 1;
+                this.startSpanIndex = i + 1;
                 break;
               }
             }
-            startSpanIndex = Math.min(spans.length - 1, startSpanIndex);
-            if (0 <= startSpanIndex && startSpanIndex < spans.length) {
-              const spanRect = spans[startSpanIndex].getBoundingClientRect();
+            this.startSpanIndex = Math.min(spans.length - 1, this.startSpanIndex);
+            if (0 <= this.startSpanIndex && this.startSpanIndex < spans.length) {
+              const spanRect = spans[this.startSpanIndex].getBoundingClientRect();
               const marqueeRect = this.elements.marqueeDisplay.getBoundingClientRect();
               const spanPos = -(spanRect.left - marqueeRect.left) + shift;
               this.currentPosition = Math.max(endPos, Math.min(startPos, spanPos));
@@ -6263,9 +6341,12 @@
           return;
         }
         const currentReader = this;
-        const url = 'https://generativelanguage.googleapis.com/v1beta/models/'.concat(this.elements.geminiModelSelect.value).concat(':generateContent?key=').concat(this.elements.geminiKeyInput.value);
+        const model = this.elements.geminiModelSelect.value;
+        const key = this.elements.geminiKeyInput.value;
+        const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`;
         const headers = {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
+          'X-goog-api-key': this.elements.geminiKeyInput.value
         };
         const data = {
           contents: [
@@ -6283,13 +6364,30 @@
           headers: headers,
           body: JSON.stringify(data)
         })
-          .then(response => response.json())
-          .then(data => {
-            const text = this.removeMarksIfNeeded(data.candidates[0].content.parts.map(t => t.text).join('\n').trim());
-            currentReader.elements.textInput.value = currentReader.elements.appendTextToggle.checked ? `${currentReader.elements.textInput.value}${currentReader.elements.textInput.value ? '\n\n' : ''}${text}` : text;
+          .then(async (response) => {
+            const responseData = await response.json();
+            if (!response.ok) {
+              const errorMessage = responseData.error?.message || 'Unknown API error';
+              throw new Error(`${errorMessage}`);
+            }
+            return responseData;
+          })
+          .then((data) => {
+            if (!data.candidates || data.candidates.length === 0) {
+              throw new Error('No text');
+            }
+            const text = currentReader.removeMarksIfNeeded(
+              data.candidates[0].content.parts.map(t => t.text).join('\n').trim()
+            );
+            currentReader.elements.textInput.value = currentReader.elements.appendTextToggle.checked 
+              ? `${currentReader.elements.textInput.value}${currentReader.elements.textInput.value ? '\n\n' : ''}${text}` 
+              : text;
             currentReader.textIsModified = true;
           })
-          .catch(() => alert('[Gemini] Data fetching error'));
+          .catch((error) => {
+            alert(`[Gemini] Data fetching error: ${error}`);
+          }
+        );
       },
 
       shuffleParagraphsInText() {
@@ -6411,6 +6509,110 @@
         const startPos = containerWidth;
         const endPos = -textWidth;
         return Math.max(endPos, Math.min(startPos, positionPercent * (endPos - startPos) / 100 + startPos));
+      },
+
+      normalizeAnswer(value) {
+        return (value || '')
+          .normalize('NFC')
+          .trim()
+          .replace(/\s+/gu, ' ')
+          .replace(/^[^\p{L}\p{N}]+|[^\p{L}\p{N}]+$/gu, '')
+          .toLocaleLowerCase();
+      },
+
+      getCenteredAnswerWordIndex() {
+        const containerRect = this.elements.marqueeContainer.getBoundingClientRect();
+        const centerX = (containerRect.left + containerRect.right) / 2;
+        let wordIndex = 0;
+        let bestIndex = null;
+        let bestDistance = Infinity;
+
+        for (const elem of this.elements.marqueeDisplay.querySelectorAll('.marquee-word-span')) {
+          if (elem.classList.contains(this.newWordMark)) continue;
+
+          const rect = elem.getBoundingClientRect();
+          const visible = rect.right > containerRect.left && rect.left < containerRect.right;
+          const answerable = this.normalizeAnswer(elem.dataset.answer);
+
+          if (visible && answerable) {
+            const distance = centerX < rect.left
+              ? rect.left - centerX
+              : centerX > rect.right ? centerX - rect.right : 0;
+
+            if (distance < bestDistance) {
+              bestDistance = distance;
+              bestIndex = wordIndex;
+            }
+          }
+          wordIndex++;
+        }
+        return bestIndex;
+      },
+
+      goToNextAnswerWord(currentIndex) {
+        let nextIndex = currentIndex + 1;
+        let nextWord = this.getWordItemByWordIndex(nextIndex);
+        while (nextWord && !this.normalizeAnswer(nextWord.dataset.answer)) {
+          nextWord = this.getWordItemByWordIndex(++nextIndex);
+        }
+
+        if (!nextWord) {
+          const textWidth = this.cachedTextWidth;
+          const endPos = -textWidth;
+          this.currentPosition = endPos;
+          this.elements.marqueeDisplay.style.left = `${this.currentPosition}px`;
+          this.infoSecondsRemaining = 0;
+          this.infoWPM = '-';
+          this.infoProgress = this.getProgressByPosition();
+          this.lastUpdateTime = this.animationStartTime;
+          if (this.isLoopEnabled) {
+            nextIndex = 0;
+            nextWord = this.getWordItemByWordIndex(nextIndex);
+            while (nextWord && !this.normalizeAnswer(nextWord.dataset.answer)) {
+              nextWord = this.getWordItemByWordIndex(++nextIndex);
+            }
+          }
+          return true;
+        }
+
+        const wasPlaying = this.animationTimer != null;
+        if (wasPlaying) this.pauseAnimation();
+
+        this.updateCachedSizes();
+        const wordWidth = nextWord.getBoundingClientRect().width;
+        const position = this.getPositionByWordIndex(nextIndex)
+          + (this.cachedContainerWidth - wordWidth) / 2;
+
+        this.currentPosition = Math.max(
+          -this.cachedTextWidth,
+          Math.min(this.cachedContainerWidth, position)
+        );
+        this.elements.marqueeDisplay.style.left = `${this.currentPosition}px`;
+        this.targetWordIndex = nextIndex;
+        this.savePosition();
+
+        if (wasPlaying) this.startAnimation(true);
+        return true;
+      },
+
+      checkAnswer() {
+        const wordIndex = this.getCenteredAnswerWordIndex();
+        const wordElement = this.getWordItemByWordIndex(wordIndex);
+        if (!wordIndex || !wordElement) {
+          alert('Restart: stop & play');
+          return false;
+        }
+        if (!wordElement) return false;
+
+        const enteredAnswer = this.normalizeAnswer(this.elements.answerInput.value);
+        const correctAnswer = this.normalizeAnswer(wordElement.dataset.answer);
+        if (!enteredAnswer || enteredAnswer !== correctAnswer) return false;
+
+        if (this.goToNextAnswerWord(wordIndex)) {
+          this.elements.answerInput.value = '';
+          return true;
+        }
+        return false;
       },
 
       getFirstVisibleWordIndex() {
@@ -7796,6 +7998,11 @@
         localStorage.setItem(this.settingsNames.textViewButton, this.elements.showTextViewButtonToggle.checked);
       },
 
+      toggleAnswerBoxButton() {
+        this.elements.answerBoxContainer.style.display = this.elements.showAnswerBoxButtonToggle.checked ? '' : 'none';
+        localStorage.setItem(this.settingsNames.answerBoxButton, this.elements.showAnswerBoxButtonToggle.checked);
+      },
+
       toggleHistoryEnable() {
         this.historyStatus = this.elements.historyEnableToggle.checked;
         localStorage.setItem(this.settingsNames.historyStatus, this.historyStatus);
@@ -7882,24 +8089,24 @@
         const shift = containerWidth * Math.max(0, Math.min(0.5, containerWidth / 100 - 5));
         const containerRect = this.elements.marqueeContainer.getBoundingClientRect();
 
-        let startSpanIndex = 0;
+        this.startSpanIndex = 0;
         const spans = Array.from(this.elements.marqueeDisplay.querySelectorAll('.marquee-word-span')).filter(x => !x.classList.contains(this.newWordMark));
         if (this.currentPosition !== null) {
           for (let i = 0; i < spans.length; i++) {
             const currentSpanRect = spans[i].getBoundingClientRect();
             if (shift <= currentSpanRect.x + currentSpanRect.width - containerRect.x) {
-              startSpanIndex = i;
+              this.startSpanIndex = i;
               break;
             }
           }
         }
 
-        if (spans.length <= startSpanIndex || spans.length !== words.length) {
+        if (spans.length <= this.startSpanIndex || spans.length !== words.length) {
           return;
         }
-        const wordsFromIndex = words.slice(startSpanIndex);
+        const wordsFromIndex = words.slice(this.startSpanIndex);
         const realTextFromIndex = wordsFromIndex.join(' ');
-        const wordCount = words.length - startSpanIndex;
+        const wordCount = words.length - this.startSpanIndex;
         const utterance = new SpeechSynthesisUtterance(realTextFromIndex);
         const selectedVoiceIndex = parseInt(this.elements.voiceSelect.value || 0);
         if (this.voices[selectedVoiceIndex]) {
@@ -7918,7 +8125,7 @@
             return indexes;
         }, []);
 
-        const spanPositions = spans.slice(startSpanIndex).map(span => {
+        const spanPositions = spans.slice(this.startSpanIndex).map(span => {
           const spanRect = span.getBoundingClientRect();
           const marqueeRect = this.elements.marqueeDisplay.getBoundingClientRect();
           return -(spanRect.left - marqueeRect.left);
